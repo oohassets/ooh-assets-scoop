@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <!-- ✅ Better mobile viewport for iPhone 7 Plus -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>OOH Assets | SCOOP</title>
+  <style>
+    :root { --max-width:1200px; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin:0;
+      padding:1rem;
+      background:#f7f7fb;
+      color:#111;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .container { width:100%; max-width:var(--max-width); }
+
+    h1 { font-size:1.25rem; margin:0 0 0.5rem 0; }
+    p.lead { margin:0 0 1rem 0; color:#555; font-size:0.95rem; line-height:1.4; }
+
+    /* Responsive aspect-ratio iframe wrapper (16:9 by default) */
+    .map-wrapper {
+      position:relative;
+      width:100%;
+      padding-top:56.25%;
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:0 6px 18px rgba(20,20,40,0.08);
+      background:#e9eef6;
+    }
+    .map-wrapper iframe {
+      position:absolute;
+      top:0; left:0;
+      width:100%; height:100%;
+      border:0;
+    }
+
+    /* Controls row */
+    .controls {
+      display:flex;
+      flex-wrap:wrap;   /* ✅ wrap on small screens */
+      gap:.5rem;
+      margin-top:.75rem;
+    }
+    .btn {
+      background:#1f6feb;
+      color:#fff;
+      border:none;
+      padding:.5rem .75rem;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:0.9rem;
+      text-align:center;
+      flex:1 1 auto;    /* ✅ buttons expand nicely */
+    }
+    .btn.secondary {
+      background:#6b7280;
+      text-decoration:none;
+      display:inline-block;
+    }
+
+    .note { font-size:0.85rem; color:#444; margin-top:.5rem }
+
+    /* ✅ Mobile adjustments for iPhone 7 Plus (375px wide) */
+    @media (max-width:480px) {
+      body { padding:0.75rem; }
+      h1 { font-size:1.1rem; }
+      p.lead { font-size:0.85rem; }
+      .btn { font-size:0.8rem; padding:.45rem .65rem; }
+      .note { font-size:0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OOH Assets | SCOOP</h1>
+    <p class="lead">This page displays the OOH asset locations along with their details and photos. Use the <strong>Full screen</strong> button to expand the map.</p>
+
+    <div class="map-wrapper" id="mapWrapper">
+      <!-- Google My Maps iframe with forced English -->
+      <iframe
+        src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&ehbc=2E312F&noprof=1&hl=en"
+        title="Custom Google My Maps"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen
+        aria-label="Google My Maps showing custom locations">
+      </iframe>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="fsBtn">Full screen</button>
+      <a class="btn secondary" href="https://www.google.com/maps/d/u/0/viewer?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+    </div>
+
+    <div class="note">These asset locations have been pinned and verified by the OOH Asset Supervisor.</div>
+  </div>
+
+  <script>
+    // Simple fullscreen toggle for the map wrapper
+    const fsBtn = document.getElementById('fsBtn');
+    const wrapper = document.getElementById('mapWrapper');
+
+    fsBtn.addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await wrapper.requestFullscreen();
+          fsBtn.textContent = 'Exit full screen';
+        } else {
+          await document.exitFullscreen();
+          fsBtn.textContent = 'Full screen';
+        }
+      } catch (err) {
+        console.warn('Fullscreen API failed:', err);
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      fsBtn.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+    });
+  </script>
+</body>
+</html>
