@@ -2,7 +2,6 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
-  <!-- ✅ Responsive viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OOH Assets | SCOOP</title>
   <style>
@@ -24,7 +23,7 @@
     h1 { font-size:1.25rem; margin:0 0 0.5rem 0; }
     p.lead { margin:0 0 1rem 0; color:#555; font-size:0.95rem; line-height:1.4; }
 
-    /* ✅ Responsive map wrapper with aspect-ratio */
+    /* Responsive map wrapper with aspect-ratio */
     .map-wrapper {
       width:100%;
       aspect-ratio:16/9;         /* modern browsers */
@@ -45,7 +44,7 @@
     /* Controls row */
     .controls {
       display:flex;
-      flex-wrap:wrap;   /* ✅ wrap on small screens */
+      flex-wrap:wrap;
       gap:.5rem;
       margin-top:.75rem;
     }
@@ -59,7 +58,7 @@
       font-weight:600;
       font-size:0.9rem;
       text-align:center;
-      flex:1 1 auto;    /* ✅ buttons expand nicely */
+      flex:1 1 auto;
     }
     .btn.secondary {
       background:#6b7280;
@@ -69,14 +68,14 @@
 
     .note { font-size:0.85rem; color:#444; margin-top:.5rem }
 
-    /* ✅ Mobile adjustments for iPhone 7 Plus & small devices */
+    /* Mobile adjustments */
     @media (max-width:480px) {
       body { padding:0.75rem; }
       h1 { font-size:1.1rem; }
       p.lead { font-size:0.85rem; }
       .btn { font-size:0.8rem; padding:.45rem .65rem; }
       .note { font-size:0.75rem; }
-      .map-wrapper { aspect-ratio:3/4; } /* taller map for small screens */
+      .map-wrapper { aspect-ratio:3/4; } /* taller map on small screens */
     }
   </style>
 </head>
@@ -86,7 +85,6 @@
     <p class="lead">This page displays the OOH asset locations along with their details and photos. Use the <strong>Full screen</strong> button to expand the map.</p>
 
     <div class="map-wrapper" id="mapWrapper">
-      <!-- Google My Maps iframe -->
       <iframe
         src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&ehbc=2E312F&noprof=1&hl=en"
         title="Custom Google My Maps"
@@ -106,17 +104,27 @@
   </div>
 
   <script>
-    // Fullscreen toggle
     const fsBtn = document.getElementById('fsBtn');
     const wrapper = document.getElementById('mapWrapper');
 
     fsBtn.addEventListener('click', async () => {
       try {
-        if (!document.fullscreenElement) {
-          await wrapper.requestFullscreen();
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          // ✅ Standard and iOS Safari
+          if (wrapper.requestFullscreen) {
+            await wrapper.requestFullscreen();
+          } else if (wrapper.webkitRequestFullscreen) {
+            wrapper.webkitRequestFullscreen();
+          } else {
+            alert("Fullscreen not supported on this device.");
+          }
           fsBtn.textContent = 'Exit full screen';
         } else {
-          await document.exitFullscreen();
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
           fsBtn.textContent = 'Full screen';
         }
       } catch (err) {
@@ -124,8 +132,12 @@
       }
     });
 
+    // Update button text on fullscreen change
     document.addEventListener('fullscreenchange', () => {
       fsBtn.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+      fsBtn.textContent = document.webkitFullscreenElement ? 'Exit full screen' : 'Full screen';
     });
   </script>
 </body>
