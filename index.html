@@ -38,20 +38,22 @@
     /* Title + logo side by side */
     .title-container {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     .title-container img.logo {
       height: 140px; /* adjust as needed */
       width: auto;
+      margin-bottom: 0.5rem;
     }
 
     h1 {
       font-size:1.25rem;
       margin:0;
       color: #fff;
+      text-align: center;
     }
 
     p.lead {
@@ -132,7 +134,9 @@
   <div class="container">
     <!-- Title + logo -->
     <div class="title-container">
-      <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" alt="Scoop Logo" class="logo">
+      <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" 
+           alt="Scoop Logo" class="logo">
+      <h1>OOH Assets | SCOOP</h1>
     </div>
 
     <p class="lead">This page displays the OOH asset locations along with their details and photos. Use the <strong>Full screen</strong> button to expand the map.</p>
