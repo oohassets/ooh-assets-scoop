@@ -2,8 +2,8 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
-  <!-- ✅ Better mobile viewport for iPhone 7 Plus -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <!-- ✅ Responsive viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OOH Assets | SCOOP</title>
   <style>
     :root { --max-width:1200px; }
@@ -24,15 +24,16 @@
     h1 { font-size:1.25rem; margin:0 0 0.5rem 0; }
     p.lead { margin:0 0 1rem 0; color:#555; font-size:0.95rem; line-height:1.4; }
 
-    /* Responsive aspect-ratio iframe wrapper (16:9 by default) */
+    /* ✅ Responsive map wrapper with aspect-ratio */
     .map-wrapper {
-      position:relative;
       width:100%;
-      padding-top:56.25%;
+      aspect-ratio:16/9;         /* modern browsers */
+      min-height:300px;          /* ensures usability on mobile */
       border-radius:10px;
       overflow:hidden;
       box-shadow:0 6px 18px rgba(20,20,40,0.08);
       background:#e9eef6;
+      position:relative;
     }
     .map-wrapper iframe {
       position:absolute;
@@ -68,13 +69,14 @@
 
     .note { font-size:0.85rem; color:#444; margin-top:.5rem }
 
-    /* ✅ Mobile adjustments for iPhone 7 Plus (375px wide) */
+    /* ✅ Mobile adjustments for iPhone 7 Plus & small devices */
     @media (max-width:480px) {
       body { padding:0.75rem; }
       h1 { font-size:1.1rem; }
       p.lead { font-size:0.85rem; }
       .btn { font-size:0.8rem; padding:.45rem .65rem; }
       .note { font-size:0.75rem; }
+      .map-wrapper { aspect-ratio:3/4; } /* taller map for small screens */
     }
   </style>
 </head>
@@ -84,7 +86,7 @@
     <p class="lead">This page displays the OOH asset locations along with their details and photos. Use the <strong>Full screen</strong> button to expand the map.</p>
 
     <div class="map-wrapper" id="mapWrapper">
-      <!-- Google My Maps iframe with forced English -->
+      <!-- Google My Maps iframe -->
       <iframe
         src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&ehbc=2E312F&noprof=1&hl=en"
         title="Custom Google My Maps"
@@ -104,7 +106,7 @@
   </div>
 
   <script>
-    // Simple fullscreen toggle for the map wrapper
+    // Fullscreen toggle
     const fsBtn = document.getElementById('fsBtn');
     const wrapper = document.getElementById('mapWrapper');
 
