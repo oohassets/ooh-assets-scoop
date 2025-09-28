@@ -38,16 +38,19 @@
     /* Title + logo side by side */
     .title-container {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
       margin-bottom: 1rem;
     }
 
     .title-container img.logo {
       height: 140px; /* adjust as needed */
       width: auto;
-      margin-bottom: 0.5rem;
     }
+
+    @media (max-width:480px) {
+    .title-container img.logo {
+    height: 60px; /* ✅ smaller on mobile */
+  }
 
     h1 {
       font-size:1.25rem;
