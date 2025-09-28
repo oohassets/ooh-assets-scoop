@@ -23,17 +23,18 @@
     h1 { font-size:1.25rem; margin:0 0 0.5rem 0; }
     p.lead { margin:0 0 1rem 0; color:#555; font-size:0.95rem; line-height:1.4; }
 
-    /* Responsive map wrapper with aspect-ratio */
     .map-wrapper {
       width:100%;
-      aspect-ratio:16/9;         /* modern browsers */
-      min-height:300px;          /* ensures usability on mobile */
+      aspect-ratio:16/9;
+      min-height:300px;
       border-radius:10px;
       overflow:hidden;
       box-shadow:0 6px 18px rgba(20,20,40,0.08);
       background:#e9eef6;
       position:relative;
+      transition: all 0.3s ease;
     }
+
     .map-wrapper iframe {
       position:absolute;
       top:0; left:0;
@@ -41,13 +42,13 @@
       border:0;
     }
 
-    /* Controls row */
     .controls {
       display:flex;
       flex-wrap:wrap;
       gap:.5rem;
       margin-top:.75rem;
     }
+
     .btn {
       background:#1f6feb;
       color:#fff;
@@ -60,6 +61,7 @@
       text-align:center;
       flex:1 1 auto;
     }
+
     .btn.secondary {
       background:#6b7280;
       text-decoration:none;
@@ -68,14 +70,21 @@
 
     .note { font-size:0.85rem; color:#444; margin-top:.5rem }
 
-    /* Mobile adjustments */
     @media (max-width:480px) {
       body { padding:0.75rem; }
       h1 { font-size:1.1rem; }
       p.lead { font-size:0.85rem; }
       .btn { font-size:0.8rem; padding:.45rem .65rem; }
       .note { font-size:0.75rem; }
-      .map-wrapper { aspect-ratio:3/4; } /* taller map on small screens */
+      .map-wrapper { aspect-ratio:3/4; }
+    }
+
+    /* Fullscreen map specific styles */
+    .fullscreen-map-wrapper {
+      width:100% !important;
+      height:100% !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
     }
   </style>
 </head>
@@ -106,18 +115,25 @@
   <script>
     const fsBtn = document.getElementById('fsBtn');
     const wrapper = document.getElementById('mapWrapper');
+    const container = document.querySelector('.container');
+
+    function toggleOtherElements(hide) {
+      container.querySelectorAll(':scope > :not(#mapWrapper)').forEach(el => {
+        el.style.display = hide ? 'none' : '';
+      });
+    }
 
     fsBtn.addEventListener('click', async () => {
       try {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-          // ✅ Standard and iOS Safari
+        const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+        if (!isFullscreen) {
           if (wrapper.requestFullscreen) {
             await wrapper.requestFullscreen();
           } else if (wrapper.webkitRequestFullscreen) {
             wrapper.webkitRequestFullscreen();
-          } else {
-            alert("Fullscreen not supported on this device.");
           }
+          wrapper.classList.add('fullscreen-map-wrapper');
+          toggleOtherElements(true);
           fsBtn.textContent = 'Exit full screen';
         } else {
           if (document.exitFullscreen) {
@@ -125,6 +141,8 @@
           } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
           }
+          wrapper.classList.remove('fullscreen-map-wrapper');
+          toggleOtherElements(false);
           fsBtn.textContent = 'Full screen';
         }
       } catch (err) {
@@ -132,12 +150,18 @@
       }
     });
 
-    // Update button text on fullscreen change
     document.addEventListener('fullscreenchange', () => {
-      fsBtn.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+      const fs = document.fullscreenElement;
+      wrapper.classList.toggle('fullscreen-map-wrapper', !!fs);
+      toggleOtherElements(!!fs);
+      fsBtn.textContent = fs ? 'Exit full screen' : 'Full screen';
     });
+
     document.addEventListener('webkitfullscreenchange', () => {
-      fsBtn.textContent = document.webkitFullscreenElement ? 'Exit full screen' : 'Full screen';
+      const fs = document.webkitFullscreenElement;
+      wrapper.classList.toggle('fullscreen-map-wrapper', !!fs);
+      toggleOtherElements(!!fs);
+      fsBtn.textContent = fs ? 'Exit full screen' : 'Full screen';
     });
   </script>
 </body>
