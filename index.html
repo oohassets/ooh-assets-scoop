@@ -35,7 +35,6 @@
       z-index: 1;
     }
 
-    /* Title + logo side by side */
     .title-container {
       display: flex;
       justify-content: center;
@@ -43,15 +42,8 @@
     }
 
     .title-container img.logo {
-      height: 140px; /* adjust as needed */
+      height: 140px;
       width: auto;
-    }
-
-    h1 {
-      font-size:1.25rem;
-      margin:0;
-      color: #fff;
-      text-align: center;
     }
 
     p.lead {
@@ -61,7 +53,7 @@
       line-height:1.4;
     }
 
-    .map-wrapper {
+    .map-wrapper, .inventory-wrapper {
       width:100%;
       aspect-ratio:16/9;
       min-height:300px;
@@ -74,7 +66,8 @@
       z-index: 1;
     }
 
-    .map-wrapper iframe {
+    .map-wrapper iframe,
+    .inventory-wrapper iframe {
       position:absolute;
       top:0; left:0;
       width:100%; height:100%;
@@ -111,47 +104,59 @@
 
     @media (max-width:480px) {
       body { padding:0.75rem; }
-      h1 { font-size:1.1rem; }
       p.lead { font-size:0.85rem; }
       .btn { font-size:0.8rem; padding:.45rem .65rem; }
       .note { font-size:0.75rem; }
-      .map-wrapper { aspect-ratio:3/4; }
+      .map-wrapper, .inventory-wrapper { aspect-ratio:3/4; }
       .title-container img.logo { height: 32px; }
     }
 
-    /* Fullscreen map specific styles */
-    .fullscreen-map-wrapper {
+    /* Fullscreen specific styles */
+    .fullscreen-active {
       width:100% !important;
       height:100% !important;
       border-radius:0 !important;
       box-shadow:none !important;
     }
+
+    /* Hide inventory initially */
+    #inventoryWrapper { display: none; margin-top: 1rem; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Title + logo -->
     <div class="title-container">
       <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" 
            alt="Scoop Logo" class="logo">
     </div>
 
-    <p class="lead">Click the toggle bar to select OOH Assets and view their locations. Use the <strong>Full screen</strong> button to expand the map.</p>
+    <p class="lead">Click the toggle bar to select OOH Assets and view their locations. Use the <strong>buttons</strong> below to expand the map or show the content inventory.</p>
 
+    <!-- Map -->
     <div class="map-wrapper" id="mapWrapper">
       <iframe
         src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&ehbc=2E312F&noprof=1&hl=en"
         title="Custom Google My Maps"
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
-        allowfullscreen
-        aria-label="Google My Maps showing custom locations">
+        allowfullscreen>
       </iframe>
     </div>
 
+    <!-- Controls -->
     <div class="controls">
       <button class="btn" id="fsBtn">Full screen</button>
+      <button class="btn" id="showInventoryBtn">Show content inventory</button>
       <a class="btn secondary" href="https://www.google.com/maps/d/u/0/viewer?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+    </div>
+
+    <!-- Google Sheet Inventory -->
+    <div class="inventory-wrapper" id="inventoryWrapper">
+      <iframe 
+        src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
+        title="Content Inventory"
+        loading="lazy">
+      </iframe>
     </div>
 
     <div class="note">These asset locations have been pinned by the OOH Asset Supervisor.</div>
@@ -159,54 +164,65 @@
 
   <script>
     const fsBtn = document.getElementById('fsBtn');
-    const wrapper = document.getElementById('mapWrapper');
+    const mapWrapper = document.getElementById('mapWrapper');
+    const inventoryWrapper = document.getElementById('inventoryWrapper');
+    const showInventoryBtn = document.getElementById('showInventoryBtn');
     const container = document.querySelector('.container');
 
-    function toggleOtherElements(hide) {
-      container.querySelectorAll(':scope > :not(#mapWrapper)').forEach(el => {
+    // Toggle visibility of other elements
+    function toggleOtherElements(hide, exceptId) {
+      container.querySelectorAll(':scope > :not(#' + exceptId + ')').forEach(el => {
         el.style.display = hide ? 'none' : '';
       });
     }
 
-    fsBtn.addEventListener('click', async () => {
-      try {
-        const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-        if (!isFullscreen) {
-          if (wrapper.requestFullscreen) {
-            await wrapper.requestFullscreen();
-          } else if (wrapper.webkitRequestFullscreen) {
-            wrapper.webkitRequestFullscreen();
-          }
-          wrapper.classList.add('fullscreen-map-wrapper');
-          toggleOtherElements(true);
-          fsBtn.textContent = 'Exit full screen';
-        } else {
-          if (document.exitFullscreen) {
-            await document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          }
-          wrapper.classList.remove('fullscreen-map-wrapper');
-          toggleOtherElements(false);
-          fsBtn.textContent = 'Full screen';
-        }
-      } catch (err) {
-        console.warn('Fullscreen API failed:', err);
+    // Ensure only one fullscreen at a time
+    function toggleFullScreen(elem) {
+      if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) elem.requestFullscreen();
+        elem.classList.add('fullscreen-active');
+        toggleOtherElements(true, elem.id);
+      } else {
+        document.exitFullscreen().then(() => {
+          if (elem.requestFullscreen) elem.requestFullscreen();
+          elem.classList.add('fullscreen-active');
+          toggleOtherElements(true, elem.id);
+        });
+      }
+    }
+
+    // Map fullscreen button
+    fsBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        toggleFullScreen(mapWrapper);
+        fsBtn.textContent = 'Exit full screen';
+      } else {
+        document.exitFullscreen();
+        mapWrapper.classList.remove('fullscreen-active');
+        toggleOtherElements(false);
+        fsBtn.textContent = 'Full screen';
       }
     });
 
-    document.addEventListener('fullscreenchange', () => {
-      const fs = document.fullscreenElement;
-      wrapper.classList.toggle('fullscreen-map-wrapper', !!fs);
-      toggleOtherElements(!!fs);
-      fsBtn.textContent = fs ? 'Exit full screen' : 'Full screen';
+    // Inventory button
+    showInventoryBtn.addEventListener('click', () => {
+      const isVisible = inventoryWrapper.style.display === 'block';
+      inventoryWrapper.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) {
+        toggleFullScreen(inventoryWrapper);
+      } else {
+        if (document.fullscreenElement) document.exitFullscreen();
+      }
     });
 
-    document.addEventListener('webkitfullscreenchange', () => {
-      const fs = document.webkitFullscreenElement;
-      wrapper.classList.toggle('fullscreen-map-wrapper', !!fs);
-      toggleOtherElements(!!fs);
-      fsBtn.textContent = fs ? 'Exit full screen' : 'Full screen';
+    // Handle exit fullscreen
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        mapWrapper.classList.remove('fullscreen-active');
+        inventoryWrapper.classList.remove('fullscreen-active');
+        toggleOtherElements(false);
+        fsBtn.textContent = 'Full screen';
+      }
     });
   </script>
 </body>
