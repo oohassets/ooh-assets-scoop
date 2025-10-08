@@ -3,213 +3,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SCOOP | OOH Assets Contents</title>
+  <title>SCOOP Digital OOH Assets</title>
   <style>
     body {
-      font-family: "Segoe UI", sans-serif;
-      background: #f5f6fa;
-      margin: 20px;
-      color: #333;
+      background: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", Arial, sans-serif;
     }
 
-    h2 {
+    header {
       text-align: center;
-      margin-bottom: 20px;
-      color: #222;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    thead {
-      background: #007bff;
+      padding: 20px 10px;
+      background: linear-gradient(90deg, #00e0ff, #0074ff);
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 1px;
       color: #fff;
     }
 
-    th, td {
-      padding: 12px 16px;
-      text-align: center;
-      vertical-align: middle;
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
-    tbody tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-
-    tbody tr:hover {
-      background: #eef6ff;
-    }
-
-    .artwork {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+    .screen-card {
+      background: #0d0d0d;
+      border: 1px solid #1e1e1e;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .artwork img,
-    .artwork video {
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      object-fit: contain;
-      background: #fff;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      max-width: 100%;
+    .screen-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 224, 255, 0.2);
+    }
+
+    video {
+      width: 100%;
       height: auto;
+      display: block;
+      background: #111;
+      aspect-ratio: 16 / 9;
     }
 
-    .artwork:hover img,
-    .artwork:hover video {
-      transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    .title {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 10px;
+      text-transform: uppercase;
+      color: #00e0ff;
+      background: rgba(0, 0, 0, 0.7);
+      border-top: 1px solid #111;
     }
 
-    /* Digital Mupi container */
-    .mupi-row {
-      display: flex;
-      gap: 16px;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    .mupi-row .artwork {
-      flex: 1 1 calc(33% - 10px);
-      min-width: 150px;
-    }
-
-    @media (max-width: 768px) {
-      th, td {
-        padding: 8px;
-        font-size: 14px;
+    @media (max-width: 600px) {
+      header {
+        font-size: 1.2rem;
       }
 
-      .mupi-row .artwork {
-        flex: 1 1 100%;
+      .title {
+        font-size: 0.9rem;
       }
     }
   </style>
 </head>
 <body>
-  <h2>Digital OOH Assets Screens</h2>
+  <header>SCOOP DIGITAL OOH ASSETS</header>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Circuit Name</th>
-        <th>Screens</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Underpass Circuit (Wide Banner) -->
-      <tr>
-        <td>Underpass In<br><small>6240x420 px</small></td>
-        <td class="artwork" data-size="6240x420">
-          <video autoplay muted loop playsinline>
-            <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - EN.mp4" type="video/mp4" />
-          </video>
-        </td>
-      </tr>
-
-      <tr>
-        <td>Underpass Exit<br><small>6240x420 px</small></td>
-        <td class="artwork" data-size="6240x420">
-          <video autoplay muted loop playsinline>
-            <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - AR.mp4" type="video/mp4" />
-          </video>
-        </td>
-      </tr>
-
-      <!-- UDC Tower (Large) -->
-      <tr>
-        <td>UDC Tower<br><small>1664x1040 x 4 px</small></td>
-        <td class="artwork" data-size="6656x1040">
-          <img src="https://via.placeholder.com/166x104/555/fff?text=UDC+Tower" alt="Artwork">
-        </td>
-      </tr>
-
-      <!-- Qanat Quartier (Medium Banner) -->
-      <tr>
-        <td>Qanat Quartier<br><small>3742x432 px</small></td>
-        <td class="artwork" data-size="3742x432">
-          <img src="https://via.placeholder.com/374x43/ff7f00/ffffff?text=Qanat+Quartier" alt="Artwork">
-        </td>
-      </tr>
-
-      <!-- Digital Mupi (Tall Format) 3 Columns -->
-      <tr> 	
-        <td colspan="2">
-          <div class="mupi-row">
-            <!-- Circuit 1 -->
-            <div class="artwork" data-size="6240x420">
-              Digital Mupi Circuit #1<br>
-              6240x420 px<br>
-              <video autoplay muted loop playsinline>
-                <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/mupi/Vodafone Gaming Mupi EN.mp4" type="video/mp4" />
-              </video>
-            </div>
-
-            <!-- Circuit 2 -->
-            <div class="artwork" data-size="6240x420">
-              Digital Mupi Circuit #2<br>
-              6240x420 px<br>
-              <video autoplay muted loop playsinline>
-                <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/mupi/Vodafone Gaming Mupi AR.mp4" type="video/mp4" />
-              </video>
-            </div>
-
-            <!-- Circuit 3 -->
-            <div class="artwork" data-size="6240x420">
-              Digital Mupi Circuit #3<br>
-              6240x420 px<br>
-              <video autoplay muted loop playsinline>
-                <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/mupi/Vodafone Gaming Mupi EN.mp4" type="video/mp4" />
-              </video>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <main id="artworkGrid"></main>
 
   <script>
-    function resizeArtworks() {
-      const baseHeight = 180; // same height for all artwork rows
-      document.querySelectorAll(".artwork").forEach(cell => {
-        const size = cell.getAttribute("data-size");
-        if (!size) return;
-        const [w, h] = size.split("x").map(Number);
-        const aspectRatio = w / h;
+    const jsonURL = "https://oohassets.github.io/ooh-assets-scoop/mediacontent/mediacontent.json";
 
-        if (cell.closest('.mupi-row')) {
-          // Mupi row: maintain same height as other rows
-          const height = baseHeight;
-          const width = height * aspectRatio;
-          cell.querySelectorAll("img, video").forEach(m => {
-            m.style.height = height + "px";
-            m.style.width = width + "px";
-          });
-        } else {
-          // Normal single cells
-          const height = baseHeight;
-          const width = height * aspectRatio;
-          cell.querySelectorAll("img, video").forEach(m => {
-            m.style.height = height + "px";
-            m.style.width = width + "px";
-          });
-        }
-      });
+    async function loadMediaContent() {
+      try {
+        const res = await fetch(jsonURL);
+        const data = await res.json();
+
+        const container = document.getElementById("artworkGrid");
+
+        Object.entries(data).forEach(([circuitName, videos]) => {
+          // Create card
+          const card = document.createElement("div");
+          card.classList.add("screen-card");
+
+          // Create video
+          const video = document.createElement("video");
+          video.autoplay = true;
+          video.muted = true;
+          video.loop = false;
+          video.playsInline = true;
+          video.setAttribute("webkit-playsinline", "");
+          video.controls = false;
+
+          // Handle playback loop
+          let currentIndex = 0;
+          function playNextVideo() {
+            video.src = videos[currentIndex];
+            video.play();
+            currentIndex = (currentIndex + 1) % videos.length;
+          }
+          video.addEventListener("ended", playNextVideo);
+          playNextVideo();
+
+          // Title
+          const title = document.createElement("div");
+          title.classList.add("title");
+          title.textContent = circuitName.replace(/_/g, " ");
+
+          // Append
+          card.appendChild(video);
+          card.appendChild(title);
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error loading mediacontent.json:", err);
+      }
     }
 
-    window.addEventListener('load', resizeArtworks);
-    window.addEventListener('resize', resizeArtworks);
+    loadMediaContent();
   </script>
 </body>
 </html>
-
