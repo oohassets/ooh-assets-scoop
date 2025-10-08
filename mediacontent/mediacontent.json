@@ -1,12 +1,12 @@
 {
-  "underpass-in": [
+  "Underpass In": [
     "https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - EN.mp4",
     "https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - AR.mp4"
   ],
   
-  "underpass-out": [
-    "https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - EN.mp4",
-    "https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - AR.mp4"
+  "Underpass Out": [
+    "https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - AR.mp4",
+    "https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - EN.mp4"
   ]
     
 }
