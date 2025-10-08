@@ -5,73 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCOOP | Digital OOH Contents</title>
   <style>
+    /* Animated gradient background for the page */
     body {
-      background: #000;
-      color: #fff;
       margin: 0;
       padding: 0;
       font-family: "Poppins", Arial, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(296deg,#c24c17,#1b1b1b,#e77114);
+      background-size: 180% 180%;
+      animation: gradient-animation 24s ease infinite;
+      color: #fff;
     }
 
+    @keyframes gradient-animation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Header */
     header {
       text-align: center;
       padding: 20px 10px;
-      background: linear-gradient(90deg, #00e0ff, #0074ff);
       font-size: 1.5rem;
       font-weight: 600;
       letter-spacing: 1px;
       color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
     }
 
+    /* Artwork grid container */
     main {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
       padding: 20px;
       box-sizing: border-box;
     }
 
+    /* Screen cards */
     .screen-card {
-      background: #0d0d0d;
-      border: 1px solid #1e1e1e;
+      background: rgba(0, 0, 0, 0.4); /* semi-transparent */
+      backdrop-filter: blur(8px);     /* glass-like blur */
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .screen-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 8px 25px rgba(0, 224, 255, 0.2);
+      transform: scale(1.03);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+      background: rgba(0,0,0,0.5);
     }
 
-    video {
+    /* Video styling */
+    .screen-card video {
       width: 100%;
       height: auto;
       display: block;
-      background: #111;
-      aspect-ratio: 16 / 9;
+      background: rgba(0,0,0,0.2);
+      object-fit: cover;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px 12px 0 0;
     }
 
-    .title {
+    /* Title overlay */
+    .screen-card .title {
+      width: 100%;
       text-align: center;
-      font-size: 1rem;
-      font-weight: 600;
       padding: 10px;
-      text-transform: none;
-      color: #ff9900;
-      background: rgba(0, 0, 0, 0.7);
-      border-top: 1px solid #111;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
 
     @media (max-width: 600px) {
-      header {
-        font-size: 1.2rem;
-      }
-
-      .title {
-        font-size: 0.9rem;
-      }
+      header { font-size: 1.2rem; }
+      .screen-card .title { font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -87,7 +104,6 @@
       try {
         const res = await fetch(jsonURL);
         const data = await res.json();
-
         const container = document.getElementById("artworkGrid");
 
         Object.entries(data).forEach(([circuitName, videos]) => {
@@ -95,7 +111,7 @@
           const card = document.createElement("div");
           card.classList.add("screen-card");
 
-          // Create video
+          // Create video element
           const video = document.createElement("video");
           video.autoplay = true;
           video.muted = true;
@@ -104,7 +120,7 @@
           video.setAttribute("webkit-playsinline", "");
           video.controls = false;
 
-          // Handle playback loop
+          // Loop through multiple videos
           let currentIndex = 0;
           function playNextVideo() {
             video.src = videos[currentIndex];
@@ -114,12 +130,12 @@
           video.addEventListener("ended", playNextVideo);
           playNextVideo();
 
-          // Title
+          // Title overlay
           const title = document.createElement("div");
           title.classList.add("title");
           title.textContent = circuitName.replace(/_/g, " ");
 
-          // Append
+          // Append video and title to card
           card.appendChild(video);
           card.appendChild(title);
           container.appendChild(card);
@@ -133,5 +149,3 @@
   </script>
 </body>
 </html>
-
-
