@@ -69,7 +69,7 @@
     }
 
     .artwork:hover video {
-      transform: scale(0.5);
+      transform: scale(1);
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
@@ -85,6 +85,10 @@
       flex: 1 1 calc(33% - 10px);
       min-width: 150px;
     }
+    .mupi-row .artwork video {
+      max-height: 150px;
+      object-fit: contain;
+    }
 
     @media (max-width: 768px) {
       th, td {
@@ -99,6 +103,10 @@
 
       .mupi-row .artwork {
         width: 100%;
+      }
+
+      .mupi-row .artwork video {
+        max-height: 180px;
       }
     }
   </style>
@@ -225,5 +233,6 @@
   </script>
 </body>
 </html>
+
 
 
