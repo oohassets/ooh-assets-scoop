@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCOOP | OOH Assets Contents</title>
 
-    <!-- Add favicon -->
+  <!-- Add favicon -->
   <link rel="icon" type="image/x-icon" href="scoopicon_32x32.ico">
   
   <style>
@@ -58,25 +58,26 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
+    .artwork img,
     .artwork video {
       border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      object-fit: contain;
       background: #fff;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       max-width: 100%;
       height: auto;
-      margin-bottom: 8px;
     }
 
+    .artwork:hover img,
     .artwork:hover video {
-      transform: scale(1);
+      transform: scale(1.05);
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
-    /* Mupi row styling */
     .mupi-row {
       display: flex;
-      gap: 16px;
+      gap: 14px;
       justify-content: space-between;
       flex-wrap: wrap;
     }
@@ -85,9 +86,12 @@
       flex: 1 1 calc(33% - 10px);
       min-width: 150px;
     }
-    .mupi-row .artwork video {
-      max-height: 150px;
-      object-fit: contain;
+
+    .artwork div {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 6px;
+      font-weight: normal;
     }
 
     @media (max-width: 768px) {
@@ -96,24 +100,14 @@
         font-size: 14px;
       }
 
-      .mupi-row {
-        flex-direction: column;
-        align-items: center;
-      }
-
       .mupi-row .artwork {
-        width: 100%;
-      }
-
-      .mupi-row .artwork video {
-        max-height: 180px;
+        flex: 1 1 100%;
       }
     }
   </style>
 </head>
 <body>
   <h2>Digital OOH Assets Screens</h2>
-
   <table>
     <thead>
       <tr>
@@ -121,118 +115,105 @@
         <th>Screens</th>
       </tr>
     </thead>
-    <tbody id="assets-body">
-      <tr><td colspan="2">Loading assets...</td></tr>
+    <tbody id="table-body">
+      <!-- Content auto-generated from JSON -->
     </tbody>
   </table>
 
   <script>
     async function loadMediaContent() {
-      const tableBody = document.getElementById('assets-body');
-      tableBody.innerHTML = '<tr><td colspan="2">Loading assets...</td></tr>';
+      const response = await fetch("https://oohassets.github.io/ooh-assets-scoop/mediacontent/mediacontent.json");
+      const data = await response.json();
 
-      try {
-        const response = await fetch('https://oohassets.github.io/ooh-assets-scoop/mediacontent/mediacontent.json');
-        const data = await response.json();
-        tableBody.innerHTML = '';
+      const tbody = document.getElementById("table-body");
+      const mupiCircuits = {};
+      
+      Object.keys(data).forEach(circuit => {
+        if (circuit.toLowerCase().includes("mupi")) {
+          mupiCircuits[circuit] = data[circuit];
+          return;
+        }
 
-        const mupiCircuits = {};
-        const otherCircuits = {};
+        const row = document.createElement("tr");
+        const nameCell = document.createElement("td");
+        nameCell.innerHTML = `${circuit}<br><small>Auto size</small>`;
 
-        // Separate Mupi and other circuits automatically
-        for (const [name, videos] of Object.entries(data)) {
-          if (name.toLowerCase().includes("mupi")) {
-            mupiCircuits[name] = videos;
-          } else {
-            otherCircuits[name] = videos;
+        const mediaCell = document.createElement("td");
+        mediaCell.className = "artwork";
+
+        data[circuit].forEach(url => {
+          const video = document.createElement("video");
+          video.src = url;
+          video.autoplay = true;
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          mediaCell.appendChild(video);
+        });
+
+        row.appendChild(nameCell);
+        row.appendChild(mediaCell);
+        tbody.appendChild(row);
+      });
+
+      if (Object.keys(mupiCircuits).length > 0) {
+        const mupiRow = document.createElement("tr");
+        const mupiCell = document.createElement("td");
+        mupiCell.colSpan = 2;
+
+        const mupiContainer = document.createElement("div");
+        mupiContainer.className = "mupi-row";
+
+        Object.keys(mupiCircuits).forEach(mupiName => {
+          const mupiDiv = document.createElement("div");
+          mupiDiv.className = "artwork";
+          const label = document.createElement('div');
+          label.textContent = mupiName;
+          mupiDiv.appendChild(label);
+
+          const video = document.createElement("video");
+          video.muted = true;
+          video.playsInline = true;
+          mupiDiv.appendChild(video);
+
+          const sources = mupiCircuits[mupiName];
+          let currentIndex = 0;
+
+          function playNext() {
+            video.src = sources[currentIndex];
+            video.play();
+            video.onended = () => {
+              currentIndex = (currentIndex + 1) % sources.length;
+              playNext();
+            };
           }
-        }
+          playNext();
 
-        // Add non-Mupi circuits
-        for (const [circuitName, videos] of Object.entries(otherCircuits)) {
-          const tr = document.createElement('tr');
-          const tdName = document.createElement('td');
-          const tdVideos = document.createElement('td');
-          tdVideos.classList.add('artwork');
+          mupiContainer.appendChild(mupiDiv);
+        });
 
-          tdName.textContent = circuitName;
-
-          // Create one video element that cycles through list sequentially
-          const videoEl = document.createElement('video');
-          videoEl.autoplay = true;
-          videoEl.muted = true;
-          videoEl.loop = false;
-          videoEl.playsInline = true;
-          videoEl.src = videos[0];
-          tdVideos.appendChild(videoEl);
-
-          let current = 0;
-          videoEl.addEventListener('ended', () => {
-            current = (current + 1) % videos.length;
-            videoEl.src = videos[current];
-            videoEl.play();
-          });
-
-          tr.appendChild(tdName);
-          tr.appendChild(tdVideos);
-          tableBody.appendChild(tr);
-        }
-
-        // Add grouped Digital Mupi circuits
-        if (Object.keys(mupiCircuits).length > 0) {
-          const trMupi = document.createElement('tr');
-          const tdNameMupi = document.createElement('td');
-          const tdMupiGroup = document.createElement('td');
-          tdMupiGroup.colSpan = 1;
-
-          const mupiContainer = document.createElement('div');
-          mupiContainer.classList.add('mupi-row');
-
-          tdNameMupi.textContent = 'Digital Mupi Circuits';
-
-          for (const [mupiName, videos] of Object.entries(mupiCircuits)) {
-            const artworkDiv = document.createElement('div');
-            artworkDiv.classList.add('artwork');
-
-            const label = document.createElement('div');
-            label.innerHTML = `<strong>${mupiName}</strong>`;
-
-            const videoEl = document.createElement('video');
-            videoEl.autoplay = true;
-            videoEl.muted = true;
-            videoEl.loop = false;
-            videoEl.playsInline = true;
-            videoEl.src = videos[0];
-
-            // Sequential playback
-            let current = 0;
-            videoEl.addEventListener('ended', () => {
-              current = (current + 1) % videos.length;
-              videoEl.src = videos[current];
-              videoEl.play();
-            });
-
-            artworkDiv.appendChild(label);
-            artworkDiv.appendChild(videoEl);
-            mupiContainer.appendChild(artworkDiv);
-          }
-
-          tdMupiGroup.appendChild(mupiContainer);
-          trMupi.appendChild(tdNameMupi);
-          trMupi.appendChild(tdMupiGroup);
-          tableBody.appendChild(trMupi);
-        }
-
-      } catch (error) {
-        console.error('Error loading JSON:', error);
-        tableBody.innerHTML = '<tr><td colspan="2">Failed to load media content.</td></tr>';
+        mupiCell.appendChild(mupiContainer);
+        mupiRow.appendChild(mupiCell);
+        tbody.appendChild(mupiRow);
       }
     }
 
-    window.addEventListener('load', loadMediaContent);
+    function resizeArtworks() {
+      const baseHeight = 150; // smaller height for Mupi
+      document.querySelectorAll(".artwork").forEach(cell => {
+        const videos = cell.querySelectorAll("video, img");
+        videos.forEach(media => {
+          media.style.height = baseHeight + "px";
+          media.style.width = "auto";
+        });
+      });
+    }
+
+    window.addEventListener("load", async () => {
+      await loadMediaContent();
+      resizeArtworks();
+    });
+    window.addEventListener("resize", resizeArtworks);
   </script>
 </body>
 </html>
-
-
-
