@@ -4,10 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCOOP | OOH Assets Contents</title>
-
-    <!-- Add favicon -->
-  <link rel="icon" type="image/x-icon" href="scoopicon_32x32.ico">
-  
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -73,6 +69,7 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
+    /* Mupi row styling */
     .mupi-row {
       display: flex;
       gap: 16px;
@@ -91,8 +88,13 @@
         font-size: 14px;
       }
 
+      .mupi-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
       .mupi-row .artwork {
-        flex: 1 1 100%;
+        width: 100%;
       }
     }
   </style>
@@ -120,10 +122,22 @@
       try {
         const response = await fetch('https://oohassets.github.io/ooh-assets-scoop/mediacontent/mediacontent.json');
         const data = await response.json();
-        tableBody.innerHTML = ''; // clear the loading text
+        tableBody.innerHTML = '';
 
-        for (const [circuitName, videos] of Object.entries(data)) {
-          // create one row per circuit
+        const mupiCircuits = {};
+        const otherCircuits = {};
+
+        // Separate Mupi and other circuits
+        for (const [name, videos] of Object.entries(data)) {
+          if (name.toLowerCase().includes("mupi")) {
+            mupiCircuits[name] = videos;
+          } else {
+            otherCircuits[name] = videos;
+          }
+        }
+
+        // Add other circuits first
+        for (const [circuitName, videos] of Object.entries(otherCircuits)) {
           const tr = document.createElement('tr');
           const tdName = document.createElement('td');
           const tdVideos = document.createElement('td');
@@ -131,20 +145,68 @@
 
           tdName.innerHTML = `${circuitName}<br><small>Auto-loaded from JSON</small>`;
 
-          videos.forEach(videoURL => {
-            const video = document.createElement('video');
-            video.src = videoURL;
-            video.autoplay = true;
-            video.muted = true;
-            video.loop = true;
-            video.playsInline = true;
-            tdVideos.appendChild(video);
+          // Create one video element that cycles through list
+          const videoEl = document.createElement('video');
+          videoEl.autoplay = true;
+          videoEl.muted = true;
+          videoEl.loop = false;
+          videoEl.playsInline = true;
+          videoEl.src = videos[0];
+          tdVideos.appendChild(videoEl);
+
+          let current = 0;
+          videoEl.addEventListener('ended', () => {
+            current = (current + 1) % videos.length;
+            videoEl.src = videos[current];
+            videoEl.play();
           });
 
           tr.appendChild(tdName);
           tr.appendChild(tdVideos);
           tableBody.appendChild(tr);
         }
+
+        // Now add grouped Digital Mupi circuits
+        const trMupi = document.createElement('tr');
+        const tdNameMupi = document.createElement('td');
+        const tdMupiGroup = document.createElement('td');
+        tdMupiGroup.colSpan = 1;
+
+        const mupiContainer = document.createElement('div');
+        mupiContainer.classList.add('mupi-row');
+
+        tdNameMupi.textContent = 'Digital Mupi Circuits';
+
+        for (const [mupiName, videos] of Object.entries(mupiCircuits)) {
+          const artworkDiv = document.createElement('div');
+          artworkDiv.classList.add('artwork');
+
+          const label = document.createElement('div');
+          label.innerHTML = `<strong>${mupiName}</strong><br><small>Auto-sequenced</small>`;
+
+          const videoEl = document.createElement('video');
+          videoEl.autoplay = true;
+          videoEl.muted = true;
+          videoEl.loop = false;
+          videoEl.playsInline = true;
+          videoEl.src = videos[0];
+          artworkDiv.appendChild(label);
+          artworkDiv.appendChild(videoEl);
+
+          let current = 0;
+          videoEl.addEventListener('ended', () => {
+            current = (current + 1) % videos.length;
+            videoEl.src = videos[current];
+            videoEl.play();
+          });
+
+          mupiContainer.appendChild(artworkDiv);
+        }
+
+        tdMupiGroup.appendChild(mupiContainer);
+        trMupi.appendChild(tdNameMupi);
+        trMupi.appendChild(tdMupiGroup);
+        tableBody.appendChild(trMupi);
 
       } catch (error) {
         console.error('Error loading JSON:', error);
@@ -156,4 +218,3 @@
   </script>
 </body>
 </html>
-
