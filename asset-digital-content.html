@@ -58,33 +58,27 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .artwork img,
     .artwork video {
       border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      object-fit: contain;
       background: #fff;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       max-width: 100%;
       height: auto;
+      margin-bottom: 8px;
     }
 
-    .artwork:hover img,
     .artwork:hover video {
       transform: scale(1.05);
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
+    /* Mupi row styling */
     .mupi-row {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       justify-content: space-between;
       flex-wrap: wrap;
-    }
-
-    .mupi-row .artwork {
-      flex: 1 1 calc(33% - 10px);
-      min-width: 150px;
     }
 
     .artwork div {
@@ -94,20 +88,41 @@
       font-weight: normal;
     }
 
+    .mupi-row .artwork {
+      flex: 1 1 calc(33% - 10px);
+      min-width: 150px;
+    }
+
+    /* Make Mupi videos smaller */
+    .mupi-row .artwork video {
+      max-height: 150px;
+      object-fit: contain;
+    }
+
     @media (max-width: 768px) {
       th, td {
         padding: 8px;
         font-size: 14px;
       }
 
+      .mupi-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
       .mupi-row .artwork {
-        flex: 1 1 100%;
+        width: 100%;
+      }
+
+      .mupi-row .artwork video {
+        max-height: 180px;
       }
     }
   </style>
 </head>
 <body>
   <h2>Digital OOH Assets Screens</h2>
+
   <table>
     <thead>
       <tr>
@@ -115,105 +130,115 @@
         <th>Screens</th>
       </tr>
     </thead>
-    <tbody id="table-body">
-      <!-- Content auto-generated from JSON -->
+    <tbody id="assets-body">
+      <tr><td colspan="2">Loading assets...</td></tr>
     </tbody>
   </table>
 
   <script>
     async function loadMediaContent() {
-      const response = await fetch("https://oohassets.github.io/ooh-assets-scoop/mediacontent/mediacontent.json");
-      const data = await response.json();
+      const tableBody = document.getElementById('assets-body');
+      tableBody.innerHTML = '<tr><td colspan="2">Loading assets...</td></tr>';
 
-      const tbody = document.getElementById("table-body");
-      const mupiCircuits = {};
-      
-      Object.keys(data).forEach(circuit => {
-        if (circuit.toLowerCase().includes("mupi")) {
-          mupiCircuits[circuit] = data[circuit];
-          return;
+      try {
+        const response = await fetch('https://oohassets.github.io/ooh-assets-scoop/mediacontent/mediacontent.json');
+        const data = await response.json();
+        tableBody.innerHTML = '';
+
+        const mupiCircuits = {};
+        const otherCircuits = {};
+
+        // Separate Mupi and other circuits automatically
+        for (const [name, videos] of Object.entries(data)) {
+          if (name.toLowerCase().includes("mupi")) {
+            mupiCircuits[name] = videos;
+          } else {
+            otherCircuits[name] = videos;
+          }
         }
 
-        const row = document.createElement("tr");
-        const nameCell = document.createElement("td");
-        nameCell.innerHTML = `${circuit}<br><small>Auto size</small>`;
+        // Add non-Mupi circuits
+        for (const [circuitName, videos] of Object.entries(otherCircuits)) {
+          const tr = document.createElement('tr');
+          const tdName = document.createElement('td');
+          const tdVideos = document.createElement('td');
+          tdVideos.classList.add('artwork');
 
-        const mediaCell = document.createElement("td");
-        mediaCell.className = "artwork";
+          tdName.textContent = circuitName;
 
-        data[circuit].forEach(url => {
-          const video = document.createElement("video");
-          video.src = url;
-          video.autoplay = true;
-          video.muted = true;
-          video.loop = true;
-          video.playsInline = true;
-          mediaCell.appendChild(video);
-        });
+          // Create one video element that cycles through list sequentially
+          const videoEl = document.createElement('video');
+          videoEl.autoplay = true;
+          videoEl.muted = true;
+          videoEl.loop = false;
+          videoEl.playsInline = true;
+          videoEl.src = videos[0];
+          tdVideos.appendChild(videoEl);
 
-        row.appendChild(nameCell);
-        row.appendChild(mediaCell);
-        tbody.appendChild(row);
-      });
+          let current = 0;
+          videoEl.addEventListener('ended', () => {
+            current = (current + 1) % videos.length;
+            videoEl.src = videos[current];
+            videoEl.play();
+          });
 
-      if (Object.keys(mupiCircuits).length > 0) {
-        const mupiRow = document.createElement("tr");
-        const mupiCell = document.createElement("td");
-        mupiCell.colSpan = 2;
+          tr.appendChild(tdName);
+          tr.appendChild(tdVideos);
+          tableBody.appendChild(tr);
+        }
 
-        const mupiContainer = document.createElement("div");
-        mupiContainer.className = "mupi-row";
+        // Add grouped Digital Mupi circuits
+        if (Object.keys(mupiCircuits).length > 0) {
+          const trMupi = document.createElement('tr');
+          const tdNameMupi = document.createElement('td');
+          const tdMupiGroup = document.createElement('td');
+          tdMupiGroup.colSpan = 1;
 
-        Object.keys(mupiCircuits).forEach(mupiName => {
-          const mupiDiv = document.createElement("div");
-          mupiDiv.className = "artwork";
-          const label = document.createElement('div');
-          label.textContent = mupiName;
-          mupiDiv.appendChild(label);
+          const mupiContainer = document.createElement('div');
+          mupiContainer.classList.add('mupi-row');
 
-          const video = document.createElement("video");
-          video.muted = true;
-          video.playsInline = true;
-          mupiDiv.appendChild(video);
+          tdNameMupi.textContent = 'Digital Mupi Circuits';
 
-          const sources = mupiCircuits[mupiName];
-          let currentIndex = 0;
+          for (const [mupiName, videos] of Object.entries(mupiCircuits)) {
+            const artworkDiv = document.createElement('div');
+            artworkDiv.classList.add('artwork');
 
-          function playNext() {
-            video.src = sources[currentIndex];
-            video.play();
-            video.onended = () => {
-              currentIndex = (currentIndex + 1) % sources.length;
-              playNext();
-            };
+            const label = document.createElement('div');
+            label.textContent = mupiName;
+
+            const videoEl = document.createElement('video');
+            videoEl.autoplay = true;
+            videoEl.muted = true;
+            videoEl.loop = false;
+            videoEl.playsInline = true;
+            videoEl.src = videos[0];
+
+            // Sequential playback
+            let current = 0;
+            videoEl.addEventListener('ended', () => {
+              current = (current + 1) % videos.length;
+              videoEl.src = videos[current];
+              videoEl.play();
+            });
+
+            artworkDiv.appendChild(label);
+            artworkDiv.appendChild(videoEl);
+            mupiContainer.appendChild(artworkDiv);
           }
-          playNext();
 
-          mupiContainer.appendChild(mupiDiv);
-        });
+          tdMupiGroup.appendChild(mupiContainer);
+          trMupi.appendChild(tdNameMupi);
+          trMupi.appendChild(tdMupiGroup);
+          tableBody.appendChild(trMupi);
+        }
 
-        mupiCell.appendChild(mupiContainer);
-        mupiRow.appendChild(mupiCell);
-        tbody.appendChild(mupiRow);
+      } catch (error) {
+        console.error('Error loading JSON:', error);
+        tableBody.innerHTML = '<tr><td colspan="2">Failed to load media content.</td></tr>';
       }
     }
 
-    function resizeArtworks() {
-      const baseHeight = 150; // smaller height for Mupi
-      document.querySelectorAll(".artwork").forEach(cell => {
-        const videos = cell.querySelectorAll("video, img");
-        videos.forEach(media => {
-          media.style.height = baseHeight + "px";
-          media.style.width = "auto";
-        });
-      });
-    }
-
-    window.addEventListener("load", async () => {
-      await loadMediaContent();
-      resizeArtworks();
-    });
-    window.addEventListener("resize", resizeArtworks);
+    window.addEventListener('load', loadMediaContent);
   </script>
 </body>
 </html>
