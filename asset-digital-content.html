@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCOOP | OOH Assets Contents</title>
 
-  <!-- Add favicon -->
   <link rel="icon" type="image/x-icon" href="scoopicon_32x32.ico">
-  
+
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -86,6 +85,7 @@
       color: #333;
       margin-bottom: 6px;
       font-weight: normal;
+      text-align: center;
     }
 
     .mupi-row .artwork {
@@ -96,6 +96,25 @@
     /* Make Mupi videos smaller */
     .mupi-row .artwork video {
       max-height: 150px;
+      object-fit: contain;
+    }
+
+    /* 🔹 Special style for wide videos (Underpass, UDC Tower, etc.) */
+    .wide-video {
+      position: relative;
+      width: 100%;
+      padding-top: calc(100% / 15); /* keeps ~15:1 aspect ratio */
+      overflow: hidden;
+      border-radius: 10px;
+      background: #000;
+    }
+
+    .wide-video video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
     }
 
@@ -116,6 +135,11 @@
 
       .mupi-row .artwork video {
         max-height: 180px;
+      }
+
+      /* Make sure wide videos still display well on mobile */
+      .wide-video {
+        padding-top: calc(100% / 10);
       }
     }
   </style>
@@ -166,15 +190,27 @@
 
           tdName.textContent = circuitName;
 
-          // Create one video element that cycles through list sequentially
+          const videoContainer = document.createElement('div');
+
+          // ✅ Apply wide-video wrapper for specific circuits
+          if (
+            circuitName.toLowerCase().includes('underpass') ||
+            circuitName.toLowerCase().includes('udc tower')
+          ) {
+            videoContainer.classList.add('wide-video');
+          }
+
           const videoEl = document.createElement('video');
           videoEl.autoplay = true;
           videoEl.muted = true;
           videoEl.loop = false;
           videoEl.playsInline = true;
           videoEl.src = videos[0];
-          tdVideos.appendChild(videoEl);
 
+          videoContainer.appendChild(videoEl);
+          tdVideos.appendChild(videoContainer);
+
+          // Sequential playback
           let current = 0;
           videoEl.addEventListener('ended', () => {
             current = (current + 1) % videos.length;
@@ -213,7 +249,6 @@
             videoEl.playsInline = true;
             videoEl.src = videos[0];
 
-            // Sequential playback
             let current = 0;
             videoEl.addEventListener('ended', () => {
               current = (current + 1) % videos.length;
@@ -242,4 +277,3 @@
   </script>
 </body>
 </html>
-
