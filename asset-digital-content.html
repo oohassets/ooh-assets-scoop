@@ -127,7 +127,7 @@
         const mupiCircuits = {};
         const otherCircuits = {};
 
-        // Separate Mupi and other circuits
+        // Separate Mupi and other circuits automatically
         for (const [name, videos] of Object.entries(data)) {
           if (name.toLowerCase().includes("mupi")) {
             mupiCircuits[name] = videos;
@@ -136,16 +136,16 @@
           }
         }
 
-        // Add other circuits first
+        // Add non-Mupi circuits
         for (const [circuitName, videos] of Object.entries(otherCircuits)) {
           const tr = document.createElement('tr');
           const tdName = document.createElement('td');
           const tdVideos = document.createElement('td');
           tdVideos.classList.add('artwork');
 
-          tdName.innerHTML = `${circuitName}<br>;
+          tdName.textContent = circuitName;
 
-          // Create one video element that cycles through list
+          // Create one video element that cycles through list sequentially
           const videoEl = document.createElement('video');
           videoEl.autoplay = true;
           videoEl.muted = true;
@@ -166,47 +166,50 @@
           tableBody.appendChild(tr);
         }
 
-        // Now add grouped Digital Mupi circuits
-        const trMupi = document.createElement('tr');
-        const tdNameMupi = document.createElement('td');
-        const tdMupiGroup = document.createElement('td');
-        tdMupiGroup.colSpan = 1;
+        // Add grouped Digital Mupi circuits
+        if (Object.keys(mupiCircuits).length > 0) {
+          const trMupi = document.createElement('tr');
+          const tdNameMupi = document.createElement('td');
+          const tdMupiGroup = document.createElement('td');
+          tdMupiGroup.colSpan = 1;
 
-        const mupiContainer = document.createElement('div');
-        mupiContainer.classList.add('mupi-row');
+          const mupiContainer = document.createElement('div');
+          mupiContainer.classList.add('mupi-row');
 
-        tdNameMupi.textContent = 'Digital Mupi Circuits';
+          tdNameMupi.textContent = 'Digital Mupi Circuits';
 
-        for (const [mupiName, videos] of Object.entries(mupiCircuits)) {
-          const artworkDiv = document.createElement('div');
-          artworkDiv.classList.add('artwork');
+          for (const [mupiName, videos] of Object.entries(mupiCircuits)) {
+            const artworkDiv = document.createElement('div');
+            artworkDiv.classList.add('artwork');
 
-          const label = document.createElement('div');
-          label.innerHTML = `<strong>${mupiName}</strong><br>;
+            const label = document.createElement('div');
+            label.innerHTML = `<strong>${mupiName}</strong>`;
 
-          const videoEl = document.createElement('video');
-          videoEl.autoplay = true;
-          videoEl.muted = true;
-          videoEl.loop = false;
-          videoEl.playsInline = true;
-          videoEl.src = videos[0];
-          artworkDiv.appendChild(label);
-          artworkDiv.appendChild(videoEl);
+            const videoEl = document.createElement('video');
+            videoEl.autoplay = true;
+            videoEl.muted = true;
+            videoEl.loop = false;
+            videoEl.playsInline = true;
+            videoEl.src = videos[0];
 
-          let current = 0;
-          videoEl.addEventListener('ended', () => {
-            current = (current + 1) % videos.length;
-            videoEl.src = videos[current];
-            videoEl.play();
-          });
+            // Sequential playback
+            let current = 0;
+            videoEl.addEventListener('ended', () => {
+              current = (current + 1) % videos.length;
+              videoEl.src = videos[current];
+              videoEl.play();
+            });
 
-          mupiContainer.appendChild(artworkDiv);
+            artworkDiv.appendChild(label);
+            artworkDiv.appendChild(videoEl);
+            mupiContainer.appendChild(artworkDiv);
+          }
+
+          tdMupiGroup.appendChild(mupiContainer);
+          trMupi.appendChild(tdNameMupi);
+          trMupi.appendChild(tdMupiGroup);
+          tableBody.appendChild(trMupi);
         }
-
-        tdMupiGroup.appendChild(mupiContainer);
-        trMupi.appendChild(tdNameMupi);
-        trMupi.appendChild(tdMupiGroup);
-        tableBody.appendChild(trMupi);
 
       } catch (error) {
         console.error('Error loading JSON:', error);
@@ -218,4 +221,3 @@
   </script>
 </body>
 </html>
-
