@@ -54,24 +54,21 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .artwork img,
     .artwork video {
       border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      object-fit: contain;
       background: #fff;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       max-width: 100%;
       height: auto;
+      margin-bottom: 8px;
     }
 
-    .artwork:hover img,
     .artwork:hover video {
       transform: scale(1.05);
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
-    /* Digital Mupi container */
     .mupi-row {
       display: flex;
       gap: 16px;
@@ -106,110 +103,52 @@
         <th>Screens</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Underpass Circuit (Wide Banner) -->
-      <tr>
-        <td>Underpass In<br><small>6240x420 px</small></td>
-        <td class="artwork" data-size="6240x420">
-          <video autoplay muted loop playsinline>
-            <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - EN.mp4" type="video/mp4" />
-          </video>
-        </td>
-      </tr>
-
-      <tr>
-        <td>Underpass Exit<br><small>6240x420 px</small></td>
-        <td class="artwork" data-size="6240x420">
-          <video autoplay muted loop playsinline>
-            <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/underpass/Vodafone Gaming - 6240x420 - AR.mp4" type="video/mp4" />
-          </video>
-        </td>
-      </tr>
-
-      <!-- UDC Tower (Large) -->
-      <tr>
-        <td>UDC Tower<br><small>1664x1040 x 4 px</small></td>
-        <td class="artwork" data-size="6656x1040">
-          <img src="https://via.placeholder.com/166x104/555/fff?text=UDC+Tower" alt="Artwork">
-        </td>
-      </tr>
-
-      <!-- Qanat Quartier (Medium Banner) -->
-      <tr>
-        <td>Qanat Quartier<br><small>3742x432 px</small></td>
-        <td class="artwork" data-size="3742x432">
-          <img src="https://via.placeholder.com/374x43/ff7f00/ffffff?text=Qanat+Quartier" alt="Artwork">
-        </td>
-      </tr>
-
-      <!-- Digital Mupi (Tall Format) 3 Columns -->
-      <tr> 	
-        <td colspan="2">
-          <div class="mupi-row">
-            <!-- Circuit 1 -->
-            <div class="artwork" data-size="6240x420">
-              Digital Mupi Circuit #1<br>
-              6240x420 px<br>
-              <video autoplay muted loop playsinline>
-                <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/mupi/Vodafone Gaming Mupi EN.mp4" type="video/mp4" />
-              </video>
-            </div>
-
-            <!-- Circuit 2 -->
-            <div class="artwork" data-size="6240x420">
-              Digital Mupi Circuit #2<br>
-              6240x420 px<br>
-              <video autoplay muted loop playsinline>
-                <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/mupi/Vodafone Gaming Mupi AR.mp4" type="video/mp4" />
-              </video>
-            </div>
-
-            <!-- Circuit 3 -->
-            <div class="artwork" data-size="6240x420">
-              Digital Mupi Circuit #3<br>
-              6240x420 px<br>
-              <video autoplay muted loop playsinline>
-                <source src="https://oohassets.github.io/ooh-assets-scoop/mediacontent/mupi/Vodafone Gaming Mupi EN.mp4" type="video/mp4" />
-              </video>
-            </div>
-          </div>
-        </td>
-      </tr>
+    <tbody id="assets-body">
+      <tr><td colspan="2">Loading assets...</td></tr>
     </tbody>
   </table>
 
   <script>
-    function resizeArtworks() {
-      const baseHeight = 180; // same height for all artwork rows
-      document.querySelectorAll(".artwork").forEach(cell => {
-        const size = cell.getAttribute("data-size");
-        if (!size) return;
-        const [w, h] = size.split("x").map(Number);
-        const aspectRatio = w / h;
+    async function loadMediaContent() {
+      const tableBody = document.getElementById('assets-body');
+      tableBody.innerHTML = '<tr><td colspan="2">Loading assets...</td></tr>';
 
-        if (cell.closest('.mupi-row')) {
-          // Mupi row: maintain same height as other rows
-          const height = baseHeight;
-          const width = height * aspectRatio;
-          cell.querySelectorAll("img, video").forEach(m => {
-            m.style.height = height + "px";
-            m.style.width = width + "px";
+      try {
+        const response = await fetch('https://oohassets.github.io/ooh-assets-scoop/mediacontent/mediacontent.json');
+        const data = await response.json();
+        tableBody.innerHTML = ''; // clear the loading text
+
+        for (const [circuitName, videos] of Object.entries(data)) {
+          // create one row per circuit
+          const tr = document.createElement('tr');
+          const tdName = document.createElement('td');
+          const tdVideos = document.createElement('td');
+          tdVideos.classList.add('artwork');
+
+          tdName.innerHTML = `${circuitName}<br><small>Auto-loaded from JSON</small>`;
+
+          videos.forEach(videoURL => {
+            const video = document.createElement('video');
+            video.src = videoURL;
+            video.autoplay = true;
+            video.muted = true;
+            video.loop = true;
+            video.playsInline = true;
+            tdVideos.appendChild(video);
           });
-        } else {
-          // Normal single cells
-          const height = baseHeight;
-          const width = height * aspectRatio;
-          cell.querySelectorAll("img, video").forEach(m => {
-            m.style.height = height + "px";
-            m.style.width = width + "px";
-          });
+
+          tr.appendChild(tdName);
+          tr.appendChild(tdVideos);
+          tableBody.appendChild(tr);
         }
-      });
+
+      } catch (error) {
+        console.error('Error loading JSON:', error);
+        tableBody.innerHTML = '<tr><td colspan="2">Failed to load media content.</td></tr>';
+      }
     }
 
-    window.addEventListener('load', resizeArtworks);
-    window.addEventListener('resize', resizeArtworks);
+    window.addEventListener('load', loadMediaContent);
   </script>
 </body>
 </html>
-
