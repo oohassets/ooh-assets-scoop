@@ -27,7 +27,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       border-radius: 12px;
       overflow: hidden;
-      table-layout: fixed; /* Keeps consistent layout */
+      table-layout: fixed;
     }
 
     thead {
@@ -41,7 +41,7 @@
       vertical-align: middle;
     }
 
-    /* Make first column wider */
+    /* Make first column wider on desktop */
     th:first-child, td:first-child {
       width: 28%;
       text-align: left;
@@ -69,13 +69,13 @@
       border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.2);
       background: #fff;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.5s ease;
       max-width: 100%;
       height: auto;
       margin-bottom: 8px;
     }
 
-    /* Mupi group */
+    /* Digital Mupi group */
     .mupi-row {
       display: flex;
       gap: 16px;
@@ -93,7 +93,7 @@
       object-fit: contain;
     }
 
-    /* Wide aspect videos (Underpass, UDC Tower, etc.) */
+    /* Wide circuits (Underpass, Tower, etc.) */
     .wide-video {
       position: relative;
       width: 100%;
@@ -109,7 +109,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.5s ease;
     }
 
     @media (max-width: 768px) {
@@ -173,54 +173,41 @@
           else otherCircuits[name] = videos;
         }
 
-        function createSmoothVideoPlayer(videos) {
+        // Smooth player creator
+        function createSmoothPlayer(videos) {
           const wrapper = document.createElement('div');
-          const v1 = document.createElement('video');
-          const v2 = document.createElement('video');
-          v1.muted = v2.muted = true;
-          v1.autoplay = v2.autoplay = true;
-          v1.playsInline = v2.playsInline = true;
-          v1.loop = v2.loop = false;
-          v1.style.opacity = "1";
-          v2.style.opacity = "0";
-          v1.style.position = v2.style.position = "absolute";
-          v1.style.top = v2.style.top = "0";
-          v1.style.left = v2.style.left = "0";
-          v1.style.width = v2.style.width = "100%";
-          v1.style.height = v2.style.height = "100%";
-          v1.style.transition = v2.style.transition = "opacity 0.5s ease";
+          wrapper.style.position = 'relative';
+          wrapper.style.width = '100%';
+          wrapper.style.overflow = 'hidden';
 
-          wrapper.style.position = "relative";
-          wrapper.style.width = "100%";
-          wrapper.style.height = "auto";
-          wrapper.style.overflow = "hidden";
+          const video = document.createElement('video');
+          video.muted = true;
+          video.autoplay = true;
+          video.playsInline = true;
+          video.loop = false;
+          video.style.width = '100%';
+          video.style.height = 'auto';
+          video.style.opacity = '1';
+          video.style.transition = 'opacity 0.5s ease';
+          wrapper.appendChild(video);
 
           let current = 0;
-          let active = v1;
-          let next = v2;
+          video.src = videos[current];
+          video.play().catch(()=>{});
 
-          v1.src = videos[current];
-          v1.play();
-
-          active.addEventListener('ended', () => {
+          video.addEventListener('ended', async () => {
             current = (current + 1) % videos.length;
-            next.src = videos[current];
-            next.play();
-            next.style.opacity = "1";
-            active.style.opacity = "0";
-
-            // Swap references
-            const temp = active;
-            active = next;
-            next = temp;
+            video.style.opacity = '0';
+            await new Promise(r => setTimeout(r, 200));
+            video.src = videos[current];
+            await video.play().catch(()=>{});
+            video.style.opacity = '1';
           });
 
-          wrapper.appendChild(v1);
-          wrapper.appendChild(v2);
           return wrapper;
         }
 
-        // Non-Mupi rows
+        // Non-Mupi circuits
         for (const [circuitName, videos] of Object.entries(otherCircuits)) {
           const tr = document.createElement('tr');
           const tdName = document.createElement('td');
@@ -232,7 +219,7 @@
             container.classList.add('wide-video');
           }
 
-          container.appendChild(createSmoothVideoPlayer(videos));
+          container.appendChild(createSmoothPlayer(videos));
           tdVideos.appendChild(container);
 
           tr.appendChild(tdName);
@@ -240,13 +227,13 @@
           tableBody.appendChild(tr);
         }
 
-        // Mupi Circuits (grouped)
+        // Grouped Mupi Circuits
         if (Object.keys(mupiCircuits).length > 0) {
           const trMupi = document.createElement('tr');
           const tdNameMupi = document.createElement('td');
           const tdMupiGroup = document.createElement('td');
-          const mupiContainer = document.createElement('div');
           tdNameMupi.textContent = 'Digital Mupi Circuits';
+          const mupiContainer = document.createElement('div');
           mupiContainer.classList.add('mupi-row');
 
           for (const [mupiName, videos] of Object.entries(mupiCircuits)) {
@@ -254,7 +241,7 @@
             artwork.classList.add('artwork');
             const label = document.createElement('div');
             label.textContent = mupiName;
-            const player = createSmoothVideoPlayer(videos);
+            const player = createSmoothPlayer(videos);
             artwork.appendChild(label);
             artwork.appendChild(player);
             mupiContainer.appendChild(artwork);
