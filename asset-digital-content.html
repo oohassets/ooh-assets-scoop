@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SCOOP | OOH Assets Contents</title>
-
   <link rel="icon" type="image/x-icon" href="scoopicon_32x32.ico">
 
   <style>
@@ -28,6 +27,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       border-radius: 12px;
       overflow: hidden;
+      table-layout: fixed; /* Keeps consistent layout */
     }
 
     thead {
@@ -39,6 +39,14 @@
       padding: 12px 16px;
       text-align: center;
       vertical-align: middle;
+    }
+
+    /* Make first column wider */
+    th:first-child, td:first-child {
+      width: 28%;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
     }
 
     tbody tr:nth-child(even) {
@@ -61,18 +69,13 @@
       border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.2);
       background: #fff;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: opacity 0.4s ease;
       max-width: 100%;
       height: auto;
       margin-bottom: 8px;
     }
 
-    .artwork:hover video {
-      transform: scale(1);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-
-    /* Mupi row styling */
+    /* Mupi group */
     .mupi-row {
       display: flex;
       gap: 16px;
@@ -80,30 +83,21 @@
       flex-wrap: wrap;
     }
 
-    .artwork div {
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 6px;
-      font-weight: normal;
-      text-align: center;
-    }
-
     .mupi-row .artwork {
       flex: 1 1 calc(33% - 10px);
       min-width: 150px;
     }
 
-    /* Make Mupi videos smaller */
     .mupi-row .artwork video {
       max-height: 150px;
       object-fit: contain;
     }
 
-    /* 🔹 Special style for wide videos (Underpass, UDC Tower, etc.) */
+    /* Wide aspect videos (Underpass, UDC Tower, etc.) */
     .wide-video {
       position: relative;
       width: 100%;
-      padding-top: calc(100% / 15); /* keeps ~15:1 aspect ratio */
+      padding-top: calc(100% / 15);
       overflow: hidden;
       border-radius: 10px;
       background: #000;
@@ -111,11 +105,11 @@
 
     .wide-video video {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
+      transition: opacity 0.4s ease;
     }
 
     @media (max-width: 768px) {
@@ -124,20 +118,21 @@
         font-size: 14px;
       }
 
+      th:first-child, td:first-child {
+        width: 100%;
+        text-align: center;
+        white-space: normal;
+      }
+
       .mupi-row {
         flex-direction: column;
         align-items: center;
-      }
-
-      .mupi-row .artwork {
-        width: 100%;
       }
 
       .mupi-row .artwork video {
         max-height: 180px;
       }
 
-      /* Make sure wide videos still display well on mobile */
       .wide-video {
         padding-top: calc(100% / 10);
       }
@@ -172,93 +167,97 @@
         const mupiCircuits = {};
         const otherCircuits = {};
 
-        // Separate Mupi and other circuits automatically
+        // Separate Mupi and non-Mupi circuits
         for (const [name, videos] of Object.entries(data)) {
-          if (name.toLowerCase().includes("mupi")) {
-            mupiCircuits[name] = videos;
-          } else {
-            otherCircuits[name] = videos;
-          }
+          if (name.toLowerCase().includes("mupi")) mupiCircuits[name] = videos;
+          else otherCircuits[name] = videos;
         }
 
-        // Add non-Mupi circuits
+        function createSmoothVideoPlayer(videos) {
+          const wrapper = document.createElement('div');
+          const v1 = document.createElement('video');
+          const v2 = document.createElement('video');
+          v1.muted = v2.muted = true;
+          v1.autoplay = v2.autoplay = true;
+          v1.playsInline = v2.playsInline = true;
+          v1.loop = v2.loop = false;
+          v1.style.opacity = "1";
+          v2.style.opacity = "0";
+          v1.style.position = v2.style.position = "absolute";
+          v1.style.top = v2.style.top = "0";
+          v1.style.left = v2.style.left = "0";
+          v1.style.width = v2.style.width = "100%";
+          v1.style.height = v2.style.height = "100%";
+          v1.style.transition = v2.style.transition = "opacity 0.5s ease";
+
+          wrapper.style.position = "relative";
+          wrapper.style.width = "100%";
+          wrapper.style.height = "auto";
+          wrapper.style.overflow = "hidden";
+
+          let current = 0;
+          let active = v1;
+          let next = v2;
+
+          v1.src = videos[current];
+          v1.play();
+
+          active.addEventListener('ended', () => {
+            current = (current + 1) % videos.length;
+            next.src = videos[current];
+            next.play();
+            next.style.opacity = "1";
+            active.style.opacity = "0";
+
+            // Swap references
+            const temp = active;
+            active = next;
+            next = temp;
+          });
+
+          wrapper.appendChild(v1);
+          wrapper.appendChild(v2);
+          return wrapper;
+        }
+
+        // Non-Mupi rows
         for (const [circuitName, videos] of Object.entries(otherCircuits)) {
           const tr = document.createElement('tr');
           const tdName = document.createElement('td');
           const tdVideos = document.createElement('td');
-          tdVideos.classList.add('artwork');
-
           tdName.textContent = circuitName;
 
-          const videoContainer = document.createElement('div');
-
-          // ✅ Apply wide-video wrapper for specific circuits
-          if (
-            circuitName.toLowerCase().includes('underpass') ||
-            circuitName.toLowerCase().includes('udc tower')
-          ) {
-            videoContainer.classList.add('wide-video');
+          const container = document.createElement('div');
+          if (circuitName.toLowerCase().includes('underpass') || circuitName.toLowerCase().includes('udc tower')) {
+            container.classList.add('wide-video');
           }
 
-          const videoEl = document.createElement('video');
-          videoEl.autoplay = true;
-          videoEl.muted = true;
-          videoEl.loop = false;
-          videoEl.playsInline = true;
-          videoEl.src = videos[0];
-
-          videoContainer.appendChild(videoEl);
-          tdVideos.appendChild(videoContainer);
-
-          // Sequential playback
-          let current = 0;
-          videoEl.addEventListener('ended', () => {
-            current = (current + 1) % videos.length;
-            videoEl.src = videos[current];
-            videoEl.play();
-          });
+          container.appendChild(createSmoothVideoPlayer(videos));
+          tdVideos.appendChild(container);
 
           tr.appendChild(tdName);
           tr.appendChild(tdVideos);
           tableBody.appendChild(tr);
         }
 
-        // Add grouped Digital Mupi circuits
+        // Mupi Circuits (grouped)
         if (Object.keys(mupiCircuits).length > 0) {
           const trMupi = document.createElement('tr');
           const tdNameMupi = document.createElement('td');
           const tdMupiGroup = document.createElement('td');
-          tdMupiGroup.colSpan = 1;
-
           const mupiContainer = document.createElement('div');
+          tdNameMupi.textContent = 'Digital Mupi Circuits';
           mupiContainer.classList.add('mupi-row');
 
-          tdNameMupi.textContent = 'Digital Mupi Circuits';
-
           for (const [mupiName, videos] of Object.entries(mupiCircuits)) {
-            const artworkDiv = document.createElement('div');
-            artworkDiv.classList.add('artwork');
-
+            const artwork = document.createElement('div');
+            artwork.classList.add('artwork');
             const label = document.createElement('div');
             label.textContent = mupiName;
-
-            const videoEl = document.createElement('video');
-            videoEl.autoplay = true;
-            videoEl.muted = true;
-            videoEl.loop = false;
-            videoEl.playsInline = true;
-            videoEl.src = videos[0];
-
-            let current = 0;
-            videoEl.addEventListener('ended', () => {
-              current = (current + 1) % videos.length;
-              videoEl.src = videos[current];
-              videoEl.play();
-            });
-
-            artworkDiv.appendChild(label);
-            artworkDiv.appendChild(videoEl);
-            mupiContainer.appendChild(artworkDiv);
+            const player = createSmoothVideoPlayer(videos);
+            artwork.appendChild(label);
+            artwork.appendChild(player);
+            mupiContainer.appendChild(artwork);
           }
 
           tdMupiGroup.appendChild(mupiContainer);
@@ -267,8 +266,8 @@
           tableBody.appendChild(trMupi);
         }
 
-      } catch (error) {
-        console.error('Error loading JSON:', error);
+      } catch (err) {
+        console.error('Error loading JSON:', err);
         tableBody.innerHTML = '<tr><td colspan="2">Failed to load media content.</td></tr>';
       }
     }
