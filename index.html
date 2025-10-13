@@ -260,33 +260,64 @@
 
     // Update map iframe safely
     assetLinks.forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const mapUrl = link.getAttribute('data-map');
-        mapIframe.src = mapUrl.includes('/embed?') ? mapUrl : mapUrl.replace(/\/(viewer|edit)\?/, '/embed?') + '&noprof=1';
+      link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const mapUrl = link.getAttribute('data-map');
+      const safeUrl = mapUrl
+        .replace('/viewer?', '/embed?')
+        .replace('/edit?', '/embed?')
+        + '&noprof=1';
+      mapIframe.src = safeUrl;
+
         assetLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
       });
     });
 
     // Fullscreen toggle
-    fsBtn.addEventListener('click', () => {
-      document.fullscreenElement ? document.exitFullscreen() : wrapper.requestFullscreen();
+    fsBtn.addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await wrapper.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (err) {
+        console.warn("Fullscreen not supported:", err);
+      }
     });
 
     // Inventory toggle
-    inventoryBtn.addEventListener('click', () => {
-      const isHidden = inventoryWrapper.style.display === 'none' || !inventoryWrapper.style.display;
-      inventoryWrapper.style.display = isHidden ? 'block' : 'none';
-      isHidden ? inventoryWrapper.requestFullscreen() : document.exitFullscreen();
+    inventoryBtn.addEventListener('click', async () => {
+      const isVisible = inventoryWrapper.style.display === "block";
+      if (!isVisible) {
+        inventoryWrapper.style.display = "block";
+        try {
+          await inventoryWrapper.requestFullscreen();
+        } catch (err) {
+          console.warn("Fullscreen not supported:", err);
+        }
+      } else {
+        inventoryWrapper.style.display = "none";
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        }
+      }
     });
 
     // Keep fullscreen styles consistent
     document.addEventListener('fullscreenchange', () => {
       const fsElem = document.fullscreenElement;
+
+      // Apply fullscreen styling only to the active element
       [wrapper, inventoryWrapper].forEach(el => {
-        el.classList.toggle('fullscreen-wrapper', el === fsElem);
+        if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
       });
+
+      // When exiting fullscreen, hide the inventory if it was open
+      if (!fsElem && inventoryWrapper.style.display === "block") {
+        inventoryWrapper.style.display = "none";
+      }
     });
   </script>
 </body>
