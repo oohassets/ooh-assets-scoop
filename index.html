@@ -198,17 +198,43 @@
     </div>
 
     <!-- Map -->
-    <div class="map-wrapper" id="mapWrapper">
-      <iframe id="mapIframe"
-        src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&noprof=1&hl=en"
-        title="OOH Assets Map"
-        loading="lazy"
-        referrerpolicy="no-referrer"
-        allowfullscreen
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        aria-label="Google My Maps showing custom locations">
-      </iframe>
-    </div>
+<div class="map-wrapper" id="mapWrapper" style="position: relative; overflow: hidden;">
+  <iframe id="mapIframe"
+    src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
+    title="OOH Assets Map"
+    loading="lazy"
+    referrerpolicy="no-referrer"
+    allowfullscreen
+    sandbox="allow-scripts allow-same-origin allow-popups"
+    aria-label="Google My Maps showing custom locations"
+    style="width:100%; height:600px; border:0;">
+  </iframe>
+
+  <!-- Overlay to hide the top-right fullscreen/share icons -->
+  <div style="
+    position:absolute;
+    top:0;
+    right:0;
+    width:120px;
+    height:45px;
+    background:#fff;
+    opacity:0;
+    pointer-events:auto;
+  "></div>
+
+  <!-- Overlay to hide bottom-right 'View larger map' -->
+  <div style="
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:30px;
+    background:#fff;
+    opacity:0;
+    pointer-events:none;
+  "></div>
+</div>
+
 
     <!-- Controls -->
     <div class="controls">
