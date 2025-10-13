@@ -198,16 +198,29 @@
     </div>
 
     <!-- Map -->
-    <div class="map-wrapper" id="mapWrapper">
+    <div class="map-wrapper" id="mapWrapper" style="position: relative; overflow: hidden;">
       <iframe id="mapIframe"
         src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
         title="OOH Assets Map"
         loading="lazy"
         referrerpolicy="no-referrer"
         allowfullscreen
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        aria-label="Google My Maps showing custom locations">
+        sandbox="allow-scripts allow-same-origin allow-popups"
+        aria-label="Google My Maps showing custom locations"
+        style="width:100%; height:600px; border:0;">
       </iframe>
+
+      <!-- Overlay to hide "View larger map" link -->
+      <div style="
+        position:absolute;
+        bottom:0;
+        left:0;
+        width:100%;
+        height:30px;
+        background:#fff;
+        opacity:0;
+        pointer-events:none;
+      "></div>
     </div>
 
     <!-- Controls -->
@@ -222,7 +235,8 @@
       <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
               title="Content Inventory"
               loading="lazy"
-              sandbox="allow-scripts allow-same-origin">
+              sandbox="allow-scripts allow-same-origin"
+              style="width:100%; height:600px; border:0;">
       </iframe>
     </div>
 
@@ -239,12 +253,11 @@
     const inventoryWrapper = document.getElementById('inventoryWrapper');
     const assetLinks = document.querySelectorAll('.asset-links a');
 
-    // ✅ Update map iframe without owner info
+    // Update map iframe safely
     assetLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const mapUrl = link.getAttribute('data-map');
-        // Force no-profile and embed mode
         const safeUrl = mapUrl.replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
         mapIframe.src = safeUrl;
 
@@ -253,7 +266,7 @@
       });
     });
 
-    // ✅ Fullscreen toggle (only iframe, no redirect)
+    // Fullscreen toggle
     fsBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
         wrapper.requestFullscreen?.();
@@ -262,7 +275,7 @@
       }
     });
 
-    // ✅ Inventory toggle
+    // Inventory toggle
     inventoryBtn.addEventListener('click', () => {
       if (inventoryWrapper.style.display === "none" || inventoryWrapper.style.display === "") {
         inventoryWrapper.style.display = "block";
@@ -273,7 +286,7 @@
       }
     });
 
-    // ✅ Keep fullscreen styles consistent
+    // Fullscreen styles
     document.addEventListener('fullscreenchange', () => {
       const fsElem = document.fullscreenElement;
       [wrapper, inventoryWrapper].forEach(el => {
