@@ -185,23 +185,27 @@
            alt="Scoop Logo" class="logo">
     </div>
 
-    <p class="lead">Click the toggle bar to select OOH Assets and view their locations. Use the <strong>Full screen</strong> button to expand the map or inventory.</p>
+    <p class="lead">
+      Click the toggle bar to select OOH Assets and view their locations. 
+      Use the <strong>Full screen</strong> button to expand the map or inventory.
+    </p>
 
     <!-- Asset Links -->
     <div class="asset-links">
-      <a href="#" data-map="https://www.google.com/maps/d/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1" class="active">Digital OOH Assets</a>
-      <a href="#" data-map="https://www.google.com/maps/d/embed?mid=1qAnnrUkqXRNvsgXruletafuG8iRAvmw&hl=en&noprof=1">Light Poles OOH Assets</a>
-      <a href="#" data-map="https://www.google.com/maps/d/embed?mid=1s-mXAGEcos--BVZD45FuMEbxCRM8nV4&hl=en&noprof=1">Static Mupi OOH Assets</a>
+      <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1" class="active">Digital OOH Assets</a>
+      <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1qAnnrUkqXRNvsgXruletafuG8iRAvmw&hl=en&noprof=1">Light Poles OOH Assets</a>
+      <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1s-mXAGEcos--BVZD45FuMEbxCRM8nV4&hl=en&noprof=1">Static Mupi OOH Assets</a>
     </div>
 
     <!-- Map -->
     <div class="map-wrapper" id="mapWrapper">
       <iframe id="mapIframe"
-        src="https://www.google.com/maps/d/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
+        src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
         title="OOH Assets Map"
         loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
+        referrerpolicy="no-referrer"
         allowfullscreen
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         aria-label="Google My Maps showing custom locations">
       </iframe>
     </div>
@@ -214,13 +218,17 @@
     </div>
 
     <!-- Inventory -->
-    <div class="inventory-wrapper" id="inventoryWrapper">
+    <div class="inventory-wrapper" id="inventoryWrapper" style="display:none;">
       <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
               title="Content Inventory"
-              loading="lazy"></iframe>
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin">
+      </iframe>
     </div>
 
-    <div class="note">These asset locations have been pinned by the OOH Asset Supervisor.</div>
+    <div class="note">
+      These asset locations have been pinned by the OOH Asset Supervisor.
+    </div>
   </div>
 
   <script>
@@ -229,55 +237,49 @@
     const mapIframe = document.getElementById('mapIframe');
     const inventoryBtn = document.getElementById('showInventoryBtn');
     const inventoryWrapper = document.getElementById('inventoryWrapper');
-    const openInMaps = document.getElementById('openInMaps');
     const assetLinks = document.querySelectorAll('.asset-links a');
 
-    // Update map when clicking text links
+    // ✅ Update map iframe without owner info
     assetLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const mapUrl = link.getAttribute('data-map');
-        mapIframe.src = mapUrl;
+        // Force no-profile and embed mode
+        const safeUrl = mapUrl.replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
+        mapIframe.src = safeUrl;
 
-        // Update "Open in Google Maps" link
-        const viewerUrl = mapUrl.replace("/embed?", "/viewer?") + "&hl=en";
-        openInMaps.href = viewerUrl;
-
-        // Remove active class from all, then add to clicked
         assetLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
       });
     });
 
-    // Fullscreen toggle
-    function toggleFullScreen(elem) {
+    // ✅ Fullscreen toggle (only iframe, no redirect)
+    fsBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
-        elem.requestFullscreen?.();
+        wrapper.requestFullscreen?.();
       } else {
-        document.exitFullscreen().then(() => elem.requestFullscreen?.());
-      }
-    }
-    fsBtn.addEventListener('click', () => toggleFullScreen(wrapper));
-
-    // Inventory toggle
-    inventoryBtn.addEventListener('click', () => {
-      if (inventoryWrapper.style.display === "none" || inventoryWrapper.style.display === "") {
-        inventoryWrapper.style.display = "block";
-        toggleFullScreen(inventoryWrapper);
-      } else {
-        inventoryWrapper.style.display = "none";
+        document.exitFullscreen?.();
       }
     });
 
-    // Update fullscreen styles
-    function updateFullscreenStyles() {
-      const fsElem = document.fullscreenElement || document.webkitFullscreenElement;
+    // ✅ Inventory toggle
+    inventoryBtn.addEventListener('click', () => {
+      if (inventoryWrapper.style.display === "none" || inventoryWrapper.style.display === "") {
+        inventoryWrapper.style.display = "block";
+        inventoryWrapper.requestFullscreen?.();
+      } else {
+        inventoryWrapper.style.display = "none";
+        document.exitFullscreen?.();
+      }
+    });
+
+    // ✅ Keep fullscreen styles consistent
+    document.addEventListener('fullscreenchange', () => {
+      const fsElem = document.fullscreenElement;
       [wrapper, inventoryWrapper].forEach(el => {
         if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
       });
-    }
-    document.addEventListener('fullscreenchange', updateFullscreenStyles);
-    document.addEventListener('webkitfullscreenchange', updateFullscreenStyles);
+    });
   </script>
 </body>
 </html>
