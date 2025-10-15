@@ -108,7 +108,8 @@
       font-weight: 600;
       z-index: 10;
       cursor: default;
-      transition: none;
+      transition: all 0.3s ease;
+      max-width: 220px;
     }
 
     .top-right-widget:hover {
@@ -119,8 +120,11 @@
     .top-right-widget iframe,
     .top-right-widget div.elfsight-app-48f46c72-ff53-4e71-a82d-2f79ab462c84 {
       background: transparent !important;
+      width: 100% !important;
+      height: auto !important;
+      max-width: 100%;
     }
-
+    
     /* ------------------ Asset Links ------------------ */
     .asset-links {
       display: flex;
