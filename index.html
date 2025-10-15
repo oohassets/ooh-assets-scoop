@@ -58,7 +58,7 @@
       color: #FFFFFF;
       font-family: Roboto, sans-serif;
       text-align: center;
-      font-size: 16px;
+      font-size: 18px;
     }
 
     .asset-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 1rem; }
@@ -217,7 +217,7 @@
         const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.2854&longitude=51.5310&current=temperature_2m,weathercode&timezone=auto');
         const data = await res.json();
         const temp = data.current?.temperature_2m ?? 'N/A';
-        weatherWidget.textContent = `🌡️ ${temp}°C`;
+        weatherWidget.textContent = `${temp}°C`;
       } catch (err) {
         weatherWidget.textContent = 'Weather unavailable';
         console.error(err);
