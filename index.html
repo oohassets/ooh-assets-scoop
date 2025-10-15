@@ -37,7 +37,7 @@
     .container {
       width: 100%;
       max-width: var(--max-width);
-      position: relative; /* Needed for top-right widget */
+      position: relative; /* For absolute widget */
     }
 
     /* ------------------ Header ------------------ */
@@ -115,6 +115,12 @@
       background: transparent;
     }
 
+    /* Make iframe inside widget transparent */
+    .top-right-widget iframe,
+    .top-right-widget div.elfsight-app-48f46c72-ff53-4e71-a82d-2f79ab462c84 {
+      background: transparent !important;
+    }
+
     /* ------------------ Asset Links ------------------ */
     .asset-links {
       display: flex;
@@ -148,6 +154,7 @@
       flex-wrap: wrap;
       gap: .5rem;
       margin-top: .75rem;
+      justify-content: center;
     }
 
     .btn {
@@ -222,12 +229,12 @@
 
 <body>
   <div class="container">
+
     <!-- Top-right Widget -->
     <div class="top-right-widget">
       <script src="https://elfsightcdn.com/platform.js" async></script>
       <div class="elfsight-app-48f46c72-ff53-4e71-a82d-2f79ab462c84" data-elfsight-app-lazy></div>
     </div>
-  </div>
 
     <!-- Logo -->
     <div class="title-container">
@@ -287,23 +294,17 @@
     const inventoryBtn = document.getElementById('showInventoryBtn');
     const inventoryWrapper = document.getElementById('inventoryWrapper');
     const assetLinks = document.querySelectorAll('.asset-links a');
-    const myWidget = document.getElementById('myWidget');
-
-    // Widget click action (example)
-    myWidget.addEventListener('click', () => {
-      alert("Widget clicked!");
-    });
 
     // Update map iframe safely
     assetLinks.forEach(link => {
       link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const mapUrl = link.getAttribute('data-map');
-      const safeUrl = mapUrl
-        .replace('/viewer?', '/embed?')
-        .replace('/edit?', '/embed?')
-        + '&noprof=1';
-      mapIframe.src = safeUrl;
+        e.preventDefault();
+        const mapUrl = link.getAttribute('data-map');
+        const safeUrl = mapUrl
+          .replace('/viewer?', '/embed?')
+          .replace('/edit?', '/embed?')
+          + '&noprof=1';
+        mapIframe.src = safeUrl;
 
         assetLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
@@ -344,11 +345,9 @@
     // Keep fullscreen styles consistent
     document.addEventListener('fullscreenchange', () => {
       const fsElem = document.fullscreenElement;
-
       [wrapper, inventoryWrapper].forEach(el => {
         if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
       });
-
       if (!fsElem && inventoryWrapper.style.display === "block") {
         inventoryWrapper.style.display = "none";
       }
