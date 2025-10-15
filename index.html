@@ -37,6 +37,7 @@
     .container {
       width: 100%;
       max-width: var(--max-width);
+      position: relative; /* Needed for top-right widget */
     }
 
     /* ------------------ Header ------------------ */
@@ -93,6 +94,25 @@
       width: 120px;
       height: 45px;
       pointer-events: auto;
+    }
+
+    /* ------------------ Top-right widget ------------------ */
+    .top-right-widget {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      font-weight: 600;
+      z-index: 10;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .top-right-widget:hover {
+      background: rgba(255,255,255,1);
     }
 
     /* ------------------ Asset Links ------------------ */
@@ -195,12 +215,18 @@
       .note { font-size: .75rem; }
       .map-wrapper { aspect-ratio: 3/4; }
       .logo { height: 60px; }
+      .top-right-widget { padding: .35rem .7rem; font-size: .85rem; }
     }
   </style>
 </head>
 
 <body>
   <div class="container">
+    <!-- Top-right Widget -->
+    <div class="top-right-widget" id="myWidget">
+      My Widget
+    </div>
+
     <!-- Logo -->
     <div class="title-container">
       <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" 
@@ -259,6 +285,12 @@
     const inventoryBtn = document.getElementById('showInventoryBtn');
     const inventoryWrapper = document.getElementById('inventoryWrapper');
     const assetLinks = document.querySelectorAll('.asset-links a');
+    const myWidget = document.getElementById('myWidget');
+
+    // Widget click action (example)
+    myWidget.addEventListener('click', () => {
+      alert("Widget clicked!");
+    });
 
     // Update map iframe safely
     assetLinks.forEach(link => {
@@ -311,12 +343,10 @@
     document.addEventListener('fullscreenchange', () => {
       const fsElem = document.fullscreenElement;
 
-      // Apply fullscreen styling only to the active element
       [wrapper, inventoryWrapper].forEach(el => {
         if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
       });
 
-      // When exiting fullscreen, hide the inventory if it was open
       if (!fsElem && inventoryWrapper.style.display === "block") {
         inventoryWrapper.style.display = "none";
       }
