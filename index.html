@@ -217,6 +217,7 @@
         const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.2854&longitude=51.5310&current=temperature_2m,weathercode&timezone=auto');
         const data = await res.json();
         const temp = data.current?.temperature_2m ?? 'N/A';
+         weatherWidget.textContent = "Doha, Qatar";
         weatherWidget.textContent = `${temp}°C`;
       } catch (err) {
         weatherWidget.textContent = 'Weather unavailable';
