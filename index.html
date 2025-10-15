@@ -14,7 +14,6 @@
       --text: #36454F;
     }
 
-    /* ------------------ Base ------------------ */
     body {
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       margin: 0;
@@ -34,191 +33,49 @@
       50% { background-position: 100% 50%; }
     }
 
-    .container {
-      width: 100%;
-      max-width: var(--max-width);
-      position: relative; /* For absolute widget */
-    }
+    .container { width: 100%; max-width: var(--max-width); position: relative; }
 
-    /* ------------------ Header ------------------ */
-    .title-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: .25rem;
-    }
+    .title-container { display: flex; justify-content: center; margin-bottom: .25rem; }
+    .logo { height: 120px; width: auto; }
+    .lead { margin: 0 0 1rem; color: var(--text); font-size: .95rem; line-height: 1.4; text-align: center; }
 
-    .logo {
-      height: 120px;
-      width: auto;
-    }
+    .map-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; min-height: 300px; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(20,20,40,0.08); background: #4d6a79; transition: all .3s ease; }
+    .map-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-    .lead {
-      margin: 0 0 1rem;
-      color: var(--text);
-      font-size: .95rem;
-      line-height: 1.4;
-      text-align: center;
-    }
+    .map-overlay { position: absolute; background: #4d6a79; opacity: 1; }
+    .hide-top-right { top: 0; right: 0; width: 140px; height: 50px; pointer-events: auto; }
 
-    /* ------------------ Map ------------------ */
-    .map-wrapper {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16/9;
-      min-height: 300px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 6px 18px rgba(20,20,40,0.08);
-      background: #4d6a79;
-      transition: all .3s ease;
-    }
-
-    .map-wrapper iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    /* Overlay to hide Google icons */
-    .map-overlay {
-      position: absolute;
-      background: #4d6a79;
-      opacity: 1;
-    }
-
-    .hide-top-right {
-      top: 0;
-      right: 0;
-      width: 120px;
-      height: 45px;
-      pointer-events: auto;
-    }
-
-    /* ------------------ Top-right widget ------------------ */
     .top-right-widget {
       position: absolute;
       top: 10px;
       right: 10px;
       background: transparent;
-      padding: 0;
-      border-radius: 0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
       box-shadow: none;
       font-weight: 600;
       z-index: 10;
-      cursor: default;
-      transition: all 0.3s ease;
-      max-width: 220px;
-    }
-
-    .top-right-widget:hover {
-      background: transparent;
-    }
-
-    /* Make iframe inside widget transparent */
-    .top-right-widget iframe,
-    .top-right-widget div.elfsight-app-48f46c72-ff53-4e71-a82d-2f79ab462c84 {
-      background: transparent !important;
-      width: 100% !important;
-      height: auto !important;
-      max-width: 100%;
-    }
-    
-    /* ------------------ Asset Links ------------------ */
-    .asset-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-
-    .asset-links a {
-      color: var(--text);
-      font-weight: 600;
-      text-decoration: none;
-      transition: color .3s ease;
-      cursor: pointer;
-    }
-
-    .asset-links a:hover,
-    .asset-links a.active {
-      color: #FF5F15;
-    }
-
-    .asset-links a.active {
-      text-decoration: underline;
-      font-weight: 700;
-    }
-
-    /* ------------------ Controls ------------------ */
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      margin-top: .75rem;
-      justify-content: center;
-    }
-
-    .btn {
-      flex: 1 1 auto;
-      background: var(--brand);
-      color: #fff;
-      border: none;
-      padding: .5rem .75rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: .9rem;
+      color: #000;
+      font-family: Roboto, sans-serif;
       text-align: center;
-      cursor: pointer;
-      transition: background .3s ease;
+      font-size: 16px;
     }
 
+    .asset-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 1rem; }
+    .asset-links a { color: var(--text); font-weight: 600; text-decoration: none; transition: color .3s ease; cursor: pointer; }
+    .asset-links a:hover, .asset-links a.active { color: #FF5F15; text-decoration: underline; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; justify-content: center; }
+    .btn { flex: 1 1 auto; background: var(--brand); color: #fff; border: none; padding: .5rem .75rem; border-radius: 8px; font-weight: 600; font-size: .9rem; text-align: center; cursor: pointer; transition: background .3s ease; }
     .btn:hover { background: var(--brand-hover); }
 
-    /* ------------------ Inventory ------------------ */
-    .inventory-wrapper {
-      display: none;
-      width: 100%;
-      aspect-ratio: 16/9;
-      min-height: 400px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 6px 18px rgba(20,20,40,0.08);
-      background: #e9eef6;
-      position:relative;
-      transition: all .3s ease;
-      margin-top: .75rem;
-      z-index: 1;
-    }
+    .inventory-wrapper { display: none; width: 100%; aspect-ratio: 16/9; min-height: 400px; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(20,20,40,0.08); background: #e9eef6; position: relative; transition: all .3s ease; margin-top: .75rem; z-index: 1; }
+    .inventory-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-    .inventory-wrapper iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
+    .note { font-size: .85rem; color: #fff; margin-top: .5rem; text-align: center; }
 
-    /* ------------------ Footer ------------------ */
-    .note {
-      font-size: .85rem;
-      color: #fff;
-      margin-top: .5rem;
-      text-align: center;
-    }
+    .fullscreen-wrapper { width: 100% !important; height: 100% !important; border-radius: 0 !important; box-shadow: none !important; margin: 0 !important; }
 
-    /* ------------------ Fullscreen ------------------ */
-    .fullscreen-wrapper {
-      width: 100% !important;
-      height: 100% !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      margin: 0 !important;
-    }
-
-    /* ------------------ Mobile ------------------ */
     @media (max-width:480px) {
       body { padding: .75rem; }
       .lead { font-size: .85rem; }
@@ -233,9 +90,6 @@
 
 <body>
   <div class="container">
-
-
-
     <!-- Logo -->
     <div class="title-container">
       <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" 
@@ -264,14 +118,12 @@
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         aria-label="Google My Maps showing custom locations">
       </iframe>
-      <div class="map-overlay hide-top-right">
-            <!-- Top-right Widget -->
-    <div class="top-right-widget">
-      <script src="https://elfsightcdn.com/platform.js" async></script>
-      <div class="elfsight-app-48f46c72-ff53-4e71-a82d-2f79ab462c84" data-elfsight-app-lazy></div>
-    </div>
 
-        
+      <!-- Top-right Widget -->
+      <div class="map-overlay hide-top-right">
+        <div class="top-right-widget" id="weatherWidget">
+          Loading weather...
+        </div>
       </div>
     </div>
 
@@ -302,16 +154,14 @@
     const inventoryBtn = document.getElementById('showInventoryBtn');
     const inventoryWrapper = document.getElementById('inventoryWrapper');
     const assetLinks = document.querySelectorAll('.asset-links a');
+    const weatherWidget = document.getElementById('weatherWidget');
 
     // Update map iframe safely
     assetLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const mapUrl = link.getAttribute('data-map');
-        const safeUrl = mapUrl
-          .replace('/viewer?', '/embed?')
-          .replace('/edit?', '/embed?')
-          + '&noprof=1';
+        const safeUrl = mapUrl.replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
         mapIframe.src = safeUrl;
 
         assetLinks.forEach(l => l.classList.remove('active'));
@@ -360,6 +210,23 @@
         inventoryWrapper.style.display = "none";
       }
     });
+
+    // ---------------- Weather Widget ----------------
+    async function fetchWeather() {
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.2854&longitude=51.5310&current=temperature_2m,weathercode&timezone=auto');
+        const data = await res.json();
+        const temp = data.current?.temperature_2m ?? 'N/A';
+        weatherWidget.textContent = `🌡️ ${temp}°C`;
+      } catch (err) {
+        weatherWidget.textContent = 'Weather unavailable';
+        console.error(err);
+      }
+    }
+
+    fetchWeather();
+    // Optional: update every 10 min
+    setInterval(fetchWeather, 600000);
   </script>
 </body>
 </html>
