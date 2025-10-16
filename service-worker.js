@@ -5,7 +5,7 @@ const URLS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './ooh-assets-scoop/icons/scoopicon_512x512.ico'
+  'https://oohassets.github.io/ooh-assets-scoop/icons/scoop_512x512.ico'
 ];
 
 // Install: cache app files
