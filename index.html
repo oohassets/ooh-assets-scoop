@@ -15,6 +15,17 @@
   <meta name="msapplication-TileImage" content="scoop_512x512.ico">
   <meta name="msapplication-TileColor" content="#1f6feb">
 
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+          .catch(err => console.warn('❌ Service Worker failed:', err));
+      });
+    }
+  </script>
+
   <style>
     :root {
       --max-width: 1200px;
