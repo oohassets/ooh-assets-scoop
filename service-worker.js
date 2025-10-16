@@ -4,9 +4,8 @@ const CACHE_NAME = 'scoop-assets-v1';
 const URLS_TO_CACHE = [
   './',
   './index.html',
-  './scoop_512x512.ico',
-  './scoop_32x32.ico',
-  './manifest.json'
+  './manifest.json',
+  './ooh-assets-scoop/icons/scoopicon_512x512.ico'
 ];
 
 // Install: cache app files
@@ -33,4 +32,3 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then(resp => resp || fetch(event.request))
   );
 });
-
