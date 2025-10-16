@@ -1,12 +1,10 @@
 {
   "name": "SCOOP | OOH Assets",
   "short_name": "SCOOP",
-  "description": "View and manage OOH assets on the map and inventory dashboard.",
-  "start_url": "./index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#1f6feb",
   "theme_color": "#1f6feb",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_192x192.png",
@@ -18,23 +16,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "splash_screens": [
-    {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/splash_640x1136.png",
-      "sizes": "640x1136",
-      "type": "image/png"
-    },
-    {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/splash_1242x2688.png",
-      "sizes": "1242x2688",
-      "type": "image/png"
-    },
-    {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/splash_2048x2732.png",
-      "sizes": "2048x2732",
-      "type": "image/png"
     }
   ]
 }
