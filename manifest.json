@@ -1,1 +1,18 @@
+{
+  "name": "SCOOP | OOH Assets",
+  "short_name": "SCOOP",
+  "description": "View and manage SCOOP Out-of-Home Assets.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1f6feb",
+  "theme_color": "#1f6feb",
+  "icons": [
+    {
+      "src": "scoop_512x512.ico",
+      "sizes": "512x512",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ]
+}
 
