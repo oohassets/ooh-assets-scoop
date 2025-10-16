@@ -1,33 +1,27 @@
-// service-worker.js
-
-const CACHE_NAME = 'scoop-assets-v1';
-const URLS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  'https://oohassets.github.io/ooh-assets-scoop/icons/scoop_512x512.ico'
-];
-
-// Install: cache app files
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(URLS_TO_CACHE))
+    caches.open('scoop-cache-v1').then(cache => {
+      return cache.addAll([
+        './',
+        './index.html',
+        './manifest.json',
+        './icons/scoop_512x512.ico',
+        './icons/scoop_512x512.png'
+      ]);
+    })
   );
   self.skipWaiting();
 });
 
-// Activate: cleanup old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))
-    )
+    caches.keys().then(keys => Promise.all(
+      keys.filter(k => k !== 'scoop-cache-v1').map(k => caches.delete(k))
+    ))
   );
-  self.clients.claim();
 });
 
-// Fetch: serve from cache first, then network
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(resp => resp || fetch(event.request))
   );
