@@ -8,11 +8,10 @@
   "theme_color": "#1f6feb",
   "icons": [
     {
-      "src": "scoop_512x512.ico",
+      "src": "ooh-assets-scoop/icons/scoopicon_512x512.ico",
       "sizes": "512x512",
       "type": "image/x-icon",
       "purpose": "any maskable"
     }
   ]
 }
-
