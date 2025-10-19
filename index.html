@@ -141,7 +141,7 @@ body {
 
   <div class="controls">
     <button class="btn" id="fsBtn">Full screen</button>
-    <a class="btn" href="asset-digital-content.html" target="_blank">View Screens</a>
+    <button class="btn" id="viewScreensBtn">View Screens</button>
     <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
   </div>
 
@@ -223,6 +223,18 @@ document.addEventListener('fullscreenchange', () => {
   [wrapper, inventoryWrapper].forEach(el=>{if(el) el.classList.toggle('fullscreen-wrapper', el===fsElem)});
   if(!fsElem && inventoryWrapper.style.display==="block") inventoryWrapper.style.display="none";
 });
+
+// View Screen
+const viewScreensBtn = document.getElementById('viewScreensBtn');
+viewScreensBtn.addEventListener('click', () => {
+  wrapper.innerHTML = `<iframe 
+    src="asset-digital-content.html" 
+    style="position:absolute; inset:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+    sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox">
+  </iframe>`;
+});
+
 
 // Weather widget
 async function fetchWeather(){
