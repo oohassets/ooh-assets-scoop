@@ -1,368 +1,164 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SCOOP | OOH Assets</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SCOOP | OOH Assets</title>
 
-  <!-- ✅ PWA / App Icons & Metadata -->
-  <link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_32x32.ico">
-  <link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico">
-  <link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico">
+<!-- PWA Icons -->
+<link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_32x32.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512">
+<link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512">
+<link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512">
+<link rel="manifest" href="/manifest.json">
 
-  <!-- ✅ Apple iOS App Icon -->
-  <link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico">
+<meta name="theme-color" content="#fff">
+<meta name="background-color" content="#fff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SCOOP OOH">
+<meta name="application-name" content="SCOOP OOH">
+<meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512">
+<meta name="msapplication-TileColor" content="#fff">
 
-  <!-- ✅ Web App Manifest -->
-  <link rel="manifest" href="/manifest.json">
-
-  <!-- ✅ Theme & Platform Meta -->
-  <meta name="theme-color" content="#fff">
-  <meta name="background-color" content="#fff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SCOOP | OOH Assets">
-  <meta name="application-name" content="SCOOP | OOH Assets">
-  <meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico">
-  <meta name="msapplication-TileColor" content="#fff">
-
-  <script>
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('✅ Service Worker registered:', reg.scope))
-          .catch(err => console.warn('❌ Service Worker failed:', err));
-      });
-    }
-  </script>
-
-  <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js')
-    .then(reg => {
-      console.log('✅ Service Worker registered:', reg.scope);
-
-      // 🔄 Detect updates and auto-refresh
-      if (reg.waiting) {
-        reg.waiting.postMessage('SKIP_WAITING');
-      }
-
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('🆕 New version detected, refreshing...');
-            newWorker.postMessage('SKIP_WAITING');
-          }
-        });
-      });
-
-      let refreshing;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        refreshing = true;
-        window.location.reload(); // reload page automatically
-      });
-    })
-    .catch(err => console.warn('❌ Service Worker registration failed:', err));
+<style>
+:root {
+  --max-width: 1200px;
+  --brand: #1f6feb;
+  --brand-hover: #0056b3;
+  --text: #36454F;
 }
-</script> 
 
-  <style>
-    :root {
-      --max-width: 1200px;
-      --brand: #ffff;
-      --brand-hover: #0056b3;
-      --text: #36454F;
-    }
-
-/* ✅ Splash Screen Container */
+/* Splash Video */
 #splash-screen {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-  overflow: hidden;
+  position: fixed; inset: 0; background: #000;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 99999; overflow: hidden;
 }
-
-/* ✅ Video Fullscreen */
 #splash-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: opacity 2s ease;
+  width: 100%; height: 100%; object-fit: cover;
+  transition: opacity 2.5s ease;
 }
-
-/* ✅ Logo Overlay — hidden initially */
 .splash-logo {
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  opacity: 0;
-  transform: scale(0.9);
-  object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-  transition: opacity 2s ease, transform 2s ease;
+  position: absolute; width: 180px; height: 180px;
+  opacity: 0; transform: scale(0.9);
+  object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  transition: opacity 2.5s ease, transform 2.5s ease;
+}
+.splash-logo.visible { opacity: 1; transform: scale(1); }
+#splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  margin:0; padding:1rem; color:var(--text);
+  display:flex; align-items:center; justify-content:center; min-height:100vh;
+  background: linear-gradient(70deg,#b262b4,#e8aa6e,#c9f085,#90b0ec);
+  background-size:240% 240%;
+  animation: gradient-move 25s ease infinite;
+}
+@keyframes gradient-move {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
-/* ✅ Fade-in animation for logo */
-.splash-logo.visible {
-  opacity: 1;
-  transform: scale(1);
+.container { width:100%; max-width:var(--max-width); position:relative; }
+.title-container { display:flex; justify-content:center; margin-bottom:.25rem; }
+.logo { height:120px; width:auto; }
+.lead { margin:0 0 1rem; color:var(--text); font-size:.85rem; line-height:1.4; text-align:left; }
+.map-wrapper { position:relative; width:100%; aspect-ratio:16/9; min-height:300px; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(20,20,40,0.08); background:#4d6a79; transition: all .3s ease; }
+.map-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+.map-overlay { position:absolute; background:#4d6a79; opacity:1; }
+.hide-top-right { top:0; right:0; width:140px; height:50px; pointer-events:auto; }
+.top-right-widget {
+  position:absolute; top:10px; right:10px; background:transparent;
+  padding:.25rem .5rem; border-radius:4px; box-shadow:none;
+  font-weight:600; z-index:10; color:#fff; font-family:Roboto,sans-serif; text-align:center; font-size:18px;
 }
 
-    /* Fade out entire splash */
-#splash-screen.fade-out {
-  opacity: 0;
-  transition: opacity 1s ease;
-  pointer-events: none;
+.asset-links { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin-bottom:1rem; }
+.asset-links a { color:var(--text); font-weight:600; text-decoration:none; transition:color .3s ease; cursor:pointer; }
+.asset-links a:hover, .asset-links a.active { color:#FF5F15; text-decoration:underline; }
+
+.controls { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; justify-content:center; }
+.btn { flex:1 1 auto; background:var(--brand); color:#fff; border:none; padding:.5rem .75rem; border-radius:8px; font-weight:600; font-size:.9rem; text-align:center; cursor:pointer; transition:background .3s ease; }
+.btn:hover { background:var(--brand-hover); }
+
+.inventory-wrapper { display:none; width:100%; aspect-ratio:16/9; min-height:400px; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(20,20,40,0.08); background:#e9eef6; position:relative; transition:all .3s ease; margin-top:.75rem; z-index:1; }
+.inventory-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+.note { font-size:.85rem; color:#fff; margin-top:.5rem; text-align:left; }
+.fullscreen-wrapper { width:100% !important; height:100% !important; border-radius:0 !important; box-shadow:none !important; margin:0 !important; }
+
+@media (max-width:480px) {
+  body { padding:.75rem; }
+  .lead { font-size:.85rem; }
+  .btn { font-size:.8rem; padding:.45rem .65rem; }
+  .note { font-size:.75rem; }
+  .map-wrapper { aspect-ratio:3/4; }
+  .logo { height:60px; }
+  .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
 }
-
-    body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(70deg,#b262b4,#e8aa6e,#c9f085,#90b0ec);
-      background-size: 240% 240%;
-      animation: gradient-move 25s ease infinite;
-    }
-
-    @keyframes gradient-move {
-      0%,100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .container { width: 100%; max-width: var(--max-width); position: relative; }
-
-    .title-container { display: flex; justify-content: center; margin-bottom: .25rem; }
-    .logo { height: 120px; width: auto; }
-    .lead { margin: 0 0 1rem; color: var(--text); font-size: .85rem; line-height: 1.4; text-align: left; }
-
-    .map-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; min-height: 300px; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(20,20,40,0.08); background: #4d6a79; transition: all .3s ease; }
-    .map-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-
-    .map-overlay { position: absolute; background: #4d6a79; opacity: 1; }
-    .hide-top-right { top: 0; right: 0; width: 140px; height: 50px; pointer-events: auto; }
-
-    .top-right-widget {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: transparent;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      box-shadow: none;
-      font-weight: 600;
-      z-index: 10;
-      color: #FFFFFF;
-      font-family: Roboto, sans-serif;
-      text-align: center;
-      font-size: 18px;
-    }
-
-    .asset-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 1rem; }
-    .asset-links a { color: var(--text); font-weight: 600; text-decoration: none; transition: color .3s ease; cursor: pointer; }
-    .asset-links a:hover, .asset-links a.active { color: #FF5F15; text-decoration: underline; }
-
-    .controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; justify-content: center; }
-    .btn { flex: 1 1 auto; background: var(--brand); color: #fff; border: none; padding: .5rem .75rem; border-radius: 8px; font-weight: 600; font-size: .9rem; text-align: center; cursor: pointer; transition: background .3s ease; }
-    .btn:hover { background: var(--brand-hover); }
-
-    .inventory-wrapper { display: none; width: 100%; aspect-ratio: 16/9; min-height: 400px; border-radius: 10px; overflow: hidden; box-shadow: 0 6px 18px rgba(20,20,40,0.08); background: #e9eef6; position: relative; transition: all .3s ease; margin-top: .75rem; z-index: 1; }
-    .inventory-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-
-    .note { font-size: .85rem; color: #fff; margin-top: .5rem; text-align: left; }
-
-    .fullscreen-wrapper { width: 100% !important; height: 100% !important; border-radius: 0 !important; box-shadow: none !important; margin: 0 !important; }
-
-    @media (max-width:480px) {
-      body { padding: .75rem; }
-      .lead { font-size: .85rem; }
-      .btn { font-size: .8rem; padding: .45rem .65rem; }
-      .note { font-size: .75rem; }
-      .map-wrapper { aspect-ratio: 3/4; }
-      .logo { height: 60px; }
-      .top-right-widget { padding: .35rem .7rem; font-size: .85rem; }
-    }
-
- 
-    
-  </style>
+</style>
 </head>
-
 <body>
-<!-- ✅ Splash Screen -->
+
+<!-- Splash -->
 <div id="splash-screen">
   <video id="splash-video" autoplay muted playsinline>
     <source src="https://oohassets.github.io/ooh-assets-scoop/videos/thepearl.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
-
-  <!-- Logo overlay (hidden at first) -->
-  <img id="splash-logo" class="splash-logo" 
-       src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico" 
-       alt="SCOOP Logo">
+  <img id="splash-logo" class="splash-logo" src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512" alt="SCOOP Logo">
 </div>
 
+<div class="container">
+  <div class="title-container">
+    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" alt="Scoop Logo" class="logo" />
+  </div>
 
- 
-  <div class="container">
-    <!-- Logo -->
-    <div class="title-container">
-      <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" 
-           alt="Scoop Logo" class="logo" />
-    </div>
+  <div class="asset-links">
+    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&noprof=1&hl=en" class="active">Digital OOH Assets</a>
+    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1qAnnrUkqXRNvsgXruletafuG8iRAvmw&noprof=1&hl=en">Light Poles OOH Assets</a>
+    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1s-mXAGEcos--BVZD45FuMEbxCRM8nV4&noprof=1&hl=en">Static Mupi OOH Assets</a>
+  </div>
 
-    <!-- Asset Links -->
-    <div class="asset-links">
-      <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&noprof=1&hl=en" class="active">Digital OOH Assets</a>
-      <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1qAnnrUkqXRNvsgXruletafuG8iRAvmw&noprof=1&hl=en">Light Poles OOH Assets</a>
-      <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1s-mXAGEcos--BVZD45FuMEbxCRM8nV4&noprof=1&hl=en">Static Mupi OOH Assets</a>
-    </div>
-    
-    <p class="lead">
-      Click the toggle bar to select OOH Assets and view their locations. 
-      Use the <strong>Full screen</strong> button to expand the map.
-    </p>
+  <p class="lead">
+    Click the toggle bar to select OOH Assets and view their locations. 
+    Use the <strong>Full screen</strong> button to expand the map.
+  </p>
 
-    <!-- Map -->
-    <div class="map-wrapper" id="mapWrapper">
-      <iframe id="mapIframe"
-        src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
-        title="OOH Assets Map"
-        loading="lazy"
-        referrerpolicy="no-referrer"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        aria-label="Google My Maps showing custom locations">
-      </iframe>
+  <div class="map-wrapper" id="mapWrapper">
+    <iframe id="mapIframe" src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1" title="OOH Assets Map" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" aria-label="Google My Maps showing custom locations"></iframe>
 
-      <!-- Top-right Widget -->
-      <div class="map-overlay hide-top-right">
-        <div class="top-right-widget" id="weatherWidget"style="text-align:center;">
-          <div id="weatherCity" style="font-size:0.8rem; font-weight:400; color:#FFFFFF;">Doha, Qatar</div>
-          <div id="weatherTemp" style="font-size:1.2rem; font-weight:600; color:#FFFFFF;">--°C</div>
-        </div>
+    <div class="map-overlay hide-top-right">
+      <div class="top-right-widget" id="weatherWidget" style="text-align:center;">
+        <div id="weatherCity" style="font-size:0.8rem; font-weight:400; color:#FFFFFF;">Doha, Qatar</div>
+        <div id="weatherTemp" style="font-size:1.2rem; font-weight:600; color:#FFFFFF;">--°C</div>
       </div>
-    </div>
-
-    <!-- Controls -->
-    <div class="controls">
-      <button class="btn" id="fsBtn">Full screen</button>
-      <a class="btn" href="asset-digital-content.html" target="_blank">View Screens</a>
-      <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
-    </div>
-
-    <!-- Inventory -->
-    <div class="inventory-wrapper" id="inventoryWrapper">
-      <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
-              title="Content Inventory"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin"></iframe>
-    </div>
-
-    <div class="note">
-      These asset locations have been pinned by the OOH Asset Supervisor.
     </div>
   </div>
 
-  <script>
-    const fsBtn = document.getElementById('fsBtn');
-    const wrapper = document.getElementById('mapWrapper');
-    const mapIframe = document.getElementById('mapIframe');
-    const inventoryBtn = document.getElementById('showInventoryBtn');
-    const inventoryWrapper = document.getElementById('inventoryWrapper');
-    const assetLinks = document.querySelectorAll('.asset-links a');
-    const weatherWidget = document.getElementById('weatherWidget');
+  <div class="controls">
+    <button class="btn" id="fsBtn">Full screen</button>
+    <a class="btn" href="asset-digital-content.html" target="_blank">View Screens</a>
+    <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
+  </div>
 
-    // Update map iframe safely
-    assetLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const mapUrl = link.getAttribute('data-map');
-        const safeUrl = mapUrl.replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
-        mapIframe.src = safeUrl;
+  <div class="inventory-wrapper" id="inventoryWrapper">
+    <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
+            title="Content Inventory"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin"></iframe>
+  </div>
 
-        assetLinks.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-      });
-    });
-
-    // Fullscreen toggle
-    fsBtn.addEventListener('click', async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await wrapper.requestFullscreen();
-        } else {
-          await document.exitFullscreen();
-        }
-      } catch (err) {
-        console.warn("Fullscreen not supported:", err);
-      }
-    });
-
-    // Inventory toggle
-    inventoryBtn.addEventListener('click', async () => {
-      const isVisible = inventoryWrapper.style.display === "block";
-      if (!isVisible) {
-        inventoryWrapper.style.display = "block";
-        try {
-          await inventoryWrapper.requestFullscreen();
-        } catch (err) {
-          console.warn("Fullscreen not supported:", err);
-        }
-      } else {
-        inventoryWrapper.style.display = "none";
-        if (document.fullscreenElement) {
-          await document.exitFullscreen();
-        }
-      }
-    });
-
-    // Keep fullscreen styles consistent
-    document.addEventListener('fullscreenchange', () => {
-      const fsElem = document.fullscreenElement;
-      [wrapper, inventoryWrapper].forEach(el => {
-        if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
-      });
-      if (!fsElem && inventoryWrapper.style.display === "block") {
-        inventoryWrapper.style.display = "none";
-      }
-    });
-
-    // ---------------- Weather Widget ----------------
-async function fetchWeather() {
-  try {
-    const tempDiv = document.getElementById('weatherTemp');
-    if (!tempDiv) return;
-
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.2854&longitude=51.5310&current=temperature_2m,weathercode&timezone=auto');
-    const data = await res.json();
-
-    const temp = data.current?.temperature_2m ?? 'N/A';
-    tempDiv.textContent = `${temp}°C`;
-
-  } catch (err) {
-    const tempDiv = document.getElementById('weatherTemp');
-    if (tempDiv) tempDiv.textContent = 'Weather unavailable';
-    console.error(err);
-  }
-}
-
-    fetchWeather();
-    // Optional: update every 10 min
-    setInterval(fetchWeather, 600000);
-  </script>
+  <div class="note">
+    These asset locations have been pinned by the OOH Asset Supervisor.
+  </div>
+</div>
 
 <script>
+// Splash fade logic
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
   const video = document.getElementById('splash-video');
@@ -370,22 +166,15 @@ window.addEventListener('load', () => {
 
   if (!splash || !video || !logo) return;
 
-  // When video ends, fade out video and fade in logo
   video.addEventListener('ended', () => {
-    // Start fading out video
     video.style.opacity = 0;
-
-    // Fade in logo at the same time
     logo.classList.add('visible');
-
-    // After 2.5s, fade out entire splash screen
     setTimeout(() => {
       splash.classList.add('fade-out');
       setTimeout(() => splash.remove(), 1000);
     }, 2500);
   });
 
-  // Safety fallback if video fails
   setTimeout(() => {
     if (!logo.classList.contains('visible')) {
       video.style.opacity = 0;
@@ -395,10 +184,77 @@ window.addEventListener('load', () => {
         setTimeout(() => splash.remove(), 1000);
       }, 2500);
     }
-  }, 6000);
+  }, 7000);
 });
+
+// Asset links
+const assetLinks = document.querySelectorAll('.asset-links a');
+const mapIframe = document.getElementById('mapIframe');
+assetLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const safeUrl = link.getAttribute('data-map').replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
+    mapIframe.src = safeUrl;
+    assetLinks.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+// Fullscreen
+const fsBtn = document.getElementById('fsBtn');
+const wrapper = document.getElementById('mapWrapper');
+const inventoryWrapper = document.getElementById('inventoryWrapper');
+fsBtn.addEventListener('click', async () => {
+  try {
+    if (!document.fullscreenElement) await wrapper.requestFullscreen();
+    else await document.exitFullscreen();
+  } catch(err){ console.warn(err); }
+});
+
+// Inventory toggle
+const inventoryBtn = document.getElementById('showInventoryBtn');
+inventoryBtn.addEventListener('click', async () => {
+  const isVisible = inventoryWrapper.style.display === "block";
+  if(!isVisible) { inventoryWrapper.style.display="block"; try{await inventoryWrapper.requestFullscreen();}catch{}}
+  else { inventoryWrapper.style.display="none"; if(document.fullscreenElement) await document.exitFullscreen();}
+});
+document.addEventListener('fullscreenchange', () => {
+  const fsElem = document.fullscreenElement;
+  [wrapper, inventoryWrapper].forEach(el=>{if(el) el.classList.toggle('fullscreen-wrapper', el===fsElem)});
+  if(!fsElem && inventoryWrapper.style.display==="block") inventoryWrapper.style.display="none";
+});
+
+// Weather widget
+async function fetchWeather(){
+  try{
+    const tempDiv=document.getElementById('weatherTemp');
+    if(!tempDiv) return;
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.2854&longitude=51.5310&current=temperature_2m,weathercode&timezone=auto');
+    const data=await res.json();
+    const temp=data.current?.temperature_2m ?? 'N/A';
+    tempDiv.textContent=`${temp}°C`;
+  }catch(err){
+    const tempDiv=document.getElementById('weatherTemp');
+    if(tempDiv) tempDiv.textContent='Weather unavailable';
+    console.error(err);
+  }
+}
+fetchWeather();
+setInterval(fetchWeather,600000);
+
+// Service Worker auto-refresh
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/service-worker.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const newWorker=reg.installing;
+      newWorker.addEventListener('statechange',()=>{
+        if(newWorker.state==='activated' && navigator.serviceWorker.controller){
+          window.location.reload();
+        }
+      });
+    });
+  });
+}
 </script>
-
-
 </body>
 </html>
