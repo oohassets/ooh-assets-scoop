@@ -6,6 +6,7 @@ const ASSETS = [
   './manifest.json',
   './icons/scoop_512x512.ico',
   './icons/scoop_black_512x512.ico',
+  './icons/scoop_black_512x512.png',
   'https://oohassets.github.io/ooh-assets-scoop/videos/thepearl.mp4'
 ];
 
