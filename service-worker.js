@@ -5,7 +5,8 @@ const ASSETS = [
   './index.html',
   './manifest.json',
   './icons/scoop_512x512.ico',
-  './icons/scoop_black_512x512.ico'
+  './icons/scoop_black_512x512.ico',
+  'https://oohassets.github.io/ooh-assets-scoop/videos/thepearl.mp4'
 ];
 
 // Install event — cache all assets
