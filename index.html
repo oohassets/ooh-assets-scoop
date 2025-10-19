@@ -77,7 +77,7 @@ if ('serviceWorker' in navigator) {
       --text: #36454F;
     }
 
-    /* ✅ Splash Screen Video Overlay */
+/* ✅ Splash Screen Container */
 #splash-screen {
   position: fixed;
   inset: 0;
@@ -89,37 +89,37 @@ if ('serviceWorker' in navigator) {
   overflow: hidden;
 }
 
-#splash-screen video {
+/* ✅ Video Fullscreen */
+#splash-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* ✅ Fade-out effect when done */
 #splash-screen.fade-out {
   opacity: 0;
   transition: opacity 1s ease;
   pointer-events: none;
 }
 
-/* ✅ Centered Logo Overlay */
+/* ✅ Logo Overlay — hidden initially */
 .splash-logo {
   position: absolute;
-  width: 160px;
-  height: 160px;
-  object-fit: contain;
+  width: 180px;
+  height: 180px;
   opacity: 0;
-  transform: scale(0.85);
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
-  animation: logoFadeIn 2.5s ease forwards;
+  transform: scale(0.9);
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  transition: opacity 1s ease, transform 1s ease;
 }
 
-@keyframes logoFadeIn {
-  0% { opacity: 0; transform: scale(0.85); }
-  30% { opacity: 1; transform: scale(1.05); }
-  60% { transform: scale(1.0); }
-  100% { opacity: 1; transform: scale(1.0); }
+/* ✅ Fade-in animation for logo */
+.splash-logo.visible {
+  opacity: 1;
+  transform: scale(1);
 }
-
 
     body {
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -199,16 +199,19 @@ if ('serviceWorker' in navigator) {
 </head>
 
 <body>
-<!-- ✅ Splash Video with Centered Logo -->
+<!-- ✅ Splash Screen -->
 <div id="splash-screen">
-  <video autoplay muted playsinline>
-    <source src="https://oohassets.github.io/ooh-assets-scoop/videos/thepearl.mp4" type="video/mp4">
+  <video id="splash-video" autoplay muted playsinline>
+    <source src="https://oohassets.github.io/ooh-assets-scoop/icons/thepearl.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 
-  <!-- Overlay Logo -->
-  <img class="splash-logo" src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico" alt="SCOOP Logo">
+  <!-- Logo overlay (hidden at first) -->
+  <img id="splash-logo" class="splash-logo" 
+       src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico" 
+       alt="SCOOP Logo">
 </div>
+
 
  
   <div class="container">
@@ -361,23 +364,33 @@ async function fetchWeather() {
 <script>
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
-  if (splash) {
-    const video = splash.querySelector('video');
+  const video = document.getElementById('splash-video');
+  const logo = document.getElementById('splash-logo');
 
-    // Fade out when video ends
-    if (video) {
-      video.addEventListener('ended', () => {
-        splash.classList.add('fade-out');
-        setTimeout(() => splash.remove(), 1000);
-      });
-    } else {
-      // Fallback: remove after 5s if video doesn't load
+  if (!splash || !video || !logo) return;
+
+  // Wait until video finishes playing
+  video.addEventListener('ended', () => {
+    // Show the logo with fade-in
+    logo.classList.add('visible');
+
+    // After logo shows for 2.5 seconds, fade out splash
+    setTimeout(() => {
+      splash.classList.add('fade-out');
+      setTimeout(() => splash.remove(), 1000);
+    }, 2500);
+  });
+
+  // Safety: if video fails or loads slowly, fallback after 6s
+  setTimeout(() => {
+    if (!logo.classList.contains('visible')) {
+      logo.classList.add('visible');
       setTimeout(() => {
         splash.classList.add('fade-out');
         setTimeout(() => splash.remove(), 1000);
-      }, 5000);
+      }, 2500);
     }
-  }
+  }, 6000);
 });
 </script>
 
