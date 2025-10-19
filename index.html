@@ -94,13 +94,7 @@ if ('serviceWorker' in navigator) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-/* ✅ Fade-out effect when done */
-#splash-screen.fade-out {
-  opacity: 0;
-  transition: opacity 1s ease;
-  pointer-events: none;
+  transition: opacity 2s ease;
 }
 
 /* ✅ Logo Overlay — hidden initially */
@@ -112,13 +106,20 @@ if ('serviceWorker' in navigator) {
   transform: scale(0.9);
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
-  transition: opacity 1s ease, transform 1s ease;
+  transition: opacity 2s ease, transform 2s ease;
 }
 
 /* ✅ Fade-in animation for logo */
 .splash-logo.visible {
   opacity: 1;
   transform: scale(1);
+}
+
+    /* Fade out entire splash */
+#splash-screen.fade-out {
+  opacity: 0;
+  transition: opacity 1s ease;
+  pointer-events: none;
 }
 
     body {
@@ -369,21 +370,25 @@ window.addEventListener('load', () => {
 
   if (!splash || !video || !logo) return;
 
-  // Wait until video finishes playing
+  // When video ends, fade out video and fade in logo
   video.addEventListener('ended', () => {
-    // Show the logo with fade-in
+    // Start fading out video
+    video.style.opacity = 0;
+
+    // Fade in logo at the same time
     logo.classList.add('visible');
 
-    // After logo shows for 2.5 seconds, fade out splash
+    // After 2.5s, fade out entire splash screen
     setTimeout(() => {
       splash.classList.add('fade-out');
       setTimeout(() => splash.remove(), 1000);
     }, 2500);
   });
 
-  // Safety: if video fails or loads slowly, fallback after 6s
+  // Safety fallback if video fails
   setTimeout(() => {
     if (!logo.classList.contains('visible')) {
+      video.style.opacity = 0;
       logo.classList.add('visible');
       setTimeout(() => {
         splash.classList.add('fade-out');
@@ -393,6 +398,7 @@ window.addEventListener('load', () => {
   }, 6000);
 });
 </script>
+
 
 </body>
 </html>
