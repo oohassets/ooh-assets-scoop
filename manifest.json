@@ -3,8 +3,8 @@
   "short_name": "SCOOP",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1f6feb",
-  "theme_color": "#1f6feb",
+  "background_color": "#ffff",
+  "theme_color": "#ffff",
   "icons": [
     {
       "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_192x192.png",
