@@ -141,7 +141,7 @@ body {
 
   <div class="controls">
     <button class="btn" id="fsBtn">Full screen</button>
-    <a class="btn" href="asset-digital-content.html" target="_blank">View Screens</a>
+     <button class="btn" id="viewScreensBtn">View Screens</button>
     <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
   </div>
 
@@ -210,6 +210,32 @@ fsBtn.addEventListener('click', async () => {
     else await document.exitFullscreen();
   } catch(err){ console.warn(err); }
 });
+
+// Detect if running as a PWA (standalone mode)
+function isInStandaloneMode() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+// View Screens button
+const viewScreensBtn = document.getElementById('viewScreensBtn');
+viewScreensBtn.addEventListener('click', () => {
+  if (isInStandaloneMode()) {
+    // If running as PWA → navigate directly (same window, fullscreen)
+    window.location.href = "asset-digital-content.html";
+  } else {
+    // If in browser → open new fullscreen-like popup
+    const newWin = window.open(
+      "asset-digital-content.html",
+      "_blank",
+      "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,fullscreen=yes"
+    );
+    if (newWin) newWin.focus();
+  }
+});
+
 
 // Inventory toggle
 const inventoryBtn = document.getElementById('showInventoryBtn');
