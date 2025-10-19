@@ -37,6 +37,38 @@
     }
   </script>
 
+  <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(reg => {
+      console.log('✅ Service Worker registered:', reg.scope);
+
+      // 🔄 Detect updates and auto-refresh
+      if (reg.waiting) {
+        reg.waiting.postMessage('SKIP_WAITING');
+      }
+
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('🆕 New version detected, refreshing...');
+            newWorker.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+
+      let refreshing;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload(); // reload page automatically
+      });
+    })
+    .catch(err => console.warn('❌ Service Worker registration failed:', err));
+}
+</script> 
+
   <style>
     :root {
       --max-width: 1200px;
