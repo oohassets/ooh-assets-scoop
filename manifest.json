@@ -7,12 +7,12 @@
   "theme_color": "#ffff",
   "icons": [
     {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_192x192.png",
+      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_512x512.png",
+      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
