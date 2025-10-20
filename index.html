@@ -354,20 +354,39 @@ function isInStandaloneMode() {
 
 // View Screens button
 const viewScreensBtn = document.getElementById('viewScreensBtn');
-viewScreensBtn.addEventListener('click', () => {
+
+viewScreensBtn.addEventListener('click', async () => {
   if (isInStandaloneMode()) {
-    // If running as PWA → navigate directly (same window, fullscreen)
+    // If running as PWA → open directly (already fullscreen)
     window.location.href = "asset-digital-content.html";
   } else {
-    // If in browser → open new fullscreen-like popup
-    const newWin = window.open(
-      "asset-digital-content.html",
-      "_blank",
-      "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,fullscreen=yes"
-    );
-    if (newWin) newWin.focus();
+    // Open the page in same tab first
+    const newPage = window.open("asset-digital-content.html", "_blank");
+
+    // For mobile browsers that support fullscreen API
+    if (newPage && newPage.document) {
+      try {
+        await newPage.document.documentElement.requestFullscreen();
+      } catch (err) {
+        console.warn("Fullscreen request failed:", err);
+      }
+    } else {
+      // Fallback: open fullscreen-like window (for desktop)
+      const fullscreenWin = window.open(
+        "asset-digital-content.html",
+        "_blank",
+        "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,fullscreen=yes,width=" + screen.availWidth + ",height=" + screen.availHeight
+      );
+      if (fullscreenWin) fullscreenWin.focus();
+    }
   }
-});
+
+
+// Helper: detects if running as installed PWA
+function isInStandaloneMode() {
+  return (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone);
+}
+</script>
 
 
 // Inventory toggle
