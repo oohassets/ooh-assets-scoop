@@ -208,24 +208,22 @@ viewScreensBtn.addEventListener('click', () => {
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   if (isInStandaloneMode()) {
-    // If running as a PWA → navigate directly (same window)
+    // Running as PWA → open directly in the same fullscreen window
     window.location.href = "asset-digital-content.html";
   } else if (isMobile) {
-    // On mobile browser → open fullscreen-like view (no URL bar)
+    // On mobile → open fullscreen-like view
     const fullscreenWin = window.open(
       "asset-digital-content.html",
       "_blank",
-      "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,fullscreen=yes,width=" + screen.availWidth + ",height=" + screen.availHeight
+      "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,fullscreen=yes,width=" +
+        screen.availWidth +
+        ",height=" +
+        screen.availHeight
     );
     if (fullscreenWin) fullscreenWin.focus();
   } else {
-    // On desktop → open in a new window (not tab)
-    const newWin = window.open(
-      "asset-digital-content.html",
-      "ScreenView",
-      "width=1200,height=800,menubar=no,toolbar=no,location=no,status=no,resizable=yes"
-    );
-    if (newWin) newWin.focus();
+    // On desktop → open in a new browser tab
+    window.open("asset-digital-content.html", "_blank");
   }
 });
 
