@@ -1,4 +1,6 @@
-const CACHE_NAME = 'scoop-cache-' + Date.now(); // auto version each deploy
+// Updated service worker (no video, optimized caching)
+const CACHE_VERSION = 'v2.0';
+const CACHE_NAME = `scoop-cache-${CACHE_VERSION}`;
 
 const ASSETS = [
   './',
@@ -6,11 +8,10 @@ const ASSETS = [
   './manifest.json',
   './icons/scoop_512x512.ico',
   './icons/scoop_black_512x512.ico',
-  './icons/scoop_black_512x512.png',
-  'https://oohassets.github.io/ooh-assets-scoop/videos/thepearl.mp4'
+  './icons/scoop_black_512x512.png'
 ];
 
-// Install event — cache all assets
+// Install event — cache key static assets
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
@@ -28,17 +29,35 @@ self.addEventListener('activate', event => {
   self.clients.claim(); // control all clients immediately
 });
 
-// Fetch event — use cache first, then network
+// Fetch event — cache-first strategy for same-origin assets
 self.addEventListener('fetch', event => {
+  const req = event.request;
+  const url = new URL(req.url);
+
+  // Only cache GET requests for same-origin resources
+  if (req.method !== 'GET' || url.origin !== location.origin) {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then(resp => 
-      resp || fetch(event.request).then(response => {
-        // Optionally update cache for new files
-        return caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, response.clone());
-          return response;
-        });
-      }).catch(() => resp) // fallback if offline
-    )
+    caches.match(req).then(cachedResponse => {
+      if (cachedResponse) {
+        // Return cached file, update in background
+        fetch(req).then(freshResponse => {
+          caches.open(CACHE_NAME).then(cache => cache.put(req, freshResponse.clone()));
+        }).catch(() => {});
+        return cachedResponse;
+      }
+
+      // Fetch from network if not in cache
+      return fetch(req)
+        .then(networkResponse => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(req, networkResponse.clone());
+            return networkResponse;
+          });
+        })
+        .catch(() => cachedResponse); // fallback if offline
+    })
   );
 });
