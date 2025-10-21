@@ -29,20 +29,18 @@
   --text: #36454F;
 }
 
-/* Splash Video */
+/* Splash Logo Only */
 #splash-screen {
   position: fixed; inset: 0; background: #000;
   display: flex; align-items: center; justify-content: center;
-  z-index: 99999; overflow: hidden;
-}
-#splash-video {
-  width: 100%; height: 100%; object-fit: cover;
-  transition: opacity 2.5s ease;
+  z-index: 99999;
+  overflow: hidden;
 }
 .splash-logo {
-  position: absolute; width: 180px; height: 180px;
+  width: 180px; height: 180px;
   opacity: 0; transform: scale(0.9);
-  object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
   transition: opacity 2.5s ease, transform 2.5s ease;
 }
 .splash-logo.visible { opacity: 1; transform: scale(1); }
@@ -61,167 +59,43 @@ body {
   50% { background-position: 100% 50%; }
 }
 
-.container { 
-  width:100%;
-  max-width:var(--max-width); p
-  osition:relative; 
-}
-  
-.title-container {
-  display:flex; 
-  justify-content:center; 
-  margin-bottom:.25rem; 
-}
-  
-.logo { 
-  height:120px; 
-  width:auto; 
-}
-  
-.lead { 
-  margin:0 0 1rem; 
-  color:var(--text); 
-  font-size:.85rem; 
-  line-height:1.4; 
-  text-align:left; 
+.container { width:100%; max-width:var(--max-width); position:relative; }
+.title-container { display:flex; justify-content:center; margin-bottom:.25rem; }
+.logo { height:120px; width:auto; }
 
-}
-  
+.lead { margin:0 0 1rem; color:var(--text); font-size:.85rem; line-height:1.4; text-align:left; }
+
 .map-wrapper { 
-  position:relative; 
-  width:100%; 
-  aspect-ratio:16/9; 
-  min-height:300px; 
-  border-radius:10px; 
-  overflow:hidden; 
-  box-shadow:0 6px 18px rgba(20,20,40,0.08); 
-  background:#4d6a79; 
-  transition: all .3s ease; 
+  position:relative; width:100%; aspect-ratio:16/9; min-height:300px; 
+  border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(20,20,40,0.08); 
+  background:#4d6a79; transition: all .3s ease; 
 }
-  
-.map-wrapper iframe { 
-  position:absolute; 
-  inset:0; 
-  width:100%; 
-  height:100%; 
-  border:0; 
-}
+.map-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 
-.map-overlay { 
-  position:absolute; 
-  background:#4d6a79; 
-  opacity:1; 
-}
-  
-.hide-top-right { 
-  top:0; 
-  right:0; 
-  width:140px; 
-  height:50px; 
-  pointer-events:auto; 
-}
-  
+.map-overlay { position:absolute; background:#4d6a79; opacity:1; }
+.hide-top-right { top:0; right:0; width:140px; height:50px; pointer-events:auto; }
+
 .top-right-widget {
-  position:absolute; 
-  top:10px; 
-  right:10px; 
-  background:transparent;
-  padding:.25rem .5rem; 
-  border-radius:4px; 
-  box-shadow:none;
-  font-weight:600; 
-  z-index:10; 
-  color:#fff; 
-  font-family:Roboto,sans-serif; 
-  text-align:center; 
-  font-size:18px;
+  position:absolute; top:10px; right:10px; background:transparent;
+  padding:.25rem .5rem; border-radius:4px; box-shadow:none;
+  font-weight:600; z-index:10; color:#fff; font-family:Roboto,sans-serif; 
+  text-align:center; font-size:18px;
 }
 
-.asset-links { 
-  display:flex; 
-  flex-wrap:wrap; 
-  gap:1rem; 
-  justify-content:center; 
-  margin-bottom:1rem; 
-}
-  
-.asset-links a { 
-  color:var(--text); 
-  font-weight:600;
-  text-decoration:none; 
-  transition:color .3s ease; 
-  cursor:pointer; 
-}
-  
-.asset-links a:hover, .asset-links a.active { 
-  color:#FF5F15; 
-  text-decoration:underline; 
-}
+.asset-links { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin-bottom:1rem; }
+.asset-links a { color:var(--text); font-weight:600; text-decoration:none; transition:color .3s ease; cursor:pointer; }
+.asset-links a:hover, .asset-links a.active { color:#FF5F15; text-decoration:underline; }
 
-.controls { 
-  display:flex; 
-  flex-wrap:wrap; 
-  gap:.5rem; 
-  margin-top:.75rem; 
-  justify-content:center; 
-}
-  
-.btn { 
-  flex:1 1 auto; 
-  background:var(--brand); 
-  color:#fff; 
-  border:none; 
-  padding:.5rem .75rem; 
-  border-radius:8px; 
-  font-weight:600; 
-  font-size:.9rem; 
-  text-align:center; 
-  cursor:pointer; 
-  transition:background .3s ease; 
-  text-decoration: none; 
-}
-  
-.btn:hover { 
-  background:var(--brand-hover); 
-}
+.controls { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; justify-content:center; }
+.btn { flex:1 1 auto; background:var(--brand); color:#fff; border:none; padding:.5rem .75rem; border-radius:8px; font-weight:600; font-size:.9rem; text-align:center; cursor:pointer; transition:background .3s ease; text-decoration: none; }
+.btn:hover { background:var(--brand-hover); }
 
-.inventory-wrapper { 
-  display:none; 
-  width:100%; 
-  aspect-ratio:16/9;
-  min-height:400px; 
-  border-radius:10px; 
-  overflow:hidden; 
-  box-shadow:0 6px 18px rgba(20,20,40,0.08); 
-  background:#e9eef6; 
-  position:relative; 
-  transition:all .3s ease; 
-  margin-top:.75rem; 
-  z-index:1; 
-}
-  
-.inventory-wrapper iframe { 
-  position:absolute; 
-  inset:0; 
-  width:100%; 
-  height:100%; 
-  border:0; 
-}
+.inventory-wrapper { display:none; width:100%; aspect-ratio:16/9; min-height:400px; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(20,20,40,0.08); background:#e9eef6; position:relative; transition:all .3s ease; margin-top:.75rem; z-index:1; }
+.inventory-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
 
-.note { 
-  font-size:.85rem; 
-  color:#fff; 
-  margin-top:.5rem; 
-  text-align:left; 
-}
-  
-.fullscreen-wrapper { 
-  width:100% !important; 
-  height:100% !important; 
-  border-radius:0 !important; 
-  box-shadow:none !important; 
-  margin:0 !important; 
-}
+.note { font-size:.85rem; color:#fff; margin-top:.5rem; text-align:left; }
+
+.fullscreen-wrapper { width:100% !important; height:100% !important; border-radius:0 !important; box-shadow:none !important; margin:0 !important; }
 
 @media (max-width:480px) {
   body { padding:.75rem; }
@@ -236,12 +110,8 @@ body {
 </head>
 <body>
 
-<!-- Splash -->
+<!-- Splash Logo -->
 <div id="splash-screen">
-  <video id="splash-video" autoplay muted playsinline>
-    <source src="https://oohassets.github.io/ooh-assets-scoop/videos/thepearl.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
   <img id="splash-logo" class="splash-logo" src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png" alt="SCOOP Logo">
 </div>
 
@@ -262,7 +132,7 @@ body {
   </p>
 
   <div class="map-wrapper" id="mapWrapper">
-    <iframe id="mapIframe" src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1" title="OOH Assets Map" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" aria-label="Google My Maps showing custom locations"></iframe>
+    <iframe id="mapIframe" src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1" title="OOH Assets Map" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
 
     <div class="map-overlay hide-top-right">
       <div class="top-right-widget" id="weatherWidget" style="text-align:center;">
@@ -274,7 +144,7 @@ body {
 
   <div class="controls">
     <button class="btn" id="fsBtn">Full screen</button>
-     <button class="btn" id="viewScreensBtn">View Screens</button>
+    <button class="btn" id="viewScreensBtn">View Screens</button>
     <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
   </div>
 
@@ -291,36 +161,19 @@ body {
 </div>
 
 <script>
-// Splash fade logic
+// Simple splash fade (no video)
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
-  const video = document.getElementById('splash-video');
   const logo = document.getElementById('splash-logo');
 
-  if (!splash || !video || !logo) return;
-
-  video.addEventListener('ended', () => {
-    video.style.opacity = 0;
-    logo.classList.add('visible');
-    setTimeout(() => {
-      splash.classList.add('fade-out');
-      setTimeout(() => splash.remove(), 1000);
-    }, 2500);
-  });
-
+  logo.classList.add('visible');
   setTimeout(() => {
-    if (!logo.classList.contains('visible')) {
-      video.style.opacity = 0;
-      logo.classList.add('visible');
-      setTimeout(() => {
-        splash.classList.add('fade-out');
-        setTimeout(() => splash.remove(), 1000);
-      }, 2500);
-    }
-  }, 7000);
+    splash.classList.add('fade-out');
+    setTimeout(() => splash.remove(), 1000);
+  }, 2500);
 });
 
-// Asset links
+// Asset links switching
 const assetLinks = document.querySelectorAll('.asset-links a');
 const mapIframe = document.getElementById('mapIframe');
 assetLinks.forEach(link => {
@@ -344,50 +197,24 @@ fsBtn.addEventListener('click', async () => {
   } catch(err){ console.warn(err); }
 });
 
-// Detect if running as a PWA (standalone mode)
+// View Screens button
 function isInStandaloneMode() {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true
-  );
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
-// View Screens button
 const viewScreensBtn = document.getElementById('viewScreensBtn');
-
 viewScreensBtn.addEventListener('click', async () => {
   if (isInStandaloneMode()) {
-    // If running as PWA → open directly (already fullscreen)
     window.location.href = "asset-digital-content.html";
   } else {
-    // Open the page in same tab first
-    const newPage = window.open("asset-digital-content.html", "_blank");
-
-    // For mobile browsers that support fullscreen API
-    if (newPage && newPage.document) {
-      try {
-        await newPage.document.documentElement.requestFullscreen();
-      } catch (err) {
-        console.warn("Fullscreen request failed:", err);
-      }
-    } else {
-      // Fallback: open fullscreen-like window (for desktop)
-      const fullscreenWin = window.open(
-        "asset-digital-content.html",
-        "_blank",
-        "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,fullscreen=yes,width=" + screen.availWidth + ",height=" + screen.availHeight
-      );
-      if (fullscreenWin) fullscreenWin.focus();
-    }
+    const fullscreenWin = window.open(
+      "asset-digital-content.html",
+      "_blank",
+      "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,fullscreen=yes,width=" + screen.availWidth + ",height=" + screen.availHeight
+    );
+    if (fullscreenWin) fullscreenWin.focus();
   }
-
-
-// Helper: detects if running as installed PWA
-function isInStandaloneMode() {
-  return (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone);
-}
-</script>
-
+});
 
 // Inventory toggle
 const inventoryBtn = document.getElementById('showInventoryBtn');
@@ -419,20 +246,6 @@ async function fetchWeather(){
 }
 fetchWeather();
 setInterval(fetchWeather,600000);
-
-// Service Worker auto-refresh
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/service-worker.js').then(reg=>{
-    reg.addEventListener('updatefound',()=>{
-      const newWorker=reg.installing;
-      newWorker.addEventListener('statechange',()=>{
-        if(newWorker.state==='activated' && navigator.serviceWorker.controller){
-          window.location.reload();
-        }
-      });
-    });
-  });
-}
 </script>
 </body>
 </html>
