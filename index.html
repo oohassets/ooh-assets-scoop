@@ -246,6 +246,38 @@ async function fetchWeather(){
 }
 fetchWeather();
 setInterval(fetchWeather,600000);
+
+   // Register and auto-refresh service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').then(reg => {
+        // Force update check on every load
+        reg.update();
+
+        // If a new service worker is waiting, activate it immediately
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+
+        // Listen for new versions found while app is open
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New SW ready → reload immediately
+              window.location.reload();
+            }
+          });
+        });
+      }).catch(err => console.error('SW registration failed:', err));
+
+      // Reload automatically when the controller changes
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+    });
+  }
+  
 </script>
 </body>
 </html>
