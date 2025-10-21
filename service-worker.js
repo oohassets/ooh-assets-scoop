@@ -1,6 +1,5 @@
-// Updated service worker (no video, optimized caching)
-const CACHE_VERSION = 'v2.0';
-const CACHE_NAME = `scoop-cache-${CACHE_VERSION}`;
+// Auto-updating Service Worker — no manual cache bumping needed
+const CACHE_NAME = 'scoop-cache-' + Date.now(); // new version on each deploy
 
 const ASSETS = [
   './',
@@ -8,56 +7,53 @@ const ASSETS = [
   './manifest.json',
   './icons/scoop_512x512.ico',
   './icons/scoop_black_512x512.ico',
-  './icons/scoop_black_512x512.png'
+  './icons/scoop_black_512x512.png',
+  './asset-digital-content.html' // optional: offline availability
 ];
 
-// Install event — cache key static assets
+// Install — cache assets and activate immediately
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-  self.skipWaiting(); // activate immediately
+  self.skipWaiting(); // activate instantly
 });
 
-// Activate event — remove old caches
+// Activate — delete all old caches and take control of clients
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim(); // control all clients immediately
 });
 
-// Fetch event — cache-first strategy for same-origin assets
+// Fetch — cache-first strategy, update in background
 self.addEventListener('fetch', event => {
-  const req = event.request;
-  const url = new URL(req.url);
+  const request = event.request;
+  const url = new URL(request.url);
 
-  // Only cache GET requests for same-origin resources
-  if (req.method !== 'GET' || url.origin !== location.origin) {
-    return;
-  }
+  // Only handle GET requests for same-origin assets
+  if (request.method !== 'GET' || url.origin !== location.origin) return;
 
   event.respondWith(
-    caches.match(req).then(cachedResponse => {
-      if (cachedResponse) {
-        // Return cached file, update in background
-        fetch(req).then(freshResponse => {
-          caches.open(CACHE_NAME).then(cache => cache.put(req, freshResponse.clone()));
-        }).catch(() => {});
-        return cachedResponse;
-      }
-
-      // Fetch from network if not in cache
-      return fetch(req)
+    caches.match(request).then(cachedResponse => {
+      const fetchPromise = fetch(request)
         .then(networkResponse => {
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(req, networkResponse.clone());
-            return networkResponse;
-          });
+          caches.open(CACHE_NAME).then(cache => cache.put(request, networkResponse.clone()));
+          return networkResponse;
         })
-        .catch(() => cachedResponse); // fallback if offline
+        .catch(() => cachedResponse);
+
+      // Serve cached first (if available)
+      return cachedResponse || fetchPromise;
     })
   );
+});
+
+// Force reload when a new service worker takes control
+self.addEventListener('controllerchange', () => {
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => client.navigate(client.url));
+  });
 });
