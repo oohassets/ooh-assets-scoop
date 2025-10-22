@@ -175,7 +175,6 @@ body {
     <button class="btn" id="fsBtn">Full screen</button>
     <button class="btn" id="viewScreensBtn">View Screens</button>
     <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
-    <button class="btn" id="logoutBtn" style="background:#999;">Logout</button>
   </div>
 
   <div class="inventory-wrapper" id="inventoryWrapper">
@@ -183,7 +182,13 @@ body {
             title="Content Inventory"></iframe>
   </div>
 
-  <div class="note">These asset locations have been pinned by the OOH Asset Supervisor.</div>
+  <div class="note" style="text-align:left; margin-top:1rem;">
+    These asset locations have been pinned by the OOH Asset Supervisor.
+    <span id="logoutText"
+          style="float:right; color:#fff; text-decoration:underline; cursor:pointer; font-size:0.8rem;">
+      Logout
+    </span>
+  </div>
 </div>
 
 <script>
@@ -240,12 +245,15 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   }
 });
 
-// --- Logout ---
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  localStorage.removeItem('loggedUser');
-  document.querySelector('.container').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
+// --- Logout text link ---
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'logoutText') {
+    localStorage.removeItem('loggedUser');
+    document.querySelector('.container').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+  }
 });
+
 
 // Asset links switching
 const assetLinks = document.querySelectorAll('.asset-links a');
