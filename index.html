@@ -342,36 +342,41 @@ async function fetchWeather(){
 fetchWeather();
 setInterval(fetchWeather,600000);
 
-   // Register and auto-refresh service worker
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker.js').then(reg => {
-        // Force update check on every load
-        reg.update();
+// Register and auto-refresh service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./service-worker.js', { scope: './' });
 
-        // If a new service worker is waiting, activate it immediately
-        if (reg.waiting) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
+      // ✅ Always check for updates on load
+      reg.update();
 
-        // Listen for new versions found while app is open
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New SW ready → reload immediately
-              window.location.reload();
-            }
-          });
+      // ✅ If a new SW is waiting, activate it immediately
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      // ✅ When a new SW is found while running
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('🔄 New version found. Reloading...');
+            window.location.reload();
+          }
         });
-      }).catch(err => console.error('SW registration failed:', err));
+      });
 
-      // Reload automatically when the controller changes
+      // ✅ When SW controller changes (new one activates)
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
       });
-    });
-  }
+
+    } catch (err) {
+      console.error('⚠️ Service Worker registration failed:', err);
+    }
+  });
+}
   
 </script>
 </body>
