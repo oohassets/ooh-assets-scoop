@@ -112,12 +112,39 @@ body {
 
 <!-- Splash Logo -->
 <div id="splash-screen">
-  <img id="splash-logo" class="splash-logo" src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png" alt="SCOOP Logo">
+  <img id="splash-logo" class="splash-logo"
+       src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png"
+       alt="SCOOP Logo">
 </div>
 
-<div class="container">
+<!-- Login Form -->
+<div id="login-screen" style="display:none; position:fixed; inset:0;
+  background:linear-gradient(70deg,#b262b4,#e8aa6e,#c9f085,#90b0ec);
+  background-size:240% 240%; animation: gradient-move 25s ease infinite;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:9999;">
+  
+  <div style="background:rgba(255,255,255,0.9); padding:2rem 2.5rem; border-radius:20px;
+              box-shadow:0 6px 18px rgba(0,0,0,0.2); text-align:center;
+              max-width:300px; width:90%;">
+    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
+         alt="Scoop Logo" style="height:60px; margin-bottom:1rem;">
+    <h3 style="color:#333; margin-bottom:1rem;">Login to Continue</h3>
+    <input type="text" id="username" placeholder="Username"
+           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:.75rem;">
+    <input type="password" id="password" placeholder="Password"
+           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:1rem;">
+    <button id="loginBtn"
+            style="width:100%; background:#1f6feb; color:#fff; border:none; padding:.5rem;
+                   border-radius:6px; font-weight:600; cursor:pointer;">Login</button>
+    <p id="loginMessage" style="margin-top:.75rem; color:#c00; font-size:.9rem;"></p>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="container" style="display:none;">
   <div class="title-container">
-    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" alt="Scoop Logo" class="logo" />
+    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
+         alt="Scoop Logo" class="logo" />
   </div>
 
   <div class="asset-links">
@@ -132,10 +159,12 @@ body {
   </p>
 
   <div class="map-wrapper" id="mapWrapper">
-    <iframe id="mapIframe" src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1" title="OOH Assets Map" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+    <iframe id="mapIframe"
+            src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
+            title="OOH Assets Map" loading="lazy"></iframe>
 
     <div class="map-overlay hide-top-right">
-      <div class="top-right-widget" id="weatherWidget" style="text-align:center;">
+      <div class="top-right-widget" id="weatherWidget">
         <div id="weatherCity" style="font-size:0.8rem; font-weight:400; color:#FFFFFF;">Doha, Qatar</div>
         <div id="weatherTemp" style="font-size:1.2rem; font-weight:600; color:#FFFFFF;">--°C</div>
       </div>
@@ -146,31 +175,76 @@ body {
     <button class="btn" id="fsBtn">Full screen</button>
     <button class="btn" id="viewScreensBtn">View Screens</button>
     <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
+    <button class="btn" id="logoutBtn" style="background:#999;">Logout</button>
   </div>
 
   <div class="inventory-wrapper" id="inventoryWrapper">
     <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
-            title="Content Inventory"
-            loading="lazy"
-            sandbox="allow-scripts allow-same-origin"></iframe>
+            title="Content Inventory"></iframe>
   </div>
 
-  <div class="note">
-    These asset locations have been pinned by the OOH Asset Supervisor.
-  </div>
+  <div class="note">These asset locations have been pinned by the OOH Asset Supervisor.</div>
 </div>
 
 <script>
-// Simple splash fade (no video)
+// --- Splash fade ---
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
   const logo = document.getElementById('splash-logo');
-
   logo.classList.add('visible');
   setTimeout(() => {
     splash.classList.add('fade-out');
-    setTimeout(() => splash.remove(), 1000);
+    setTimeout(() => {
+      splash.remove();
+      checkLoginStatus();
+    }, 1000);
   }, 2500);
+});
+
+// --- Check login memory ---
+function checkLoginStatus() {
+  const loggedUser = localStorage.getItem('loggedUser');
+  if (loggedUser) {
+    document.querySelector('.container').style.display = 'block';
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+}
+
+// --- Login system ---
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const message = document.getElementById('loginMessage');
+
+  try {
+    const res = await fetch('users.json');
+    const users = await res.json();
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (user) {
+      message.style.color = 'green';
+      message.textContent = 'Login successful!';
+      localStorage.setItem('loggedUser', username);
+      setTimeout(() => {
+        document.getElementById('login-screen').style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
+      }, 800);
+    } else {
+      message.style.color = '#c00';
+      message.textContent = 'Invalid username or password.';
+    }
+  } catch (err) {
+    message.textContent = 'Error loading users.';
+    console.error(err);
+  }
+});
+
+// --- Logout ---
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('loggedUser');
+  document.querySelector('.container').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
 });
 
 // Asset links switching
