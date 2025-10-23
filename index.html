@@ -114,19 +114,32 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-/* Input focus underline animation */
 #username:focus, #password:focus {
   border-bottom-color: #1f6feb;
 }
 
-/* Optional hover effect for desktop users */
 #loginBtn:hover {
   background: #155bc4;
 }
 
-/* Placeholder color */
 #username::placeholder, #password::placeholder {
   color: #777;
+}
+
+/* ✅ Mobile adjustments */
+@media (max-width: 480px) {
+  #login-screen div {
+    max-width: 280px !important;
+    padding: 1rem 1.25rem !important;
+  }
+  #login-screen img {
+    height: 55px !important;
+    margin-bottom: .4rem !important;
+  }
+  #login-screen h3 {
+    font-size: 1rem !important;
+    margin-bottom: .6rem !important;
+  }
 }
   
 </style>
@@ -159,45 +172,45 @@ body {
 
   <div style="
     background:rgba(255,255,255,0.95);
-    padding:clamp(1.5rem, 5vw, 2.5rem);
-    border-radius:20px;
+    padding:clamp(1rem, 4vw, 2rem);
+    border-radius:16px;
     box-shadow:0 6px 18px rgba(0,0,0,0.2);
     text-align:center;
     width:100%;
-    max-width:400px;
+    max-width:340px;
     box-sizing:border-box;
   ">
     <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
          alt="Scoop Logo"
-         style="height:clamp(60px, 10vw, 100px); margin-bottom:1rem; width:auto;">
+         style="height:clamp(50px, 8vw, 80px); margin-bottom:.5rem; width:auto;">
 
-    <h3 style="color:#333; margin-bottom:1rem; font-size:clamp(1.1rem, 2vw, 1.4rem);">
+    <h3 style="color:#333; margin-bottom:.75rem; font-size:clamp(1rem, 2vw, 1.3rem);">
       Login to Continue
     </h3>
 
     <!-- Line-style Inputs -->
     <input type="text" id="username" placeholder="Username"
-           style="width:100%; padding:.65rem 0; border:none; border-bottom:2px solid #ccc;
-                  background:transparent; margin-bottom:1rem;
-                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;
+           style="width:100%; padding:.5rem 0; border:none; border-bottom:2px solid #ccc;
+                  background:transparent; margin-bottom:.9rem;
+                  font-size:clamp(.85rem, 1.6vw, 1rem); box-sizing:border-box;
                   outline:none; transition:border-color .3s;">
     
     <input type="password" id="password" placeholder="Password"
-           style="width:100%; padding:.65rem 0; border:none; border-bottom:2px solid #ccc;
-                  background:transparent; margin-bottom:1.5rem;
-                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;
+           style="width:100%; padding:.5rem 0; border:none; border-bottom:2px solid #ccc;
+                  background:transparent; margin-bottom:1.2rem;
+                  font-size:clamp(.85rem, 1.6vw, 1rem); box-sizing:border-box;
                   outline:none; transition:border-color .3s;">
 
     <button id="loginBtn"
             style="width:100%; background:#1f6feb; color:#fff; border:none;
-                   padding:.65rem; border-radius:6px; font-weight:600;
-                   cursor:pointer; font-size:clamp(.9rem, 1.8vw, 1rem);
+                   padding:.6rem; border-radius:6px; font-weight:600;
+                   cursor:pointer; font-size:clamp(.85rem, 1.6vw, 1rem);
                    transition:background .3s;">
       Login
     </button>
 
     <p id="loginMessage"
-       style="margin-top:.75rem; color:#c00; font-size:clamp(.8rem, 1.5vw, .9rem);">
+       style="margin-top:.6rem; color:#c00; font-size:clamp(.75rem, 1.4vw, .9rem);">
     </p>
   </div>
 </div>
