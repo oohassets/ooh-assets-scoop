@@ -83,19 +83,20 @@
   background: transparent !important; /* force remove white bg */
   border: none !important; /* no borders */
   border-bottom: 2px solid rgba(255,255,255,0.4);
-  color: #fff !important;
+  color: #000 !important;
   font-size: 1rem;
   padding: 8px 0;
   outline: none;
   box-shadow: none !important; /* remove inset shadows */
   appearance: none; /* prevent Safari/iOS styling */
+  caret-color: #000;
 }
 
 /* Hide autofill background in Chrome/Safari */
 .underline-input input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
-  -webkit-text-fill-color: #fff !important;
-  caret-color: #fff;
+  -webkit-text-fill-color: #000 !important;
+  caret-color: #000;
 }
 
 /* Floating label animation */
@@ -103,7 +104,7 @@
   position: absolute;
   left: 0;
   top: 8px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(0,0,0,0.6);
   font-size: 1rem;
   pointer-events: none;
   transition: all 0.3s ease;
