@@ -106,6 +106,17 @@ body {
   .logo { height:60px; }
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
 }
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Optional hover effect for desktop users */
+#loginBtn:hover {
+  background: #155bc4;
+}
+  
 </style>
 </head>
 <body>
@@ -117,28 +128,65 @@ body {
        alt="SCOOP Logo">
 </div>
 
-<!-- Login Form -->
-<div id="login-screen" style="display:none; position:fixed; inset:0;
+<!-- Responsive Login Form -->
+<div id="login-screen" style="
+  display:none;
+  position:fixed;
+  inset:0;
   background:linear-gradient(70deg,#b262b4,#e8aa6e,#c9f085,#90b0ec);
-  background-size:240% 240%; animation: gradient-move 25s ease infinite;
-  display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:9999;">
-  
-  <div style="background:rgba(255,255,255,0.9); padding:2rem 2.5rem; border-radius:20px;
-              box-shadow:0 6px 18px rgba(0,0,0,0.2); text-align:center;
-              max-width:300px; width:90%;">
+  background-size:240% 240%;
+  animation:gradient-move 25s ease infinite;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  padding:1rem;
+  z-index:9999;
+  overflow:auto;
+">
+
+  <div style="
+    background:rgba(255,255,255,0.95);
+    padding:clamp(1.5rem, 5vw, 2.5rem);
+    border-radius:20px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.2);
+    text-align:center;
+    width:100%;
+    max-width:400px;
+    box-sizing:border-box;
+  ">
     <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
-         alt="Scoop Logo" style="height:80px; margin-bottom:1rem;">
-    <h3 style="color:#333; margin-bottom:1rem;">Login to Continue</h3>
+         alt="Scoop Logo"
+         style="height:clamp(60px, 10vw, 100px); margin-bottom:1rem; width:auto;">
+
+    <h3 style="color:#333; margin-bottom:1rem; font-size:clamp(1.1rem, 2vw, 1.4rem);">
+      Login to Continue
+    </h3>
+
     <input type="text" id="username" placeholder="Username"
-           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:.75rem;">
+           style="width:100%; padding:.65rem .75rem; border-radius:6px;
+                  border:1px solid #ccc; margin-bottom:.75rem;
+                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;">
+
     <input type="password" id="password" placeholder="Password"
-           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:1rem;">
+           style="width:100%; padding:.65rem .75rem; border-radius:6px;
+                  border:1px solid #ccc; margin-bottom:1rem;
+                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;">
+
     <button id="loginBtn"
-            style="width:100%; background:#1f6feb; color:#fff; border:none; padding:.5rem;
-                   border-radius:6px; font-weight:600; cursor:pointer;">Login</button>
-    <p id="loginMessage" style="margin-top:.75rem; color:#c00; font-size:.9rem;"></p>
+            style="width:100%; background:#1f6feb; color:#fff; border:none;
+                   padding:.65rem; border-radius:6px; font-weight:600;
+                   cursor:pointer; font-size:clamp(.9rem, 1.8vw, 1rem);
+                   transition:background .3s;">
+      Login
+    </button>
+
+    <p id="loginMessage"
+       style="margin-top:.75rem; color:#c00; font-size:clamp(.8rem, 1.5vw, .9rem);">
+    </p>
   </div>
 </div>
+
 
 <!-- Main Content -->
 <div class="container" style="display:none;">
