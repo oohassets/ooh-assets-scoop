@@ -47,6 +47,15 @@
 #splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
 
 /* LOGIN LAYOUT */
+.login-logo {
+  width: 100px;         /* adjust size as needed */
+  margin-bottom: 15px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 10px;  /* optional: slight rounded corners */
+}
+  
 .login-screen {
   position: fixed;
   inset: 0;
@@ -235,9 +244,9 @@ body {
 </div>
 
 <!-- Login Screen -->
-<div id="login-screen" class="login-screen">
-  <form id="loginForm" class="login-form">
-    <h2>Login</h2>
+<div class="login-container">
+  <img src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png" alt="Logo" class="login-logo">
+  <h2>Login</h2>
 
     <div class="underline-input">
       <input type="text" id="username" required />
