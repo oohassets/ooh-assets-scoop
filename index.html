@@ -46,132 +46,6 @@
 .splash-logo.visible { opacity: 1; transform: scale(1); }
 #splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
 
-/* LOGIN LAYOUT */
-.login-logo {
-  width: 100px;         /* adjust size as needed */
-  margin-bottom: 15px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  border-radius: 10px;  /* optional: slight rounded corners */
-}
-  
-.login-screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: transparent;
-  z-index: 100;
-}
-
-.login-form {
-  width: 90%;
-  max-width: 320px;
-  text-align: center;
-  color: #fff;
-}
-
-/* Title */
-.login-form h2 {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  font-weight: 600;
-  color: #fff;
-}
-
-/* INPUTS (underline only, transparent) */
-.underline-input {
-  position: relative;
-  margin-bottom: 1.8rem;
-}
-
-.underline-input input {
-  width: 100%;
-  background: transparent !important; /* force remove white bg */
-  border: none !important; /* no borders */
-  border-bottom: 2px solid rgba(255,255,255,0.4);
-  color: #000 !important;
-  font-size: 1rem;
-  padding: 8px 0;
-  outline: none;
-  box-shadow: none !important; /* remove inset shadows */
-  appearance: none; /* prevent Safari/iOS styling */
-  caret-color: #000;
-}
-
-/* Hide autofill background in Chrome/Safari */
-.underline-input input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
-  -webkit-text-fill-color: #000 !important;
-  caret-color: #000;
-}
-
-/* Floating label animation */
-.underline-input label {
-  position: absolute;
-  left: 0;
-  top: 8px;
-  color: rgba(0,0,0,0.6);
-  font-size: 1rem;
-  pointer-events: none;
-  transition: all 0.3s ease;
-}
-
-.underline-input input:focus + label,
-.underline-input input:valid + label {
-  top: -14px;
-  font-size: 0.8rem;
-  color: #1f6feb;
-}
-
-/* Underline animation */
-.underline-input .underline {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #1f6feb;
-  transition: width 0.3s ease;
-}
-
-.underline-input input:focus ~ .underline {
-  width: 100%;
-}
-
-/* LOGIN BUTTON */
-#loginBtn {
-  width: 100%;
-  background: #1f6feb;
-  border: none;
-  color: white;
-  font-size: 1rem;
-  padding: 10px 0;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-#loginBtn:hover {
-  background: #0d47a1;
-}
-
-/* ERROR MESSAGE */
-.login-error {
-  color: #ff5c5c;
-  font-size: 0.9rem;
-  margin-top: 0.8rem;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .login-form h2 {
-    font-size: 1.3rem;
-  }
-}
-
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin:0; padding:1rem; color:var(--text);
@@ -243,26 +117,27 @@ body {
        alt="SCOOP Logo">
 </div>
 
-<!-- Login Screen -->
-<div class="login-container">
-  <img src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png" alt="Logo" class="login-logo">
-  <h2>Login</h2>
-
-    <div class="underline-input">
-      <input type="text" id="username" required />
-      <label for="username">Username</label>
-      <span class="underline"></span>
-    </div>
-
-    <div class="underline-input">
-      <input type="password" id="password" required />
-      <label for="password">Password</label>
-      <span class="underline"></span>
-    </div>
-
-    <button type="button" id="loginBtn">Login</button>
-    <p id="loginError" class="login-error"></p>
-  </form>
+<!-- Login Form -->
+<div id="login-screen" style="display:none; position:fixed; inset:0;
+  background:linear-gradient(70deg,#b262b4,#e8aa6e,#c9f085,#90b0ec);
+  background-size:240% 240%; animation: gradient-move 25s ease infinite;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:9999;">
+  
+  <div style="background:rgba(255,255,255,0.9); padding:2rem 2.5rem; border-radius:20px;
+              box-shadow:0 6px 18px rgba(0,0,0,0.2); text-align:center;
+              max-width:300px; width:90%;">
+    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
+         alt="Scoop Logo" style="height:60px; margin-bottom:1rem;">
+    <h3 style="color:#333; margin-bottom:1rem;">Login to Continue</h3>
+    <input type="text" id="username" placeholder="Username"
+           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:.75rem;">
+    <input type="password" id="password" placeholder="Password"
+           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:1rem;">
+    <button id="loginBtn"
+            style="width:100%; background:#1f6feb; color:#fff; border:none; padding:.5rem;
+                   border-radius:6px; font-weight:600; cursor:pointer;">Login</button>
+    <p id="loginMessage" style="margin-top:.75rem; color:#c00; font-size:.9rem;"></p>
+  </div>
 </div>
 
 <!-- Main Content -->
