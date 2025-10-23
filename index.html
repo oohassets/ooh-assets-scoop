@@ -106,15 +106,27 @@ body {
   .logo { height:60px; }
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
 }
+
+/* Login */
 @keyframes gradient-move {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
+/* Input focus underline animation */
+#username:focus, #password:focus {
+  border-bottom-color: #1f6feb;
+}
+
 /* Optional hover effect for desktop users */
 #loginBtn:hover {
   background: #155bc4;
+}
+
+/* Placeholder color */
+#username::placeholder, #password::placeholder {
+  color: #777;
 }
   
 </style>
@@ -163,15 +175,18 @@ body {
       Login to Continue
     </h3>
 
+    <!-- Line-style Inputs -->
     <input type="text" id="username" placeholder="Username"
-           style="width:100%; padding:.65rem .75rem; border-radius:6px;
-                  border:1px solid #ccc; margin-bottom:.75rem;
-                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;">
-
+           style="width:100%; padding:.65rem 0; border:none; border-bottom:2px solid #ccc;
+                  background:transparent; margin-bottom:1rem;
+                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;
+                  outline:none; transition:border-color .3s;">
+    
     <input type="password" id="password" placeholder="Password"
-           style="width:100%; padding:.65rem .75rem; border-radius:6px;
-                  border:1px solid #ccc; margin-bottom:1rem;
-                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;">
+           style="width:100%; padding:.65rem 0; border:none; border-bottom:2px solid #ccc;
+                  background:transparent; margin-bottom:1.5rem;
+                  font-size:clamp(.9rem, 1.8vw, 1rem); box-sizing:border-box;
+                  outline:none; transition:border-color .3s;">
 
     <button id="loginBtn"
             style="width:100%; background:#1f6feb; color:#fff; border:none;
