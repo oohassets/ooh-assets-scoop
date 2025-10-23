@@ -46,6 +46,102 @@
 .splash-logo.visible { opacity: 1; transform: scale(1); }
 #splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
 
+/* LOGIN SCREEN */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1e1e1e 100%);
+  color: white;
+  padding: 1rem;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
+.login-title {
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.input-group input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #888;
+  color: white;
+  font-size: 1rem;
+  padding: 8px 0;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #00bcd4;
+}
+
+.input-group label {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  color: #aaa;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: 0.3s ease all;
+}
+
+.input-group input:focus + label,
+.input-group input:valid + label {
+  top: -14px;
+  font-size: 0.8rem;
+  color: #00bcd4;
+}
+
+.login-btn {
+  width: 100%;
+  background: #00bcd4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #0097a7;
+}
+
+.login-error {
+  color: #ff5252;
+  font-size: 0.9rem;
+  margin-top: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 1.5rem;
+    max-width: 90%;
+  }
+}
+
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin:0; padding:1rem; color:var(--text);
@@ -117,26 +213,20 @@ body {
        alt="SCOOP Logo">
 </div>
 
-<!-- Login Form -->
-<div id="login-screen" style="display:none; position:fixed; inset:0;
-  background:linear-gradient(70deg,#b262b4,#e8aa6e,#c9f085,#90b0ec);
-  background-size:240% 240%; animation: gradient-move 25s ease infinite;
-  display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:9999;">
-  
-  <div style="background:rgba(255,255,255,0.9); padding:2rem 2.5rem; border-radius:20px;
-              box-shadow:0 6px 18px rgba(0,0,0,0.2); text-align:center;
-              max-width:300px; width:90%;">
-    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
-         alt="Scoop Logo" style="height:60px; margin-bottom:1rem;">
-    <h3 style="color:#333; margin-bottom:1rem;">Login to Continue</h3>
-    <input type="text" id="username" placeholder="Username"
-           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:.75rem;">
-    <input type="password" id="password" placeholder="Password"
-           style="width:100%; padding:.5rem; border-radius:6px; border:1px solid #ccc; margin-bottom:1rem;">
-    <button id="loginBtn"
-            style="width:100%; background:#1f6feb; color:#fff; border:none; padding:.5rem;
-                   border-radius:6px; font-weight:600; cursor:pointer;">Login</button>
-    <p id="loginMessage" style="margin-top:.75rem; color:#c00; font-size:.9rem;"></p>
+<!-- Login Screen -->
+<div id="login-screen" class="login-container">
+  <div class="login-box">
+    <h2 class="login-title">Login</h2>
+    <div class="input-group">
+      <input type="text" id="username" required />
+      <label for="username">Username</label>
+    </div>
+    <div class="input-group">
+      <input type="password" id="password" required />
+      <label for="password">Password</label>
+    </div>
+    <button id="loginBtn" class="login-btn">Login</button>
+    <p id="loginError" class="login-error"></p>
   </div>
 </div>
 
