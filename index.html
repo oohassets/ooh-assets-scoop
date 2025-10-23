@@ -46,24 +46,22 @@
 .splash-logo.visible { opacity: 1; transform: scale(1); }
 #splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
 
-/* Fullscreen center layout */
+/* LOGIN LAYOUT */
 .login-screen {
   position: fixed;
   inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent; /* no black box */
+  background: transparent;
   z-index: 100;
 }
 
-/* Form style */
 .login-form {
   width: 90%;
   max-width: 320px;
   text-align: center;
   color: #fff;
-  background: transparent;
 }
 
 /* Title */
@@ -71,26 +69,36 @@
   font-size: 1.5rem;
   margin-bottom: 2rem;
   font-weight: 600;
+  color: #fff;
 }
 
-/* Underline input style */
+/* INPUTS (underline only, transparent) */
 .underline-input {
   position: relative;
   margin-bottom: 1.8rem;
-  background: transparent;
 }
 
 .underline-input input {
   width: 100%;
-  background: transparent;
-  border: none;
+  background: transparent !important; /* force remove white bg */
+  border: none !important; /* no borders */
   border-bottom: 2px solid rgba(255,255,255,0.4);
-  color: #fff;
+  color: #fff !important;
   font-size: 1rem;
   padding: 8px 0;
   outline: none;
+  box-shadow: none !important; /* remove inset shadows */
+  appearance: none; /* prevent Safari/iOS styling */
 }
 
+/* Hide autofill background in Chrome/Safari */
+.underline-input input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff;
+}
+
+/* Floating label animation */
 .underline-input label {
   position: absolute;
   left: 0;
@@ -101,15 +109,14 @@
   transition: all 0.3s ease;
 }
 
-/* Floating label animation */
 .underline-input input:focus + label,
 .underline-input input:valid + label {
   top: -14px;
   font-size: 0.8rem;
-  color: #1f6feb; /* accent color */
+  color: #1f6feb;
 }
 
-/* Animated underline */
+/* Underline animation */
 .underline-input .underline {
   position: absolute;
   bottom: 0;
@@ -124,7 +131,7 @@
   width: 100%;
 }
 
-/* Button */
+/* LOGIN BUTTON */
 #loginBtn {
   width: 100%;
   background: #1f6feb;
@@ -141,20 +148,19 @@
   background: #0d47a1;
 }
 
-/* Error message */
+/* ERROR MESSAGE */
 .login-error {
   color: #ff5c5c;
   font-size: 0.9rem;
   margin-top: 0.8rem;
 }
 
-/* Mobile responsiveness */
+/* Responsive */
 @media (max-width: 480px) {
   .login-form h2 {
     font-size: 1.3rem;
   }
 }
-
 
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -248,7 +254,6 @@ body {
     <p id="loginError" class="login-error"></p>
   </form>
 </div>
-
 
 <!-- Main Content -->
 <div class="container" style="display:none;">
