@@ -46,46 +46,43 @@
 .splash-logo.visible { opacity: 1; transform: scale(1); }
 #splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
 
-/* LOGIN SCREEN */
-.login-wrapper {
+/* Fullscreen center layout */
+.login-screen {
   position: fixed;
   inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent;
-  z-index: 10;
-  padding: 1rem;
+  background: transparent; /* no black box */
+  z-index: 100;
 }
 
-.login-card {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 2rem 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  width: 100%;
-  max-width: 340px;
+/* Form style */
+.login-form {
+  width: 90%;
+  max-width: 320px;
   text-align: center;
-}
-
-.login-card h2 {
   color: #fff;
-  font-size: 1.4rem;
-  margin-bottom: 2rem;
 }
 
-/* Underline Input Style */
+/* Title */
+.login-form h2 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+/* Underline input style */
 .underline-input {
   position: relative;
   margin-bottom: 1.8rem;
-  width: 100%;
 }
 
 .underline-input input {
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1.5px solid #aaa;
+  border-bottom: 2px solid rgba(255,255,255,0.4);
   color: #fff;
   font-size: 1rem;
   padding: 8px 0;
@@ -96,62 +93,66 @@
   position: absolute;
   left: 0;
   top: 8px;
-  color: #aaa;
+  color: rgba(255,255,255,0.6);
   font-size: 1rem;
   pointer-events: none;
   transition: all 0.3s ease;
 }
 
+/* Floating label animation */
 .underline-input input:focus + label,
 .underline-input input:valid + label {
   top: -14px;
   font-size: 0.8rem;
-  color: #00bcd4;
+  color: #1f6feb; /* accent color */
 }
 
+/* Animated underline */
 .underline-input .underline {
   position: absolute;
   bottom: 0;
   left: 0;
+  width: 0;
   height: 2px;
-  width: 0%;
-  background: #00bcd4;
-  transition: 0.3s ease;
+  background: #1f6feb;
+  transition: width 0.3s ease;
 }
 
 .underline-input input:focus ~ .underline {
   width: 100%;
 }
 
-/* Buttons */
-.login-btn {
+/* Button */
+#loginBtn {
   width: 100%;
-  background: #00bcd4;
-  color: white;
+  background: #1f6feb;
   border: none;
-  border-radius: 6px;
-  padding: 10px 0;
+  color: white;
   font-size: 1rem;
+  padding: 10px 0;
+  border-radius: 6px;
   cursor: pointer;
   transition: 0.3s ease;
 }
 
-.login-btn:hover {
-  background: #0097a7;
+#loginBtn:hover {
+  background: #0d47a1;
 }
 
+/* Error message */
 .login-error {
-  color: #ff5252;
+  color: #ff5c5c;
   font-size: 0.9rem;
   margin-top: 0.8rem;
 }
 
-/* Responsive */
+/* Mobile responsiveness */
 @media (max-width: 480px) {
-  .login-card {
-    padding: 1.5rem;
+  .login-form h2 {
+    font-size: 1.3rem;
   }
 }
+
 
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -225,27 +226,27 @@ body {
 </div>
 
 <!-- Login Screen -->
-<div id="login-screen" class="login-wrapper">
-  <div class="login-card">
+<div id="login-screen" class="login-screen">
+  <form id="loginForm" class="login-form">
     <h2>Login</h2>
-    <form id="loginForm">
-      <div class="underline-input">
-        <input type="text" id="username" required />
-        <label for="username">Username</label>
-        <span class="underline"></span>
-      </div>
 
-      <div class="underline-input">
-        <input type="password" id="password" required />
-        <label for="password">Password</label>
-        <span class="underline"></span>
-      </div>
+    <div class="underline-input">
+      <input type="text" id="username" required />
+      <label for="username">Username</label>
+      <span class="underline"></span>
+    </div>
 
-      <button type="button" id="loginBtn" class="login-btn">Login</button>
-      <p id="loginError" class="login-error"></p>
-    </form>
-  </div>
+    <div class="underline-input">
+      <input type="password" id="password" required />
+      <label for="password">Password</label>
+      <span class="underline"></span>
+    </div>
+
+    <button type="button" id="loginBtn">Login</button>
+    <p id="loginError" class="login-error"></p>
+  </form>
 </div>
+
 
 <!-- Main Content -->
 <div class="container" style="display:none;">
