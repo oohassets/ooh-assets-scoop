@@ -5,7 +5,7 @@ const ASSETS = [
   './index.html',
   './manifest.json',
   './icons/scoop_512x512.ico',
-   './icons/scoop_black_192x192.png',
+  './icons/scoop_black_192x192.png',
   './icons/scoop_black_512x512.ico',
   './icons/scoop_black_512x512.png',
   './asset-digital-content.html'
