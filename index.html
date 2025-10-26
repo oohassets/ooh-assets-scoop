@@ -495,28 +495,32 @@ function showUpdateBanner(reg) {
   document.head.appendChild(style);
   document.body.appendChild(banner);
 
-  // Apply update manually or automatically
-  const applyUpdateHandler = () => applyUpdate(reg, banner);
-  document.getElementById('update-btn').onclick = applyUpdateHandler;
+// Apply update manually or automatically
+const applyUpdateHandler = () => applyUpdate(reg, banner);
+document.getElementById('update-btn').onclick = applyUpdateHandler;
 
-  // Auto-update only if the user hasn’t clicked
-  const autoTimeout = setTimeout(applyUpdateHandler, 5000);
-}
+// Auto-update only if the user hasn’t clicked
+const autoTimeout = setTimeout(applyUpdateHandler, 5000);
 
 function applyUpdate(reg, banner) {
   if (!reg.waiting) return;
 
   // Stop auto-timeout if triggered manually
-  clearTimeout();
+  clearTimeout(autoTimeout);
 
-  // Send SKIP_WAITING
+  // Fade out banner immediately
+  banner.style.transition = 'opacity 0.5s ease';
+  banner.style.opacity = 0;
+
+  // Remove banner from DOM after fade
+  setTimeout(() => banner.remove(), 600);
+
+  // Send SKIP_WAITING to the service worker
   reg.waiting.postMessage({ type: 'SKIP_WAITING' });
 
   // Listen for the new SW taking control
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    // Fade out banner smoothly
-    banner.classList.add('fade-out');
-    setTimeout(() => window.location.reload(), 800);
+    window.location.reload();
   });
 }
   
