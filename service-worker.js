@@ -1,59 +1,63 @@
-// Auto-updating Service Worker — no manual cache bumping needed
-const CACHE_NAME = 'scoop-cache-' + Date.now(); // new version on each deploy
-
+// 🚀 Auto-Updating Service Worker (with update notification)
+const CACHE_VERSION = 'scoop-cache-v' + new Date().toISOString().split('T')[0];
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icons/scoop_512x512.ico',
+   './icons/scoop_black_192x192.png',
   './icons/scoop_black_512x512.ico',
   './icons/scoop_black_512x512.png',
-  './asset-digital-content.html' // optional: offline availability
+  './asset-digital-content.html'
 ];
 
-// Install — cache assets and activate immediately
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_VERSION).then(cache => cache.addAll(ASSETS))
   );
-  self.skipWaiting(); // activate instantly
+  self.skipWaiting();
 });
 
-// Activate — delete all old caches and take control of clients
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+      Promise.all(keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k)))
+    )
   );
+  self.clients.claim();
 });
 
-// Fetch — cache-first strategy, update in background
+// Cache-first with background update
 self.addEventListener('fetch', event => {
-  const request = event.request;
-  const url = new URL(request.url);
-
-  // Only handle GET requests for same-origin assets
-  if (request.method !== 'GET' || url.origin !== location.origin) return;
+  const req = event.request;
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== location.origin) return;
 
   event.respondWith(
-    caches.match(request).then(cachedResponse => {
-      const fetchPromise = fetch(request)
-        .then(networkResponse => {
-          caches.open(CACHE_NAME).then(cache => cache.put(request, networkResponse.clone()));
-          return networkResponse;
+    caches.match(req).then(cached => {
+      const fetchPromise = fetch(req)
+        .then(networkRes => {
+          caches.open(CACHE_VERSION).then(cache => cache.put(req, networkRes.clone()));
+          return networkRes;
         })
-        .catch(() => cachedResponse);
-
-      // Serve cached first (if available)
-      return cachedResponse || fetchPromise;
+        .catch(() => cached);
+      return cached || fetchPromise;
     })
   );
 });
 
-// Force reload when a new service worker takes control
-self.addEventListener('controllerchange', () => {
-  self.clients.matchAll().then(clients => {
-    clients.forEach(client => client.navigate(client.url));
+// ✅ Notify all pages when a new SW takes over
+self.addEventListener('activate', () => {
+  self.clients.matchAll({ type: 'window' }).then(clients => {
+    for (const client of clients) {
+      client.postMessage({ type: 'NEW_VERSION_READY' });
+    }
   });
+});
+
+// Handle skip waiting
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
