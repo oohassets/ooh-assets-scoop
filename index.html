@@ -423,35 +423,55 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const reg = await navigator.serviceWorker.register('./service-worker.js', { scope: './' });
+      console.log('✅ SW registered:', reg);
 
-      // ✅ Always check for updates on load
-      reg.update();
+      // Check periodically for updates
+      setInterval(() => reg.update(), 60 * 60 * 1000); // every hour
 
-      // ✅ If a new SW is waiting, activate it immediately
-      if (reg.waiting) {
-        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      }
-
-      // ✅ When a new SW is found while running
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('🔄 New version found. Reloading...');
-            window.location.reload();
-          }
-        });
+      // Listen for messages from the SW
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'NEW_VERSION_READY') {
+          showUpdateBanner(reg);
+        }
       });
-
-      // ✅ When SW controller changes (new one activates)
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
-      });
-
     } catch (err) {
-      console.error('⚠️ Service Worker registration failed:', err);
+      console.error('⚠️ Service Worker failed to register:', err);
     }
   });
+}
+
+function showUpdateBanner(reg) {
+  if (document.getElementById('update-banner')) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'update-banner';
+  banner.textContent = 'A new version is available. Click to update.';
+  Object.assign(banner.style, {
+    position: 'fixed',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#333',
+    color: '#fff',
+    padding: '10px 20px',
+    borderRadius: '50px',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+    fontFamily: 'sans-serif',
+    cursor: 'pointer',
+    zIndex: 9999,
+  });
+
+  banner.onclick = async () => {
+    banner.textContent = 'Updating...';
+    if (reg.waiting) {
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+  };
+
+  document.body.appendChild(banner);
 }
   
 </script>
