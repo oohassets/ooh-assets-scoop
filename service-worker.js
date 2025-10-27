@@ -1,5 +1,5 @@
 // 🚀 Auto-Updating Service Worker (with update notification)
-const CACHE_VERSION = 'scoop-cache-v1' + new Date().toISOString().split('T')[0];
+const CACHE_VERSION = 'scoop-cache-v2' + new Date().toISOString().split('T')[0];
 const ASSETS = [
   './',
   './index.html',
