@@ -7,14 +7,10 @@
 
 <!-- PWA Icons -->
 <link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_32x32.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_192x192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png">
 <link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico">
-<link rel="manifest" href="./manifest.json">
-
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<link rel="manifest" href="/manifest.json">
 
 <meta name="theme-color" content="#ffffff">
 <meta name="background-color" content="#ffffff">
@@ -336,6 +332,7 @@ document.addEventListener('click', e => {
   }
 });
 
+
 // Asset links switching
 const assetLinks = document.querySelectorAll('.asset-links a');
 const mapIframe = document.getElementById('mapIframe');
@@ -425,102 +422,35 @@ setInterval(fetchWeather,600000);
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('./service-worker.js?v=' + Date.now(), { scope: './' });
-      console.log('✅ SW registered:', reg);
+      const reg = await navigator.serviceWorker.register('./service-worker.js', { scope: './' });
 
-      // Auto-check every hour for updates
-      setInterval(() => reg.update(), 60 * 60 * 1000);
+      // ✅ Always check for updates on load
+      reg.update();
 
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data && event.data.type === 'NEW_VERSION_READY') {
-          showUpdateBanner(reg);
-        }
+      // ✅ If a new SW is waiting, activate it immediately
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      // ✅ When a new SW is found while running
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('🔄 New version found. Reloading...');
+            window.location.reload();
+          }
+        });
       });
+
+      // ✅ When SW controller changes (new one activates)
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+
     } catch (err) {
       console.error('⚠️ Service Worker registration failed:', err);
     }
-  });
-}
-
-function showUpdateBanner(reg) {
-  if (document.getElementById('update-banner')) return;
-
-  const banner = document.createElement('div');
-  banner.id = 'update-banner';
-  banner.innerHTML = `
-    <div class="banner-inner">
-      <span>🔄 New version available</span>
-      <button id="update-btn">Update</button>
-    </div>
-  `;
-
-  const style = document.createElement('style');
-  style.textContent = `
-    #update-banner {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(90deg, #000, #d1a24b);
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: 50px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-      font-family: 'Segoe UI', sans-serif;
-      z-index: 9999;
-      opacity: 1;
-      transition: opacity 0.8s ease, bottom 0.6s ease;
-    }
-    .banner-inner { display: flex; align-items: center; gap: 12px; }
-    #update-banner span { font-size: 14px; font-weight: 500; white-space: nowrap; }
-    #update-btn {
-      background: #fff;
-      color: #000;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    #update-btn:hover { background: #000; color: #fff; }
-    @media (max-width: 480px) {
-      #update-banner { bottom: 15px; width: 90%; padding: 10px; }
-      #update-banner span { font-size: 13px; }
-      #update-btn { font-size: 12px; padding: 5px 10px; }
-    }
-    #update-banner.fade-out { opacity: 0; bottom: 0px; pointer-events: none; }
-  `;
-  document.head.appendChild(style);
-  document.body.appendChild(banner);
-
-// Apply update manually or automatically
-const applyUpdateHandler = () => applyUpdate(reg, banner);
-document.getElementById('update-btn').onclick = applyUpdateHandler;
-
-// Auto-update only if the user hasn’t clicked
-const autoTimeout = setTimeout(applyUpdateHandler, 5000);
-
-function applyUpdate(reg, banner) {
-  if (!reg.waiting) return;
-
-  // Stop auto-timeout if triggered manually
-  clearTimeout(autoTimeout);
-
-  // Fade out banner immediately
-  banner.style.transition = 'opacity 0.5s ease';
-  banner.style.opacity = 0;
-
-  // Remove banner from DOM after fade
-  setTimeout(() => banner.remove(), 600);
-
-  // Send SKIP_WAITING to the service worker
-  reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-
-  // Listen for the new SW taking control
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
   });
 }
   
