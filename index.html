@@ -22,26 +22,9 @@
 <meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico">
 <meta name="msapplication-TileColor" content="#ffffff">
 
-<!-- Firebase App (Core) -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
-
-<!-- Firebase Authentication -->
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
-    authDomain: "scoop-ooh-assets.firebaseapp.com",
-    projectId: "scoop-ooh-assets",
-    storageBucket: "scoop-ooh-assets.firebasestorage.app",
-    messagingSenderId: "611605892213",
-    appId: "1:611605892213:web:d71dc48fec993b80f6bc3c"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-</script>
-
 
 <style>
 :root {
@@ -294,24 +277,33 @@ body {
 </div>
 
 <script>
+// --- Firebase Config (replace with your own from Firebase Console) ---
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
 // --- Splash fade ---
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
   const logo = document.getElementById('splash-logo');
-
-  // Appear once
-  requestAnimationFrame(() => logo.classList.add('visible'));
-
-  // Hold for 2s, then fade out
+  logo.classList.add('visible');
   setTimeout(() => {
     splash.classList.add('fade-out');
     setTimeout(() => {
       splash.remove();
       checkLoginStatus();
-    }, 700); // slightly faster fade
-  }, 2000);
+    }, 1000);
+  }, 2500);
 });
-
 
 // --- Check login memory ---
 function checkLoginStatus() {
@@ -323,61 +315,57 @@ function checkLoginStatus() {
   }
 }
 
-// --- Login system ---
+// --- Login system using Firebase Auth ---
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value.trim();
   const message = document.getElementById('loginMessage');
 
-  try {
-    const auth = firebase.auth();
+  if (!username || !password) {
+    message.style.color = '#c00';
+    message.textContent = 'Please enter both fields.';
+    return;
+  }
 
-firebase.auth().signInWithEmailAndPassword(username, password)
-  .then((userCredential) => {
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(username, password);
     const user = userCredential.user;
+
     message.style.color = 'green';
     message.textContent = 'Login successful!';
+
     localStorage.setItem('loggedUser', user.email);
     setTimeout(() => {
       document.getElementById('login-screen').style.display = 'none';
       document.querySelector('.container').style.display = 'block';
     }, 800);
-  })
-  .catch((error) => {
+  } catch (error) {
+    console.error(error);
     message.style.color = '#c00';
-    message.textContent = error.message;
-  });
-
-
-    if (user) {
-      message.style.color = 'green';
-      message.textContent = 'Login successful!';
-      localStorage.setItem('loggedUser', username);
-      setTimeout(() => {
-        document.getElementById('login-screen').style.display = 'none';
-        document.querySelector('.container').style.display = 'block';
-      }, 800);
+    if (error.code === 'auth/user-not-found') {
+      message.textContent = 'User not found.';
+    } else if (error.code === 'auth/wrong-password') {
+      message.textContent = 'Incorrect password.';
+    } else if (error.code === 'auth/invalid-email') {
+      message.textContent = 'Invalid email address.';
     } else {
-      message.style.color = '#c00';
-      message.textContent = 'Invalid username or password.';
+      message.textContent = error.message;
     }
-  } catch (err) {
-    message.textContent = 'Error loading users.';
-    console.error(err);
   }
 });
 
-// --- Logout text link ---
+// --- Logout ---
 document.addEventListener('click', e => {
   if (e.target && e.target.id === 'logoutText') {
-    localStorage.removeItem('loggedUser');
-    document.querySelector('.container').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'flex';
+    auth.signOut().then(() => {
+      localStorage.removeItem('loggedUser');
+      document.querySelector('.container').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+    });
   }
 });
 
-
-// Asset links switching
+// --- Asset links switching ---
 const assetLinks = document.querySelectorAll('.asset-links a');
 const mapIframe = document.getElementById('mapIframe');
 assetLinks.forEach(link => {
@@ -390,7 +378,7 @@ assetLinks.forEach(link => {
   });
 });
 
-// Fullscreen
+// --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
 const wrapper = document.getElementById('mapWrapper');
 const inventoryWrapper = document.getElementById('inventoryWrapper');
@@ -398,24 +386,21 @@ fsBtn.addEventListener('click', async () => {
   try {
     if (!document.fullscreenElement) await wrapper.requestFullscreen();
     else await document.exitFullscreen();
-  } catch(err){ console.warn(err); }
+  } catch (err) { console.warn(err); }
 });
 
-// View Screens button
+// --- View Screens ---
 function isInStandaloneMode() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
 const viewScreensBtn = document.getElementById('viewScreensBtn');
-
 viewScreensBtn.addEventListener('click', () => {
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   if (isInStandaloneMode()) {
-    // Running as PWA → open directly in the same fullscreen window
     window.location.href = "asset-digital-content.html";
   } else if (isMobile) {
-    // On mobile → open fullscreen-like view
     const fullscreenWin = window.open(
       "asset-digital-content.html",
       "_blank",
@@ -426,42 +411,50 @@ viewScreensBtn.addEventListener('click', () => {
     );
     if (fullscreenWin) fullscreenWin.focus();
   } else {
-    // On desktop → open in a new browser tab
     window.open("asset-digital-content.html", "_blank");
   }
 });
 
-// Inventory toggle
+// --- Inventory toggle ---
 const inventoryBtn = document.getElementById('showInventoryBtn');
 inventoryBtn.addEventListener('click', async () => {
   const isVisible = inventoryWrapper.style.display === "block";
-  if(!isVisible) { inventoryWrapper.style.display="block"; try{await inventoryWrapper.requestFullscreen();}catch{}}
-  else { inventoryWrapper.style.display="none"; if(document.fullscreenElement) await document.exitFullscreen();}
+  if (!isVisible) {
+    inventoryWrapper.style.display = "block";
+    try { await inventoryWrapper.requestFullscreen(); } catch {}
+  } else {
+    inventoryWrapper.style.display = "none";
+    if (document.fullscreenElement) await document.exitFullscreen();
+  }
 });
 document.addEventListener('fullscreenchange', () => {
   const fsElem = document.fullscreenElement;
-  [wrapper, inventoryWrapper].forEach(el=>{if(el) el.classList.toggle('fullscreen-wrapper', el===fsElem)});
-  if(!fsElem && inventoryWrapper.style.display==="block") inventoryWrapper.style.display="none";
+  [wrapper, inventoryWrapper].forEach(el => {
+    if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
+  });
+  if (!fsElem && inventoryWrapper.style.display === "block")
+    inventoryWrapper.style.display = "none";
 });
 
-// Weather widget
-async function fetchWeather(){
-  try{
-    const tempDiv=document.getElementById('weatherTemp');
-    if(!tempDiv) return;
+// --- Weather widget ---
+async function fetchWeather() {
+  try {
+    const tempDiv = document.getElementById('weatherTemp');
+    if (!tempDiv) return;
     const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.2854&longitude=51.5310&current=temperature_2m,weathercode&timezone=auto');
-    const data=await res.json();
-    const temp=data.current?.temperature_2m ?? 'N/A';
-    tempDiv.textContent=`${temp}°C`;
-  }catch(err){
-    const tempDiv=document.getElementById('weatherTemp');
-    if(tempDiv) tempDiv.textContent='Weather unavailable';
+    const data = await res.json();
+    const temp = data.current?.temperature_2m ?? 'N/A';
+    tempDiv.textContent = `${temp}°C`;
+  } catch (err) {
+    const tempDiv = document.getElementById('weatherTemp');
+    if (tempDiv) tempDiv.textContent = 'Weather unavailable';
     console.error(err);
   }
 }
 fetchWeather();
-setInterval(fetchWeather,600000);
+setInterval(fetchWeather, 600000);
 
+  
 // ===== PWA Service Worker + Auto Update =====
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
