@@ -138,6 +138,12 @@ body {
   }
 }
   
+  #installBadge:hover {
+  background: #155bc4;
+  transform: scale(1.05);
+}
+
+  
 </style>
 </head>
 <body>
@@ -270,15 +276,20 @@ body {
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
   const logo = document.getElementById('splash-logo');
-  logo.classList.add('visible');
+
+  // Appear once
+  requestAnimationFrame(() => logo.classList.add('visible'));
+
+  // Hold for 2s, then fade out
   setTimeout(() => {
     splash.classList.add('fade-out');
     setTimeout(() => {
       splash.remove();
       checkLoginStatus();
-    }, 1000);
-  }, 2500);
+    }, 700); // slightly faster fade
+  }, 2000);
 });
+
 
 // --- Check login memory ---
 function checkLoginStatus() {
@@ -449,6 +460,72 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
+  // --- Floating "Install App" badge ---
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // Avoid duplicate buttons
+  if (document.getElementById('installBadge')) return;
+
+  // Create floating badge
+  const installBadge = document.createElement('div');
+  installBadge.id = 'installBadge';
+  installBadge.textContent = '⬇️ Install App';
+  installBadge.style.cssText = `
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    background: #1f6feb;
+    color: #fff;
+    padding: .6rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    cursor: pointer;
+    z-index: 999999;
+    transition: all .3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+  `;
+
+  document.body.appendChild(installBadge);
+
+  // Animate in
+  requestAnimationFrame(() => {
+    installBadge.style.opacity = '1';
+    installBadge.style.transform = 'translateY(0)';
+  });
+
+  // Adjust placement for mobile
+  if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    installBadge.style.right = '50%';
+    installBadge.style.transform = 'translateX(50%)';
+    installBadge.style.bottom = '1.5rem';
+  }
+
+  // Handle click → show browser install prompt
+  installBadge.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    installBadge.textContent = 'Installing...';
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response: ${outcome}`);
+    deferredPrompt = null;
+    installBadge.remove();
+  });
+});
+
+// Hide badge when installed
+window.addEventListener('appinstalled', () => {
+  const badge = document.getElementById('installBadge');
+  if (badge) badge.remove();
+  deferredPrompt = null;
+  console.log('✅ App successfully installed!');
+});
+
   
 </script>
 </body>
