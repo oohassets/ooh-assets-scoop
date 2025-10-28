@@ -1,12 +1,13 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v10';
+const CACHE_NAME = 'scoop-ooh-cache-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './assets/css/style.css',
   './assets/js/app.js',
-  './icons/scoop_192x192.png',
+  './icons/scoop_black_192x192.png',
+  './icons/scoop_black_512x512',
   './icons/scoop_512x512.png',
 ];
 
@@ -16,10 +17,12 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('[Service Worker] Pre-caching essential assets...');
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+      // Use Promise.allSettled to prevent failure if a file is missing
+      return Promise.allSettled(
+        ASSETS_TO_CACHE.map(url => cache.add(url))
+      );
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 // ===== ACTIVATE EVENT =====
@@ -35,44 +38,46 @@ self.addEventListener('activate', event => {
             return caches.delete(key);
           })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 // ===== FETCH EVENT =====
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      // Serve from cache first
+      // Serve from cache if available
       if (cachedResponse) return cachedResponse;
 
-      // Then try to fetch from network
+      // Try network request
       return fetch(event.request)
         .then(networkResponse => {
-          // Clone before caching
-          const responseClone = networkResponse.clone();
-
-          caches.open(CACHE_NAME).then(cache => {
-            // Only cache successful (200) and same-origin responses
-            if (event.request.url.startsWith(self.location.origin) && networkResponse.ok) {
+          // Only cache successful same-origin requests
+          if (
+            networkResponse &&
+            networkResponse.ok &&
+            event.request.url.startsWith(self.location.origin)
+          ) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, responseClone);
-            }
-          });
-
+            });
+          }
           return networkResponse;
         })
         .catch(() => {
-          // Optionally return an offline fallback page
+          // Fallback for navigation requests
           if (event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
+          // Optional: fallback for images, CSS, JS
+          // return caches.match('./assets/images/fallback.png');
         });
     })
   );
 });
 
-// ===== OPTIONAL: AUTO-UPDATE NOTIFICATION =====
+// ===== AUTO-UPDATE SUPPORT =====
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
