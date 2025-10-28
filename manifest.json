@@ -10,6 +10,7 @@
       "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_192x192.png",
       "sizes": "192x192",
       "type": "image/png"
+      "purpose": "any maskable"
     },
     {
       "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png",
