@@ -304,10 +304,21 @@ const db = firebase.firestore();
 // ----- Firestore: Load Map Links -----
 function toEmbedUrl(url) {
   if (!url) return "";
-  // Maps
-  if (url.includes("google.com/maps")) return url.replace('/edit', '/embed').replace('/view', '/embed');
-  // Sheets
-  if (url.includes("docs.google.com/spreadsheets")) return url.replace('/edit', '/preview');
+  
+  // Google Maps
+  if (url.includes("google.com/maps")) {
+    // Extract the place/embed part
+    if (!url.includes("/embed")) {
+      return url.replace("/place/", "/embed?") + "&output=embed";
+    }
+    return url;
+  }
+
+  // Google Sheets
+  if (url.includes("docs.google.com/spreadsheets")) {
+    return url.replace("/edit", "/preview");
+  }
+
   return url;
 }
 
