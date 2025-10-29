@@ -351,10 +351,10 @@ function loadMaps() {
       document.getElementById("contentInventorySheet").src = toEmbedUrl(data.sheetLink_ContentInventory);
 
       // Link click events
-      document.querySelectorAll(".asset-links a").forEach(link => {
+      document.All(".asset-links a").forEach(link => {
         link.addEventListener("click", e => {
           e.preventDefault();
-          document.querySelectorAll(".asset-links a").forEach(l => l.classList.remove("active"));
+          document.All(".asset-links a").forEach(l => l.classList.remove("active"));
           link.classList.add("active");
           mapIframe.src = link.dataset.map;
         });
@@ -384,9 +384,11 @@ window.addEventListener('load', () => {
 function checkLoginStatus() {
   const loggedUser = localStorage.getItem('loggedUser');
   if (loggedUser) {
-    document.querySelector('.container').style.display = 'block';
+    document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
+    document.body.classList.remove('no-scroll');
   } else {
     document.getElementById('login-screen').style.display = 'flex';
+    document.body.classList.add('no-scroll');
   }
 }
 
@@ -410,9 +412,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     message.textContent = 'Login successful!';
 
     localStorage.setItem('loggedUser', user.email);
+
     setTimeout(() => {
       document.getElementById('login-screen').style.display = 'none';
-      document.querySelector('.container').style.display = 'block';
+      document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
       document.body.classList.remove('no-scroll');
     }, 800);
   } catch (error) {
@@ -435,7 +438,7 @@ document.addEventListener('click', e => {
   if (e.target && e.target.id === 'logoutText') {
     auth.signOut().then(() => {
       localStorage.removeItem('loggedUser');
-      document.querySelector('.container').style.display = 'none';
+      document.querySelectorAll('.container').forEach(el => el.style.display = 'none');
       document.getElementById('login-screen').style.display = 'flex';
       document.body.classList.add('no-scroll');
     });
@@ -444,15 +447,17 @@ document.addEventListener('click', e => {
 
 // --- Asset links switching ---
 const mapIframe = document.getElementById('mapIframe');
+const assetLinks = document.querySelectorAll('.asset-links a');
+
 assetLinks.forEach(link => {
-link.addEventListener('click', e => {
-  e.preventDefault();
-  const mapIframe = document.getElementById('mapIframe');
-  mapIframe.src = link.dataset.map; // Already embed-ready
-  assetLinks.forEach(l => l.classList.remove('active'));
-  link.classList.add('active');
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    mapIframe.src = link.dataset.map; // Already embed-ready
+    assetLinks.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
   });
 });
+
 
 // --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
