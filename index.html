@@ -307,29 +307,20 @@ const db = firebase.firestore();
 function toEmbedUrl(url) {
   if (!url) return "";
 
-  // --- Google Maps ---
   if (url.includes("google.com/maps")) {
-    // Example valid embed: https://www.google.com/maps/embed?pb=...
     if (url.includes("/maps/embed?")) return url;
-    if (url.includes("/maps/")) {
-      return url.replace("/maps/", "/maps/embed/");
-    }
+    if (url.includes("/maps/")) return url.replace("/maps/", "/maps/embed/");
   }
 
-  // --- Google Sheets ---
   if (url.includes("docs.google.com/spreadsheets")) {
-    if (url.includes("/edit")) {
-      return url.replace("/edit", "/pubhtml?widget=true&headers=false");
-    }
+    if (url.includes("/edit")) return url.replace("/edit", "/pubhtml?widget=true&headers=false");
     if (url.includes("/preview")) return url;
-    return `${url}/pubhtml?widget=true&amp;headers=false`;
+    return `${url}/pubhtml?widget=true&headers=false`;
   }
 
   return url;
 }
 
-
-  
 // Load Firestore data
 async function loadMaps() {
   try {
@@ -345,7 +336,7 @@ async function loadMaps() {
     const mapIframe = document.getElementById("mapIframe");
     const sheetIframe = document.getElementById("contentInventorySheet");
 
-    // Assign iframe sources
+    // Assign initial map and sheet links
     mapIframe.src = data.mapLink_DigitalScreen;
     sheetIframe.src = data.sheetLink_ContentInventory;
 
@@ -413,31 +404,21 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
     message.style.color = 'green';
     message.textContent = 'Login successful!';
-
     localStorage.setItem('loggedUser', user.email);
 
     setTimeout(() => {
       document.getElementById('login-screen').style.display = 'none';
       document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
       document.body.classList.remove('no-scroll');
-
-    // Load Firestore maps now
-    loadMaps();
+      loadMaps();
     }, 800);
-});
-    
   } catch (error) {
     console.error(error);
     message.style.color = '#c00';
-    if (error.code === 'auth/user-not-found') {
-      message.textContent = 'User not found.';
-    } else if (error.code === 'auth/wrong-password') {
-      message.textContent = 'Incorrect password.';
-    } else if (error.code === 'auth/invalid-email') {
-      message.textContent = 'Invalid email address.';
-    } else {
-      message.textContent = error.message;
-    }
+    if (error.code === 'auth/user-not-found') message.textContent = 'User not found.';
+    else if (error.code === 'auth/wrong-password') message.textContent = 'Incorrect password.';
+    else if (error.code === 'auth/invalid-email') message.textContent = 'Invalid email address.';
+    else message.textContent = error.message;
   }
 });
 
@@ -453,20 +434,11 @@ document.addEventListener('click', e => {
   }
 });
 
-// --- Asset links switching ---
-const mapIframe = document.getElementById('mapIframe');
-const assetLinks = document.querySelectorAll('.asset-links a');
-
-assetLinks.forEach(link => {
-  if (link.id === 'digitalLink') link.dataset.map = data.mapLink_DigitalScreen;
-  if (link.id === 'lightPolesLink') link.dataset.map = data.mapLink_LightPoles;
-  if (link.id === 'staticMupiLink') link.dataset.map = data.mapLink_StaticMupi;
-});
-
 // --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
 const wrapper = document.getElementById('mapWrapper');
 const inventoryWrapper = document.getElementById('inventoryWrapper');
+  
 fsBtn.addEventListener('click', async () => {
   try {
     if (!document.fullscreenElement) await wrapper.requestFullscreen();
@@ -501,24 +473,27 @@ viewScreensBtn.addEventListener('click', () => {
 });
 
 // --- Inventory toggle ---
-const inventoryBtn = document.getElementById('showInventoryBtn');
 inventoryBtn.addEventListener('click', async () => {
   const isVisible = inventoryWrapper.style.display === "block";
-  if (!isVisible) {
-    inventoryWrapper.style.display = "block";
-    try { await inventoryWrapper.requestFullscreen(); } catch {}
-  } else {
-    inventoryWrapper.style.display = "none";
-    if (document.fullscreenElement) await document.exitFullscreen();
+  try {
+    if (!isVisible) {
+      inventoryWrapper.style.display = "block";
+      await inventoryWrapper.requestFullscreen();
+    } else {
+      inventoryWrapper.style.display = "none";
+      if (document.fullscreenElement) await document.exitFullscreen();
+    }
+  } catch (err) {
+    console.warn(err);
   }
 });
+
 document.addEventListener('fullscreenchange', () => {
   const fsElem = document.fullscreenElement;
   [wrapper, inventoryWrapper].forEach(el => {
     if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
   });
-  if (!fsElem && inventoryWrapper.style.display === "block")
-    inventoryWrapper.style.display = "none";
+  if (!fsElem && inventoryWrapper.style.display === "block") inventoryWrapper.style.display = "none";
 });
 
 // --- Weather widget ---
