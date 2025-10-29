@@ -99,8 +99,6 @@ body {
 
 .fullscreen-wrapper { width:100% !important; height:100% !important; border-radius:0 !important; box-shadow:none !important; margin:0 !important; }
 
-  <iframe id="mapIframe" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
-
 @media (max-width:480px) {
   body { padding:.75rem; }
   .lead { font-size:.85rem; }
@@ -295,7 +293,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
   authDomain: "scoop-ooh-assets.firebaseapp.com",
   projectId: "scoop-ooh-assets",
-  storageBucket: "scoop-ooh-assets.firebasestorage.com",
+  storageBucket: "scoop-ooh-assets.appspot.com",
   messagingSenderId: "611605892213",
   appId: "1:611605892213:web:d71dc48fec993b80f6bc3c"
 };
@@ -383,6 +381,7 @@ function checkLoginStatus() {
   if (loggedUser) {
     document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
     document.body.classList.remove('no-scroll');
+     loadMapLinks();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.body.classList.add('no-scroll');
@@ -440,7 +439,7 @@ document.addEventListener('click', e => {
 // --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
 const wrapper = document.getElementById('mapWrapper');
-const inventoryWrapper = document.getElementById('inventoryWrapper');
+const inventoryBtn = document.getElementById('showInventoryBtn');
   
 fsBtn.addEventListener('click', async () => {
   try {
@@ -476,6 +475,7 @@ viewScreensBtn.addEventListener('click', () => {
 });
 
 // --- Inventory toggle ---
+const inventoryBtn = document.getElementById('showInventoryBtn');
 inventoryBtn.addEventListener('click', async () => {
   const isVisible = inventoryWrapper.style.display === "block";
   try {
@@ -490,6 +490,7 @@ inventoryBtn.addEventListener('click', async () => {
     console.warn(err);
   }
 });
+
 
 document.addEventListener('fullscreenchange', () => {
   const fsElem = document.fullscreenElement;
