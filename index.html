@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SCOOP | OOH Assets</title>
+<title>SCOOP OOH Assets</title>
 
 <!-- PWA Icons -->
 <link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_32x32.ico">
@@ -25,6 +25,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
 
 <style>
 :root {
@@ -87,6 +88,13 @@ body {
 .asset-links a { color:var(--text); font-weight:600; text-decoration:none; transition:color .3s ease; cursor:pointer; }
 .asset-links a:hover, .asset-links a.active { color:#FF5F15; text-decoration:underline; }
 
+  iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 8px;
+    }
+
 .controls { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; justify-content:center; }
 .btn { flex:1 1 auto; background:var(--brand); color:#fff; border:none; padding:.5rem .75rem; border-radius:8px; font-weight:600; font-size:.9rem; text-align:center; cursor:pointer; transition:background .3s ease; text-decoration: none; }
 .btn:hover { background:var(--brand-hover); }
@@ -147,7 +155,6 @@ body {
   background: #155bc4;
   transform: scale(1.05);
 }
-
   
 </style>
 </head>
@@ -229,21 +236,19 @@ body {
          alt="Scoop Logo" class="logo" />
   </div>
 
-  <div class="asset-links">
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&noprof=1&hl=en" class="active">Digital Screens</a>
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1qAnnrUkqXRNvsgXruletafuG8iRAvmw&noprof=1&hl=en">Light Poles</a>
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1s-mXAGEcos--BVZD45FuMEbxCRM8nV4&noprof=1&hl=en">Static Mupi</a>
-  </div>
+    <div class="asset-links" id="assetLinks">
+      <a href="#" id="digitalLink" data-type="digital" class="active">Digital Screens</a>
+      <a href="#" id="lightPolesLink" data-type="lightPoles">Light Poles</a>
+      <a href="#" id="staticMupiLink" data-type="staticMupi">Static Mupi</a>
+    </div>
 
   <p class="note">
     Click the toggle bar to select OOH Assets and view their locations. 
     Use the <strong>Full screen</strong> button to expand the map.
   </p>
 
-  <div class="map-wrapper" id="mapWrapper">
-    <iframe id="mapIframe"
-            src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
-            title="OOH Assets Map" loading="lazy"></iframe>
+    <div class="map-wrapper" id="mapWrapper">
+      <iframe id="mapIframe" title="OOH Assets Map" loading="lazy"></iframe>
 
     <div class="map-overlay hide-top-right">
       <div class="top-right-widget" id="weatherWidget">
@@ -259,9 +264,9 @@ body {
     <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
   </div>
 
-  <div class="inventory-wrapper" id="inventoryWrapper">
-    <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
-            title="Content Inventory"></iframe>
+    <div class="inventory-wrapper" id="inventoryWrapper" style="display:none;">
+      <iframe id="contentInventorySheet" title="Content Inventory"></iframe>
+    </div>
   </div>
 
 <div class="note" style="text-align:left; margin-top:1rem;">
@@ -299,6 +304,47 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Load all map links from Firestore
+    db.collection("appLinks").doc("oohLinks").get().then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        console.log("Loaded Map Links:", data);
+
+        // Show the container after loading
+        document.getElementById("mainContainer").style.display = "block";
+
+        // Set initial map (Digital Screen)
+        document.getElementById("mapIframe").src = data.mapLink_DigitalScreen;
+
+        // Update each data-map attribute dynamically
+        document.getElementById("digitalLink").dataset.map = data.mapLink_DigitalScreen;
+        document.getElementById("lightPolesLink").dataset.map = data.mapLink_LightPoles;
+        document.getElementById("staticMupiLink").dataset.map = data.mapLink_StaticMupi;
+
+        // Content Inventory Sheet
+        document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
+
+        // Add click event listeners
+        const links = document.querySelectorAll(".asset-links a");
+        links.forEach(link => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            links.forEach(l => l.classList.remove("active"));
+            link.classList.add("active");
+            const mapSrc = link.dataset.map;
+            document.getElementById("mapIframe").src = mapSrc;
+          });
+        });
+
+      } else {
+        console.log("No document found!");
+      }
+    }).catch((error) => {
+      console.error("Error fetching Firestore data:", error);
+    });
+
 
 // --- Splash fade ---
 window.addEventListener('load', () => {
