@@ -385,7 +385,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       document.getElementById('login-screen').style.display = 'none';
       document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
       document.body.classList.remove('no-scroll');
-      loadMaps();
+      loadMapLinks();
     }, 800);
   } catch (error) {
     console.error(error);
