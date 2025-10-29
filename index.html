@@ -148,6 +148,10 @@ body {
   background: #155bc4;
   transform: scale(1.05);
 }
+
+  body.no-scroll {
+    overflow: hidden;
+  }
   
 </style>
 </head>
@@ -289,7 +293,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
   authDomain: "scoop-ooh-assets.firebaseapp.com",
   projectId: "scoop-ooh-assets",
-  storageBucket: "scoop-ooh-assets.firebasestorage.com",
+  storageBucket: "scoop-ooh-assets.appspot.com",
   messagingSenderId: "611605892213",
   appId: "1:611605892213:web:d71dc48fec993b80f6bc3c"
 };
@@ -308,14 +312,14 @@ function toEmbedUrl(url) {
     // Example valid embed: https://www.google.com/maps/embed?pb=...
     if (url.includes("/maps/embed?")) return url;
     if (url.includes("/maps/")) {
-      return url.replace("/maps/", "/maps/embed?");
+      return url.replace("/maps/", "/maps/embed/");
     }
   }
 
   // --- Google Sheets ---
   if (url.includes("docs.google.com/spreadsheets")) {
     if (url.includes("/edit")) {
-      return url.replace("/edit", "/pubhtml?widget=true&amp;headers=false");
+      return url.replace("/edit", "/pubhtml?widget=true&headers=false");
     }
     if (url.includes("/preview")) return url;
     return `${url}/pubhtml?widget=true&amp;headers=false`;
@@ -324,10 +328,8 @@ function toEmbedUrl(url) {
   return url;
 }
 
-
 // Load Firestore data
 function loadMaps() {
-  const db = firebase.firestore();
   db.collection("appLinks").doc("oohLinks").get()
     .then(doc => {
       if (!doc.exists) return console.error("No Firestore document found!");
@@ -411,6 +413,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     setTimeout(() => {
       document.getElementById('login-screen').style.display = 'none';
       document.querySelector('.container').style.display = 'block';
+      document.body.classList.add('no-scroll');
     }, 800);
   } catch (error) {
     console.error(error);
@@ -434,12 +437,12 @@ document.addEventListener('click', e => {
       localStorage.removeItem('loggedUser');
       document.querySelector('.container').style.display = 'none';
       document.getElementById('login-screen').style.display = 'flex';
+      document.body.classList.add('no-scroll');
     });
   }
 });
 
 // --- Asset links switching ---
-const assetLinks = document.querySelectorAll('.asset-links a');
 const mapIframe = document.getElementById('mapIframe');
 assetLinks.forEach(link => {
 link.addEventListener('click', e => {
