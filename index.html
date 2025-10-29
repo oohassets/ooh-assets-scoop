@@ -302,23 +302,28 @@ const db = firebase.firestore();
 // ----- Firestore: Load Map Links -----
 function toEmbedUrl(url) {
   if (!url) return "";
-  
-  // Google Maps
+
+  // --- Google Maps ---
   if (url.includes("google.com/maps")) {
-    // Extract the place/embed part
-    if (!url.includes("/embed")) {
-      return url.replace("/place/", "/embed?") + "&output=embed";
+    // Example valid embed: https://www.google.com/maps/embed?pb=...
+    if (url.includes("/maps/embed?")) return url;
+    if (url.includes("/maps/")) {
+      return url.replace("/maps/", "/maps/embed?");
     }
-    return url;
   }
 
-  // Google Sheets
+  // --- Google Sheets ---
   if (url.includes("docs.google.com/spreadsheets")) {
-    return url.replace("/edit", "/preview");
+    if (url.includes("/edit")) {
+      return url.replace("/edit", "/pubhtml?widget=true&amp;headers=false");
+    }
+    if (url.includes("/preview")) return url;
+    return `${url}/pubhtml?widget=true&amp;headers=false`;
   }
 
   return url;
 }
+
 
 // Load Firestore data
 function loadMaps() {
