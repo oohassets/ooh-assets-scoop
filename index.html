@@ -303,38 +303,36 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Load Firestore data
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-
-const db = getFirestore();
-
-// Reference the document inside your "scoopLinks" collection
-const docRef = doc(db, "scoopLinks", "oohLinks");
-
+// --- Firestore Data Loader (compat version, works with your current setup)
 async function loadMapLinks() {
   try {
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
+    const docRef = db.collection("scoopLinks").doc("oohLinks");
+    const docSnap = await docRef.get();
+
+    if (docSnap.exists) {
       const data = docSnap.data();
       console.log("Loaded map links:", data);
 
-      // Example: set map iframe source for Digital Screen
+      // Set default map
       document.getElementById("mapIframe").src = data.mapLink_DigitalScreen;
 
-      // (Optional) update other buttons dynamically
-      document.getElementById("digitalScreenBtn").dataset.map = data.mapLink_DigitalScreen;
-      document.getElementById("lightPolesBtn").dataset.map = data.mapLink_LightPoles;
-      document.getElementById("staticMupiBtn").dataset.map = data.mapLink_StaticMupi;
-      document.getElementById("contentInventoryBtn").dataset.map = data.sheetLink_ContentInventory;
+      // Update buttons dynamically
+      document.getElementById("digitalLink").dataset.map = data.mapLink_DigitalScreen;
+      document.getElementById("lightPolesLink").dataset.map = data.mapLink_LightPoles;
+      document.getElementById("staticMupiLink").dataset.map = data.mapLink_StaticMupi;
+
+      // Sheet link
+      document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
     } else {
-      console.error("Document not found!");
+      console.error("❌ Firestore document not found!");
     }
   } catch (error) {
-    console.error("Error loading maps:", error);
+    console.error("🔥 Error loading maps:", error);
   }
 }
 
-loadMapLinks();
+// Load map links right after login success
+
 
   
 // --- Splash fade ---
