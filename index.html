@@ -229,19 +229,21 @@ body {
          alt="Scoop Logo" class="logo" />
   </div>
 
-    <div class="asset-links" id="assetLinks">
-      <a href="#" id="digitalLink" data-type="digital" class="active">Digital Screens</a>
-      <a href="#" id="lightPolesLink" data-type="lightPoles">Light Poles</a>
-      <a href="#" id="staticMupiLink" data-type="staticMupi">Static Mupi</a>
-    </div>
+  <div class="asset-links" id="assetLinks">
+    <a href="#" id="digitalLink" data-map="" class="active">Digital Screens</a>
+    <a href="#" id="lightPolesLink" data-map="">Light Poles</a>
+    <a href="#" id="staticMupiLink" data-map="">Static Mupi</a>
+  </div>
 
-  <p class="note">
-    Click the toggle bar to select OOH Assets and view their locations. 
-    Use the <strong>Full screen</strong> button to expand the map.
-  </p>
+
 
     <div class="map-wrapper" id="mapWrapper">
       <iframe id="mapIframe" title="OOH Assets Map" loading="lazy"></iframe>
+      
+    <p class="note">
+    Click the toggle bar to select OOH Assets and view their locations. 
+    Use the <strong>Full screen</strong> button to expand the map.
+  </p>
 
     <div class="map-overlay hide-top-right">
       <div class="top-right-widget" id="weatherWidget">
@@ -257,9 +259,9 @@ body {
     <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
   </div>
 
-    <div class="inventory-wrapper" id="inventoryWrapper" style="display:none;">
-      <iframe id="contentInventorySheet" title="Content Inventory"></iframe>
-    </div>
+  <div class="inventory-wrapper" id="inventoryWrapper">
+    <iframe id="contentInventorySheet" title="Content Inventory"></iframe>
+  </div>
   </div>
 
 <div class="note" style="text-align:left; margin-top:1rem;">
@@ -300,52 +302,53 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ----- Firestore: Load Map Links -----
-db.collection("appLinks").doc("oohLinks").get()
-  .then((doc) => {
-    if (doc.exists) {
+function toEmbedUrl(url) {
+  if (!url) return "";
+  // Maps
+  if (url.includes("google.com/maps")) return url.replace('/edit', '/embed').replace('/view', '/embed');
+  // Sheets
+  if (url.includes("docs.google.com/spreadsheets")) return url.replace('/edit', '/preview');
+  return url;
+}
+
+// Load Firestore data
+function loadMaps() {
+  const db = firebase.firestore();
+  db.collection("appLinks").doc("oohLinks").get()
+    .then(doc => {
+      if (!doc.exists) return console.error("No Firestore document found!");
       const data = doc.data();
-      console.log("Loaded Map Links:", data);
 
-      // Show main container
-      document.querySelector('.container').style.display = "block";
+      const container = document.getElementById("mainContainer");
+      container.style.display = "block"; // show container
 
-      // Helper function to convert viewer/edit links to embed links
-      function toEmbedUrl(url) {
-        if (!url) return "";
-        return url.replace('/viewer?', '/embed?')
-                  .replace('/edit?', '/embed?') + '&noprof=1&hl=en';
-      }
+      // Set initial map
+      const mapIframe = document.getElementById("mapIframe");
+      mapIframe.src = toEmbedUrl(data.mapLink_DigitalScreen);
 
-      // Set initial map (Digital Screens)
-      document.getElementById("mapIframe").src = toEmbedUrl(data.mapLink_DigitalScreen);
-
-      // Update each data-map attribute dynamically
+      // Set links
       document.getElementById("digitalLink").dataset.map = toEmbedUrl(data.mapLink_DigitalScreen);
       document.getElementById("lightPolesLink").dataset.map = toEmbedUrl(data.mapLink_LightPoles);
       document.getElementById("staticMupiLink").dataset.map = toEmbedUrl(data.mapLink_StaticMupi);
 
       // Content Inventory Sheet
-      document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
+      document.getElementById("contentInventorySheet").src = toEmbedUrl(data.sheetLink_ContentInventory);
 
-      // Add click event listeners for asset links
-      const links = document.querySelectorAll(".asset-links a");
-      links.forEach(link => {
-        link.addEventListener("click", (e) => {
+      // Link click events
+      document.querySelectorAll(".asset-links a").forEach(link => {
+        link.addEventListener("click", e => {
           e.preventDefault();
-          links.forEach(l => l.classList.remove("active"));
+          document.querySelectorAll(".asset-links a").forEach(l => l.classList.remove("active"));
           link.classList.add("active");
-          const mapSrc = link.dataset.map;
-          document.getElementById("mapIframe").src = mapSrc;
+          mapIframe.src = link.dataset.map;
         });
       });
+    })
+    .catch(err => console.error("Firestore error:", err));
+}
 
-    } else {
-      console.log("No document found in Firestore!");
-    }
-  })
-  .catch((error) => {
-    console.error("Error fetching Firestore data:", error);
-  });
+// Call loadMaps after login or if already logged in
+if (localStorage.getItem('loggedUser')) loadMaps();
   
 // --- Splash fade ---
 window.addEventListener('load', () => {
