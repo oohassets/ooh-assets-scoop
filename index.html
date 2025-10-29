@@ -293,7 +293,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
   authDomain: "scoop-ooh-assets.firebaseapp.com",
   projectId: "scoop-ooh-assets",
-  storageBucket: "scoop-ooh-assets.appspot.com",
+  storageBucket: "scoop-ooh-assets.firebasestorage.com",
   messagingSenderId: "611605892213",
   appId: "1:611605892213:web:d71dc48fec993b80f6bc3c"
 };
@@ -324,7 +324,7 @@ function toEmbedUrl(url) {
 // Load Firestore data
 async function loadMaps() {
   try {
-    const doc = await db.collection("appLinks").doc("oohLinks").get();
+    const doc = await db.collection("scoopLinks").doc("oohLinks").get();
     if (!doc.exists) {
       console.error("Firestore document not found!");
       return;
