@@ -413,7 +413,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
     setTimeout(() => {
       document.getElementById('login-screen').style.display = 'none';
       document.querySelector('.container').style.display = 'block';
-      document.body.classList.add('no-scroll');
+      document.body.classList.remove('no-scroll');
     }, 800);
   } catch (error) {
     console.error(error);
