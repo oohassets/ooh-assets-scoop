@@ -344,7 +344,7 @@ async function loadMaps() {
 
     // Get iframe elements
     const mapIframe = document.getElementById("mapIframe");
-    const sheetIframe = document.getElementById("sheetIframe");
+    const sheetIframe = document.getElementById("contentInventorySheet");
 
     // Assign map links directly
     mapIframe.src = data.mapLink_DigitalScreen;
@@ -419,9 +419,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       document.getElementById('login-screen').style.display = 'none';
       document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
       document.body.classList.remove('no-scroll');
+
+    // Load Firestore maps now
+    loadMaps();
     }, 800);
-    document.addEventListener('DOMContentLoaded', () => {
-  loadMaps();
 });
     
   } catch (error) {
@@ -456,14 +457,10 @@ const mapIframe = document.getElementById('mapIframe');
 const assetLinks = document.querySelectorAll('.asset-links a');
 
 assetLinks.forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    mapIframe.src = link.dataset.map; // Already embed-ready
-    assetLinks.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
-  });
+  if (link.id === 'digitalLink') link.dataset.map = data.mapLink_DigitalScreen;
+  if (link.id === 'lightPolesLink') link.dataset.map = data.mapLink_LightPoles;
+  if (link.id === 'staticMupiLink') link.dataset.map = data.mapLink_StaticMupi;
 });
-
 
 // --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
