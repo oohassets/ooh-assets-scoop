@@ -328,6 +328,8 @@ function toEmbedUrl(url) {
   return url;
 }
 
+console.log("Firestore data:", data);
+  
 // Load Firestore data
 function loadMaps() {
   db.collection("appLinks").doc("oohLinks").get()
