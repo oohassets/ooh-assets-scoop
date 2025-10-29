@@ -307,41 +307,52 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ----- Firestore: Load Map Links -----
-window.addEventListener("DOMContentLoaded", () => {
-  db.collection("appLinks").doc("oohLinks").get().then(doc => {
+db.collection("appLinks").doc("oohLinks").get()
+  .then((doc) => {
     if (doc.exists) {
       const data = doc.data();
       console.log("Loaded Map Links:", data);
 
-      // Show container
-      document.getElementById("mainContainer").style.display = "block";
+      // Show main container
+      document.querySelector('.container').style.display = "block";
 
-      // Initial map
-      const mapIframe = document.getElementById("mapIframe");
-      mapIframe.src = data.mapLink_DigitalScreen;
+      // Helper function to convert viewer/edit links to embed links
+      function toEmbedUrl(url) {
+        if (!url) return "";
+        return url.replace('/viewer?', '/embed?')
+                  .replace('/edit?', '/embed?') + '&noprof=1&hl=en';
+      }
 
-      document.getElementById("digitalLink").dataset.map = data.mapLink_DigitalScreen;
-      document.getElementById("lightPolesLink").dataset.map = data.mapLink_LightPoles;
-      document.getElementById("staticMupiLink").dataset.map = data.mapLink_StaticMupi;
+      // Set initial map (Digital Screens)
+      document.getElementById("mapIframe").src = toEmbedUrl(data.mapLink_DigitalScreen);
 
+      // Update each data-map attribute dynamically
+      document.getElementById("digitalLink").dataset.map = toEmbedUrl(data.mapLink_DigitalScreen);
+      document.getElementById("lightPolesLink").dataset.map = toEmbedUrl(data.mapLink_LightPoles);
+      document.getElementById("staticMupiLink").dataset.map = toEmbedUrl(data.mapLink_StaticMupi);
+
+      // Content Inventory Sheet
       document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
 
-      // Link click handlers
+      // Add click event listeners for asset links
       const links = document.querySelectorAll(".asset-links a");
       links.forEach(link => {
-        link.addEventListener("click", e => {
+        link.addEventListener("click", (e) => {
           e.preventDefault();
           links.forEach(l => l.classList.remove("active"));
           link.classList.add("active");
-          mapIframe.src = link.dataset.map;
+          const mapSrc = link.dataset.map;
+          document.getElementById("mapIframe").src = mapSrc;
         });
       });
 
     } else {
-      console.warn("Firestore document not found!");
+      console.log("No document found in Firestore!");
     }
-  }).catch(err => console.error("Firestore load error:", err));
-});
+  })
+  .catch((error) => {
+    console.error("Error fetching Firestore data:", error);
+  });
   
 // --- Splash fade ---
 window.addEventListener('load', () => {
