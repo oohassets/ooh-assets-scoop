@@ -230,7 +230,7 @@ body {
 
 
 <!-- Main Content -->
-<div class="container" style="display:none;">
+<div class="container" id="mainContainer" style="display:none;">
   <div class="title-container">
     <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
          alt="Scoop Logo" class="logo" />
@@ -296,7 +296,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
   authDomain: "scoop-ooh-assets.firebaseapp.com",
   projectId: "scoop-ooh-assets",
-  storageBucket: "scoop-ooh-assets.firebasestorage.app",
+  storageBucket: "scoop-ooh-assets.appspot.com",
   messagingSenderId: "611605892213",
   appId: "1:611605892213:web:d71dc48fec993b80f6bc3c"
 };
@@ -307,44 +307,41 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Load all map links from Firestore
-    db.collection("appLinks").doc("oohLinks").get().then((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        console.log("Loaded Map Links:", data);
+window.addEventListener("DOMContentLoaded", () => {
+  db.collection("appLinks").doc("oohLinks").get().then((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      console.log("Loaded Map Links:", data);
 
-        // Show the container after loading
-        document.getElementById("mainContainer").style.display = "block";
+      // ✅ Show container after loading
+      document.getElementById("mainContainer").style.display = "block";
 
-        // Set initial map (Digital Screen)
-        document.getElementById("mapIframe").src = data.mapLink_DigitalScreen;
+      // ✅ Set iframe and links dynamically
+      const mapIframe = document.getElementById("mapIframe");
+      mapIframe.src = data.mapLink_DigitalScreen;
 
-        // Update each data-map attribute dynamically
-        document.getElementById("digitalLink").dataset.map = data.mapLink_DigitalScreen;
-        document.getElementById("lightPolesLink").dataset.map = data.mapLink_LightPoles;
-        document.getElementById("staticMupiLink").dataset.map = data.mapLink_StaticMupi;
+      document.getElementById("digitalLink").dataset.map = data.mapLink_DigitalScreen;
+      document.getElementById("lightPolesLink").dataset.map = data.mapLink_LightPoles;
+      document.getElementById("staticMupiLink").dataset.map = data.mapLink_StaticMupi;
 
-        // Content Inventory Sheet
-        document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
+      document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
 
-        // Add click event listeners
-        const links = document.querySelectorAll(".asset-links a");
-        links.forEach(link => {
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            links.forEach(l => l.classList.remove("active"));
-            link.classList.add("active");
-            const mapSrc = link.dataset.map;
-            document.getElementById("mapIframe").src = mapSrc;
-          });
+      // ✅ Add click handlers
+      const links = document.querySelectorAll(".asset-links a");
+      links.forEach(link => {
+        link.addEventListener("click", e => {
+          e.preventDefault();
+          links.forEach(l => l.classList.remove("active"));
+          link.classList.add("active");
+          mapIframe.src = link.dataset.map;
         });
+      });
 
-      } else {
-        console.log("No document found!");
-      }
-    }).catch((error) => {
-      console.error("Error fetching Firestore data:", error);
-    });
-
+    } else {
+      console.warn("Firestore document not found!");
+    }
+  }).catch(err => console.error("Firestore load error:", err));
+});
 
 // --- Splash fade ---
 window.addEventListener('load', () => {
