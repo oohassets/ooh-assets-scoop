@@ -331,41 +331,38 @@ function toEmbedUrl(url) {
 
   
 // Load Firestore data
-function loadMaps() {
-  
-console.log("Firestore data:", data);
-  
-  db.collection("appLinks").doc("oohLinks").get()
-    .then(doc => {
-      if (!doc.exists) return console.error("No Firestore document found!");
-      const data = doc.data();
+async function loadMaps() {
+  try {
+    const doc = await db.collection("appLinks").doc("oohLinks").get();
+    if (!doc.exists) {
+      console.error("Firestore document not found!");
+      return;
+    }
 
-      const container = document.getElementById("mainContainer");
-      container.style.display = "block"; // show container
+    const data = doc.data();
+    console.log("Firestore data:", data);
 
-      // Set initial map
-      const mapIframe = document.getElementById("mapIframe");
-      mapIframe.src = toEmbedUrl(data.mapLink_DigitalScreen);
+    // Get iframe elements
+    const mapIframe = document.getElementById("mapIframe");
+    const sheetIframe = document.getElementById("sheetIframe");
 
-      // Set links
-      document.getElementById("digitalLink").dataset.map = toEmbedUrl(data.mapLink_DigitalScreen);
-      document.getElementById("lightPolesLink").dataset.map = toEmbedUrl(data.mapLink_LightPoles);
-      document.getElementById("staticMupiLink").dataset.map = toEmbedUrl(data.mapLink_StaticMupi);
+    // Assign map links directly
+    mapIframe.src = data.mapLink_DigitalScreen;
+    sheetIframe.src = data.sheetLink_ContentInventory;
 
-      // Content Inventory Sheet
-      document.getElementById("contentInventorySheet").src = toEmbedUrl(data.sheetLink_ContentInventory);
-
-      // Link click events
-      document.All(".asset-links a").forEach(link => {
-        link.addEventListener("click", e => {
-          e.preventDefault();
-          document.All(".asset-links a").forEach(l => l.classList.remove("active"));
-          link.classList.add("active");
-          mapIframe.src = link.dataset.map;
-        });
+    // Assign switching links (if you have clickable buttons)
+    const assetLinks = document.querySelectorAll('.asset-links a');
+    assetLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        mapIframe.src = link.dataset.map;
+        assetLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
       });
-    })
-    .catch(err => console.error("Firestore error:", err));
+    });
+  } catch (err) {
+    console.error("Error loading maps:", err);
+  }
 }
 
 // Call loadMaps after login or if already logged in
@@ -423,6 +420,10 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
       document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
       document.body.classList.remove('no-scroll');
     }, 800);
+    document.addEventListener('DOMContentLoaded', () => {
+  loadMaps();
+});
+    
   } catch (error) {
     console.error(error);
     message.style.color = '#c00';
