@@ -441,7 +441,7 @@ const mapIframe = document.getElementById('mapIframe');
 assetLinks.forEach(link => {
   link.addEventListener('click', e => {
     e.preventDefault();
-    const safeUrl = link.getAttribute('data-map').replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
+    const safeUrl = link.getAttribute('data-map').replace('/viewer?', '/embed?').replace('/edit?', '/embed?');
     mapIframe.src = safeUrl;
     assetLinks.forEach(l => l.classList.remove('active'));
     link.classList.add('active');
