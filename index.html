@@ -287,14 +287,8 @@ body {
 </div>
 </div>
 
-
-
-
-
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
 <script>
-// --- Firebase Config (replace with your own from Firebase Console) ---
+// --- Firebase Config 
 const firebaseConfig = {
   apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
   authDomain: "scoop-ooh-assets.firebaseapp.com",
@@ -308,24 +302,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-// ----- Firestore: Load Map Links -----
-function toEmbedUrl(url) {
-  if (!url) return "";
-
-  if (url.includes("google.com/maps")) {
-    if (url.includes("/maps/embed?")) return url;
-    if (url.includes("/maps/")) return url.replace("/maps/", "/maps/embed/");
-  }
-
-  if (url.includes("docs.google.com/spreadsheets")) {
-    if (url.includes("/edit")) return url.replace("/edit", "/pubhtml?widget=true&headers=false");
-    if (url.includes("/preview")) return url;
-    return `${url}/pubhtml?widget=true&headers=false`;
-  }
-
-  return url;
-}
 
 // Load Firestore data
 async function loadMaps() {
