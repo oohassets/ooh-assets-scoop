@@ -342,17 +342,21 @@ async function loadMaps() {
     const data = doc.data();
     console.log("Firestore data:", data);
 
-    // Get iframe elements
     const mapIframe = document.getElementById("mapIframe");
     const sheetIframe = document.getElementById("contentInventorySheet");
 
-    // Assign map links directly
+    // Assign iframe sources
     mapIframe.src = data.mapLink_DigitalScreen;
     sheetIframe.src = data.sheetLink_ContentInventory;
 
-    // Assign switching links (if you have clickable buttons)
+    // Assign dataset maps for asset links
     const assetLinks = document.querySelectorAll('.asset-links a');
     assetLinks.forEach(link => {
+      if (link.id === 'digitalLink') link.dataset.map = data.mapLink_DigitalScreen;
+      if (link.id === 'lightPolesLink') link.dataset.map = data.mapLink_LightPoles;
+      if (link.id === 'staticMupiLink') link.dataset.map = data.mapLink_StaticMupi;
+
+      // Click listener
       link.addEventListener('click', e => {
         e.preventDefault();
         mapIframe.src = link.dataset.map;
@@ -364,9 +368,6 @@ async function loadMaps() {
     console.error("Error loading maps:", err);
   }
 }
-
-// Call loadMaps after login or if already logged in
-if (localStorage.getItem('loggedUser')) loadMaps();
   
 // --- Splash fade ---
 window.addEventListener('load', () => {
