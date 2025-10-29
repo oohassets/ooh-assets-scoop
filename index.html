@@ -323,7 +323,7 @@ async function loadMaps() {
     sheetIframe.src = data.sheetLink_ContentInventory;
 
     // Assign dataset maps for asset links
-    const assetLinks = document.querySelectorAll('.asset-links a');
+    const assetLinks = document.querySelectorAll('.asset-links');
     assetLinks.forEach(link => {
       if (link.id === 'digitalLink') link.dataset.map = data.mapLink_DigitalScreen;
       if (link.id === 'lightPolesLink') link.dataset.map = data.mapLink_LightPoles;
