@@ -262,7 +262,7 @@ body {
   <div class="inventory-wrapper" id="inventoryWrapper">
     <iframe id="contentInventorySheet" title="Content Inventory"></iframe>
   </div>
-  </div>
+
 
 <div class="note" style="text-align:left; margin-top:1rem;">
   These asset locations have been pinned by the OOH Asset Supervisor.
@@ -283,6 +283,7 @@ body {
         style="color:#fff; text-decoration:none; cursor:pointer; font-size:0.8rem;">
     Logout
   </span>
+</div>
 </div>
 
 <script>
@@ -439,12 +440,12 @@ document.addEventListener('click', e => {
 const assetLinks = document.querySelectorAll('.asset-links a');
 const mapIframe = document.getElementById('mapIframe');
 assetLinks.forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    const safeUrl = link.getAttribute('data-map').replace('/viewer?', '/embed?').replace('/edit?', '/embed?');
-    mapIframe.src = safeUrl;
-    assetLinks.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
+link.addEventListener('click', e => {
+  e.preventDefault();
+  const mapIframe = document.getElementById('mapIframe');
+  mapIframe.src = link.dataset.map; // Already embed-ready
+  assetLinks.forEach(l => l.classList.remove('active'));
+  link.classList.add('active');
   });
 });
 
