@@ -99,6 +99,8 @@ body {
 
 .fullscreen-wrapper { width:100% !important; height:100% !important; border-radius:0 !important; box-shadow:none !important; margin:0 !important; }
 
+  <iframe id="mapIframe" width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+
 @media (max-width:480px) {
   body { padding:.75rem; }
   .lead { font-size:.85rem; }
@@ -311,18 +313,20 @@ async function loadMapLinks() {
 
     if (docSnap.exists) {
       const data = docSnap.data();
-      console.log("Loaded map links:", data);
+      const mapLinks = data.mapLinks; // Nested field in your Firestore doc
+      console.log("Loaded map links:", mapLinks);
 
-      // Set default map
-      document.getElementById("mapIframe").src = data.mapLink_DigitalScreen;
+      // Set default map (Digital Screen)
+      const mapIframe = document.getElementById("mapIframe");
+      mapIframe.src = mapLinks.DigitalScreen;
 
-      // Update buttons dynamically
-      document.getElementById("digitalLink").dataset.map = data.mapLink_DigitalScreen;
-      document.getElementById("lightPolesLink").dataset.map = data.mapLink_LightPoles;
-      document.getElementById("staticMupiLink").dataset.map = data.mapLink_StaticMupi;
+      // Assign Firestore links to each anchor
+      document.getElementById("digitalLink").dataset.map = mapLinks.DigitalScreen;
+      document.getElementById("lightPolesLink").dataset.map = mapLinks.LightPoles;
+      document.getElementById("staticMupiLink").dataset.map = mapLinks.StaticMupi;
 
-      // Sheet link
-      document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
+      // Setup click listeners
+      setupMapLinks();
     } else {
       console.error("❌ Firestore document not found!");
     }
@@ -331,10 +335,34 @@ async function loadMapLinks() {
   }
 }
 
-// Load map links right after login success
+function setupMapLinks() {
+  const mapIframe = document.getElementById("mapIframe");
+  const assetLinks = document.querySelectorAll("#assetLinks a");
+
+  assetLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault(); // Prevent page reload
+
+      // Remove active state from all links
+      assetLinks.forEach(l => l.classList.remove("active"));
+
+      // Set active link
+      link.classList.add("active");
+
+      // Load selected map
+      const mapUrl = link.dataset.map;
+      if (mapUrl) {
+        mapIframe.src = mapUrl;
+        console.log(`✅ Switched to: ${link.textContent}`);
+      } else {
+        console.warn(`⚠️ No map URL found for ${link.id}`);
+      }
+    });
+  });
+}
 
 
-  
+
 // --- Splash fade ---
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
