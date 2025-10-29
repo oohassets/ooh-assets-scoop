@@ -306,17 +306,17 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Load all map links from Firestore
+// ----- Firestore: Load Map Links -----
 window.addEventListener("DOMContentLoaded", () => {
-  db.collection("appLinks").doc("oohLinks").get().then((doc) => {
+  db.collection("appLinks").doc("oohLinks").get().then(doc => {
     if (doc.exists) {
       const data = doc.data();
       console.log("Loaded Map Links:", data);
 
-      // ✅ Show container after loading
+      // Show container
       document.getElementById("mainContainer").style.display = "block";
 
-      // ✅ Set iframe and links dynamically
+      // Initial map
       const mapIframe = document.getElementById("mapIframe");
       mapIframe.src = data.mapLink_DigitalScreen;
 
@@ -326,7 +326,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       document.getElementById("contentInventorySheet").src = data.sheetLink_ContentInventory;
 
-      // ✅ Add click handlers
+      // Link click handlers
       const links = document.querySelectorAll(".asset-links a");
       links.forEach(link => {
         link.addEventListener("click", e => {
@@ -342,7 +342,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }).catch(err => console.error("Firestore load error:", err));
 });
-
+  
 // --- Splash fade ---
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
