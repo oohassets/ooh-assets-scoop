@@ -1,1 +1,34 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SCOOP OOH Assets</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body style="font-family:Arial;">
+
+  <div id="mainContainer" style="display:none;">
+    <header style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#333;color:#fff;">
+      <h3>SCOOP Dashboard</h3>
+      <div>
+        <span id="userEmail" style="margin-right:15px;"></span>
+        <button id="logoutBtn" style="padding:5px 10px;">Logout</button>
+      </div>
+    </header>
+
+    <main style="padding:20px;">
+      <h2>Welcome to Home Page</h2>
+      <iframe id="mapIframe" src="" width="100%" height="500" style="border:1px solid #ccc;border-radius:6px;"></iframe>
+    </main>
+  </div>
+
+  <!-- Reusable Auth Check -->
+  <script src="auth-check.js"></script>
+</body>
+</html>
 
