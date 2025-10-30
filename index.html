@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SCOOP OOH Assets</title>
+  <title>SCOOP | OOH Assets Login</title>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
-<body>
+<body style="font-family:Arial;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
 
-  <!-- LOGIN SCREEN -->
-  <div id="login-screen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;">
-    <img src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png" alt="SCOOP Logo" style="width:100px;margin-bottom:20px;">
-    <input id="username" type="email" placeholder="Username" style="margin:5px;padding:10px;">
-    <input id="password" type="password" placeholder="Password" style="margin:5px;padding:10px;">
-    <button id="loginBtn" style="padding:10px 20px;">Login</button>
-    <p id="loginMessage" style="color:#c00;"></p>
-  </div>
+  <img src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png" alt="SCOOP Logo" style="width:120px;margin-bottom:20px;">
+  <h2>Login to Continue</h2>
+  <input id="username" type="email" placeholder="Username" style="margin:5px;padding:10px;width:220px;">
+  <input id="password" type="password" placeholder="Password" style="margin:5px;padding:10px;width:220px;">
+  <button id="loginBtn" style="margin-top:10px;padding:10px 25px;">Login</button>
+  <p id="loginMessage" style="color:#c00;"></p>
 
   <script>
   // --- Firebase Config ---
@@ -31,14 +31,14 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // --- Check if already logged in ---
+  // --- Already logged in? Go directly to home ---
   auth.onAuthStateChanged(user => {
     if (user) {
       window.location.href = "home.html";
     }
   });
 
-  // --- Login ---
+  // --- Login function ---
   document.getElementById('loginBtn').addEventListener('click', async () => {
     const email = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
@@ -53,7 +53,7 @@
       await auth.signInWithEmailAndPassword(email, password);
       msg.style.color = "green";
       msg.textContent = "Login successful!";
-      window.location.href = "home.html"; // ✅ Redirect after login
+      window.location.href = "home.html";
     } catch (err) {
       console.error(err);
       msg.style.color = "#c00";
