@@ -35,6 +35,23 @@
   --text: #36454F;
 }
 
+/* Splash Logo Only */
+#splash-screen {
+  position: fixed; inset: 0; background: #000;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 99999;
+  overflow: hidden;
+}
+.splash-logo {
+  width: 180px; height: 180px;
+  opacity: 0; transform: scale(0.9);
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+.splash-logo.visible { opacity: 1; transform: scale(1); }
+#splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
+
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin:0; padding:1rem; color:var(--text);
@@ -91,6 +108,41 @@ body {
   .logo { height:60px; }
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
 }
+
+/* Login */
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+#username:focus, #password:focus {
+  border-bottom-color: #1f6feb;
+}
+
+#loginBtn:hover {
+  background: #155bc4;
+}
+
+#username::placeholder, #password::placeholder {
+  color: #777;
+}
+
+/* ✅ Mobile adjustments */
+@media (max-width: 480px) {
+  #login-screen div {
+    max-width: 280px !important;
+    padding: 1rem 1.25rem !important;
+  }
+  #login-screen img {
+    height: 55px !important;
+    margin-bottom: .4rem !important;
+  }
+  #login-screen h3 {
+    font-size: 1rem !important;
+    margin-bottom: .6rem !important;
+  }
+}
   
   #installBadge:hover {
   background: #155bc4;
@@ -104,6 +156,76 @@ body {
 </style>
 </head>
 <body>
+
+<!-- Splash Logo -->
+<div id="splash-screen">
+  <img id="splash-logo" class="splash-logo"
+       src="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png"
+       alt="SCOOP Logo">
+</div>
+
+<!-- Responsive Login Form -->
+<div id="login-screen" style="
+  position:fixed;
+  inset:0;
+  background:linear-gradient(70deg,#b262b4,#e8aa6e,#c9f085,#90b0ec);
+  background-size:240% 240%;
+  animation:gradient-move 25s ease infinite;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  padding:1rem;
+  z-index:9999;
+  overflow:auto;
+">
+
+  <div style="
+    background:rgba(255,255,255,0.95);
+    padding:clamp(1rem, 4vw, 2rem);
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.2);
+    text-align:center;
+    width:100%;
+    max-width:340px;
+    box-sizing:border-box;
+  ">
+    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
+         alt="Scoop Logo"
+         style="height:clamp(50px, 8vw, 80px); margin-bottom:.5rem; width:auto;">
+
+    <h3 style="color:#333; margin-bottom:.75rem; font-size:clamp(1rem, 2vw, 1.3rem);">
+      Login to Continue
+    </h3>
+
+    <!-- Line-style Inputs -->
+    <input type="text" id="username" placeholder="Username"
+           style="width:100%; padding:.5rem 0; border:none; border-bottom:2px solid #ccc;
+                  background:transparent; margin-bottom:.9rem;
+                  font-size:clamp(.85rem, 1.6vw, 1rem); box-sizing:border-box;
+                  outline:none; transition:border-color .3s;">
+    
+    <input type="password" id="password" placeholder="Password"
+           style="width:100%; padding:.5rem 0; border:none; border-bottom:2px solid #ccc;
+                  background:transparent; margin-bottom:1.2rem;
+                  font-size:clamp(.85rem, 1.6vw, 1rem); box-sizing:border-box;
+                  outline:none; transition:border-color .3s;">
+
+    <button id="loginBtn"
+            style="width:100%; background:#1f6feb; color:#fff; border:none;
+                   padding:.6rem; border-radius:6px; font-weight:600;
+                   cursor:pointer; font-size:clamp(.85rem, 1.6vw, 1rem);
+                   transition:background .3s;">
+      Login
+    </button>
+
+    <p id="loginMessage"
+       style="margin-top:.6rem; color:#c00; font-size:clamp(.75rem, 1.4vw, .9rem);">
+    </p>
+  </div>
+</div>
+
+
 <!-- Main Content -->
 <div class="container" id="mainContainer" style="display:none;">
   <div class="title-container">
@@ -237,6 +359,8 @@ function setupMapLinks() {
   });
 }
 
+
+
 // --- Splash fade ---
 window.addEventListener('load', () => {
   const splash = document.getElementById('splash-screen');
@@ -264,7 +388,41 @@ function checkLoginStatus() {
   }
 }
 
+// --- Login system using Firebase Auth ---
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const message = document.getElementById('loginMessage');
 
+  if (!username || !password) {
+    message.style.color = '#c00';
+    message.textContent = 'Please enter both fields.';
+    return;
+  }
+
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(username, password);
+    const user = userCredential.user;
+
+    message.style.color = 'green';
+    message.textContent = 'Login successful!';
+    localStorage.setItem('loggedUser', user.email);
+
+    setTimeout(() => {
+      document.getElementById('login-screen').style.display = 'none';
+      document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
+      document.body.classList.remove('no-scroll');
+      loadMapLinks();
+    }, 800);
+  } catch (error) {
+    console.error(error);
+    message.style.color = '#c00';
+    if (error.code === 'auth/user-not-found') message.textContent = 'User not found.';
+    else if (error.code === 'auth/wrong-password') message.textContent = 'Incorrect password.';
+    else if (error.code === 'auth/invalid-email') message.textContent = 'Invalid email address.';
+    else message.textContent = error.message;
+  }
+});
 
 // --- Logout ---
 document.addEventListener('click', e => {
@@ -496,10 +654,8 @@ window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
   console.log('✅ App successfully installed!');
 });
-    <script src="auth-check.js"></script>
+
+  
 </script>
 </body>
 </html>
-
-
-
