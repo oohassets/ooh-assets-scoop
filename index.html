@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SCOOP | OOH Assets</title>
+<title>SCOOP OOH Assets</title>
 
 <!-- PWA Icons -->
 <link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/icons/scoop_32x32.ico">
@@ -25,6 +25,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
 
 <style>
 :root {
@@ -148,6 +149,9 @@ body {
   transform: scale(1.05);
 }
 
+  body.no-scroll {
+    overflow: hidden;
+  }
   
 </style>
 </head>
@@ -223,29 +227,27 @@ body {
 
 
 <!-- Main Content -->
-<div class="container" style="display:none;">
+<div class="container" id="mainContainer" style="display:none;">
   <div class="title-container">
     <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
          alt="Scoop Logo" class="logo" />
   </div>
 
-  <div class="asset-links">
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&noprof=1&hl=en" class="active">Digital Screens</a>
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1qAnnrUkqXRNvsgXruletafuG8iRAvmw&noprof=1&hl=en">Light Poles</a>
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1s-mXAGEcos--BVZD45FuMEbxCRM8nV4&noprof=1&hl=en">Static Mupi</a>
+  <div class="asset-links" id="assetLinks">
+    <a href="#" id="digitalLink" data-map="" class="active">Digital Screens</a>
+    <a href="#" id="lightPolesLink" data-map="">Light Poles</a>
+    <a href="#" id="staticMupiLink" data-map="">Static Mupi</a>
   </div>
-
+  
   <p class="note">
     Click the toggle bar to select OOH Assets and view their locations. 
     Use the <strong>Full screen</strong> button to expand the map.
   </p>
-
+  
   <div class="map-wrapper" id="mapWrapper">
-    <iframe id="mapIframe"
-            src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
-            title="OOH Assets Map" loading="lazy"></iframe>
-
-    <div class="map-overlay hide-top-right">
+      <iframe id="mapIframe" title="OOH Assets Map" loading="lazy"></iframe>
+      
+  <div class="map-overlay hide-top-right">
       <div class="top-right-widget" id="weatherWidget">
         <div id="weatherCity" style="font-size:0.8rem; font-weight:400; color:#FFFFFF;">Doha, Qatar</div>
         <div id="weatherTemp" style="font-size:1.2rem; font-weight:600; color:#FFFFFF;">--°C</div>
@@ -256,20 +258,19 @@ body {
   <div class="controls">
     <button class="btn" id="fsBtn">Full screen</button>
     <button class="btn" id="viewScreensBtn">View Screens</button>
-    <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
+    <button class="btn" id="show">Show Content Inventory</button>
   </div>
 
   <div class="inventory-wrapper" id="inventoryWrapper">
-    <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
-            title="Content Inventory"></iframe>
+    <iframe id="contentInventorySheet" title="Content Inventory"></iframe>
   </div>
 
 <div class="note" style="text-align:left; margin-top:1rem;">
   These asset locations have been pinned by the OOH Asset Supervisor.
 </div>
 
-<p style="margin-top:1rem; text-align:left;">
-  <strong>Useful Links:</strong><br>
+<p style="margin-top:1rem; text-align:left;font-size:.75rem; color:#fff">
+  <strong>Quick Links:</strong><br>
   <a href="https://scoop.qa/" target="_blank" rel="noopener noreferrer">
     Scoop Media and Communication
   </a><br>
@@ -284,14 +285,15 @@ body {
     Logout
   </span>
 </div>
+</div>
 
 <script>
-// --- Firebase Config (replace with your own from Firebase Console) ---
+// --- Firebase Config 
 const firebaseConfig = {
   apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
   authDomain: "scoop-ooh-assets.firebaseapp.com",
   projectId: "scoop-ooh-assets",
-  storageBucket: "scoop-ooh-assets.firebasestorage.app",
+  storageBucket: "scoop-ooh-assets.appspot.com",
   messagingSenderId: "611605892213",
   appId: "1:611605892213:web:d71dc48fec993b80f6bc3c"
 };
@@ -299,6 +301,65 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
+
+// --- Firestore Data Loader (compat version, works with your current setup)
+async function loadMapLinks() {
+  try {
+    const docRef = db.collection("scoopLinks").doc("oohLinks");
+    const docSnap = await docRef.get();
+
+    if (docSnap.exists) {
+      const data = docSnap.data();
+      const mapLinks = data.mapLinks; // Nested field in your Firestore doc
+      console.log("Loaded map links:", mapLinks);
+
+      // Set default map (Digital Screen)
+      const mapIframe = document.getElementById("mapIframe");
+      mapIframe.src = mapLinks.DigitalScreen;
+
+      // Assign Firestore links to each anchor
+      document.getElementById("digitalLink").dataset.map = mapLinks.DigitalScreen;
+      document.getElementById("lightPolesLink").dataset.map = mapLinks.LightPoles;
+      document.getElementById("staticMupiLink").dataset.map = mapLinks.StaticMupi;
+
+      // Setup click listeners
+      setupMapLinks();
+    } else {
+      console.error("❌ Firestore document not found!");
+    }
+  } catch (error) {
+    console.error("🔥 Error loading maps:", error);
+  }
+}
+
+function setupMapLinks() {
+  const mapIframe = document.getElementById("mapIframe");
+  const assetLinks = document.querySelectorAll("#assetLinks a");
+
+  assetLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault(); // Prevent page reload
+
+      // Remove active state from all links
+      assetLinks.forEach(l => l.classList.remove("active"));
+
+      // Set active link
+      link.classList.add("active");
+
+      // Load selected map
+      const mapUrl = link.dataset.map;
+      if (mapUrl) {
+        mapIframe.src = mapUrl;
+        console.log(`✅ Switched to: ${link.textContent}`);
+      } else {
+        console.warn(`⚠️ No map URL found for ${link.id}`);
+      }
+    });
+  });
+}
+
+
 
 // --- Splash fade ---
 window.addEventListener('load', () => {
@@ -318,9 +379,12 @@ window.addEventListener('load', () => {
 function checkLoginStatus() {
   const loggedUser = localStorage.getItem('loggedUser');
   if (loggedUser) {
-    document.querySelector('.container').style.display = 'block';
+    document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
+    document.body.classList.remove('no-scroll');
+     loadMapLinks();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
+    document.body.classList.add('no-scroll');
   }
 }
 
@@ -342,24 +406,21 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
     message.style.color = 'green';
     message.textContent = 'Login successful!';
-
     localStorage.setItem('loggedUser', user.email);
+
     setTimeout(() => {
       document.getElementById('login-screen').style.display = 'none';
-      document.querySelector('.container').style.display = 'block';
+      document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
+      document.body.classList.remove('no-scroll');
+      loadMapLinks();
     }, 800);
   } catch (error) {
     console.error(error);
     message.style.color = '#c00';
-    if (error.code === 'auth/user-not-found') {
-      message.textContent = 'User not found.';
-    } else if (error.code === 'auth/wrong-password') {
-      message.textContent = 'Incorrect password.';
-    } else if (error.code === 'auth/invalid-email') {
-      message.textContent = 'Invalid email address.';
-    } else {
-      message.textContent = error.message;
-    }
+    if (error.code === 'auth/user-not-found') message.textContent = 'User not found.';
+    else if (error.code === 'auth/wrong-password') message.textContent = 'Incorrect password.';
+    else if (error.code === 'auth/invalid-email') message.textContent = 'Invalid email address.';
+    else message.textContent = error.message;
   }
 });
 
@@ -368,29 +429,18 @@ document.addEventListener('click', e => {
   if (e.target && e.target.id === 'logoutText') {
     auth.signOut().then(() => {
       localStorage.removeItem('loggedUser');
-      document.querySelector('.container').style.display = 'none';
+      document.querySelectorAll('.container').forEach(el => el.style.display = 'none');
       document.getElementById('login-screen').style.display = 'flex';
+      document.body.classList.add('no-scroll');
     });
   }
-});
-
-// --- Asset links switching ---
-const assetLinks = document.querySelectorAll('.asset-links a');
-const mapIframe = document.getElementById('mapIframe');
-assetLinks.forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    const safeUrl = link.getAttribute('data-map').replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
-    mapIframe.src = safeUrl;
-    assetLinks.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
-  });
 });
 
 // --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
 const wrapper = document.getElementById('mapWrapper');
-const inventoryWrapper = document.getElementById('inventoryWrapper');
+const showBtn = document.getElementById('show');
+  
 fsBtn.addEventListener('click', async () => {
   try {
     if (!document.fullscreenElement) await wrapper.requestFullscreen();
@@ -426,23 +476,28 @@ viewScreensBtn.addEventListener('click', () => {
 
 // --- Inventory toggle ---
 const inventoryBtn = document.getElementById('showInventoryBtn');
+const inventoryWrapper = document.getElementById('inventoryWrapper');
 inventoryBtn.addEventListener('click', async () => {
   const isVisible = inventoryWrapper.style.display === "block";
-  if (!isVisible) {
-    inventoryWrapper.style.display = "block";
-    try { await inventoryWrapper.requestFullscreen(); } catch {}
-  } else {
-    inventoryWrapper.style.display = "none";
-    if (document.fullscreenElement) await document.exitFullscreen();
+  try {
+    if (!isVisible) {
+      inventoryWrapper.style.display = "block";
+      await inventoryWrapper.requestFullscreen();
+    } else {
+      inventoryWrapper.style.display = "none";
+      if (document.fullscreenElement) await document.exitFullscreen();
+    }
+  } catch (err) {
+    console.warn(err);
   }
 });
+
 document.addEventListener('fullscreenchange', () => {
   const fsElem = document.fullscreenElement;
   [wrapper, inventoryWrapper].forEach(el => {
     if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
   });
-  if (!fsElem && inventoryWrapper.style.display === "block")
-    inventoryWrapper.style.display = "none";
+  if (!fsElem && inventoryWrapper.style.display === "block") inventoryWrapper.style.display = "none";
 });
 
 // --- Weather widget ---
