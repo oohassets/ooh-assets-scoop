@@ -1,5 +1,5 @@
 {
-  "name": "SCOOP | OOH Assets",
+  "name": "SCOOP OOH Assets",
   "short_name": "SCOOP OOH",
   "description": "Managed by SCOOP Media and Communication",
   "start_url": "./index.html",
@@ -8,20 +8,15 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_192x192.png",
+      "src": "https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.png",
+      "src": "https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "https://oohassets.github.io/ooh-assets-scoop/icons/scoop_black_512x512.ico",
-      "sizes": "512x512",
-      "type": "image/x-icon"
     }
   ]
 }
