@@ -1,14 +1,14 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v46';
+const CACHE_NAME = 'scoop-ooh-cache-v46.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './assets/css/style.css',
   './assets/js/app.js',
-  './images/scoop_black_180x180.png',
-  './images/scoop_black_192x192.png',
-  './images/scoop_black_512x512.png',
+  './images/scooplogo_black_180x180.png',
+  './images/scooplogo_black_192x192.png',
+  './images/scooplogo_black_512x512.png',
 ];
 
 // ===== INSTALL EVENT =====
