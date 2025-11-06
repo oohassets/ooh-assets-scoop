@@ -6,9 +6,9 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './assets/css/style.css',
   './assets/js/app.js',
-  './icons/scoop_black_192x192.png',
-  './icons/scoop_black_512x512',
-  './icons/scoop_512x512.png',
+  './images/scoop_black_180x180.png',
+  './images/scoop_black_192x192.png',
+  './images/scoop_black_512x512.png',
 ];
 
 // ===== INSTALL EVENT =====
