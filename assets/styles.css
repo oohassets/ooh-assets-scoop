@@ -253,12 +253,21 @@ body.no-scroll {
 
 /* ✅ Mobile adjustments */
 @media (max-width: 480px) {
-  #loginScreen div {
-    max-width: 280px !important;
-    padding: 1rem 1.25rem !important;
+  #loginScreen .login-box {
+    width: 90%;
+    padding: 1.2rem;
+  }
+  
+  #loginScreen img.login-logo {
+    width: 60px;
   }
 
-/* --- LOGIN SCREEN FIXED --- */
+  #loginScreen h3 {
+    font-size: 1rem;
+  }
+}
+
+/* --- LOGIN SCREEN  --- */
 
 #loginScreen {
   position: fixed;
