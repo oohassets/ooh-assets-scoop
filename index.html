@@ -541,8 +541,6 @@ viewScreensBtn.addEventListener('click', () => {
 
 // --- Inventory button ---
 const inventoryBtn = document.getElementById("showInventoryBtn");
-const inventoryWrapper = document.getElementById("inventoryWrapper");
-
 inventoryBtn.addEventListener("click", async () => {
   if (!document.fullscreenElement) {
     inventoryWrapper.style.display = "block";
