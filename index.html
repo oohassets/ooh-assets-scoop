@@ -514,10 +514,8 @@ inventoryBtn.addEventListener("click", async () => {
 document.addEventListener('fullscreenchange', () => {
   const fsElem = document.fullscreenElement;
   [wrapper, inventoryWrapper].forEach(el => {
-    if (el) el.classList.toggle('fullscreen-wrapper', el === fsElem);
+    el.classList.toggle('fullscreen-wrapper', el === fsElem);
   });
-  if (!fsElem && inventoryWrapper.style.display === "block")
-    inventoryWrapper.style.display = "none";
 });
 
 // --- Weather widget ---
