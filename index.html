@@ -22,10 +22,6 @@
 <meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
 <meta name="msapplication-TileColor" content="#ffffff">
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
-
 <style>
 :root {
   --max-width: 1200px;
@@ -283,107 +279,191 @@ body {
   </span>
 </div>
 
-<script>
-// --- Firebase Config
+<script type="module">
+// --- Firebase Modular Imports ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+// --- Firebase Config ---
 const firebaseConfig = {
-  apiKey: "AIzaSyCKH-qxF9rqJds8Oi69MA8zpoHB0BL_jlk",
-  authDomain: "scoop-ooh-assets.firebaseapp.com",
-  projectId: "scoop-ooh-assets",
-  storageBucket: "scoop-ooh-assets.firebasestorage.app",
-  messagingSenderId: "611605892213",
-  appId: "1:611605892213:web:d71dc48fec993b80f6bc3c"
+  apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
+  authDomain: "scoopassets.firebaseapp.com",
+  projectId: "scoopassets",
+  storageBucket: "scoopassets.firebasestorage.app",
+  messagingSenderId: "989559041483",
+  appId: "1:989559041483:web:0feba5f279189f03791a4",
+  measurementId: "G-6HYVW2NG5K"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+// --- Initialize App ---
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// --- Splash fade ---
-window.addEventListener('load', () => {
-  const splash = document.getElementById('splash-screen');
-  const logo = document.getElementById('splash-logo');
-  logo.classList.add('visible');
+// --------------------------------------------------
+// ✅ Splash effect & init
+// --------------------------------------------------
+window.addEventListener("load", () => {
+  const splash = document.getElementById("splash-screen");
+  const logo = document.getElementById("splash-logo");
+  logo.classList.add("visible");
+
   setTimeout(() => {
-    splash.classList.add('fade-out');
+    splash.classList.add("fade-out");
     setTimeout(() => {
       splash.remove();
-      checkLoginStatus();
+      checkLoginStatus();   // ⬅️ Now uses updated logic
     }, 1000);
   }, 2500);
 });
 
-// --- Check login memory ---
-function checkLoginStatus() {
-  const loggedUser = localStorage.getItem('loggedUser');
-  if (loggedUser) {
-    document.querySelector('.container').style.display = 'block';
-  } else {
-    document.getElementById('login-screen').style.display = 'flex';
-  }
-}
+// --------------------------------------------------
+// ✅ Login System (Firebase Auth)
+// --------------------------------------------------
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  const msg = document.getElementById("loginMessage");
 
-// --- Login system using Firebase Auth ---
-document.getElementById('loginBtn').addEventListener('click', async () => {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-  const message = document.getElementById('loginMessage');
-
-  if (!username || !password) {
-    message.style.color = '#c00';
-    message.textContent = 'Please enter both fields.';
+  if (!email || !pass) {
+    msg.style.color = "#c00";
+    msg.textContent = "Please enter both fields.";
     return;
   }
 
   try {
-    const userCredential = await auth.signInWithEmailAndPassword(username, password);
-    const user = userCredential.user;
+    await signInWithEmailAndPassword(auth, email, pass);
 
-    message.style.color = 'green';
-    message.textContent = 'Login successful!';
+    localStorage.setItem("loggedUser", email);
 
-    localStorage.setItem('loggedUser', user.email);
+    msg.style.color = "green";
+    msg.textContent = "Login successful!";
     setTimeout(() => {
-      document.getElementById('login-screen').style.display = 'none';
-      document.querySelector('.container').style.display = 'block';
+      document.getElementById("login-screen").style.display = "none";
+      document.querySelector(".container").style.display = "block";
+
+      // Load Firestore after login
+      loadMapLinks();
+      loadInventory();
     }, 800);
+
   } catch (error) {
     console.error(error);
-    message.style.color = '#c00';
-    if (error.code === 'auth/user-not-found') {
-      message.textContent = 'User not found.';
-    } else if (error.code === 'auth/wrong-password') {
-      message.textContent = 'Incorrect password.';
-    } else if (error.code === 'auth/invalid-email') {
-      message.textContent = 'Invalid email address.';
-    } else {
-      message.textContent = error.message;
+    msg.style.color = "#c00";
+
+    switch (error.code) {
+      case "auth/user-not-found":
+        msg.textContent = "User not found.";
+        break;
+      case "auth/wrong-password":
+        msg.textContent = "Incorrect password.";
+        break;
+      case "auth/invalid-email":
+        msg.textContent = "Invalid email address.";
+        break;
+      default:
+        msg.textContent = error.message;
+        break;
     }
   }
 });
 
-// --- Logout ---
-document.addEventListener('click', e => {
-  if (e.target && e.target.id === 'logoutText') {
-    auth.signOut().then(() => {
-      localStorage.removeItem('loggedUser');
-      document.querySelector('.container').style.display = 'none';
-      document.getElementById('login-screen').style.display = 'flex';
+// --------------------------------------------------
+// ✅ Auto-login if user was already authenticated
+// --------------------------------------------------
+function checkLoginStatus() {
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.querySelector(".container").style.display = "block";
+    loadMapLinks();
+    loadInventory();
+  } else {
+    document.getElementById("login-screen").style.display = "flex";
+  }
+});
+}
+
+// --------------------------------------------------
+// ✅ Logout
+// --------------------------------------------------
+document.addEventListener("click", e => {
+  if (e.target.id === "logoutText") {
+    signOut(auth).then(() => {
+      localStorage.removeItem("loggedUser");
+      document.querySelector(".container").style.display = "none";
+      document.getElementById("login-screen").style.display = "flex";
     });
   }
 });
+  
+// --------------------------------------------------
+// ✅ FIRESTORE: Load map links dynamically
+// --------------------------------------------------
+async function loadMapLinks() {
+  const linkContainer = document.querySelector(".asset-links");
+  linkContainer.innerHTML = ""; // clear static HTML
 
-// --- Asset links switching ---
-const assetLinks = document.querySelectorAll('.asset-links a');
-const mapIframe = document.getElementById('mapIframe');
-assetLinks.forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    const safeUrl = link.getAttribute('data-map').replace('/viewer?', '/embed?').replace('/edit?', '/embed?') + '&noprof=1';
-    mapIframe.src = safeUrl;
-    assetLinks.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
+  try {
+    const snapshot = await getDocs(collection(db, "maps"));
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const a = document.createElement("a");
+      a.textContent = data.name;
+      a.href = "#";
+      a.setAttribute("data-map", data.url);
+      linkContainer.appendChild(a);
+    });
+
+    attachLinkEvents();
+  } catch (err) {
+    console.error("Failed to load Firestore map links:", err);
+  }
+}
+
+// --------------------------------------------------
+// ✅ FIRESTORE: Load inventory link
+// --------------------------------------------------
+async function loadInventory() {
+  const iframe = document.querySelector("#inventoryWrapper iframe");
+
+  try {
+    const snapshot = await getDocs(collection(db, "inventory"));
+    snapshot.forEach(doc => {
+      iframe.src = doc.data().iframeUrl;
+    });
+  } catch (err) {
+    console.error("Failed to load inventory:", err);
+  }
+}
+
+// --------------------------------------------------
+// ✅ Attach click events to dynamically created map links
+// --------------------------------------------------
+function attachLinkEvents() {
+  const assetLinks = document.querySelectorAll(".asset-links a");
+  const mapIframe = document.getElementById("mapIframe");
+
+  assetLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const safeUrl = link.getAttribute("data-map")
+        .replace("/viewer?", "/embed?")
+        .replace("/edit?", "/embed?")
+        + "&noprof=1";
+
+      mapIframe.src = safeUrl;
+
+      assetLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+    });
   });
-});
+}
+
 
 // --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
