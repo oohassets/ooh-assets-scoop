@@ -387,7 +387,6 @@ onAuthStateChanged(auth, user => {
 document.addEventListener("click", e => {
   if (e.target.id === "logoutText") {
     signOut(auth).then(() => {
-      localStorage.removeItem("loggedUser");
       document.querySelector(".container").style.display = "none";
       document.getElementById("login-screen").style.display = "flex";
     });
