@@ -4,437 +4,78 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SCOOP OOH Assets</title>
-<link rel="icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
 
 <!-- PWA Icons -->
-<link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_180x180.png">
+<link rel="icon" type="image/x-icon" href="images/scooplogo_black_32x32.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="images/scooplogo_black_192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="images/scooplogo_black_512x512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="images/scooplogo_black_180x180.png">
 <link rel="manifest" href="./manifest.json">
 
 <meta name="theme-color" content="#ffffff">
-<meta name="background-color" content="#ffffff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SCOOP OOH">
-<meta name="application-name" content="SCOOP OOH">
-<meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
-<meta name="msapplication-TileColor" content="#ffffff">
 
-<style>
-  :root{
-    --brand:#1f6feb;
-    --brand-2:#0056b3;
-    --bg1:#f7fbff;
-    --card:#ffffff;
-    --muted:#6b7280;
-  }
-  /* page layout */
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(300deg,#e67c00,#ffffff,#e67c00,#000000); background-size:180% 180%; animation: gradient-move 18s linear infinite; -webkit-font-smoothing:antialiased}
-  @keyframes gradient-move{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-  .center-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box}
-  /* login card */
-  .card{width:100%;max-width:420px;background:var(--card);border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,0.15);padding:28px;box-sizing:border-box}
-  .brand{display:flex;gap:.75rem;align-items:center;margin-bottom:8px}
-  .brand img{height:48px}
-  h1{margin:0;font-size:1.1rem}
-  p.subtitle{margin:6px 0 18px;color:var(--muted);font-size:.92rem}
-  .field{margin-bottom:12px;position:relative}
-  input[type="email"], input[type="password"]{
-    width:100%;padding:12px 14px;border-radius:8px;border:1px solid #e6e9ef;background:#fbfdff;box-sizing:border-box;font-size:1rem;outline:none;transition:box-shadow .12s,border-color .12s;
-  }
-  input[type="email"]:focus, input[type="password"]:focus{box-shadow:0 6px 18px rgba(31,111,235,0.08);border-color:var(--brand)}
-  .pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;font-size:0.95rem;color:var(--muted)}
-  .btn{width:100%;padding:11px 14px;border-radius:10px;background:var(--brand);color:#fff;border:0;font-weight:600;cursor:pointer;font-size:1rem}
-  .btn.secondary{background:transparent;color:var(--brand);border:1px solid rgba(31,111,235,0.12)}
-  .meta-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-  .note{font-size:.86rem;color:var(--muted)}
-  .error{color:#c53030;font-size:.9rem;margin-top:8px}
-  /* main app */
-  .app{width:100%;max-width:1200px;margin:0 auto;display:none;padding:16px;box-sizing:border-box}
-  .top{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:12px}
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo img{height:56px}
-  .asset-links{display:flex;flex-wrap:wrap;gap:.5rem;margin:8px 0}
-  .asset-links a{display:inline-block;padding:8px 12px;border-radius:8px;text-decoration:none;color:#122; background:rgba(255,255,255,0.06);border:1px solid rgba(0,0,0,0.03);cursor:pointer;font-weight:600}
-  .asset-links a.active{background:#FF5F15;color:#fff}
-  .map-wrapper{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(2,6,23,0.12);height:56vh;min-height:320px;background:#e6eef6}
-  .map-wrapper iframe{position:absolute;inset:0;border:0;width:100%;height:100%}
-  .controls{display:flex;gap:.5rem;margin-top:12px}
-  .controls .btn{flex:0 0 auto}
-  .inventory-wrapper{display:none;margin-top:12px; border-radius:12px;overflow:hidden; height:56vh; min-height:320px; box-shadow:0 8px 30px rgba(2,6,23,0.12)}
-  .inventory-wrapper iframe{width:100%;height:100%;border:0}
-
-  /* fullscreen fallback class */
-  .fullscreen-wrapper{position:fixed!important;left:0;top:0;width:100vw!important;height:100vh!important;z-index:999999;background:#000;padding:0;margin:0;border-radius:0}
-  .fullscreen-wrapper iframe{width:100%;height:100%}
-
-  /* small devices */
-  @media (max-width:720px){
-    .map-wrapper,.inventory-wrapper{height:65vh}
-  }
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- SPLASH handled in JS -->
-<div id="splash" style="position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999">
-  <img src="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png" alt="logo" style="width:140px;opacity:0.98">
+<!-- Splash Screen -->
+<div id="splash-screen">
+  <img id="splash-logo" class="splash-logo" src="images/scooplogo_black_512x512.png" alt="SCOOP Logo">
 </div>
 
-<!-- LOGIN -->
-<div class="center-shell" id="loginShell">
-  <div class="card" role="dialog" aria-labelledby="loginTitle">
-    <div class="brand">
-      <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" alt="SCOOP">
-      <div>
-        <h1 id="loginTitle">Login to Continue</h1>
-      </div>
-    </div>
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-box">
+    <img src="images/scooplogo.png" alt="Logo" class="login-logo">
+    <h3>Login to Continue</h3>
 
-    <div class="field">
-      <label for="emailField" style="display:none">Email</label>
-      <input id="emailField" type="email" inputmode="email" placeholder="you@company.com" autocomplete="username">
-    </div>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
 
-    <div class="field">
-      <label for="passwordField" style="display:none">Password</label>
-      <input id="passwordField" type="password" placeholder="Password" autocomplete="current-password">
-      <button id="togglePass" class="pw-toggle" aria-label="Toggle password">👁️</button>
-    </div>
-
-    <button id="loginBtn" class="btn">Sign in</button>
-
-    <div class="meta-row">
-      <span class="note">Using Firebase Authentication</span>
-      <button id="signOutBtn" class="btn secondary" style="display:none">Sign out</button>
-    </div>
-
-    <div id="loginError" class="error" role="alert" style="display:none"></div>
+    <button id="loginBtn">Login</button>
+    <p id="loginMessage"></p>
   </div>
 </div>
 
-<!-- APP -->
-<main class="app" id="appMain" aria-hidden="true">
-  <div class="top">
-    <div class="logo">
-      <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" alt="SCOOP">
-      <div>
-        <div style="font-weight:700">SCOOP OOH Assets</div>
-        <div style="font-size:.85rem;color:#666">OOH Locations & Content Inventory</div>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:.5rem;align-items:center">
-      <div style="text-align:right;font-size:.9rem;color:#555;margin-right:8px" id="userEmail">—</div>
-      <button id="logoutBtn" class="btn secondary">Logout</button>
-    </div>
+<!-- Main container -->
+<div class="container" style="display:none;">
+  <div class="title-container">
+    <img src="images/scooplogo.png" class="logo">
   </div>
 
-  <div class="asset-links" id="linksContainer" aria-label="Asset map links">
-    <!-- populated from Firestore -->
-  </div>
+  <div class="asset-links" id="assetLinks"></div>
 
   <div class="map-wrapper" id="mapWrapper">
-    <iframe id="mapIframe" title="OOH Map" src=""></iframe>
+    <iframe id="mapIframe" src=""></iframe>
+
+    <div class="map-overlay hide-top-right">
+      <div class="top-right-widget">
+        <div id="weatherCity">Doha, Qatar</div>
+        <div id="weatherTemp">--°C</div>
+      </div>
+    </div>
   </div>
 
   <div class="controls">
-    <button id="fsBtn" class="btn">Full screen map</button>
-    <button id="viewScreensBtn" class="btn secondary">View Screens</button>
-    <button id="showInventoryBtn" class="btn">Show Content Inventory</button>
+    <button class="btn" id="fsBtn">Full screen</button>
+    <button class="btn" id="viewScreensBtn">View Screens</button>
+    <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
   </div>
 
-  <div class="inventory-wrapper" id="inventoryWrapper" aria-hidden="true">
-    <iframe id="inventoryIframe" title="Content Inventory" src=""></iframe>
+  <div class="inventory-wrapper" id="inventoryWrapper">
+    <iframe id="inventoryIframe"></iframe>
   </div>
-</main>
 
-<!-- Firebase + App script -->
-<script type="module">
-/*
-  Clean script:
-  - Firebase email/password auth
-  - Firestore for 'maps' collection and 'inventory' doc
-  - Password visibility toggle
-  - Fullscreen for map/inventory with mobile fallback (class)
-  - Minimal, robust error handling
-*/
+  <span id="logoutText" class="logout-link">Logout</span>
+</div>
 
-/* =========================
-   Firebase imports & init
-   ========================= */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+<!-- Main modules -->
+<script type="module" src="firebase.js"></script>
+<script type="module" src="main.js"></script>
+<script type="module" src="ui.js"></script>
+<script type="module" src="fullscreen.js"></script>
+<script type="module" src="weather.js"></script>
+<script type="module" src="pwa.js"></script>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
-  authDomain: "scoopassets.firebaseapp.com",
-  projectId: "scoopassets",
-  storageBucket: "scoopassets.firebasestorage.app",
-  messagingSenderId: "989559041483",
-  appId: "1:989559041483:web:0feba5f279189f03791a4",
-  measurementId: "G-6HYVW2NG5K"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-/* =========================
-   Elements
-   ========================= */
-const splash = document.getElementById('splash');
-const loginShell = document.getElementById('loginShell');
-const emailField = document.getElementById('emailField');
-const passwordField = document.getElementById('passwordField');
-const togglePass = document.getElementById('togglePass');
-const loginBtn = document.getElementById('loginBtn');
-const loginError = document.getElementById('loginError');
-const signOutBtn = document.getElementById('signOutBtn');
-
-const appMain = document.getElementById('appMain');
-const userEmailLabel = document.getElementById('userEmail');
-const logoutBtn = document.getElementById('logoutBtn');
-
-const linksContainer = document.getElementById('linksContainer');
-const mapIframe = document.getElementById('mapIframe');
-const mapWrapper = document.getElementById('mapWrapper');
-
-const inventoryWrapper = document.getElementById('inventoryWrapper');
-const inventoryIframe = document.getElementById('inventoryIframe');
-const showInventoryBtn = document.getElementById('showInventoryBtn');
-
-const fsBtn = document.getElementById('fsBtn');
-const viewScreensBtn = document.getElementById('viewScreensBtn');
-
-/* =========================
-   Simple splash hide
-   ========================= */
-window.addEventListener('load', () => {
-  setTimeout(()=>{ splash.style.display = 'none' }, 900);
-});
-
-/* =========================
-   Password visibility toggle
-   ========================= */
-togglePass.addEventListener('click', () => {
-  const t = passwordField;
-  t.type = t.type === 'password' ? 'text' : 'password';
-  togglePass.textContent = t.type === 'password' ? '👁️' : '🙈';
-});
-
-/* =========================
-   Login with Firebase (email + password)
-   ========================= */
-loginBtn.addEventListener('click', async () => {
-  loginError.style.display = 'none';
-  const email = emailField.value.trim();
-  const password = passwordField.value.trim();
-  if (!email || !password) {
-    loginError.textContent = 'Please enter both email and password.';
-    loginError.style.display = 'block';
-    return;
-  }
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    // onAuthStateChanged will show app
-  } catch (err) {
-    console.error(err);
-    loginError.textContent = err?.code || err?.message || 'Login failed';
-    loginError.style.display = 'block';
-  }
-});
-
-/* =========================
-   Logout buttons
-   ========================= */
-logoutBtn.addEventListener('click', async () => {
-  await signOut(auth);
-});
-signOutBtn.addEventListener('click', async () => {
-  await signOut(auth);
-});
-
-/* =========================
-   Watch auth state
-   ========================= */
-onAuthStateChanged(auth, user => {
-  if (user) {
-    // show app
-    loginShell.style.display = 'none';
-    appMain.style.display = 'block';
-    appMain.setAttribute('aria-hidden','false');
-    userEmailLabel.textContent = user.email || '';
-    signOutBtn.style.display = 'inline-block';
-    // load data
-    loadMapLinks();
-    loadInventory();
-  } else {
-    // show login
-    loginShell.style.display = 'flex';
-    appMain.style.display = 'none';
-    appMain.setAttribute('aria-hidden','true');
-  }
-});
-
-/* =========================
-   Firestore: load map links
-   collection: "maps"
-   doc fields: { name: string, url: string }
-   ========================= */
-async function loadMapLinks(){
-  linksContainer.innerHTML = 'Loading maps…';
-  linksContainer.style.opacity = '0.95';
-  try {
-    const snap = await getDocs(collection(db, 'maps'));
-    linksContainer.innerHTML = '';
-    let firstUrl = null;
-    snap.forEach(d => {
-      const data = d.data();
-      const name = data.name || 'Unnamed';
-      const url = data.url || '';
-      const a = document.createElement('a');
-      a.textContent = name;
-      a.href = '#';
-      a.dataset.url = url;
-      a.addEventListener('click', (e)=>{
-        e.preventDefault();
-        setActiveLink(a);
-        setMapSrc(url);
-      });
-      linksContainer.appendChild(a);
-      if (!firstUrl) firstUrl = url;
-    });
-    // activate first
-    const first = linksContainer.querySelector('a');
-    if (first) {
-      setActiveLink(first);
-      setMapSrc(first.dataset.url);
-    } else {
-      linksContainer.innerHTML = '<div style="color:#777">No map links found in Firestore (collection: "maps").</div>';
-    }
-  } catch (err) {
-    console.error('loadMapLinks error', err);
-    linksContainer.innerHTML = '<div style="color:#c00">Failed to load maps.</div>';
-  }
-}
-
-function setActiveLink(el){
-  linksContainer.querySelectorAll('a').forEach(a=>a.classList.remove('active'));
-  el.classList.add('active');
-}
-
-/* Helper: normalize to embed URL (for google maps / my maps). */
-function setMapSrc(raw){
-  if (!raw) { mapIframe.src = ''; return; }
-  let safe = raw;
-  // replace viewer/edit with embed (common google maps)
-  safe = safe.replace('/viewer?','/embed?').replace('/edit?','/embed?');
-  // if not contains embed but is a pubhtml from google sheets, keep as-is
-  // ensure param noprof=1 for parity
-  if (!/noprof=1/.test(safe)) {
-    safe += (safe.includes('?') ? '&noprof=1' : '?noprof=1');
-  }
-  mapIframe.src = safe;
-}
-
-/* =========================
-   Firestore: load inventory iframe URL
-   collection: "inventory" doc: "contentInventory"
-   field: iframeUrl
-   ========================= */
-async function loadInventory(){
-  try {
-    const ref = doc(db, 'inventory', 'contentInventory');
-    const snap = await getDoc(ref);
-    if (snap && snap.exists()){
-      const data = snap.data();
-      const url = data.iframeUrl || data.url || '';
-      if (url) inventoryIframe.src = url;
-      else console.warn('inventory doc found but no iframeUrl field');
-    } else {
-      console.warn('inventory/contentInventory doc not found');
-    }
-  } catch (err){
-    console.error('loadInventory error', err);
-  }
-}
-
-/* =========================
-   Fullscreen behaviors
-   - map fullscreen button toggles mapWrapper
-   - inventory attempts requestFullscreen on inventoryWrapper; fallback uses CSS class to simulate fullscreen (useful on mobile)
-   ========================= */
-fsBtn.addEventListener('click', async () => {
-  try {
-    if (!document.fullscreenElement) {
-      await mapWrapper.requestFullscreen();
-    } else {
-      await document.exitFullscreen();
-    }
-  } catch (err) {
-    console.warn('fs map error', err);
-  }
-});
-
-showInventoryBtn.addEventListener('click', async () => {
-  // always ensure inventory is loaded
-  await loadInventory();
-
-  // if not in fullscreen, attempt it; otherwise exit
-  if (!document.fullscreenElement) {
-    inventoryWrapper.style.display = 'block';
-    try {
-      await inventoryWrapper.requestFullscreen();
-    } catch (err) {
-      // mobile browsers may block requestFullscreen on iframes - fallback:
-      console.warn('inventory fullscreen failed, applying CSS fallback', err);
-      inventoryWrapper.classList.add('fullscreen-wrapper');
-      document.body.style.overflow = 'hidden'; // prevent scroll behind
-    }
-  } else {
-    // If some element is fullscreen, exit
-    try { await document.exitFullscreen(); } catch(e){ /* ignore */ }
-    // also remove fallback
-    inventoryWrapper.classList.remove('fullscreen-wrapper');
-    document.body.style.overflow = '';
-    inventoryWrapper.style.display = 'none';
-  }
-});
-
-/* Listen to native fullscreenchange to apply classes/cleanup */
-document.addEventListener('fullscreenchange', () => {
-  const fsEl = document.fullscreenElement;
-  // Add class to fullscreen element to ensure full coverage
-  [mapWrapper, inventoryWrapper].forEach(el => el.classList.toggle('fullscreen-wrapper', el === fsEl));
-  // If fullscreen closed, hide inventory wrapper if it was used
-  if (!fsEl) {
-    inventoryWrapper.classList.remove('fullscreen-wrapper');
-    inventoryWrapper.style.display = 'none';
-    document.body.style.overflow = '';
-  }
-});
-
-/* =========================
-   View Screens (opens asset-digital-content.html)
-   ========================= */
-viewScreensBtn.addEventListener('click', () => {
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile) {
-    // open in new tab/window
-    const w = window.open('asset-digital-content.html', '_blank');
-    if (w) w.focus();
-  } else {
-    window.open('asset-digital-content.html', '_blank');
-  }
-});
-
-/* End of script */
-</script>
 </body>
 </html>
