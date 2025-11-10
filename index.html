@@ -1,20 +1,15 @@
-<!doctype html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SCOOP OOH Assets</title>
 
-<!-- PWA Icons -->
-<link rel="icon" type="image/x-icon" href="images/scooplogo_black_32x32.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="images/scooplogo_black_192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="images/scooplogo_black_512x512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="images/scooplogo_black_180x180.png">
-<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./assets/css/styles.css">
 
-<meta name="theme-color" content="#ffffff">
-
-<link rel="stylesheet" href="./assets/styles.css">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="images/scooplogo_black_192x192.png">
 </head>
 <body>
 
@@ -23,28 +18,18 @@
   <img id="splash-logo" class="splash-logo" src="images/scooplogo_black_512x512.png" alt="SCOOP Logo">
 </div>
 
-<!-- Login Screen -->
-<div id="loginScreen">
-  <div class="login-box">
-    <img src="images/scooplogo.png" alt="Logo" class="login-logo">
-    <h3>Login to Continue</h3>
-
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-
-    <button id="loginBtn">Login</button>
-    <p id="loginMessage"></p>
-  </div>
-</div>
-
-<!-- Main container -->
+<!-- MAIN CONTENT -->
 <div class="container" style="display:none;">
+
+  <!-- Logo -->
   <div class="title-container">
-    <img src="images/scooplogo.png" class="logo">
+    <img src="images/scooplogo.png" class="logo" alt="SCOOP Logo">
   </div>
 
+  <!-- Asset category buttons -->
   <div class="asset-links" id="assetLinks"></div>
 
+  <!-- Map Wrapper -->
   <div class="map-wrapper" id="mapWrapper">
     <iframe id="mapIframe" src=""></iframe>
 
@@ -56,26 +41,31 @@
     </div>
   </div>
 
+  <!-- Controls -->
   <div class="controls">
-    <button class="btn" id="fsBtn">Full screen</button>
-    <button class="btn" id="viewScreensBtn">View Screens</button>
-    <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
+    <button id="fsBtn" class="btn">Full Screen</button>
+    <button id="viewScreensBtn" class="btn">View Screens</button>
+    <button id="showInventoryBtn" class="btn">Show Inventory</button>
   </div>
 
-  <div class="inventory-wrapper" id="inventoryWrapper">
+  <!-- Inventory -->
+  <div id="inventoryWrapper" class="inventory-wrapper">
     <iframe id="inventoryIframe"></iframe>
   </div>
 
+  <!-- Logout -->
   <span id="logoutText" class="logout-link">Logout</span>
+
 </div>
 
-<!-- Main modules -->
-<script type="module" defer src="./firebase/firebase.js"></script>
-<script type="module" defer src="./assets/main.js"></script>
-<script type="module" defer src="./assets/pwa.js"></script>
-<script type="module" defer src="./assets/ui.js"></script>
-<script type="module" defer src="./assets/weather.js"></script>
-<script type="module" defer src="./assets/fullscreen.js"></script>
+<!-- JS Modules -->
+<script type="module" src="./assets/js/ui.js"></script>
+<script type="module" src="./assets/js/main.js"></script>
+<script type="module" src="./assets/js/map.js"></script>
+<script type="module" src="./assets/js/inventory.js"></script>
+<script type="module" src="./assets/js/fullscreen.js"></script>
+<script type="module" src="./assets/js/weather.js"></script>
+<script type="module" src="./assets/js/pwa.js"></script>
 
 </body>
 </html>
