@@ -428,14 +428,10 @@ async function loadMapLinks() {
 async function loadInventory() {
   const iframe = document.getElementById("inventoryIframe");
 
-  try {
-    const snapshot = await getDocs(collection(db, "inventory"));
-    snapshot.forEach(doc => {
-      iframe.src = doc.data().iframeUrl;
-    });
-  } catch (err) {
-    console.error("Failed to load inventory:", err);
-  }
+  const snapshot = await getDocs(collection(db, "inventory"));
+  snapshot.forEach(doc => {
+    iframe.src = doc.data().iframeUrl;
+  });
 }
 
 // --------------------------------------------------
@@ -499,16 +495,18 @@ viewScreensBtn.addEventListener('click', () => {
 });
 
 // --- Inventory toggle ---
-const inventoryBtn = document.getElementById('showInventoryBtn');
 inventoryBtn.addEventListener('click', async () => {
+  await loadInventory(); // ✅ <-- make sure Firestore URL loads first!
+
   const isVisible = inventoryWrapper.style.display === "block";
   if (!isVisible) {
     inventoryWrapper.style.display = "block";
     try { await inventoryWrapper.requestFullscreen(); } catch {}
   } else {
-    inventoryWrapper.style.display = isVisible ? "none" : "block";
+    inventoryWrapper.style.display = "none";
   }
 });
+  
 document.addEventListener('fullscreenchange', () => {
   const fsElem = document.fullscreenElement;
   [wrapper, inventoryWrapper].forEach(el => {
