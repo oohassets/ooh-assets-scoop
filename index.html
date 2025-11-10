@@ -280,7 +280,7 @@ body {
 // --- Firebase Modular Imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getFirestore, collection, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, doc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // --- Firebase Config ---
 const firebaseConfig = {
@@ -433,7 +433,6 @@ async function loadInventory() {
 
   if (snapshot.exists()) {
     iframe.src = snapshot.data().iframeUrl;
-    console.log("Loaded:", snapshot.data().iframeUrl);
   } else {
     console.log("contentInventory document missing");
   }
@@ -500,9 +499,15 @@ viewScreensBtn.addEventListener('click', () => {
 });
 
 // --- Inventory button ---
-inventoryBtn.addEventListener('click', async () => {
-  await loadInventory();
-  inventoryWrapper.style.display = "block";
+inventoryBtn.addEventListener("click", async () => {
+  const current = inventoryWrapper.style.display === "block";
+
+  if (!current) {
+    await loadInventory();
+    inventoryWrapper.style.display = "block";
+  } else {
+    inventoryWrapper.style.display = "none";
+  }
 });
   
 document.addEventListener('fullscreenchange', () => {
