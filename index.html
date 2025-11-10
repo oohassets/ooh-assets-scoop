@@ -4,326 +4,156 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SCOOP OOH Assets</title>
-
-<!-- PWA Icons -->
-<link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_180x180.png">
-<link rel="manifest" href="./manifest.json">
-
-<meta name="theme-color" content="#ffffff">
-<meta name="background-color" content="#ffffff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SCOOP OOH">
-<meta name="application-name" content="SCOOP OOH">
-<meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
-<meta name="msapplication-TileColor" content="#ffffff">
+<link rel="icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
 
 <style>
-:root {
-  --max-width: 1200px;
-  --brand: #1f6feb;
-  --brand-hover: #0056b3;
-  --text: #36454F;
-}
-
-/* Splash Logo Only */
-#splash-screen {
-  position: fixed; inset: 0; background: #000;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 99999;
-  overflow: hidden;
-}
-.splash-logo {
-  width: 180px; height: 180px;
-  opacity: 0; transform: scale(0.9);
-  object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
-  transition: opacity 1.5s ease, transform 1.5s ease;
-}
-.splash-logo.visible { opacity: 1; transform: scale(1); }
-#splash-screen.fade-out { opacity: 0; transition: opacity 1s ease; pointer-events: none; }
-
-body {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  margin:0; padding:1rem; color:var(--text);
-  display:flex; align-items:center; justify-content:center; min-height:100vh;
-  background: linear-gradient(300deg,#e67c00,#ffffff,#e67c00,#000000);
-  background-size:180% 180%;
-  animation: gradient-move 18s ease infinite;
-}
-  
-.container { width:100%; max-width:var(--max-width); position:relative; }
-.title-container { display:flex; justify-content:center; margin-bottom:.25rem; }
-.logo { height:120px; width:auto; }
-
-.lead { margin:0 0 1rem; color:var(--text); font-size:.75rem; line-height:1.4; text-align:left; }
-.note { font-size:.75rem; color:#ffffff; margin-top:.5rem; text-align:left; }
-
-.map-wrapper { 
-  position:relative; width:100%; aspect-ratio:16/9; min-height:300px; 
-  border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(20,20,40,0.08); 
-  background:#4d6a79; transition: all .3s ease; 
-}
-.map-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
-
-.map-overlay { position:absolute; background:#4d6a79; opacity:1; }
-.hide-top-right { top:0; right:0; width:140px; height:50px; pointer-events:auto; }
-
-.top-right-widget {
-  position:absolute; top:10px; right:10px; background:transparent;
-  padding:.25rem .5rem; border-radius:4px; box-shadow:none;
-  font-weight:600; z-index:10; color:#ffffff; font-family:Roboto,sans-serif; 
-  text-align:center; font-size:18px;
-}
-
-.asset-links { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin-bottom:1rem; }
-.asset-links a { color:var(--text); font-weight:600; text-decoration:none; transition:color .3s ease; cursor:pointer; }
-.asset-links a:hover, .asset-links a.active { color:#FF5F15; text-decoration:underline; }
-
-.controls { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; justify-content:center; }
-.btn { flex:1 1 auto; background:var(--brand); color:#ffffff; border:none; padding:.5rem .75rem; border-radius:8px; font-weight:600; font-size:.9rem; text-align:center; cursor:pointer; transition:background .3s ease; text-decoration: none; }
-.btn:hover { background:var(--brand-hover); }
-  
-
-.inventory-wrapper { 
-  display:none; width:100%; 
-  aspect-ratio:16/9; 
-  min-height:300px; 
-  border-radius:10px; 
-  overflow:hidden; 
-  box-shadow:0 6px 18px rgba(20,20,40,0.08); 
-  background:#e9eef6; 
-  position:relative; 
-  transition:all .3s ease; 
-  margin-top:.75rem; 
-  z-index:1; 
-}
-    
-.inventory-wrapper iframe { 
-  position:absolute; 
-  inset:0; 
-  width:100%; 
-  height:100%;
-  border:none; 
-}
-
-/* Fullscreen mode */
-.fullscreen-wrapper {
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #000 !important;
-  z-index: 999999 !important;
-}
-
-.fullscreen-wrapper iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* Prevent body scrolling when fullscreen is active */
-body.no-scroll {
-  overflow: hidden;
-}
-
-@media (max-width:480px) {
-  body { padding:.75rem; }
-  .lead { font-size:.85rem; }
-  .btn { font-size:.8rem; padding:.45rem .65rem; }
-  .note { font-size:.75rem; }
-  .map-wrapper { aspect-ratio:3/4; }
-  .logo { height:60px; }
-  .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
-}
-
-/* Login */
-@keyframes gradient-move {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-#username:focus, #password:focus {
-  border-bottom-color: #1f6feb;
-}
-
-#loginBtn:hover {
-  background: #155bc4;
-}
-
-#username::placeholder, #password::placeholder {
-  color: #777;
-}
-
-/* ✅ Mobile adjustments */
-@media (max-width: 480px) {
-  #login-screen div {
-    max-width: 280px !important;
-    padding: 1rem 1.25rem !important;
+  :root{
+    --brand:#1f6feb;
+    --brand-2:#0056b3;
+    --bg1:#f7fbff;
+    --card:#ffffff;
+    --muted:#6b7280;
   }
-  #login-screen img {
-    height: 55px !important;
-    margin-bottom: .4rem !important;
+  /* page layout */
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(300deg,#e67c00,#ffffff,#e67c00,#000000); background-size:180% 180%; animation: gradient-move 18s linear infinite; -webkit-font-smoothing:antialiased}
+  @keyframes gradient-move{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .center-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box}
+  /* login card */
+  .card{width:100%;max-width:420px;background:var(--card);border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,0.15);padding:28px;box-sizing:border-box}
+  .brand{display:flex;gap:.75rem;align-items:center;margin-bottom:8px}
+  .brand img{height:48px}
+  h1{margin:0;font-size:1.1rem}
+  p.subtitle{margin:6px 0 18px;color:var(--muted);font-size:.92rem}
+  .field{margin-bottom:12px;position:relative}
+  input[type="email"], input[type="password"]{
+    width:100%;padding:12px 14px;border-radius:8px;border:1px solid #e6e9ef;background:#fbfdff;box-sizing:border-box;font-size:1rem;outline:none;transition:box-shadow .12s,border-color .12s;
   }
-  #login-screen h3 {
-    font-size: 1rem !important;
-    margin-bottom: .6rem !important;
-  }
-}
-  
-  #installBadge:hover {
-  background: #155bc4;
-  transform: scale(1.05);
-}
+  input[type="email"]:focus, input[type="password"]:focus{box-shadow:0 6px 18px rgba(31,111,235,0.08);border-color:var(--brand)}
+  .pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;font-size:0.95rem;color:var(--muted)}
+  .btn{width:100%;padding:11px 14px;border-radius:10px;background:var(--brand);color:#fff;border:0;font-weight:600;cursor:pointer;font-size:1rem}
+  .btn.secondary{background:transparent;color:var(--brand);border:1px solid rgba(31,111,235,0.12)}
+  .meta-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .note{font-size:.86rem;color:var(--muted)}
+  .error{color:#c53030;font-size:.9rem;margin-top:8px}
+  /* main app */
+  .app{width:100%;max-width:1200px;margin:0 auto;display:none;padding:16px;box-sizing:border-box}
+  .top{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:12px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo img{height:56px}
+  .asset-links{display:flex;flex-wrap:wrap;gap:.5rem;margin:8px 0}
+  .asset-links a{display:inline-block;padding:8px 12px;border-radius:8px;text-decoration:none;color:#122; background:rgba(255,255,255,0.06);border:1px solid rgba(0,0,0,0.03);cursor:pointer;font-weight:600}
+  .asset-links a.active{background:#FF5F15;color:#fff}
+  .map-wrapper{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(2,6,23,0.12);height:56vh;min-height:320px;background:#e6eef6}
+  .map-wrapper iframe{position:absolute;inset:0;border:0;width:100%;height:100%}
+  .controls{display:flex;gap:.5rem;margin-top:12px}
+  .controls .btn{flex:0 0 auto}
+  .inventory-wrapper{display:none;margin-top:12px; border-radius:12px;overflow:hidden; height:56vh; min-height:320px; box-shadow:0 8px 30px rgba(2,6,23,0.12)}
+  .inventory-wrapper iframe{width:100%;height:100%;border:0}
 
+  /* fullscreen fallback class */
+  .fullscreen-wrapper{position:fixed!important;left:0;top:0;width:100vw!important;height:100vh!important;z-index:999999;background:#000;padding:0;margin:0;border-radius:0}
+  .fullscreen-wrapper iframe{width:100%;height:100%}
+
+  /* small devices */
+  @media (max-width:720px){
+    .map-wrapper,.inventory-wrapper{height:65vh}
+  }
 </style>
 </head>
 <body>
 
-<!-- Splash Logo -->
-<div id="splash-screen">
-  <img id="splash-logo" class="splash-logo"
-       src="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png"
-       alt="SCOOP Logo">
+<!-- SPLASH handled in JS -->
+<div id="splash" style="position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999">
+  <img src="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png" alt="logo" style="width:140px;opacity:0.98">
 </div>
 
-<!-- Responsive Login Form -->
-<div id="login-screen" style="
-  position:fixed;
-  inset:0;
-  background:linear-gradient(300deg,#e67c00,#ffffff,#e67c00,#000000);
-  background-size:180% 180%;
-  animation:gradient-move 18s ease infinite;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  padding:1rem;
-  z-index:9999;
-  overflow:auto;
-">
+<!-- LOGIN -->
+<div class="center-shell" id="loginShell">
+  <div class="card" role="dialog" aria-labelledby="loginTitle">
+    <div class="brand">
+      <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" alt="SCOOP">
+      <div>
+        <h1 id="loginTitle">SCOOP OOH — Sign in</h1>
+        <p class="subtitle">Sign in with your company email to view OOH asset maps & inventory.</p>
+      </div>
+    </div>
 
-  <div style="
-    background:rgba(255,255,255,0.95);
-    padding:clamp(1rem, 4vw, 2rem);
-    border-radius:16px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.2);
-    text-align:center;
-    width:100%;
-    max-width:340px;
-    box-sizing:border-box;
-  ">
-    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
-         alt="Scoop Logo"
-         style="height:clamp(50px, 8vw, 80px); margin-bottom:.5rem; width:auto;">
+    <div class="field">
+      <label for="emailField" style="display:none">Email</label>
+      <input id="emailField" type="email" inputmode="email" placeholder="you@company.com" autocomplete="username">
+    </div>
 
-    <h3 style="color:#333; margin-bottom:.75rem; font-size:clamp(1rem, 2vw, 1.3rem);">
-      Login to Continue
-    </h3>
+    <div class="field">
+      <label for="passwordField" style="display:none">Password</label>
+      <input id="passwordField" type="password" placeholder="Password" autocomplete="current-password">
+      <button id="togglePass" class="pw-toggle" aria-label="Toggle password">👁️</button>
+    </div>
 
-    <!-- Line-style Inputs -->
-    <input type="text" id="username" placeholder="Username"
-           style="width:100%; padding:.5rem 0; border:none; border-bottom:2px solid #ccc;
-                  background:transparent; margin-bottom:.9rem;
-                  font-size:clamp(.85rem, 1.6vw, 1rem); box-sizing:border-box;
-                  outline:none; transition:border-color .3s;">
-    
-    <input type="password" id="password" placeholder="Password"
-           style="width:100%; padding:.5rem 0; border:none; border-bottom:2px solid #ccc;
-                  background:transparent; margin-bottom:1.2rem;
-                  font-size:clamp(.85rem, 1.6vw, 1rem); box-sizing:border-box;
-                  outline:none; transition:border-color .3s;">
+    <button id="loginBtn" class="btn">Sign in</button>
 
-    <button id="loginBtn"
-            style="width:100%; background:#1f6feb; color:#fff; border:none;
-                   padding:.6rem; border-radius:6px; font-weight:600;
-                   cursor:pointer; font-size:clamp(.85rem, 1.6vw, 1rem);
-                   transition:background .3s;">
-      Login
-    </button>
+    <div class="meta-row">
+      <span class="note">Using Firebase Authentication</span>
+      <button id="signOutBtn" class="btn secondary" style="display:none">Sign out</button>
+    </div>
 
-    <p id="loginMessage"
-       style="margin-top:.6rem; color:#c00; font-size:clamp(.75rem, 1.4vw, .9rem);">
-    </p>
+    <div id="loginError" class="error" role="alert" style="display:none"></div>
   </div>
 </div>
 
+<!-- APP -->
+<main class="app" id="appMain" aria-hidden="true">
+  <div class="top">
+    <div class="logo">
+      <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png" alt="SCOOP">
+      <div>
+        <div style="font-weight:700">SCOOP OOH Assets</div>
+        <div style="font-size:.85rem;color:#666">OOH Locations & Content Inventory</div>
+      </div>
+    </div>
 
-<!-- Main Content -->
-<div class="container" style="display:none;">
-  <div class="title-container">
-    <img src="https://raw.githubusercontent.com/oohassets/ooh-assets-scoop/main/scooplogo.png"
-         alt="Scoop Logo" class="logo" />
-  </div>
-
-<div class="asset-links" id="assetLinks">
-  <!-- Firestore will populate links here -->
-</div>
-
-  <p class="note">
-    Click the toggle bar to select OOH Assets and view their locations. 
-    Use the <strong>Full screen</strong> button to expand the map.
-  </p>
-
-<div class="map-wrapper" id="mapWrapper">
-  <iframe id="mapIframe"
-          src=""
-          title="OOH Assets Map"
-          loading="lazy"></iframe>
-
-  <div class="map-overlay hide-top-right">
-    <div class="top-right-widget" id="weatherWidget">
-      <div id="weatherCity" style="font-size:0.8rem; font-weight:400; color:#FFFFFF;">Doha, Qatar</div>
-      <div id="weatherTemp" style="font-size:1.2rem; font-weight:600; color:#FFFFFF;">--°C</div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <div style="text-align:right;font-size:.9rem;color:#555;margin-right:8px" id="userEmail">—</div>
+      <button id="logoutBtn" class="btn secondary">Logout</button>
     </div>
   </div>
-</div>
 
-<div class="controls">
-  <button class="btn" id="fsBtn">Full screen</button>
-  <button class="btn" id="viewScreensBtn">View Screens</button>
-  <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
-</div>
+  <div class="asset-links" id="linksContainer" aria-label="Asset map links">
+    <!-- populated from Firestore -->
+  </div>
 
-<div class="inventory-wrapper" id="inventoryWrapper">
-  <iframe id="inventoryIframe" src="" title="Content Inventory"></iframe>
-</div>
+  <div class="map-wrapper" id="mapWrapper">
+    <iframe id="mapIframe" title="OOH Map" src=""></iframe>
+  </div>
 
-<div class="note" style="text-align:left; margin-top:1rem;">
-  These asset locations have been pinned by the OOH Asset Supervisor.
-</div>
+  <div class="controls">
+    <button id="fsBtn" class="btn">Full screen map</button>
+    <button id="viewScreensBtn" class="btn secondary">View Screens</button>
+    <button id="showInventoryBtn" class="btn">Show Content Inventory</button>
+  </div>
 
-<div style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:left; margin-bottom:1rem; color:#fff;">
-     <p style="font-size:.75rem; margin:0;">
-    Useful Links:<br>
-    <a href="https://scoop.qa/" target="_blank" rel="noopener noreferrer">Scoop Media and Communication</a><br>
-    <a href="https://scoop.qa/the-pearl-gewan-rate-card-2025/" target="_blank" rel="noopener noreferrer">Rate Card 2025</a>
-  </p>
-</div>
-  
-<div style="text-align:left; margin-top:0.5rem;">
-  <span id="logoutText"
-        style="color:#fff; text-decoration:none; cursor:pointer; font-size:0.8rem;">
-    Logout
-  </span>
-</div>
+  <div class="inventory-wrapper" id="inventoryWrapper" aria-hidden="true">
+    <iframe id="inventoryIframe" title="Content Inventory" src=""></iframe>
+  </div>
+</main>
 
+<!-- Firebase + App script -->
 <script type="module">
-// --- Firebase Modular Imports ---
+/*
+  Clean script:
+  - Firebase email/password auth
+  - Firestore for 'maps' collection and 'inventory' doc
+  - Password visibility toggle
+  - Fullscreen for map/inventory with mobile fallback (class)
+  - Minimal, robust error handling
+*/
+
+/* =========================
+   Firebase imports & init
+   ========================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getFirestore, collection, doc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
   authDomain: "scoopassets.firebaseapp.com",
@@ -334,402 +164,261 @@ const firebaseConfig = {
   measurementId: "G-6HYVW2NG5K"
 };
 
-// --- Initialize App ---
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --------------------------------------------------
-// ✅ Splash effect & init
-// --------------------------------------------------
-window.addEventListener("load", () => {
-  const splash = document.getElementById("splash-screen");
-  const logo = document.getElementById("splash-logo");
-  logo.classList.add("visible");
+/* =========================
+   Elements
+   ========================= */
+const splash = document.getElementById('splash');
+const loginShell = document.getElementById('loginShell');
+const emailField = document.getElementById('emailField');
+const passwordField = document.getElementById('passwordField');
+const togglePass = document.getElementById('togglePass');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const signOutBtn = document.getElementById('signOutBtn');
 
-  setTimeout(() => {
-    splash.classList.add("fade-out");
-    setTimeout(() => {
-      splash.remove();
-      checkLoginStatus();   // ⬅️ Now uses updated logic
-    }, 1000);
-  }, 2500);
+const appMain = document.getElementById('appMain');
+const userEmailLabel = document.getElementById('userEmail');
+const logoutBtn = document.getElementById('logoutBtn');
+
+const linksContainer = document.getElementById('linksContainer');
+const mapIframe = document.getElementById('mapIframe');
+const mapWrapper = document.getElementById('mapWrapper');
+
+const inventoryWrapper = document.getElementById('inventoryWrapper');
+const inventoryIframe = document.getElementById('inventoryIframe');
+const showInventoryBtn = document.getElementById('showInventoryBtn');
+
+const fsBtn = document.getElementById('fsBtn');
+const viewScreensBtn = document.getElementById('viewScreensBtn');
+
+/* =========================
+   Simple splash hide
+   ========================= */
+window.addEventListener('load', () => {
+  setTimeout(()=>{ splash.style.display = 'none' }, 900);
 });
 
-// --------------------------------------------------
-// ✅ Login System (Firebase Auth)
-// --------------------------------------------------
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  const email = document.getElementById("username").value.trim();
-  const pass = document.getElementById("password").value.trim();
-  const msg = document.getElementById("loginMessage");
+/* =========================
+   Password visibility toggle
+   ========================= */
+togglePass.addEventListener('click', () => {
+  const t = passwordField;
+  t.type = t.type === 'password' ? 'text' : 'password';
+  togglePass.textContent = t.type === 'password' ? '👁️' : '🙈';
+});
 
-  if (!email || !pass) {
-    msg.style.color = "#c00";
-    msg.textContent = "Please enter both fields.";
+/* =========================
+   Login with Firebase (email + password)
+   ========================= */
+loginBtn.addEventListener('click', async () => {
+  loginError.style.display = 'none';
+  const email = emailField.value.trim();
+  const password = passwordField.value.trim();
+  if (!email || !password) {
+    loginError.textContent = 'Please enter both email and password.';
+    loginError.style.display = 'block';
     return;
   }
 
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
-
-    msg.style.color = "green";
-    msg.textContent = "Login successful!";
-    setTimeout(() => {
-      document.getElementById("login-screen").style.display = "none";
-      document.querySelector(".container").style.display = "block";
-
-      // Load Firestore after login
-      loadMapLinks();
-      loadInventory();
-    }, 800);
-
-  } catch (error) {
-    console.error(error);
-    msg.style.color = "#c00";
-
-    switch (error.code) {
-      case "auth/user-not-found":
-        msg.textContent = "User not found.";
-        break;
-      case "auth/wrong-password":
-        msg.textContent = "Incorrect password.";
-        break;
-      case "auth/invalid-email":
-        msg.textContent = "Invalid email address.";
-        break;
-      default:
-        msg.textContent = error.message;
-        break;
-    }
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged will show app
+  } catch (err) {
+    console.error(err);
+    loginError.textContent = err?.code || err?.message || 'Login failed';
+    loginError.style.display = 'block';
   }
 });
 
-// --------------------------------------------------
-// ✅ Auto-login if user was already authenticated
-// --------------------------------------------------
-function checkLoginStatus() {
+/* =========================
+   Logout buttons
+   ========================= */
+logoutBtn.addEventListener('click', async () => {
+  await signOut(auth);
+});
+signOutBtn.addEventListener('click', async () => {
+  await signOut(auth);
+});
+
+/* =========================
+   Watch auth state
+   ========================= */
 onAuthStateChanged(auth, user => {
   if (user) {
-    document.querySelector(".container").style.display = "block";
+    // show app
+    loginShell.style.display = 'none';
+    appMain.style.display = 'block';
+    appMain.setAttribute('aria-hidden','false');
+    userEmailLabel.textContent = user.email || '';
+    signOutBtn.style.display = 'inline-block';
+    // load data
     loadMapLinks();
     loadInventory();
   } else {
-    document.getElementById("login-screen").style.display = "flex";
+    // show login
+    loginShell.style.display = 'flex';
+    appMain.style.display = 'none';
+    appMain.setAttribute('aria-hidden','true');
   }
 });
-}
 
-// --------------------------------------------------
-// ✅ Logout
-// --------------------------------------------------
-document.addEventListener("click", e => {
-  if (e.target.id === "logoutText") {
-    signOut(auth).then(() => {
-      document.querySelector(".container").style.display = "none";
-      document.getElementById("login-screen").style.display = "flex";
-    });
-  }
-});
-  
-// --------------------------------------------------
-// ✅ FIRESTORE: Load map links dynamically
-// --------------------------------------------------
-async function loadMapLinks() {
-  const linkContainer = document.querySelector(".asset-links");
-  linkContainer.innerHTML = "";
-
+/* =========================
+   Firestore: load map links
+   collection: "maps"
+   doc fields: { name: string, url: string }
+   ========================= */
+async function loadMapLinks(){
+  linksContainer.innerHTML = 'Loading maps…';
+  linksContainer.style.opacity = '0.95';
   try {
-    const snapshot = await getDocs(collection(db, "maps"));
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const a = document.createElement("a");
-      a.textContent = data.name;
-      a.href = "#";
-      a.dataset.map = data.url;
-      linkContainer.appendChild(a);
+    const snap = await getDocs(collection(db, 'maps'));
+    linksContainer.innerHTML = '';
+    let firstUrl = null;
+    snap.forEach(d => {
+      const data = d.data();
+      const name = data.name || 'Unnamed';
+      const url = data.url || '';
+      const a = document.createElement('a');
+      a.textContent = name;
+      a.href = '#';
+      a.dataset.url = url;
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        setActiveLink(a);
+        setMapSrc(url);
+      });
+      linksContainer.appendChild(a);
+      if (!firstUrl) firstUrl = url;
     });
-
-    attachLinkEvents();
-
-    const firstLink = linkContainer.querySelector("a");
-    if (firstLink) {
-      firstLink.classList.add("active");
-      document.getElementById("mapIframe").src = firstLink.dataset.map;
+    // activate first
+    const first = linksContainer.querySelector('a');
+    if (first) {
+      setActiveLink(first);
+      setMapSrc(first.dataset.url);
+    } else {
+      linksContainer.innerHTML = '<div style="color:#777">No map links found in Firestore (collection: "maps").</div>';
     }
-
   } catch (err) {
-    console.error("Failed to load Firestore map links:", err);
+    console.error('loadMapLinks error', err);
+    linksContainer.innerHTML = '<div style="color:#c00">Failed to load maps.</div>';
   }
 }
 
-// --------------------------------------------------
-// ✅ FIRESTORE: Load inventory link
-// --------------------------------------------------
-async function loadInventory() {
-  const iframe = document.getElementById("inventoryIframe");
+function setActiveLink(el){
+  linksContainer.querySelectorAll('a').forEach(a=>a.classList.remove('active'));
+  el.classList.add('active');
+}
 
-  const ref = doc(db, "inventory", "contentInventory");
-  const snapshot = await getDoc(ref);
+/* Helper: normalize to embed URL (for google maps / my maps). */
+function setMapSrc(raw){
+  if (!raw) { mapIframe.src = ''; return; }
+  let safe = raw;
+  // replace viewer/edit with embed (common google maps)
+  safe = safe.replace('/viewer?','/embed?').replace('/edit?','/embed?');
+  // if not contains embed but is a pubhtml from google sheets, keep as-is
+  // ensure param noprof=1 for parity
+  if (!/noprof=1/.test(safe)) {
+    safe += (safe.includes('?') ? '&noprof=1' : '?noprof=1');
+  }
+  mapIframe.src = safe;
+}
 
-  if (snapshot.exists()) {
-    iframe.src = snapshot.data().iframeUrl;
-  } else {
-    console.log("contentInventory document missing");
+/* =========================
+   Firestore: load inventory iframe URL
+   collection: "inventory" doc: "contentInventory"
+   field: iframeUrl
+   ========================= */
+async function loadInventory(){
+  try {
+    const ref = doc(db, 'inventory', 'contentInventory');
+    const snap = await getDoc(ref);
+    if (snap && snap.exists()){
+      const data = snap.data();
+      const url = data.iframeUrl || data.url || '';
+      if (url) inventoryIframe.src = url;
+      else console.warn('inventory doc found but no iframeUrl field');
+    } else {
+      console.warn('inventory/contentInventory doc not found');
+    }
+  } catch (err){
+    console.error('loadInventory error', err);
   }
 }
 
-// --------------------------------------------------
-// ✅ Attach click events to dynamically created map links
-// --------------------------------------------------
-function attachLinkEvents() {
-  const assetLinks = document.querySelectorAll(".asset-links a");
-  const mapIframe = document.getElementById("mapIframe");
-
-  assetLinks.forEach(link => {
-    link.addEventListener("click", e => {
-      e.preventDefault();
-      const safeUrl = link.getAttribute("data-map")
-        .replace("/viewer?", "/embed?")
-        .replace("/edit?", "/embed?")
-        + "&noprof=1";
-
-      mapIframe.src = safeUrl;
-
-      assetLinks.forEach(l => l.classList.remove("active"));
-      link.classList.add("active");
-    });
-  });
-}
-
-// --- Fullscreen ---
-const fsBtn = document.getElementById('fsBtn');
-const wrapper = document.getElementById('mapWrapper');
-const inventoryWrapper = document.getElementById('inventoryWrapper');
+/* =========================
+   Fullscreen behaviors
+   - map fullscreen button toggles mapWrapper
+   - inventory attempts requestFullscreen on inventoryWrapper; fallback uses CSS class to simulate fullscreen (useful on mobile)
+   ========================= */
 fsBtn.addEventListener('click', async () => {
   try {
-    if (!document.fullscreenElement) await wrapper.requestFullscreen();
-    else await document.exitFullscreen();
-  } catch (err) { console.warn(err); }
-});
-
-// --- View Screens ---
-function isInStandaloneMode() {
-  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-}
-
-const viewScreensBtn = document.getElementById('viewScreensBtn');
-viewScreensBtn.addEventListener('click', () => {
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if (isInStandaloneMode()) {
-    window.location.href = "asset-digital-content.html";
-  } else if (isMobile) {
-    const fullscreenWin = window.open(
-      "asset-digital-content.html",
-      "_blank",
-      "toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,fullscreen=yes,width=" +
-        screen.availWidth +
-        ",height=" +
-        screen.availHeight
-    );
-    if (fullscreenWin) fullscreenWin.focus();
-  } else {
-    window.open("asset-digital-content.html", "_blank");
+    if (!document.fullscreenElement) {
+      await mapWrapper.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
+  } catch (err) {
+    console.warn('fs map error', err);
   }
 });
 
-// --- Inventory button ---
-const inventoryBtn = document.getElementById("showInventoryBtn");
-inventoryBtn.addEventListener("click", async () => {
-  if (!document.fullscreenElement) {
-    inventoryWrapper.style.display = "block";
+showInventoryBtn.addEventListener('click', async () => {
+  // always ensure inventory is loaded
+  await loadInventory();
 
-    // Try fullscreen
+  // if not in fullscreen, attempt it; otherwise exit
+  if (!document.fullscreenElement) {
+    inventoryWrapper.style.display = 'block';
     try {
       await inventoryWrapper.requestFullscreen();
-    } catch (error) {
-      console.warn("Fullscreen failed:", error);
-
-      // fallback for mobile browsers that block fullscreen
-      inventoryWrapper.classList.add("fullscreen-wrapper");
-      document.body.classList.add("no-scroll");
+    } catch (err) {
+      // mobile browsers may block requestFullscreen on iframes - fallback:
+      console.warn('inventory fullscreen failed, applying CSS fallback', err);
+      inventoryWrapper.classList.add('fullscreen-wrapper');
+      document.body.style.overflow = 'hidden'; // prevent scroll behind
     }
   } else {
-    document.exitFullscreen();
+    // If some element is fullscreen, exit
+    try { await document.exitFullscreen(); } catch(e){ /* ignore */ }
+    // also remove fallback
+    inventoryWrapper.classList.remove('fullscreen-wrapper');
+    document.body.style.overflow = '';
+    inventoryWrapper.style.display = 'none';
   }
 });
 
-document.addEventListener("fullscreenchange", () => {
+/* Listen to native fullscreenchange to apply classes/cleanup */
+document.addEventListener('fullscreenchange', () => {
   const fsEl = document.fullscreenElement;
+  // Add class to fullscreen element to ensure full coverage
+  [mapWrapper, inventoryWrapper].forEach(el => el.classList.toggle('fullscreen-wrapper', el === fsEl));
+  // If fullscreen closed, hide inventory wrapper if it was used
+  if (!fsEl) {
+    inventoryWrapper.classList.remove('fullscreen-wrapper');
+    inventoryWrapper.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+});
 
-  if (fsEl === inventoryWrapper) {
-    inventoryWrapper.classList.add("fullscreen-wrapper");
-    document.body.classList.add("no-scroll");
+/* =========================
+   View Screens (opens asset-digital-content.html)
+   ========================= */
+viewScreensBtn.addEventListener('click', () => {
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile) {
+    // open in new tab/window
+    const w = window.open('asset-digital-content.html', '_blank');
+    if (w) w.focus();
   } else {
-    inventoryWrapper.classList.remove("fullscreen-wrapper");
-    inventoryWrapper.style.display = "none";
-    document.body.classList.remove("no-scroll");
+    window.open('asset-digital-content.html', '_blank');
   }
 });
 
-
-// --- Weather widget ---
-async function fetchWeather() {
-  try {
-    const tempDiv = document.getElementById('weatherTemp');
-    if (!tempDiv) return;
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.2854&longitude=51.5310&current=temperature_2m,weathercode&timezone=auto');
-    const data = await res.json();
-    const temp = data.current?.temperature_2m ?? 'N/A';
-    tempDiv.textContent = `${temp}°C`;
-  } catch (err) {
-    const tempDiv = document.getElementById('weatherTemp');
-    if (tempDiv) tempDiv.textContent = 'Weather unavailable';
-    console.error(err);
-  }
-}
-fetchWeather();
-setInterval(fetchWeather, 600000);
-
-  
-// ===== PWA Service Worker + Auto Update =====
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(registration => {
-        console.log('✅ Service Worker registered:', registration.scope);
-
-        // --- Check for updates periodically ---
-        setInterval(() => {
-          registration.update();
-        }, 60 * 60 * 1000); // Every 1 hour
-
-        // --- Listen for updates ---
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New version ready
-              showUpdatePopup(newWorker);
-            }
-          });
-        });
-      })
-      .catch(err => console.error('❌ SW registration failed:', err));
-  });
-}
-
-// ===== AUTO-UPDATE POPUP =====
-function showUpdatePopup(newWorker) {
-  // Create popup container
-  const popup = document.createElement('div');
-  popup.innerHTML = `
-    <div id="sw-update-popup" style="
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #222;
-      color: #ffffff;
-      font-family: sans-serif;
-      padding: 14px 18px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    ">
-      <span>🔄 A new version is available.</span>
-      <button id="refreshAppBtn" style="
-        background: #007bff;
-        border: none;
-        color: #ffffff;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-      ">Refresh</button>
-    </div>
-  `;
-  document.body.appendChild(popup);
-
-  document.getElementById('refreshAppBtn').addEventListener('click', () => {
-    newWorker.postMessage({ type: 'SKIP_WAITING' });
-  });
-
-  // Refresh automatically after SW is activated
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  });
-}
-
-  // --- Floating "Install App" badge ---
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  // Avoid duplicate buttons
-  if (document.getElementById('installBadge')) return;
-
-  // Create floating badge
-  const installBadge = document.createElement('div');
-  installBadge.id = 'installBadge';
-  installBadge.textContent = '⬇️ Install App';
-  installBadge.style.cssText = `
-    position: fixed;
-    bottom: 1.2rem;
-    right: 1.2rem;
-    background: #1f6feb;
-    color: #fff;
-    padding: .6rem 1rem;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    cursor: pointer;
-    z-index: 999999;
-    transition: all .3s ease;
-    opacity: 0;
-    transform: translateY(20px);
-  `;
-
-  document.body.appendChild(installBadge);
-
-  // Animate in
-  requestAnimationFrame(() => {
-    installBadge.style.opacity = '1';
-    installBadge.style.transform = 'translateY(0)';
-  });
-
-  // Adjust placement for mobile
-  if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    installBadge.style.right = '50%';
-    installBadge.style.transform = 'translateX(50%)';
-    installBadge.style.bottom = '1.5rem';
-  }
-
-  // Handle click → show browser install prompt
-  installBadge.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    installBadge.textContent = 'Installing...';
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response: ${outcome}`);
-    deferredPrompt = null;
-    installBadge.remove();
-  });
-});
-
-// Hide badge when installed
-window.addEventListener('appinstalled', () => {
-  const badge = document.getElementById('installBadge');
-  if (badge) badge.remove();
-  deferredPrompt = null;
-  console.log('✅ App successfully installed!');
-});
-
-  
+/* End of script */
 </script>
 </body>
 </html>
