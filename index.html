@@ -224,41 +224,40 @@ body {
          alt="Scoop Logo" class="logo" />
   </div>
 
-  <div class="asset-links">
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&noprof=1&hl=en" class="active">Digital Screens</a>
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1qAnnrUkqXRNvsgXruletafuG8iRAvmw&noprof=1&hl=en">Light Poles (ME-MB-MC)</a>
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1ZBOZDeL0i2V7trMGiFTtczyK22PTlvQ&noprof=1&hl=en">Light Poles (PA)</a>
-    <a href="#" data-map="https://www.google.com/maps/d/u/0/embed?mid=1s-mXAGEcos--BVZD45FuMEbxCRM8nV4&noprof=1&hl=en">Static Mupi</a>
-  </div>
+<div class="asset-links" id="assetLinks">
+  <!-- Firestore will populate links here -->
+</div>
 
   <p class="note">
     Click the toggle bar to select OOH Assets and view their locations. 
     Use the <strong>Full screen</strong> button to expand the map.
   </p>
 
-  <div class="map-wrapper" id="mapWrapper">
-    <iframe id="mapIframe"
-            src="https://www.google.com/maps/d/u/0/embed?mid=1E7m-MbBH0bVgQu-THnFmkfbzEgDITug&hl=en&noprof=1"
-            title="OOH Assets Map" loading="lazy"></iframe>
+<div class="map-wrapper" id="mapWrapper">
+  <iframe id="mapIframe"
+          src=""
+          title="OOH Assets Map"
+          loading="lazy"></iframe>
 
-    <div class="map-overlay hide-top-right">
-      <div class="top-right-widget" id="weatherWidget">
-        <div id="weatherCity" style="font-size:0.8rem; font-weight:400; color:#FFFFFF;">Doha, Qatar</div>
-        <div id="weatherTemp" style="font-size:1.2rem; font-weight:600; color:#FFFFFF;">--°C</div>
-      </div>
+  <div class="map-overlay hide-top-right">
+    <div class="top-right-widget" id="weatherWidget">
+      <div id="weatherCity" style="font-size:0.8rem; font-weight:400; color:#FFFFFF;">Doha, Qatar</div>
+      <div id="weatherTemp" style="font-size:1.2rem; font-weight:600; color:#FFFFFF;">--°C</div>
     </div>
   </div>
+</div>
 
-  <div class="controls">
-    <button class="btn" id="fsBtn">Full screen</button>
-    <button class="btn" id="viewScreensBtn">View Screens</button>
-    <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
-  </div>
+<div class="controls">
+  <button class="btn" id="fsBtn">Full screen</button>
+  <button class="btn" id="viewScreensBtn">View Screens</button>
+  <button class="btn" id="showInventoryBtn">Show Content Inventory</button>
+</div>
 
-  <div class="inventory-wrapper" id="inventoryWrapper">
-    <iframe src="https://docs.google.com/spreadsheets/d/1hLMSmKBCkUbCgU9eKVS3UjBYUAzb8yiig6GIQdIxfAU/preview"
-            title="Content Inventory"></iframe>
-  </div>
+<div class="inventory-wrapper" id="inventoryWrapper">
+  <iframe id="inventoryIframe"
+          src=""
+          title="Content Inventory"></iframe>
+</div>
 
 <div class="note" style="text-align:left; margin-top:1rem;">
   These asset locations have been pinned by the OOH Asset Supervisor.
@@ -282,12 +281,10 @@ body {
 <script type="module">
 // --- Firebase Modular Imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
 
 // --- Firebase Config ---
 const firebaseConfig = {
@@ -338,8 +335,6 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
 
   try {
     await signInWithEmailAndPassword(auth, email, pass);
-
-    localStorage.setItem("loggedUser", email);
 
     msg.style.color = "green";
     msg.textContent = "Login successful!";
@@ -406,7 +401,7 @@ document.addEventListener("click", e => {
 // --------------------------------------------------
 async function loadMapLinks() {
   const linkContainer = document.querySelector(".asset-links");
-  linkContainer.innerHTML = ""; // clear static HTML
+  linkContainer.innerHTML = "";
 
   try {
     const snapshot = await getDocs(collection(db, "maps"));
@@ -415,11 +410,18 @@ async function loadMapLinks() {
       const a = document.createElement("a");
       a.textContent = data.name;
       a.href = "#";
-      a.setAttribute("data-map", data.url);
+      a.dataset.map = data.url;
       linkContainer.appendChild(a);
     });
 
     attachLinkEvents();
+
+    const firstLink = linkContainer.querySelector("a");
+    if (firstLink) {
+      firstLink.classList.add("active");
+      document.getElementById("mapIframe").src = firstLink.dataset.map;
+    }
+
   } catch (err) {
     console.error("Failed to load Firestore map links:", err);
   }
@@ -429,12 +431,12 @@ async function loadMapLinks() {
 // ✅ FIRESTORE: Load inventory link
 // --------------------------------------------------
 async function loadInventory() {
-  const iframe = document.querySelector("#inventoryWrapper iframe");
+  const iframe = document.getElementById("inventoryIframe");
 
   try {
     const snapshot = await getDocs(collection(db, "inventory"));
     snapshot.forEach(doc => {
-      iframe.src = doc.data().iframeUrl;
+      iframe.src = doc.data().url;
     });
   } catch (err) {
     console.error("Failed to load inventory:", err);
@@ -463,7 +465,6 @@ function attachLinkEvents() {
     });
   });
 }
-
 
 // --- Fullscreen ---
 const fsBtn = document.getElementById('fsBtn');
@@ -510,8 +511,7 @@ inventoryBtn.addEventListener('click', async () => {
     inventoryWrapper.style.display = "block";
     try { await inventoryWrapper.requestFullscreen(); } catch {}
   } else {
-    inventoryWrapper.style.display = "none";
-    if (document.fullscreenElement) await document.exitFullscreen();
+    inventoryWrapper.style.display = isVisible ? "none" : "block";
   }
 });
 document.addEventListener('fullscreenchange', () => {
