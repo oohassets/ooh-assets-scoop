@@ -2,15 +2,12 @@
 const CACHE_NAME = 'scoop-ooh-cache-v48.24';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
-  './manifest.json',
-  './firebase/firebase.js',
-  './assets/styles.css',
-  './assets/main.js',
-  './assets/pwa.js',
-  './assets/ui.js',
-  './assets/weather.js',
-  './assets/fullscreen.js',
+  "./index.html",
+  "./login.html",
+  "./manifest.json",
+  "./assets/css/styles.css",
+  "./assets/js/main.js",
+  "./assets/js/login.js"
   './images/scooplogo_black_180x180.png',
   './images/scooplogo_black_192x192.png',
   './images/scooplogo_black_512x512.png',
