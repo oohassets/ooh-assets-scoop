@@ -14,7 +14,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // DOM ELEMENTS (DEFINE THEM HERE)
-const loginScreen = document.getElementById("loginScreen");
+const loginScreen = document.getElementById("login-screen");
 const loginBtn = document.getElementById("loginBtn");
 const username = document.getElementById("username");
 const password = document.getElementById("password");
