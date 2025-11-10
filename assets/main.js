@@ -86,22 +86,32 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // LOAD MAP LINKS
-  async function loadMapLinks() {
-    const container = document.getElementById("assetLinks");
-    container.innerHTML = "";
+async function loadMapLinks() {
+  const container = document.getElementById("assetLinks");
+  container.innerHTML = "";
 
-    const snapshot = await getDocs(collection(db, "maps"));
+  const snapshot = await getDocs(collection(db, "maps"));
 
-    snapshot.forEach((docItem) => {
-      const data = docItem.data();
-      const a = document.createElement("a");
-      a.textContent = data.name;
-      a.dataset.map = data.url;
-      container.appendChild(a);
-    });
+  let isFirst = true;
 
-    attachMapEvents();
-  }
+  snapshot.forEach((docItem) => {
+    const data = docItem.data();
+    const a = document.createElement("a");
+    a.textContent = data.name;
+    a.dataset.map = data.url;
+    container.appendChild(a);
+
+    // ✅ Set first map as default
+    if (isFirst) {
+      document.getElementById("mapIframe").src = data.url;
+      a.classList.add("active");
+      isFirst = false;
+    }
+  });
+
+  attachMapEvents();
+}
+
 
   // LOAD INVENTORY
   async function loadInventory() {
