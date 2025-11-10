@@ -280,7 +280,7 @@ body {
 // --- Firebase Modular Imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // --- Firebase Config ---
 const firebaseConfig = {
@@ -428,10 +428,15 @@ async function loadMapLinks() {
 async function loadInventory() {
   const iframe = document.getElementById("inventoryIframe");
 
-  const snapshot = await getDocs(collection(db, "inventory"));
-  snapshot.forEach(doc => {
-    iframe.src = doc.data().iframeUrl;
-  });
+  const ref = doc(db, "inventory", "contentInventory");
+  const snapshot = await getDoc(ref);
+
+  if (snapshot.exists()) {
+    iframe.src = snapshot.data().iframeUrl;
+    console.log("Loaded:", snapshot.data().iframeUrl);
+  } else {
+    console.log("contentInventory document missing");
+  }
 }
 
 // --------------------------------------------------
@@ -494,17 +499,10 @@ viewScreensBtn.addEventListener('click', () => {
   }
 });
 
-// --- Inventory toggle ---
+// --- Inventory button ---
 inventoryBtn.addEventListener('click', async () => {
-  await loadInventory(); // ✅ <-- make sure Firestore URL loads first!
-
-  const isVisible = inventoryWrapper.style.display === "block";
-  if (!isVisible) {
-    inventoryWrapper.style.display = "block";
-    try { await inventoryWrapper.requestFullscreen(); } catch {}
-  } else {
-    inventoryWrapper.style.display = "none";
-  }
+  await loadInventory();
+  inventoryWrapper.style.display = "block";
 });
   
 document.addEventListener('fullscreenchange', () => {
