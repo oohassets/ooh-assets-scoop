@@ -1,4 +1,5 @@
 import { auth, db } from "./firebase.js";
+
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -11,6 +12,14 @@ import {
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+// DOM ELEMENTS (DEFINE THEM HERE)
+const loginScreen = document.getElementById("login-screen");
+const loginBtn = document.getElementById("loginBtn");
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+const loginMessage = document.getElementById("loginMessage");
+const logoutText = document.getElementById("logoutText");
 
 // SPLASH SCREEN
 window.addEventListener("load", () => {
@@ -27,18 +36,19 @@ window.addEventListener("load", () => {
   }, 2200);
 });
 
-// LOGIN
-document.getElementById("loginBtn").addEventListener("click", async () => {
+// LOGIN HANDLER
+loginBtn.addEventListener("click", async () => {
   const email = username.value.trim();
   const pass = password.value.trim();
 
   try {
     await signInWithEmailAndPassword(auth, email, pass);
+
     loginMessage.style.color = "green";
     loginMessage.textContent = "Login successful!";
 
     setTimeout(() => {
-      login-screen.style.display = "none";
+      loginScreen.style.display = "none";
       document.querySelector(".container").style.display = "block";
       loadMapLinks();
       loadInventory();
@@ -50,11 +60,11 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   }
 });
 
-// AUTO LOGIN
+// AUTO LOGIN CHECK
 function checkLoginStatus() {
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      login-screen.style.display = "none";
+      loginScreen.style.display = "none";
       document.querySelector(".container").style.display = "block";
       loadMapLinks();
       loadInventory();
@@ -66,7 +76,7 @@ function checkLoginStatus() {
 logoutText.onclick = () => {
   signOut(auth).then(() => {
     document.querySelector(".container").style.display = "none";
-    login-screen.style.display = "flex";
+    loginScreen.style.display = "flex";
   });
 };
 
@@ -77,10 +87,11 @@ async function loadMapLinks() {
 
   const snapshot = await getDocs(collection(db, "maps"));
 
-  snapshot.forEach((doc) => {
+  snapshot.forEach((docItem) => {
+    const data = docItem.data();
     const a = document.createElement("a");
-    a.textContent = doc.data().name;
-    a.dataset.map = doc.data().url;
+    a.textContent = data.name;
+    a.dataset.map = data.url;
     container.appendChild(a);
   });
 
@@ -97,15 +108,18 @@ async function loadInventory() {
   }
 }
 
-// CLICK EVENTS FOR MAP LINKS
+// MAP LINK CLICK EVENTS
 function attachMapEvents() {
-  document.querySelectorAll(".asset-links a").forEach((link) => {
+  document.querySelectorAll("#assetLinks a").forEach((link) => {
     link.onclick = (e) => {
       e.preventDefault();
       document.getElementById("mapIframe").src = link.dataset.map;
-      document.querySelectorAll(".asset-links a").forEach((l) => l.classList.remove("active"));
+
+      document
+        .querySelectorAll("#assetLinks a")
+        .forEach((l) => l.classList.remove("active"));
+
       link.classList.add("active");
     };
   });
 }
-
