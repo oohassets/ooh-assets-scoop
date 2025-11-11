@@ -12,5 +12,8 @@ export async function loadInventory() {
   }
 }
 
-document.getElementById("contentInventoryBtn")
-  .addEventListener("click", loadInventory);
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("contentInventoryBtn")
+    .addEventListener("click", loadInventory);
+});
+
