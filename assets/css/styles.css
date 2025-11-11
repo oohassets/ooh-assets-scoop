@@ -269,14 +269,13 @@ body.no-scroll {
 }
 
 #loginScreen img.login-logo {
-  width: 85px;
-  margin-bottom: 1rem;
+  height: 55px !important;
+  margin-bottom: .4rem !important;
 }
 
 #loginScreen h3 {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
+  font-size: 1rem !important;
+  margin-bottom: .6rem !important;
   color: #333;
 }
 
@@ -286,14 +285,14 @@ body.no-scroll {
   padding: 0.75rem 1rem;
   margin: 0.55rem 0;
   border: none;
-  border-bottom: 2px solid black;
+  border-bottom-color: 2px solid black;
   background: rgba(255, 255, 255, 0.85);
   font-size: 1rem;
 }
 
 #loginScreen input:focus {
   border: none;
-  border-bottom: #1f6feb;
+  border-bottom-color: #1f6feb;
 }
 
 /* Button — aligned perfectly */
@@ -325,8 +324,8 @@ body.no-scroll {
 /* ✅ Mobile */
 @media (max-width: 480px) {
   #loginScreen .login-box {
-    width: 90%;
-    padding: 1.5rem;
+    max-width: 280px !important;
+    padding: 1rem 1.25rem !important;
   }
 
   #loginScreen img.login-logo {
