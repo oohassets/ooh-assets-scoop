@@ -285,15 +285,18 @@ body.no-scroll {
   width: 100%;
   padding: 0.75rem 1rem;
   margin: 0.55rem 0;
-  border: 1px solid rgba(0,0,0,0.12);
+  border:none;
+  border-bottom: 1px solid rgba(0,0,0,0.12);
   border-radius: 10px;
   background: rgba(240,245,255,0.9);
   font-size: 1rem;
   outline: none;
+  box-sizing:border-box;
+  transition:border-color .3s;
 }
 
 #loginScreen input:focus {
-  border-color: #1f6feb;
+  border-bottom: #1f6feb;
 }
 
 /* Button — aligned perfectly */
@@ -313,6 +316,7 @@ body.no-scroll {
 
 #loginBtn:hover {
   background: #155bc4;
+  cursor: pointer;
 }
 
 /* Login message */
@@ -355,6 +359,11 @@ body.no-scroll {
   color: orange;
   text-decoration: underline;
   cursor: pointer;
+}
+
+  #installBadge:hover {
+  background: #155bc4;
+  transform: scale(1.05);
 }
   
 }
