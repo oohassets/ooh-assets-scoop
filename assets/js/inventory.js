@@ -2,8 +2,8 @@ import { db } from "../../firebase/firebase.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 export async function loadInventory() {
-  const ref = doc(db, "inventory", "contentInventory");
-  const snap = await getDoc(ref);
+  const contentInventoryBtn = doc(db, "inventory", "contentInventory");
+  const snap = await getDoc(contentInventoryBtn);
 
   if (snap.exists()) {
     document.getElementById("inventoryIframe").src = snap.data().iframeUrl;
