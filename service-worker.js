@@ -1,13 +1,13 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v49.1';
+const CACHE_NAME = 'scoop-ooh-cache-v49.3';
 const ASSETS_TO_CACHE = [
   './',
-  "./index.html",
-  "./login.html",
-  "./manifest.json",
-  "./assets/css/styles.css",
-  "./assets/js/main.js",
-  "./assets/js/login.js"
+  './index.html',
+  './login.html',
+  './manifest.json',
+  './assets/css/styles.css',
+  './assets/js/main.js',
+  './assets/js/login.js',
   './images/scooplogo_black_180x180.png',
   './images/scooplogo_black_192x192.png',
   './images/scooplogo_black_512x512.png',
@@ -19,7 +19,6 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('[Service Worker] Pre-caching essential assets...');
-      // Use Promise.allSettled to prevent failure if a file is missing
       return Promise.allSettled(
         ASSETS_TO_CACHE.map(url => cache.add(url))
       );
@@ -48,32 +47,27 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      // Serve from cache if available
+
       if (cachedResponse) return cachedResponse;
 
-      // Try network request
       return fetch(event.request)
         .then(networkResponse => {
-          // Only cache successful same-origin requests
           if (
             networkResponse &&
             networkResponse.ok &&
             event.request.url.startsWith(self.location.origin)
           ) {
-            const responseClone = networkResponse.clone();
+            const clone = networkResponse.clone();
             caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseClone);
+              cache.put(event.request, clone);
             });
           }
           return networkResponse;
         })
         .catch(() => {
-          // Fallback for navigation requests
           if (event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
-          // Optional: fallback for images, CSS, JS
-          // return caches.match('./assets/images/fallback.png');
         });
     })
   );
