@@ -2,6 +2,10 @@ import { auth, db } from "../../firebase/firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { loadMapLinks } from "./map.js";
 import { loadInventory } from "./inventory.js";
+import { initFullscreen } from "./fullscreen.js";
+
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const logoutText = document.getElementById("logoutText");
@@ -20,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     container.style.display = "block";
 
+    initFullscreen();  
     loadMapLinks().catch(err => console.error("Map load error:", err));
     loadInventory().catch(err => console.error("Inventory load error:", err));
   });
