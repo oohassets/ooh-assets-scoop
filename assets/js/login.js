@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (error) {
       loginMessage.style.color = "red";
-      loginMessage.textContent = error.message;
+      loginMessage.textContent = "Username or Password is incorrect";
     }
   });
 });
