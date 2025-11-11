@@ -1,4 +1,4 @@
-import { auth } from "../../firebase/firebase.js";
+import { auth } from "../firebase/firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { loadMapLinks } from "./map.js";
 import { loadInventory } from "./inventory.js";
