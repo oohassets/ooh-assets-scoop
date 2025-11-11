@@ -21,15 +21,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     container.style.display = "block";
 
-    initFullscreen();  
+    initFullscreen();
     loadMapLinks().catch(err => console.error("Map load error:", err));
     loadInventory().catch(err => console.error("Inventory load error:", err));
   });
 
+  if (logoutText) {
     logoutText.addEventListener("click", () => {
       signOut(auth).then(() => {
         console.log("User logged out");
         window.location.href = "./login.html";
       });
     });
+  }
 });
