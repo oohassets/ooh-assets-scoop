@@ -267,7 +267,8 @@ body.no-scroll {
   }
 }
 
-/* --- LOGIN SCREEN  --- */
+
+/* --- LOGIN SCREEN --- */
 
 #loginScreen {
   position: fixed;
@@ -276,40 +277,43 @@ body.no-scroll {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent; /* or rgba(0,0,0,0.2) */
+  background: rgba(255, 255, 255, 0.05); /* subtle transparent */
+  backdrop-filter: blur(6px);            /* frosted effect */
 }
 
 #loginScreen .login-box {
-  width: 320px;
-  background: #ffffff;
-  padding: 1.5rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+  width: 340px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2rem 2rem;
+  border-radius: 18px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.25);
   text-align: center;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.4);
 }
 
 #loginScreen img.login-logo {
-  width: 80px;
-  height: auto;
-  margin-bottom: 0.5rem;
+  width: 85px;
+  margin-bottom: 1rem;
 }
 
 #loginScreen h3 {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   color: #333;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
 #loginScreen input {
   width: 100%;
-  margin: 0.5rem 0;
-  padding: 0.6rem;
+  margin: 0.55rem 0;
+  padding: 0.7rem;
   border: none;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #ccc;
   outline: none;
   font-size: 1rem;
   background: transparent;
+  transition: border-color 0.2s;
 }
 
 #loginScreen input:focus {
@@ -319,14 +323,15 @@ body.no-scroll {
 #loginBtn {
   width: 100%;
   background: #1f6feb;
-  color: white;
+  color: #fff;
   border: none;
-  padding: 0.6rem;
+  padding: 0.75rem;
   margin-top: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  font-size: 1rem;
   font-weight: 600;
-  transition: 0.2s;
+  transition: background 0.3s;
 }
 
 #loginBtn:hover {
@@ -334,8 +339,28 @@ body.no-scroll {
 }
 
 #loginMessage {
-  margin-top: 0.5rem;
+  margin-top: 0.7rem;
   font-size: 0.9rem;
+}
+
+/* ✅ MOBILE RESPONSIVE */
+@media (max-width: 480px) {
+  #loginScreen .login-box {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  #loginScreen img.login-logo {
+    width: 65px;
+  }
+
+  #loginScreen h3 {
+    font-size: 1.1rem;
+  }
+
+  #loginBtn {
+    font-size: 0.95rem;
+  }
 }
   
 </style>
