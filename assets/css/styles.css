@@ -350,14 +350,26 @@ body.no-scroll {
 
 
   /* Useful Links */
-  .useful-links a {
+  .useful-links {
   text-decoration: none;
   color: inherit;
 }
 
+  .useful-links{
+     display:flex;
+     flex-wrap:wrap;
+     gap:1rem;
+     justify-content:center;
+  }
+  
+  .useful-links a{
+  text-decoration: none;
+  color: inherit;
+}
+  
 .useful-links a:hover {
   color: orange;
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
 }
 
