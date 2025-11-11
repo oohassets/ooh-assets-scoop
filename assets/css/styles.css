@@ -342,36 +342,35 @@ body.no-scroll {
   .note { font-size:.75rem; }
   .map-wrapper { aspect-ratio:3/4; }
   .logo { height:60px; }
-  .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
-
+  .top-right-widget { padding:.35rem .7rem; font-size:.85rem;}
+}
 
   /* Useful Links */
   .useful-links {
-  text-decoration: none;
-  color: inherit;
-}
-
-  .useful-links{
-     display:flex;
-     flex-wrap:wrap;
-     gap:1rem;
-     justify-content:center;
+    text-decoration: none;
+    font-size:.75rem; 
+    color:#ffffff; 
+    margin-top:.5rem; 
+    text-align:left;
+    display:flex;
+    flex-wrap:wrap;
+    gap:1rem;
+    justify-content:left;
   }
   
   .useful-links a{
-  text-decoration: none;
-  color: inherit;
-}
+    text-decoration: none;
+    color: inherit;
+  }
   
-.useful-links a:hover {
-  color: orange;
-  text-decoration: none;
-  cursor: pointer;
-}
+  .useful-links a:hover {
+    color: orange;
+    text-decoration: none;
+    cursor: pointer;
+  }
 
   #installBadge:hover {
-  background: #155bc4;
-  transform: scale(1.05);
-}
+    background: #155bc4;
+    transform: scale(1.05);
+  }
   
-}
