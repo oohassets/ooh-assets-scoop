@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   onAuthStateChanged(auth, user => {
     if (!user) {
-      window.location.href = "login.html";
+      window.location.href = "./login.html";
     } else {
       document.querySelector(".container").style.display = "block";
       loadMapLinks();
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   logoutText.addEventListener("click", () => {
     signOut(auth).then(() => {
-      window.location.href = "login.html";
+      window.location.href = "./login.html";
     });
   });
 });
