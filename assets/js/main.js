@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadInventory().catch(err => console.error("Inventory load error:", err));
   });
 
-  if (logoutText) {
     logoutText.addEventListener("click", () => {
       signOut(auth).then(() => {
         console.log("User logged out");
