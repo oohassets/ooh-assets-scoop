@@ -175,6 +175,7 @@ body {
 
 /* Buttons */
 .btn {
+  flex:1 1 auto;
   background: var(--brand);
   color: #fff;
   border: none;
