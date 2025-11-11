@@ -342,5 +342,14 @@ body.no-scroll {
   .map-wrapper { aspect-ratio:3/4; }
   .logo { height:60px; }
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
+
+  .useful-links:links {
+    text-decoration: none;
+}
+  .useful-links:hover {
+    color: orange;
+    text-decoration: underline;
+    cursor:pointer;
+}
   
 }
