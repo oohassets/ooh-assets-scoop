@@ -1,5 +1,11 @@
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("../service-worker.js")
-    .then(reg => console.log("SW Registered:", reg))
-    .catch(err => console.log("SW error:", err));
+if ('serviceWorker' in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/ooh-assets-scoop/service-worker.js")
+      .then(reg => {
+        console.log("Service Worker registered:", reg);
+      })
+      .catch(err => {
+        console.error("SW error:", err);
+      });
+  });
 }
