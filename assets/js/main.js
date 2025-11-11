@@ -4,9 +4,6 @@ import { loadMapLinks } from "./map.js";
 import { loadInventory } from "./inventory.js";
 import { initFullscreen } from "./fullscreen.js";
 
-
-
-
 document.addEventListener("DOMContentLoaded", () => {
   const logoutText = document.getElementById("logoutText");
   const container = document.querySelector(".container");
@@ -29,10 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
     loadInventory().catch(err => console.error("Inventory load error:", err));
   });
 
-  logoutText.addEventListener("click", () => {
-    signOut(auth).then(() => {
-      console.log("User logged out");
-      window.location.href = "./login.html";
+  if (logoutText) {
+    logoutText.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        console.log("User logged out");
+        window.location.href = "./login.html";
+      });
     });
-  });
 });
