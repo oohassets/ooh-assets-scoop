@@ -343,13 +343,17 @@ body.no-scroll {
   .logo { height:60px; }
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem; }
 
-  .useful-links:links {
-    text-decoration: none;
+
+  /* Useful Links */
+  .useful-links a {
+  text-decoration: none;
+  color: inherit;
 }
-  .useful-links:hover {
-    color: orange;
-    text-decoration: underline;
-    cursor:pointer;
+
+.useful-links a:hover {
+  color: orange;
+  text-decoration: underline;
+  cursor: pointer;
 }
   
 }
