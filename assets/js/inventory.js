@@ -1,7 +1,6 @@
 import { db } from "../../firebase/firebase.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// --- Function to load the content inventory iframe ---
 export async function loadInventory() {
   try {
     const inventoryDoc = doc(db, "inventory", "contentInventory");
@@ -18,23 +17,32 @@ export async function loadInventory() {
   }
 }
 
-// --- Wait for DOM to load, then attach the click listener ---
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("contentInventoryBtn");
   const wrapper = document.getElementById("inventoryWrapper");
 
-  if (!btn) {
-    console.error("❌ contentInventoryBtn not found in DOM");
+  if (!btn || !wrapper) {
+    console.error("❌ Missing DOM elements for inventory.");
     return;
   }
 
+  // Handle button click (toggle)
   btn.addEventListener("click", async () => {
-    // Toggle visibility
-    if (wrapper.style.display === "block") {
-      wrapper.style.display = "none";
+    if (wrapper.classList.contains("show")) {
+      wrapper.classList.remove("show");
+      setTimeout(() => (wrapper.style.display = "none"), 300);
     } else {
-      await loadInventory();
       wrapper.style.display = "block";
+      await loadInventory();
+      setTimeout(() => wrapper.classList.add("show"), 10);
+    }
+  });
+
+  // Handle ESC key to close iframe
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && wrapper.classList.contains("show")) {
+      wrapper.classList.remove("show");
+      setTimeout(() => (wrapper.style.display = "none"), 300);
     }
   });
 });
