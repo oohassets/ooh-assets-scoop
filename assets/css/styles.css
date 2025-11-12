@@ -1,3 +1,4 @@
+
 :root {
   --max-width: 1200px;
   --brand: #1f6feb;
@@ -6,8 +7,8 @@
 }
 
 .logo {
-  height: 120px;
-  width: auto;
+  height:120px; 
+  width:auto; 
 }
 
 /* Splash */
@@ -28,7 +29,7 @@
   opacity: 0;
   transform: scale(0.9);
   object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
   transition: opacity 1.5s ease, transform 1.5s ease;
 }
 
@@ -49,9 +50,11 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  background: #f7f7f7;
   display: flex;
   justify-content: center;
   align-items: center;
+
   background: linear-gradient(300deg, #e67c00, #ffffff, #e67c00);
   background-size: 180% 180%;
   animation: gradient-move 18s ease infinite;
@@ -63,30 +66,40 @@ body {
   100% { background-position: 0% 50%; }
 }
 
-.lead { margin:0 0 1rem; color:var(--text); font-size:.75rem; line-height:1.4; text-align:left; }
-.note { font-size:.75rem; color:#ffffff; margin-top:.5rem; text-align:left; }
-
-
-
-/* Container */
+/* Main container */
 .container {
   width: 100%;
   max-width: var(--max-width);
-  position: relative;
+  position:relative;
 }
 
 .title-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: .25rem;
+  display:flex; 
+  justify-content:center; 
+  margin-bottom:.25rem; 
 }
 
-/* Map Wrapper */
+.lead {
+  margin:0 0 1rem; 
+  color:var(--text); 
+  font-size:.75rem; 
+  line-height:1.4; 
+  text-align:left; 
+}
+
+.note {
+  font-size:.75rem; 
+  color:#ffffff; 
+  margin-top:.5rem; 
+  text-align:left; 
+}
+
+/* Map wrapper */
 .map-wrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
-  min-height: 300px;
+  min-height:300px;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(20, 20, 40, 0.08);
@@ -95,32 +108,82 @@ body {
 }
 
 .map-wrapper iframe {
-  position: absolute;
-  inset: 0;
+  position:absolute;
+  inset:0;
   width: 100%;
   height: 100%;
   border: none;
 }
 
-.map-overlay { position:absolute; background:#4d6a79; opacity:1; }
-.hide-top-right { top:0; right:0; width:140px; height:50px; pointer-events:auto; }
-.top-right-widget { position:absolute; top:10px; right:10px; background:transparent; padding:.25rem .5rem; border-radius:4px; box-shadow:none; font-weight:600; z-index:10; color:#ffffff; font-family:Roboto,sans-serif; text-align:center; font-size:18px; }
-.asset-links { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin-bottom:1rem; }
-.asset-links a { color:var(--text); font-weight:600; text-decoration:none; transition:color .3s ease; cursor:pointer; }
-.asset-links a:hover, .asset-links a.active { color:#FF5F15; text-decoration:underline; }
-.controls { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem; justify-content:center; }
+.map-overlay {
+  position:absolute; 
+  background:#4d6a79; 
+  opacity:1; 
+}
 
+.hide-top-right {
+  top:0;
+  right:0;
+  width:140px;
+  height:50px;
+  pointer-events:auto; 
+}
 
+.top-right-widget {
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:transparent;
+  padding:.25rem .5rem;
+  border-radius:4px;
+  box-shadow:none;
+  font-weight:600;
+  z-index:10;
+  color:#ffffff;
+  font-family:Roboto,sans-serif;
+  text-align:center;
+  font-size:18px;
+}
+
+.asset-links {
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  justify-content:center;
+  margin-bottom:1rem;
+}
+
+.asset-links a {
+  color:var(--text);
+  font-weight:600;
+  text-decoration:none;
+  transition:color .3s ease;
+  cursor:pointer;
+}
+
+.asset-links a:hover, .asset-links a.active {
+  color:#FF5F15;
+  text-decoration:underline;
+}
+
+.controls {
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  margin-top:.75rem;
+  justify-content:center;
+}
 
 /* Buttons */
 .btn {
-  flex: 1 1 auto;
+  flex:1 1 auto;
   background: var(--brand);
   color: #fff;
   border: none;
   padding: 0.6rem 0.9rem;
   border-radius: 8px;
   font-weight: 600;
+  text-align: center;
   cursor: pointer;
   transition: background 0.3s;
   text-decoration: none;
@@ -141,10 +204,12 @@ body {
   box-shadow: 0 6px 18px rgba(20, 20, 40, 0.08);
   margin-top: 1rem;
   position: relative;
+  transition: all 0.3s ease;
   background: #e9eef6;
   z-index: 1;
 }
 
+/* --- Inventory Header (Top Bar) --- */
 .inventory-header {
   position: absolute;
   top: 0;
@@ -159,9 +224,10 @@ body {
   padding: 0 12px;
   z-index: 10;
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); /* ✅ Safari support */
 }
 
+/* --- Close Button --- */
 .close-btn {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
@@ -169,6 +235,7 @@ body {
   border-radius: 8px;
   padding: 6px 14px;
   font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
 }
@@ -178,6 +245,7 @@ body {
   transform: scale(1.05);
 }
 
+/* --- Iframe Under Header --- */
 #inventoryWrapper iframe {
   position: absolute;
   top: 48px;
@@ -185,16 +253,20 @@ body {
   width: 100%;
   height: calc(100% - 48px);
   border: none;
+  display: block; /* ✅ Prevent inline gap in some browsers */
 }
+
 
 /* Fullscreen */
 .fullscreen-wrapper {
   position: fixed !important;
-  top: 0;
+  top: 0; 
   left: 0;
   inset: 0;
   width: 100vw !important;
   height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
   background: #000 !important;
   z-index: 999999 !important;
 }
@@ -209,7 +281,8 @@ body.no-scroll {
   overflow: hidden;
 }
 
-/* === LOGIN SCREEN === */
+/* === ✅ LOGIN SCREEN (FIXED + ALIGNED PERFECTLY) === */
+
 #loginScreen {
   position: fixed;
   inset: 0;
@@ -221,7 +294,11 @@ body.no-scroll {
   backdrop-filter: blur(6px);
 }
 
-#loginScreen .login-box, #loginScreen .login-box * { box-sizing: border-box; }
+/* Ensure perfect alignment */
+#loginScreen .login-box,
+#loginScreen .login-box * {
+  box-sizing: border-box;
+}
 
 #loginScreen .login-box {
   width: 340px;
@@ -232,21 +309,34 @@ body.no-scroll {
   text-align: center;
 }
 
+#loginScreen img.login-logo {
+  height: 55px !important;
+  margin-bottom: .4rem !important;
+}
+
+#loginScreen h3 {
+  font-size: 1rem !important;
+  margin-bottom: .6rem !important;
+  color: #333;
+}
+
+/* Inputs */
 #loginScreen input {
   width: 100%;
   padding: 0.75rem 1rem;
   margin: 0.55rem 0;
   border: none;
-  border-bottom: 2px solid #ccc;
-  background: transparent;
+  border-bottom-color: 2px solid black;
+  background: rgba(255, 255, 255, 0.85);
   font-size: 1rem;
-  transition: border-color 0.2s ease;
 }
 
 #loginScreen input:focus {
-  border-bottom: 2px solid #1f6feb;
+  border: none;
+  border-bottom-color: #1f6feb;
 }
 
+/* Button — aligned perfectly */
 #loginBtn {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -263,30 +353,65 @@ body.no-scroll {
 
 #loginBtn:hover {
   background: #155bc4;
-}
-
-/* Useful Links */
-#useful-links {
-  text-decoration: none;
-  font-size: .75rem;
-  color: #fff;
-  margin-top: .5rem;
-  text-align: left;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: left;
-}
-
-#useful-links a {
-  text-decoration: none;
-  color: inherit;
-}
-
-#useful-links a:hover {
-  color: orange;
   cursor: pointer;
 }
 
-/* ✅ Mobile */ @media (max-width: 480px) { #loginScreen .login-box { max-width: 280px !important; padding: 1rem 1.25rem !important; } #loginScreen img.login-logo { width: 65px; } #loginScreen h3 { font-size: 1.1rem; } body { padding:.75rem; } .lead { font-size:.85rem; } .btn { font-size:.8rem; padding:.45rem .65rem; } .note { font-size:.75rem; } .map-wrapper { aspect-ratio:3/4; } .logo { height:60px; } .top-right-widget { padding:.35rem .7rem; font-size:.85rem;} }
-#installBadge:hover { background: #155bc4; transform: scale(1.05); }
+/* Login message */
+#loginMessage {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* ✅ Mobile */
+@media (max-width: 480px) {
+  #loginScreen .login-box {
+    max-width: 280px !important;
+    padding: 1rem 1.25rem !important;
+  }
+
+  #loginScreen img.login-logo {
+    width: 65px;
+  }
+
+  #loginScreen h3 {
+    font-size: 1.1rem;
+  }
+
+  body { padding:.75rem; }
+  .lead { font-size:.85rem; }
+  .btn { font-size:.8rem; padding:.45rem .65rem; }
+  .note { font-size:.75rem; }
+  .map-wrapper { aspect-ratio:3/4; }
+  .logo { height:60px; }
+  .top-right-widget { padding:.35rem .7rem; font-size:.85rem;}
+}
+
+  /* Useful Links */
+  .useful-links {
+    text-decoration: none;
+    font-size:.75rem; 
+    color:#ffffff; 
+    margin-top:.5rem; 
+    text-align:left;
+    display:flex;
+    flex-wrap:wrap;
+    gap:1rem;
+    justify-content:left;
+  }
+  
+  .useful-links a{
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .useful-links a:hover {
+    color: orange;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  #installBadge:hover {
+    background: #155bc4;
+    transform: scale(1.05);
+  }
+  
