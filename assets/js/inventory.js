@@ -15,25 +15,23 @@ export async function loadInventory() {
 document.addEventListener("DOMContentLoaded", () => {
   const inventoryBtn = document.getElementById("contentInventoryBtn");
   const inventoryWrapper = document.getElementById("inventoryWrapper");
+  const closeBtn = document.getElementById("closeInventoryBtn");
 
   if (!inventoryBtn || !inventoryWrapper) {
-    console.error("❌ Missing button or inventory wrapper in DOM");
+    console.error("❌ Missing inventory elements in DOM");
     return;
   }
 
-  // --- Inventory button ---
+  // --- Open Inventory ---
   inventoryBtn.addEventListener("click", async () => {
-    // If iframe hidden — show and try fullscreen
     if (inventoryWrapper.style.display !== "block") {
       inventoryWrapper.style.display = "block";
       await loadInventory();
 
       try {
-        // Try entering fullscreen mode
         if (inventoryWrapper.requestFullscreen) {
           await inventoryWrapper.requestFullscreen();
         } else {
-          // Fallback for Safari/iOS
           inventoryWrapper.classList.add("fullscreen-wrapper");
           document.body.classList.add("no-scroll");
         }
@@ -42,28 +40,22 @@ document.addEventListener("DOMContentLoaded", () => {
         inventoryWrapper.classList.add("fullscreen-wrapper");
         document.body.classList.add("no-scroll");
       }
-    } 
-    // If already visible — close it
-    else {
-      closeInventory();
     }
   });
 
-  // --- Fullscreen change listener ---
-  document.addEventListener("fullscreenchange", () => {
-    if (!document.fullscreenElement) {
-      closeInventory();
-    }
-  });
+  // --- Close button ---
+  closeBtn.addEventListener("click", closeInventory);
 
-  // --- ESC key close ---
+  // --- ESC key ---
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeInventory();
-    }
+    if (e.key === "Escape") closeInventory();
   });
 
-  // --- Helper function to close ---
+  // --- Fullscreen change ---
+  document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement) closeInventory();
+  });
+
   function closeInventory() {
     inventoryWrapper.classList.remove("fullscreen-wrapper");
     inventoryWrapper.style.display = "none";
