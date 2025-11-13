@@ -389,8 +389,7 @@ body.no-scroll {
   /* Useful Links */
   .useful-links {
     text-decoration: none;
-    font-size:.75rem; 
-    color:#ffffff; 
+    color:inherit; 
     margin-top:.5rem; 
     text-align:left;
     display:flex;
