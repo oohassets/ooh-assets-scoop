@@ -14,6 +14,8 @@ export const firebaseConfig = {
   measurementId: "G-6HYVW2NG5K"
 };
 
+databaseURL: "https://scoopassets-default-rtdb.firebaseio.com/"
+
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
