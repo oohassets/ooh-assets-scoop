@@ -23,7 +23,7 @@ async function loadAllTables() {
 }
 
 /**
- * Convert JSON object → HTML table
+ * Convert JSON object → HTML table (WITHOUT ROW COLUMN)
  */
 function jsonToTableAuto(dataObj) {
   if (!dataObj) return "<p>No data</p>";
@@ -35,7 +35,6 @@ function jsonToTableAuto(dataObj) {
     <table class="json-table">
       <thead>
         <tr>
-          <th>Row</th>
           ${columns.map(col => `<th>${col}</th>`).join("")}
         </tr>
       </thead>
@@ -48,7 +47,6 @@ function jsonToTableAuto(dataObj) {
 
     html += `
       <tr>
-        <td>${rowKey}</td>
         ${columns
           .map(field => `<td>${formatValue(rowData[field])}</td>`)
           .join("")}
