@@ -26,16 +26,13 @@ async function loadAllTables() {
  * Convert JSON object → HTML table
  */
 /**
- * Convert database table -> HTML table automatically
- */
-/**
- * Create a table with FIXED HEADERS
+ * Create a table with FIXED HEADERS (only SN, Client, Start Date, End Date)
  */
 function jsonToTableAuto(dataObj) {
   if (!dataObj) return "<p>No data</p>";
 
-  // Fixed header fields
-  const columns = ["BO", "Client", "Days", "End Date", "SN", "Start Date"];
+  // Fixed column order
+  const columns = ["SN", "Client", "Start Date", "End Date"];
 
   let html = `
     <table class="json-table">
@@ -48,7 +45,7 @@ function jsonToTableAuto(dataObj) {
       <tbody>
   `;
 
-  // Loop rows: row1, row2, row3...
+  // Loop rows: row1, row2, row3…
   for (const rowKey in dataObj) {
     const rowData = dataObj[rowKey];
 
@@ -71,9 +68,6 @@ function jsonToTableAuto(dataObj) {
  */
 function formatValue(val) {
   if (val === undefined || val === null) return "—";
-  if (typeof val === "object") {
-    return `<pre>${JSON.stringify(val, null, 2)}</pre>`;
-  }
   return val;
 }
 
