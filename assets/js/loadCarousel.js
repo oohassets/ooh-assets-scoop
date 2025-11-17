@@ -6,7 +6,7 @@ import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-dat
  */
 async function loadAllTables() {
   try {
-    const rootRef = ref(rtdb, "/");  // <-- FIXED: use rtdb
+    const rootRef = ref(rtdb, "/");
     const snap = await get(rootRef);
 
     if (snap.exists()) {
