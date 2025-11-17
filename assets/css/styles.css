@@ -422,9 +422,10 @@ body.no-scroll {
 
 /* 3 cards per row */
 .carousel {
-  display: grid;
+  display: grid;!important;
   grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
   gap: 20px;
+  white-space: normal !important;
 }
 
 /* Wider card */
