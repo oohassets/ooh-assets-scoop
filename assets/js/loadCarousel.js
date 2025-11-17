@@ -86,6 +86,7 @@ function createCard(title, data) {
 /**
  * Load carousel
  */
+
 export async function loadCarousel() {
   const carousel = document.getElementById("jsonCarousel");
 
@@ -97,6 +98,13 @@ export async function loadCarousel() {
   const allTables = await loadAllTables();
 
   for (const tableName in allTables) {
+
+    // 🔥 Skip tables containing "upcampaign" (case insensitive)
+    if (tableName.toLowerCase().includes("upcampaign")) {
+      console.warn(`⏭️ Skipped: ${tableName}`);
+      continue;
+    }
+
     const card = createCard(tableName, allTables[tableName]);
     carousel.appendChild(card);
   }
@@ -105,3 +113,4 @@ export async function loadCarousel() {
 document.addEventListener("DOMContentLoaded", () => {
   loadCarousel();
 });
+
