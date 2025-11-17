@@ -25,34 +25,53 @@ async function loadAllTables() {
 /**
  * Convert JSON object → HTML table
  */
-function jsonToTable(obj) {
-  if (typeof obj !== "object" || obj === null) return "<p>No data</p>";
+/**
+ * Convert database table -> HTML table automatically
+ */
+function jsonToTableAuto(dataObj) {
+  if (!dataObj) return "<p>No data</p>";
 
-  let rows = "";
-  for (const key in obj) {
-    rows += `
-      <tr>
-        <td>${key}</td>
-        <td>${formatValue(obj[key])}</td>
-      </tr>
-    `;
-  }
-
-  return `
+  let html = `
     <table class="json-table">
       <thead>
         <tr>
+          <th>Row</th>
           <th>Field</th>
           <th>Value</th>
         </tr>
       </thead>
-      <tbody>${rows}</tbody>
-    </table>
+      <tbody>
   `;
+
+  // Loop each row (row1, row2, row3...)
+  for (const rowKey in dataObj) {
+    const rowData = dataObj[rowKey];
+
+    // If object → loop fields
+    for (const field in rowData) {
+      html += `
+        <tr>
+          <td>${rowKey}</td>
+          <td>${field}</td>
+          <td>${formatValue(rowData[field])}</td>
+        </tr>
+      `;
+    }
+
+    // Separator between rows
+    html += `
+      <tr class="separator">
+        <td colspan="3"></td>
+      </tr>
+    `;
+  }
+
+  html += "</tbody></table>";
+  return html;
 }
 
 /**
- * Format table cell values
+ * Format nested objects nicely
  */
 function formatValue(val) {
   if (typeof val === "object") {
@@ -62,7 +81,7 @@ function formatValue(val) {
 }
 
 /**
- * Create card with table inside
+ * Create card with auto-table
  */
 function createCard(title, data) {
   const card = document.createElement("div");
@@ -71,12 +90,13 @@ function createCard(title, data) {
   card.innerHTML = `
     <h2>${title}</h2>
     <div class="table-container">
-      ${jsonToTable(data)}
+      ${jsonToTableAuto(data)}
     </div>
   `;
 
   return card;
 }
+
 
 /**
  * Load carousel
