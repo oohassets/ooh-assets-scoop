@@ -1,28 +1,28 @@
 import { db } from "../../firebase/firebase.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { ref, get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 /**
- * Load a Firestore document by name and return data or null
+ * Fetch ALL top-level nodes (tables) in RTDB
  */
-async function loadTable(tableName) {
+async function loadAllTables() {
   try {
-    const tableRef = doc(db, "inventory", tableName);
-    const snap = await getDoc(tableRef);
+    const rootRef = ref(db);
+    const snap = await get(rootRef);
 
     if (snap.exists()) {
-      return snap.data();  // Firestore JSON data
+      return snap.val();   // return the whole database
     } else {
-      console.warn(`⚠️ No document found: inventory/${tableName}`);
-      return null;
+      console.warn("⚠️ Realtime Database is empty.");
+      return {};
     }
-  } catch (err) {
-    console.error(`❌ Error loading ${tableName}:`, err);
-    return null;
+  } catch (error) {
+    console.error("❌ Error loading database:", error);
+    return {};
   }
 }
 
 /**
- * Create & inject a carousel card containing JSON data
+ * Create a card element
  */
 function createCard(title, data) {
   const card = document.createElement("div");
@@ -37,38 +37,28 @@ function createCard(title, data) {
 }
 
 /**
- * Load all tables and populate carousel
+ * Load everything into carousel
  */
-export async function loadCarousel() {
+export async function loadCarouselRTDB() {
   const carousel = document.getElementById("jsonCarousel");
 
   if (!carousel) {
-    console.error("❌ Missing #jsonCarousel element in DOM");
+    console.error("❌ Missing #jsonCarousel element");
     return;
   }
 
-  // 🔹 Add your table names here (these match your Firestore docs)
-  const tableNames = [
-    "Inventory",
-    "DigitalScreens",
-    "Campaigns",
-    "StaticAssets",
-    "ContentSummary"
-  ];
+  const allTables = await loadAllTables();
 
-  for (const name of tableNames) {
-    const data = await loadTable(name);
-    if (data) {
-      const card = createCard(name, data);
-      carousel.appendChild(card);
-    }
+  for (const tableName in allTables) {
+    const tableData = allTables[tableName];
+    const card = createCard(tableName, tableData);
+    carousel.appendChild(card);
   }
 }
 
 /**
- * Auto-run when page loads
+ * Auto-run when the page loads
  */
 document.addEventListener("DOMContentLoaded", () => {
-  loadCarousel();
+  loadCarouselRTDB();
 });
-
