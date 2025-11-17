@@ -58,3 +58,4 @@ export async function loadCarouselRTDB() {
 document.addEventListener("DOMContentLoaded", () => {
   loadCarouselRTDB();
 });
+
