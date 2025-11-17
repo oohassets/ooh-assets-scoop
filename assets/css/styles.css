@@ -447,9 +447,8 @@ body.no-scroll {
 
 /* Scrollable table area */
 .table-container {
-  max-height: 65vh;
+  max-height: 60vh;
   overflow-y: auto;
-  padding-right: 8px;
 }
 
 
@@ -468,17 +467,17 @@ body.no-scroll {
 }
 
 .json-table th {
-  background: #f3f3f3;
-  position: sticky;
-  top: 0;
+  background: #f1f1f1;
   padding: 6px;
   border-bottom: 2px solid #ccc;
-  z-index: 2;
+  position: sticky;
+  top: 0;
+  z-index: 3;
 }
 
 .json-table td {
   padding: 6px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .separator td {
@@ -504,12 +503,6 @@ body.no-scroll {
   max-height: 65vh;      /* responsive max height */
   overflow-y: auto;      /* scroll inside card */
   padding-right: 10px;   /* keep scroll clean */
-}
-
-.json-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
 }
 
 .json-table th {
