@@ -25,9 +25,6 @@ async function loadAllTables() {
 /**
  * Convert JSON object → HTML table
  */
-/**
- * Create a table with FIXED HEADERS (only SN, Client, Start Date, End Date)
- */
 function jsonToTableAuto(dataObj) {
   if (!dataObj) return "<p>No data</p>";
 
@@ -45,7 +42,7 @@ function jsonToTableAuto(dataObj) {
       <tbody>
   `;
 
-  // Loop rows: row1, row2, row3…
+  // Loop rows in RTDB (row1, row2, row3...)
   for (const rowKey in dataObj) {
     const rowData = dataObj[rowKey];
 
@@ -72,6 +69,23 @@ function formatValue(val) {
 }
 
 /**
+ * Create card with auto table
+ */
+function createCard(title, data) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <h2>${title}</h2>
+    <div class="table-container">
+      ${jsonToTableAuto(data)}
+    </div>
+  `;
+
+  return card;
+}
+
+/**
  * Load carousel
  */
 export async function loadCarousel() {
@@ -84,7 +98,6 @@ export async function loadCarousel() {
 
   const allTables = await loadAllTables();
 
-  // Create card for each table
   for (const tableName in allTables) {
     const card = createCard(tableName, allTables[tableName]);
     carousel.appendChild(card);
