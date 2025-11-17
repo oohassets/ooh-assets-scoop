@@ -1,8 +1,9 @@
+// Firebase Imports
 import { rtdb } from "../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 /**
- * Fetch ALL top-level nodes (tables)
+ * Fetch all top-level nodes (tables)
  */
 async function loadAllTables() {
   try {
@@ -22,7 +23,46 @@ async function loadAllTables() {
 }
 
 /**
- * Create card
+ * Convert JSON object → HTML table
+ */
+function jsonToTable(obj) {
+  if (typeof obj !== "object" || obj === null) return "<p>No data</p>";
+
+  let rows = "";
+  for (const key in obj) {
+    rows += `
+      <tr>
+        <td>${key}</td>
+        <td>${formatValue(obj[key])}</td>
+      </tr>
+    `;
+  }
+
+  return `
+    <table class="json-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+/**
+ * Format table cell values
+ */
+function formatValue(val) {
+  if (typeof val === "object") {
+    return `<pre>${JSON.stringify(val, null, 2)}</pre>`;
+  }
+  return val;
+}
+
+/**
+ * Create card with table inside
  */
 function createCard(title, data) {
   const card = document.createElement("div");
@@ -30,7 +70,9 @@ function createCard(title, data) {
 
   card.innerHTML = `
     <h2>${title}</h2>
-    <pre>${JSON.stringify(data, null, 2)}</pre>
+    <div class="table-container">
+      ${jsonToTable(data)}
+    </div>
   `;
 
   return card;
@@ -39,7 +81,7 @@ function createCard(title, data) {
 /**
  * Load carousel
  */
-export async function loadCarouselRTDB() {
+export async function loadCarousel() {
   const carousel = document.getElementById("jsonCarousel");
 
   if (!carousel) {
@@ -49,6 +91,7 @@ export async function loadCarouselRTDB() {
 
   const allTables = await loadAllTables();
 
+  // Create card for each table
   for (const tableName in allTables) {
     const card = createCard(tableName, allTables[tableName]);
     carousel.appendChild(card);
@@ -56,5 +99,5 @@ export async function loadCarouselRTDB() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadCarouselRTDB();
+  loadCarousel();
 });
