@@ -447,10 +447,11 @@ body.no-scroll {
 
 /* Scrollable table area */
 .table-container {
-  max-height: 300px;     /* responsive height */
+  max-height: 65vh;
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 8px;
 }
+
 
 /* Better on mobile */
 @media (max-width: 500px) {
@@ -463,22 +464,25 @@ body.no-scroll {
 .json-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .json-table th {
-  background: #f5f5f5;
-  text-align: left;
-  padding: 8px;
+  background: #f3f3f3;
   position: sticky;
   top: 0;
-  z-index: 1;
+  padding: 6px;
+  border-bottom: 2px solid #ccc;
+  z-index: 2;
 }
 
 .json-table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #eee;
-  vertical-align: top;
+  padding: 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+.separator td {
+  border-bottom: 2px solid #999;
 }
 
 .json-table tr:hover {
@@ -517,12 +521,6 @@ body.no-scroll {
   border-bottom: 2px solid #ccc;
 }
 
-.json-table td {
-  padding: 6px;
-  border-bottom: 1px solid #ddd;
-  vertical-align: top;
-  white-space: nowrap;
-}
 
 .json-table td.key {
   font-weight: bold;
