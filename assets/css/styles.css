@@ -413,4 +413,41 @@ body.no-scroll {
     background: #155bc4;
     transform: scale(1.05);
   }
-  
+
+.carousel-container {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+.carousel {
+  display: flex;
+  gap: 16px;
+}
+
+.card {
+  min-width: 260px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: inline-block;
+  vertical-align: top;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.card pre {
+  background: #f3f3f3;
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+}
+
