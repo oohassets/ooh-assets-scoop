@@ -28,40 +28,36 @@ async function loadAllTables() {
 /**
  * Convert database table -> HTML table automatically
  */
+/**
+ * Create a table with FIXED HEADERS
+ */
 function jsonToTableAuto(dataObj) {
   if (!dataObj) return "<p>No data</p>";
+
+  // Fixed header fields
+  const columns = ["BO", "Client", "Days", "End Date", "SN", "Start Date"];
 
   let html = `
     <table class="json-table">
       <thead>
         <tr>
           <th>Row</th>
-          <th>Field</th>
-          <th>Value</th>
+          ${columns.map(col => `<th>${col}</th>`).join("")}
         </tr>
       </thead>
       <tbody>
   `;
 
-  // Loop each row (row1, row2, row3...)
+  // Loop rows: row1, row2, row3...
   for (const rowKey in dataObj) {
     const rowData = dataObj[rowKey];
 
-    // If object → loop fields
-    for (const field in rowData) {
-      html += `
-        <tr>
-          <td>${rowKey}</td>
-          <td>${field}</td>
-          <td>${formatValue(rowData[field])}</td>
-        </tr>
-      `;
-    }
-
-    // Separator between rows
     html += `
-      <tr class="separator">
-        <td colspan="3"></td>
+      <tr>
+        <td>${rowKey}</td>
+        ${columns
+          .map(field => `<td>${formatValue(rowData[field])}</td>`)
+          .join("")}
       </tr>
     `;
   }
@@ -71,32 +67,15 @@ function jsonToTableAuto(dataObj) {
 }
 
 /**
- * Format nested objects nicely
+ * Format cell values
  */
 function formatValue(val) {
+  if (val === undefined || val === null) return "—";
   if (typeof val === "object") {
     return `<pre>${JSON.stringify(val, null, 2)}</pre>`;
   }
   return val;
 }
-
-/**
- * Create card with auto-table
- */
-function createCard(title, data) {
-  const card = document.createElement("div");
-  card.className = "card";
-
-  card.innerHTML = `
-    <h2>${title}</h2>
-    <div class="table-container">
-      ${jsonToTableAuto(data)}
-    </div>
-  `;
-
-  return card;
-}
-
 
 /**
  * Load carousel
