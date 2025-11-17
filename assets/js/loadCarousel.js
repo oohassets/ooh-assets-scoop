@@ -1,16 +1,16 @@
-import { db } from "../../firebase/firebase.js";
-import { ref, get, child } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { rtdb } from "../../firebase/firebase.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 /**
- * Fetch ALL top-level nodes (tables) in RTDB
+ * Fetch ALL top-level nodes (tables)
  */
 async function loadAllTables() {
   try {
-    const rootRef = ref(db);
+    const rootRef = ref(rtdb, "/");  // <-- FIXED: use rtdb
     const snap = await get(rootRef);
 
     if (snap.exists()) {
-      return snap.val();   // return the whole database
+      return snap.val();
     } else {
       console.warn("⚠️ Realtime Database is empty.");
       return {};
@@ -22,7 +22,7 @@ async function loadAllTables() {
 }
 
 /**
- * Create a card element
+ * Create card
  */
 function createCard(title, data) {
   const card = document.createElement("div");
@@ -37,7 +37,7 @@ function createCard(title, data) {
 }
 
 /**
- * Load everything into carousel
+ * Load carousel
  */
 export async function loadCarouselRTDB() {
   const carousel = document.getElementById("jsonCarousel");
@@ -50,15 +50,11 @@ export async function loadCarouselRTDB() {
   const allTables = await loadAllTables();
 
   for (const tableName in allTables) {
-    const tableData = allTables[tableName];
-    const card = createCard(tableName, tableData);
+    const card = createCard(tableName, allTables[tableName]);
     carousel.appendChild(card);
   }
 }
 
-/**
- * Auto-run when the page loads
- */
 document.addEventListener("DOMContentLoaded", () => {
   loadCarouselRTDB();
 });
