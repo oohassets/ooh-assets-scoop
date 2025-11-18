@@ -99,13 +99,16 @@ export async function loadCarousel() {
 
   for (const tableName in allTables) {
 
-    // 🔥 Skip tables containing "upcampaign" (case insensitive)
-    if (tableName.toLowerCase().includes("upcampaign")) {
-      console.warn(`⏭️ Skipped: ${tableName}`);
-      continue;
-    }
+    // ✅ Only allow tables that start with "d_"
+    if (!tableName.startsWith("d_")) continue;
 
-    const card = createCard(tableName, allTables[tableName]);
+    // ✅ Convert "d_Digital_Mupi_Circuit_1" → "Digital Mupi Circuit 1"
+    let cleanTitle = tableName
+      .replace(/^d_/, "")              // remove "d_"
+      .replace(/_/g, " ")              // replace underscores
+      .replace(/\b\w/g, c => c.toUpperCase()); // capitalize words
+
+    const card = createCard(cleanTitle, allTables[tableName]);
     carousel.appendChild(card);
   }
 }
@@ -113,4 +116,5 @@ export async function loadCarousel() {
 document.addEventListener("DOMContentLoaded", () => {
   loadCarousel();
 });
+
 
