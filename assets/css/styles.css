@@ -55,9 +55,9 @@ body {
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(300deg, #e67c00, #ffffff, #e67c00);
+  background: linear-gradient(179deg,#000000,#d45b05,#000000);
   background-size: 180% 180%;
-  animation: gradient-move 18s ease infinite;
+  animation: gradient-move 9s ease infinite;
 }
 
 @keyframes gradient-move {
