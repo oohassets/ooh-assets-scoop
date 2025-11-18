@@ -89,7 +89,7 @@ body {
 
 .note {
   font-size:.75rem; 
-  color:#ffffff; 
+  color:var(--text); 
   margin-top:.5rem; 
   text-align:left; 
 }
@@ -389,7 +389,6 @@ body.no-scroll {
   /* Useful Links */
   .useful-links {
     text-decoration: none;
-    color:inherit; 
     margin-top:.5rem; 
     text-align:left;
     display:flex;
@@ -400,7 +399,7 @@ body.no-scroll {
   
   .useful-links a{
     text-decoration: none;
-    color: inherit;
+    color:var(--text); 
   }
   
   .useful-links a:hover {
