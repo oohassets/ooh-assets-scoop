@@ -25,11 +25,8 @@ async function loadAllTables() {
 /**
  * Convert JSON object → HTML table (WITHOUT ROW COLUMN)
  */
-function jsonToTableAuto(dataObj) {
+function jsonToTableAuto(dataObj, columns) {
   if (!dataObj) return "<p>No data</p>";
-
-  // Fixed column order
-  const columns = ["SN", "Client", "Start Date", "End Date"];
 
   let html = `
     <table class="json-table">
@@ -41,7 +38,6 @@ function jsonToTableAuto(dataObj) {
       <tbody>
   `;
 
-  // Loop rows in RTDB (row1, row2, row3...)
   for (const rowKey in dataObj) {
     const rowData = dataObj[rowKey];
 
@@ -58,6 +54,7 @@ function jsonToTableAuto(dataObj) {
   return html;
 }
 
+
 /**
  * Format cell values
  */
@@ -69,52 +66,64 @@ function formatValue(val) {
 /**
  * Create card with auto table
  */
-function createCard(title, data) {
+function createCard(title, data, columns) {
   const card = document.createElement("div");
   card.className = "card";
 
   card.innerHTML = `
     <h2>${title}</h2>
     <div class="table-container">
-      ${jsonToTableAuto(data)}
+      ${jsonToTableAuto(data, columns)}
     </div>
   `;
 
   return card;
 }
 
+
 /**
  * Load carousel
  */
 
 export async function loadCarousel() {
-  const carousel = document.getElementById("jsonCarousel");
-
-  if (!carousel) {
-    console.error("❌ Missing #jsonCarousel element");
-    return;
-  }
+  const carouselDigital = document.getElementById("carouselDigital");
+  const carouselStatic = document.getElementById("carouselStatic");
 
   const allTables = await loadAllTables();
 
   for (const tableName in allTables) {
+    const data = allTables[tableName];
 
-    // ✅ Only allow tables that start with "d_"
-    if (!tableName.startsWith("d_")) continue;
+    // Clean title
+    const cleanTitle = tableName
+      .replace(/^d_/, "")
+      .replace(/^s_/, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
 
-    // ✅ Convert "d_Digital_Mupi_Circuit_1" → "Digital Mupi Circuit 1"
-    let cleanTitle = tableName
-      .replace(/^d_/, "")              // remove "d_"
-      .replace(/_/g, " ")              // replace underscores
-      .replace(/\b\w/g, c => c.toUpperCase()); // capitalize words
+    // ----- DIGITAL TABLES -----
+    if (tableName.startsWith("d_")) {
+      const columnsDigital = ["SN", "Client", "Start Date", "End Date"];
 
-    const card = createCard(cleanTitle, allTables[tableName]);
-    carousel.appendChild(card);
+      const card = createCard(cleanTitle, data, columnsDigital);
+      carouselDigital.appendChild(card);
+      continue;
+    }
+
+    // ----- STATIC TABLES -----
+    if (tableName.startsWith("s_")) {
+      const columnsStatic = ["Circuit", "Client", "Start Date", "End Date"];
+
+      const card = createCard(cleanTitle, data, columnsStatic);
+      carouselStatic.appendChild(card);
+      continue;
+    }
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   loadCarousel();
 });
+
 
 
