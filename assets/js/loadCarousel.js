@@ -61,7 +61,7 @@ function formatValue(val) {
   return val;
 }
 
-/**
+/*
  * Create card with auto table
  */
 function createCard(title, data, columns) {
