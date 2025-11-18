@@ -414,41 +414,52 @@ body.no-scroll {
     transform: scale(1.05);
   }
 
+
+/* Content Inventory */
 .carousel-container {
   width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
   padding: 15px;
   box-sizing: border-box;
 }
 
-/* 3 cards per row */
 .carousel {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
-  gap: 20px;
+  display: flex;
+  gap: 16px;
 }
 
-/* Wider card */
 .card {
   background: #ffffff;
-  padding: 20px;
+  padding: 18px;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-  width: 100%;           /* full column width */
-  min-width: 350px;      /* wider cards */
+  width: 300px;
+  margin-right: 14px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
 }
 
 .card h2 {
   font-size: 20px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: #333;
 }
 
 /* Scrollable table area */
 .table-container {
-  max-height: 60vh;
+  max-height: 65vh;
   overflow-y: auto;
+  padding-right: 8px;
+}
+
+
+/* Better on mobile */
+@media (max-width: 500px) {
+  .table-container {
+    max-height: 200px;
+  }
 }
 
 /* Table styling */
@@ -459,37 +470,65 @@ body.no-scroll {
 }
 
 .json-table th {
-  background: #f1f1f1;
-  padding: 6px;
-  border-bottom: 2px solid #ccc;
-  text-align: left;
+  background: #f3f3f3;
   position: sticky;
   top: 0;
+  padding: 6px;
+  border-bottom: 2px solid #ccc;
   z-index: 2;
 }
 
 .json-table td {
   padding: 6px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #ddd;
+}
+
+.separator td {
+  border-bottom: 2px solid #999;
 }
 
 .json-table tr:hover {
   background: #fafafa;
 }
 
-/* RESPONSIVE breakpoints */
-@media (max-width: 1100px) {
-  .carousel {
-    grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
-  }
+/* nested JSON formatting */
+.json-table pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  font-size: 12px;
+  background: #f9f9f9;
+  padding: 4px 6px;
+  border-radius: 6px;
 }
 
-@media (max-width: 700px) {
-  .carousel {
-    grid-template-columns: repeat(1, 1fr); /* 1 card per row */
-  }
+.card-table-wrapper {
+  max-height: 65vh;      /* responsive max height */
+  overflow-y: auto;      /* scroll inside card */
+  padding-right: 10px;   /* keep scroll clean */
+}
 
-  .card {
-    min-width: 100%;
-  }
+.json-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.json-table th {
+  background: #f4f4f4;
+  position: sticky;
+  top: 0;
+  padding: 6px;
+  font-weight: bold;
+  border-bottom: 2px solid #ccc;
+}
+
+
+.json-table td.key {
+  font-weight: bold;
+  width: 80px;
+}
+
+.json-table tr:last-child td {
+  border-bottom: none;
 }
