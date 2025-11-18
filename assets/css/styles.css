@@ -455,20 +455,21 @@ body.no-scroll {
 .json-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .json-table th {
   background: #f1f1f1;
-  padding: 8px;
+  padding: 6px;
   border-bottom: 2px solid #ccc;
+  text-align: left;
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: 2;
 }
 
 .json-table td {
-  padding: 8px;
+  padding: 6px;
   border-bottom: 1px solid #e0e0e0;
 }
 
