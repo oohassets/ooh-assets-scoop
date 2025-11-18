@@ -43,9 +43,7 @@ function jsonToTableAuto(dataObj, columns) {
 
     html += `
       <tr>
-        ${columns
-          .map(field => `<td>${formatValue(rowData[field])}</td>`)
-          .join("")}
+        ${columns.map(field => `<td>${rowData[field] ?? "—"}</td>`).join("")}
       </tr>
     `;
   }
@@ -86,13 +84,16 @@ function createCard(title, data, columns) {
  */
 
 export async function loadCarousel() {
-  const carouselDigital = document.getElementById("carouselDigital");
-  const carouselStatic = document.getElementById("carouselStatic");
+  const digitalCarousel = document.getElementById("carouselDigital");
+  const staticCarousel = document.getElementById("carouselStatic");
 
   const allTables = await loadAllTables();
 
   for (const tableName in allTables) {
     const data = allTables[tableName];
+
+    // skip unwanted nodes
+    if (tableName.toLowerCase().includes("upcampaign")) continue;
 
     // Clean title
     const cleanTitle = tableName
@@ -101,29 +102,28 @@ export async function loadCarousel() {
       .replace(/_/g, " ")
       .replace(/\b\w/g, c => c.toUpperCase());
 
-    // ----- DIGITAL TABLES -----
+    let columns;
+    let targetCarousel;
+
+    // DIGITAL tables
     if (tableName.startsWith("d_")) {
-      const columnsDigital = ["SN", "Client", "Start Date", "End Date"];
-
-      const card = createCard(cleanTitle, data, columnsDigital);
-      carouselDigital.appendChild(card);
-      continue;
+      columns = ["SN", "Client", "Start Date", "End Date"];
+      targetCarousel = digitalCarousel;
     }
 
-    // ----- STATIC TABLES -----
-    if (tableName.startsWith("s_")) {
-      const columnsStatic = ["Circuit", "Client", "Start Date", "End Date"];
-
-      const card = createCard(cleanTitle, data, columnsStatic);
-      carouselStatic.appendChild(card);
-      continue;
+    // STATIC tables
+    else if (tableName.startsWith("s_")) {
+      columns = ["Circuit", "Client", "Start Date", "End Date"];
+      targetCarousel = staticCarousel;
     }
+
+    else {
+      continue; // ignore anything else
+    }
+
+    const card = createCard(cleanTitle, data, columns);
+    targetCarousel.appendChild(card);
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadCarousel();
-});
-
-
-
+document.addEventListener("DOMContentLoaded", loadCarousel);
