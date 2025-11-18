@@ -386,6 +386,16 @@ body.no-scroll {
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem;}
 }
 
+  .logout-link {
+    text-decoration: none;
+    color:var(--text); 
+  }
+  .logout-link :hover {
+    color: orange;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
   /* Useful Links */
   .useful-links {
     text-decoration: none;
