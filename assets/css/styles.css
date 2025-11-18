@@ -452,13 +452,14 @@ body.no-scroll {
   max-height: 65vh;
   overflow-y: auto;
   padding-right: 8px;
+  margin-top: -4px;
 }
 
 
 /* Better on mobile */
 @media (max-width: 500px) {
   .table-container {
-    max-height: 200px;
+    max-height: 250px;
   }
 }
 
@@ -518,9 +519,11 @@ body.no-scroll {
   background: #f4f4f4;
   position: sticky;
   top: 0;
-  padding: 6px;
+  padding: 4px 6px;
   font-weight: bold;
   border-bottom: 2px solid #ccc;
+  z-index: 3;
+  font-size: 13px;      
 }
 
 
