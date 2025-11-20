@@ -399,30 +399,25 @@ body.no-scroll {
 
   /* Useful Links */
 .useful-links {
-  text-align: left !important;
-  margin-top: 10px !important;
-  font-size: 14px !important;
-  line-height: 1.4 !important;
+  text-align: left;
+  margin-top: 20px;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-.useful-links p {
-  padding-top: 50px;
-  padding-bottom: 20px;
-  margin: 0 !important;
-  padding: 0 !important;
+.useful-links .ul-title {
+  font-weight: 600;
+  margin-bottom: 6px;
   color: var(--text);
 }
 
 .useful-links a {
-  display: block;
-  color: var(--text);
-  padding: 2px 0;
   text-decoration: none;
-  padding-bottom: 20px;
+  color: var(--text);
 }
-  
+
 .useful-links a:hover {
-  color: orange !important;
+  color: orange;
 }
 
   #installBadge:hover {
@@ -469,6 +464,7 @@ body.no-scroll {
   font-size: 16px;
   padding-top: 15px;
   margin-bottom: 10px;
+  color: black;
 }
 
 /* Scrollable table area */
