@@ -61,18 +61,6 @@ body {
   justify-content: center;
   align-items: center;
   
-
-  /* background: linear-gradient(31deg,#d19585,#827be4,#c9fbca,#3796fc,#fedd9b,#be724c);
- /* background-size: 360% 360%;
- /* animation: gradient-move 24s ease infinite;
-}
-
-@keyframes gradient-move {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
 /* Main container */
 .container {
   width: 100%;
@@ -159,6 +147,7 @@ body {
   gap:1rem;
   justify-content:center;
   margin-bottom:1rem;
+  padding-top: 40px;
 }
 
 .asset-links a {
@@ -419,7 +408,7 @@ body.no-scroll {
   /* Useful Links */
 .useful-links {
   text-align: left !important;
-  margin-top: 20px !important;
+  margin-top: 10px !important;
   font-size: 14px !important;
   line-height: 1.4 !important;
 }
