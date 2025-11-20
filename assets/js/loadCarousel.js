@@ -86,6 +86,8 @@ function createCard(title, data, columns) {
 export async function loadCarousel() {
   const digitalCarousel = document.getElementById("carouselDigital");
   const staticCarousel = document.getElementById("carouselStatic");
+  const digitalupcomingCarousel = document.getElementById("carouselDigitalupcoming");
+  const staticupcomingCarousel = document.getElementById("carouselStaticupcoming");
 
   const allTables = await loadAllTables();
 
@@ -93,7 +95,7 @@ export async function loadCarousel() {
     const data = allTables[tableName];
 
     // skip unwanted nodes
-    if (tableName.toLowerCase().includes("Upcoming_Campaign")) continue;
+   // if (tableName.toLowerCase().includes("Upcoming_Campaign")) continue;
 
     // Clean title
     const cleanTitle = tableName
@@ -115,6 +117,18 @@ export async function loadCarousel() {
     else if (tableName.startsWith("s_")) {
       columns = ["Circuit", "Client", "Start Date", "End Date"];
       targetCarousel = staticCarousel;
+    }
+
+    // Digital Upcoming Campaign tables
+    else if (tableName.startsWith("du_")) {
+      columns = ["Client", "Location", "Circuit", "Start Date"];
+      targetCarousel = digitalupcomingCarousel;
+    }
+
+    // Static Upcoming Campaign tables
+    else if (tableName.startsWith("su_")) {
+      columns = ["Client", "Location", "Circuit", "Start Date"];
+      targetCarousel = staticupcomingCarousel;
     }
 
     else {
