@@ -389,7 +389,8 @@ body.no-scroll {
 
 .logout-link {
     text-decoration: none;
-    margin-top:.5rem; 
+    margin-top:.10px; 
+    padding-bottom: 30px;
     text-align:left;
     display:flex;
     flex-wrap:wrap;
