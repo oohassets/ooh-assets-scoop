@@ -93,7 +93,7 @@ export async function loadCarousel() {
     const data = allTables[tableName];
 
     // skip unwanted nodes
-    if (tableName.toLowerCase().includes("upcampaign")) continue;
+    if (tableName.toLowerCase().includes("Upcoming_Campaign")) continue;
 
     // Clean title
     const cleanTitle = tableName
