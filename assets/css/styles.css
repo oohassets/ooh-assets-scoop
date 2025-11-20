@@ -62,6 +62,13 @@ body {
   align-items: center;
 }
 
+@supports (-webkit-touch-callout: none) {
+  body {
+    background-attachment: fixed !important;
+  }
+}
+
+
 /* Main container */
 .container {
   width: 100%;
@@ -360,7 +367,7 @@ body.no-scroll {
   }
 
   #loginScreen img.login-logo {
-    width: 65px;
+    width: 80px;
   }
 
   #loginScreen h3 {
