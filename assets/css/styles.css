@@ -74,6 +74,7 @@ body {
 }
 
 .title-container {
+  padding: 15px;
   display:flex; 
   justify-content:center; 
   margin-bottom:.25rem; 
