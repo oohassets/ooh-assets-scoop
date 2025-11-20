@@ -86,8 +86,8 @@ function createCard(title, data, columns) {
 export async function loadCarousel() {
   const digitalCarousel = document.getElementById("carouselDigital");
   const staticCarousel = document.getElementById("carouselStatic");
-  const digitalupcomingCarousel = document.getElementById("carouselDigitalupcoming");
-  const staticupcomingCarousel = document.getElementById("carouselStaticupcoming");
+  const upcomingCarousel = document.getElementById("carouselUpcoming");
+
 
   const allTables = await loadAllTables();
 
@@ -119,16 +119,10 @@ export async function loadCarousel() {
       targetCarousel = staticCarousel;
     }
 
-    // Digital Upcoming Campaign tables
-    else if (tableName.startsWith("du_")) {
+    // Upcoming Campaign tables
+    else if (tableName.startsWith("Upcoming_")) {
       columns = ["Client", "Location", "Circuit", "Start Date"];
-      targetCarousel = digitalupcomingCarousel;
-    }
-
-    // Static Upcoming Campaign tables
-    else if (tableName.startsWith("su_")) {
-      columns = ["Client", "Location", "Circuit", "Start Date"];
-      targetCarousel = staticupcomingCarousel;
+      targetCarousel = upcomingCarousel;
     }
 
     else {
