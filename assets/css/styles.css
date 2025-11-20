@@ -418,17 +418,21 @@ body.no-scroll {
 
   /* Useful Links */
   .useful-links {
-    text-decoration: none;
-    margin-top:.5rem; 
-    text-align:left;
-    display:flex;
-    flex-wrap:wrap;
-    gap:1rem;
-    justify-content:left;
+    text-align: left;
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 1.4;
   }
   
+  .useful-links p {
+    margin: 0;
+    padding: 0;
+  }
+
   .useful-links a{
     text-decoration: none;
+    margin: 2px 0;
+    font-weight: 400;
     color:var(--text); 
   }
   
