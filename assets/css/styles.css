@@ -55,9 +55,16 @@ body {
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(31deg,#d19585,#827be4,#c9fbca,#3796fc,#fedd9b,#be724c);
-  background-size: 360% 360%;
-  animation: gradient-move 24s ease infinite;
+    background-image: url("https://oohassets.github.io/ooh-assets-scoop/images/the_pearl.jpg.");
+    background-size: cover;        /* full screen */
+    background-repeat: no-repeat;  /* no tile */
+    background-position: center;   /* center image */
+    background-attachment: fixed;  /* stays fixed when scrolling */
+  
+
+  /* background: linear-gradient(31deg,#d19585,#827be4,#c9fbca,#3796fc,#fedd9b,#be724c);
+ /* background-size: 360% 360%;
+ /* animation: gradient-move 24s ease infinite;
 }
 
 @keyframes gradient-move {
