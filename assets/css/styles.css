@@ -405,6 +405,8 @@ body.no-scroll {
 }
 
 .useful-links p {
+  padding-top: 50px;
+  padding-bottom: 20px;
   margin: 0 !important;
   padding: 0 !important;
   color: var(--text);
@@ -415,6 +417,7 @@ body.no-scroll {
   color: var(--text);
   padding: 2px 0;
   text-decoration: none;
+  padding-bottom: 20px;
 }
   
 .useful-links a:hover {
@@ -463,6 +466,7 @@ body.no-scroll {
 
 .card h2 {
   font-size: 16px;
+  padding-top: 15px;
   margin-bottom: 10px;
   color:var(--text);
 }
