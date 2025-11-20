@@ -3,7 +3,7 @@
   --max-width: 1200px;
   --brand: #1f6feb;
   --brand-hover: #0056b3;
-  --text: #fff;
+  --text: #444444;
 }
 
 .logo {
@@ -55,9 +55,9 @@ body {
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(179deg,#000000,#d45b05,#000000);
-  background-size: 180% 180%;
-  animation: gradient-move 9s ease infinite;
+  background: linear-gradient(300deg,#dbdada,#ebebeb);
+  background-size: 120% 120%;
+  animation: gradient-move 12s ease infinite;
 }
 
 @keyframes gradient-move {
@@ -464,7 +464,7 @@ body.no-scroll {
 .card h2 {
   font-size: 16px;
   margin-bottom: 10px;
-  color: #333;
+  color:var(--text);
 }
 
 /* Scrollable table area */
