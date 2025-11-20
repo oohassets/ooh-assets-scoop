@@ -55,7 +55,7 @@ body {
   background-size: cover;      
   background-repeat: no-repeat;  
   background-position: center;    
-  background-attachment: scroll;  
+  background-attachment: fixed;  
 
   display: flex;
   justify-content: center;
@@ -73,21 +73,6 @@ body {
   display:flex; 
   justify-content:center; 
   margin-bottom:.25rem; 
-}
-
-.lead {
-  margin:0 0 1rem; 
-  color:var(--text); 
-  font-size:.75rem; 
-  line-height:1.4; 
-  text-align:left; 
-}
-
-h2 {
-  color: var(--text);
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin: 25px 0 10px;
 }
 
 .note {
@@ -382,7 +367,6 @@ body.no-scroll {
   }
 
   body { padding:.75rem; }
-  .lead { font-size:.85rem; }
   .btn { font-size:.8rem; padding:.45rem .65rem; }
   .note { font-size:.75rem; }
   .map-wrapper { aspect-ratio:3/4; }
@@ -423,16 +407,16 @@ body.no-scroll {
 .useful-links p {
   margin: 0 !important;
   padding: 0 !important;
+  color: var(--text);
 }
 
 .useful-links a {
-  display: block !important; /* ensures each link is on its own line */
-  text-decoration: none !important;
-  margin: 2px 0 !important;
-  font-weight: 400 !important;
-  color: var(--text) !important;
+  display: block;
+  color: var(--text);
+  padding: 2px 0;
+  text-decoration: none;
 }
-
+  
 .useful-links a:hover {
   color: orange !important;
 }
@@ -444,6 +428,14 @@ body.no-scroll {
 
 
 /* Content Inventory */
+
+.carousel-title {
+  color: var(--text);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 25px 0 10px;
+}
+  
 .carousel-container {
   width: 100%;
   overflow-x: auto;
