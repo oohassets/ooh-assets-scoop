@@ -3,7 +3,7 @@
   --max-width: 1200px;
   --brand: #1f6feb;
   --brand-hover: #0056b3;
-  --text: #444444;
+  --text: #FFFFF;
 }
 
 .logo {
@@ -55,9 +55,9 @@ body {
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(300deg,#dbdada,#ebebeb);
-  background-size: 120% 120%;
-  animation: gradient-move 12s ease infinite;
+  background: linear-gradient(0deg, #e67c00, #000000);
+  background-size: 400% 400%;
+  animation: gradient-move 30s ease infinite;
 }
 
 @keyframes gradient-move {
