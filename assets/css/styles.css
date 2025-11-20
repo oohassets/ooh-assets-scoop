@@ -376,26 +376,28 @@ body.no-scroll {
 }
 
 .logout-link {
-    text-decoration: none;
-    margin-top:.10px; 
-    padding-bottom: 30px;
-    text-align:left;
-    display:flex;
-    flex-wrap:wrap;
-    gap:1rem;
-    justify-content:left;
-  }
-  
-  .logout-link a{
-    text-decoration: none;
-    color:var(--text); 
-  }
-  
-  .logout-link a:hover {
-    color: orange;
-    text-decoration: none;
-    cursor: pointer;
-  }
+  text-decoration: none;
+  margin-top: .10px;
+  padding-bottom: 30px;
+  text-align: left;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: left;
+}
+
+.logout-link a,
+.logout-link span {
+  text-decoration: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.logout-link a:hover,
+.logout-link span:hover {
+  color: orange;
+}
+
 
   /* Useful Links */
 .useful-links {
