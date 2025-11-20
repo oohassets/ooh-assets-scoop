@@ -62,12 +62,6 @@ body {
   align-items: center;
 }
 
-  @supports (-webkit-touch-callout: none) {
-    body{
-    background-attachment: scroll !important;
-    }
-  }
-
 /* Main container */
 .container {
   width: 100%;
@@ -377,7 +371,7 @@ body.no-scroll {
   .btn { font-size:.8rem; padding:.45rem .65rem; }
   .note { font-size:.75rem; }
   .map-wrapper { aspect-ratio:3/4; }
-  .logo { height:60px; }
+  .logo { height:80px; }
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem;}
 }
 
