@@ -3,7 +3,7 @@
   --max-width: 1200px;
   --brand: #1f6feb;
   --brand-hover: #0056b3;
-  --text: #FFFFF;
+  --text: #FFFFFF;
 }
 
 .logo {
@@ -417,30 +417,29 @@ body.no-scroll {
   }
 
   /* Useful Links */
-  .useful-links {
-    text-align: left;
-    margin-top: 20px;
-    font-size: 14px;
-    line-height: 1.4;
-  }
-  
-  .useful-links p {
-    margin: 0;
-    padding: 0;
-  }
+.useful-links {
+  text-align: left !important;
+  margin-top: 20px !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
 
-  .useful-links a{
-    text-decoration: none;
-    margin: 2px 0;
-    font-weight: 400;
-    color:var(--text); 
-  }
-  
-  .useful-links a:hover {
-    color: orange;
-    text-decoration: none;
-    cursor: pointer;
-  }
+.useful-links p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.useful-links a {
+  display: block !important; /* ensures each link is on its own line */
+  text-decoration: none !important;
+  margin: 2px 0 !important;
+  font-weight: 400 !important;
+  color: var(--text) !important;
+}
+
+.useful-links a:hover {
+  color: orange !important;
+}
 
   #installBadge:hover {
     background: #155bc4;
