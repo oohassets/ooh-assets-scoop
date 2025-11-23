@@ -112,32 +112,55 @@ export async function loadCarousel() {
     // Upcoming Campaign tables
     else if (tableName.startsWith("Upcoming_")) {
 
-  // Clean readable title
-  const displayTitle = cleanTitle;
+    const displayTitle = cleanTitle;
 
-  // Define columns
-  columns = ["Client", "Location", "Circuit", "Start Date"];
-  targetCarousel = upcomingCarousel;
+    columns = ["Client", "Location", "Circuit", "Start Date"];
+    targetCarousel = upcomingCarousel;
 
-  // Convert object → array
-  const rows = Object.entries(data);
+    // Convert object → array of rows
+    const rows = Object.entries(data);
 
-  // Sort by Start Date
-  rows.sort((a, b) => {
-    const dateA = new Date(a[1]["Start Date"]);
-    const dateB = new Date(b[1]["Start Date"]);
+    // ---- SORT START DATE ----
+    rows.sort((a, b) => {
+
+    const fixDate = (d) => {
+      if (!d) return null;
+      d = d.trim();
+
+      // Split parts
+      const parts = d.split("/").map(p => p.trim()).filter(p => p !== "");
+      if (parts.length < 2) return null;
+
+      let month = parts[0].padStart(2, "0");
+      let day   = parts[1].padStart(2, "0");
+
+      // Auto-detect year or use current year
+      let year = parts.length === 3 ? parts[2] : new Date().getFullYear().toString();
+
+      if (!/^\d{4}$/.test(year)) return null;
+
+      return new Date(`${year}-${month}-${day}`);
+    };
+
+    const dateA = fixDate(a[1]["Start Date"]);
+    const dateB = fixDate(b[1]["Start Date"]);
+
+    if (!dateA && !dateB) return 0;
+    if (!dateA) return 1;
+    if (!dateB) return -1;
+
     return dateA - dateB;
-  });
+   });
 
-  // Convert array → object
-  const sortedObj = Object.fromEntries(rows);
+   // Convert array → object
+   const sortedObj = Object.fromEntries(rows);
 
-  // Create card (3 arguments)
-  const card = createCard(displayTitle, sortedObj, columns);
-  targetCarousel.appendChild(card);
+   // Create card
+    const card = createCard(displayTitle, sortedObj, columns);
+    targetCarousel.appendChild(card);
 
-  continue; // Skip default handling
-}
+    continue; 
+   }
 
     else {
       continue; // ignore anything else
