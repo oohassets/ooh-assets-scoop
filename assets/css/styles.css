@@ -557,13 +557,13 @@ body.no-scroll {
 }
 
 .date-today {
-  background-color: #ffea00;
+  background-color: yellow;
 }
 
 .date-tomorrow {
-  background-color: #fbb02d;
+  background-color: darkorange;
 }
 
 .date-week {
-  background-color: #fff6cc;
+  background-color: orange;
 }
