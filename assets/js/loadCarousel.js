@@ -167,11 +167,13 @@ export async function loadCarousel() {
       });
     });
 
-    // Convert array → object for table rendering
-    const dataObj = Object.fromEntries(rows.map((row, index) => [index, row]));
+  // Convert array → object for table rendering
+  const validRows = rows.filter(row => row && typeof row === "object");
+  const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
 
-    const card = createCard(cleanTitle, dataObj, columns, highlightCols);
-    targetCarousel.appendChild(card);
+  const card = createCard(cleanTitle, dataObj, columns, highlightCols);
+  targetCarousel.appendChild(card);
+
   }
 }
 
