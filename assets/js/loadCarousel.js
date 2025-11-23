@@ -2,9 +2,9 @@
 import { rtdb } from "../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-/**
- * Fetch all top-level nodes (tables)
- */
+
+ // Fetch all top-level nodes (tables)
+
 async function loadAllTables() {
   try {
     const rootRef = ref(rtdb, "/");
@@ -22,9 +22,8 @@ async function loadAllTables() {
   }
 }
 
-/**
- * Convert JSON object → HTML table (WITHOUT ROW COLUMN)
- */
+// Convert JSON object → HTML table (WITHOUT ROW COLUMN)
+
 function jsonToTableAuto(dataObj, columns) {
   if (!dataObj) return "<p>No data</p>";
 
@@ -53,17 +52,15 @@ function jsonToTableAuto(dataObj, columns) {
 }
 
 
-/**
- * Format cell values
- */
+// Format cell values
+
 function formatValue(val) {
   if (val === undefined || val === null) return "—";
   return val;
 }
 
-/*
- * Create card with auto table
- */
+// Create card with auto table
+
 function createCard(title, data, columns) {
   const card = document.createElement("div");
   card.className = "card";
@@ -78,24 +75,17 @@ function createCard(title, data, columns) {
   return card;
 }
 
-
-/**
- * Load carousel
- */
+// Load carousel
 
 export async function loadCarousel() {
   const digitalCarousel = document.getElementById("carouselDigital");
   const staticCarousel = document.getElementById("carouselStatic");
   const upcomingCarousel = document.getElementById("carouselUpcoming");
 
-
   const allTables = await loadAllTables();
 
   for (const tableName in allTables) {
     const data = allTables[tableName];
-
-    // skip unwanted nodes
-   // if (tableName.toLowerCase().includes("Upcoming_Campaign")) continue;
 
     // Clean title
     const cleanTitle = tableName
@@ -121,31 +111,33 @@ export async function loadCarousel() {
 
     // Upcoming Campaign tables
     else if (tableName.startsWith("Upcoming_")) {
-    columns = ["Client", "Location", "Circuit", "Start Date"];
-    targetCarousel = upcomingCarousel;
 
-    // Create proper title
-    const displayTitle = cleanTitle;
+  // Clean readable title
+  const displayTitle = cleanTitle;
 
-    // Convert object → array
-    const rows = Object.entries(data);
+  // Define columns
+  columns = ["Client", "Location", "Circuit", "Start Date"];
+  targetCarousel = upcomingCarousel;
 
-    // Sort by Start Date (oldest → newest)
-    rows.sort((a, b) => {
-      const dateA = new Date(a[1]["Start Date"]);
-      const dateB = new Date(b[1]["Start Date"]);
-      return dateA - dateB;
-    });
+  // Convert object → array
+  const rows = Object.entries(data);
 
-    // Convert array → sorted object
-    const sortedObj = Object.fromEntries(rows);
+  // Sort by Start Date
+  rows.sort((a, b) => {
+    const dateA = new Date(a[1]["Start Date"]);
+    const dateB = new Date(b[1]["Start Date"]);
+    return dateA - dateB;
+  });
 
-    // Create card with sorted data + correct columns
-    const card = createCard(displayTitle, sortedObj, columns);
-    targetCarousel.appendChild(card);
+  // Convert array → object
+  const sortedObj = Object.fromEntries(rows);
 
-    continue; // skip default creation
-    }
+  // Create card (3 arguments)
+  const card = createCard(displayTitle, sortedObj, columns);
+  targetCarousel.appendChild(card);
+
+  continue; // Skip default handling
+}
 
     else {
       continue; // ignore anything else
