@@ -55,22 +55,24 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   `;
 
   for (const rowKey in dataObj) {
-    const row = dataObj[rowKey];
+    const row = dataObj[rowKey] || {};
     html += `<tr>`;
 
     columns.forEach(field => {
-      let cellValue = row[field] ?? "—";
+      let cellValue = row[field] ?? "—"; // If missing → "-"
       let className = "";
 
       // Highlight only specified columns
       if (highlightColumns.includes(field) && cellValue !== "—") {
         const parts = cellValue.split("/").map(x => parseInt(x, 10));
-        const cellDate = new Date(parts[2], parts[0]-1, parts[1]);
-        const diff = (cellDate - today) / (1000*60*60*24);
+        if (parts.length === 3) {
+          const cellDate = new Date(parts[2], parts[0]-1, parts[1]);
+          const diff = (cellDate - today) / (1000*60*60*24);
 
-        if (diff === 0) className = "date-today";          // Today
-        else if (diff === 1) className = "date-tomorrow";  // Tomorrow
-        else if (diff > 1 && diff <= 7) className = "date-week"; // Within this week
+          if (diff === 0) className = "date-today";
+          else if (diff === 1) className = "date-tomorrow";
+          else if (diff > 1 && diff <= 7) className = "date-week";
+        }
       }
 
       html += `<td class="${className}">${cellValue}</td>`;
@@ -150,14 +152,18 @@ export async function loadCarousel() {
       continue;
     }
 
-    // Convert array or object to array
+    // Convert array or object → array
     const rows = Array.isArray(data) ? data : Object.values(data);
 
-    // Normalize dates
+    // Normalize all date columns (format or convert missing → "-")
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
     rows.forEach(row => {
-      dateCols.forEach(col => {
-        if (row[col]) row[col] = formatDateMMDDYYYY(row[col]);
+      columns.forEach(col => {
+        if (dateCols.includes(col)) {
+          row[col] = row[col] ? formatDateMMDDYYYY(row[col]) : "—";
+        } else {
+          row[col] = row[col] ?? "—";
+        }
       });
     });
 
