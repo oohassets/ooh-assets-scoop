@@ -83,9 +83,9 @@ function createCard(title, data, columns) {
   return card;
 }
 
-// ===============================
-// Load Carousel (main function)
-// ===============================
+// ==========================
+// LOAD CAROUSEL (main function)
+// ==========================
 export async function loadCarousel() {
 
   const digitalCarousel = document.getElementById("carouselDigital");
@@ -107,42 +107,31 @@ export async function loadCarousel() {
     let columns;
     let targetCarousel;
 
-    // ==========================
     // DIGITAL
-    // ==========================
     if (tableName.startsWith("d_")) {
       columns = ["SN", "Client", "Start Date", "End Date"];
       targetCarousel = digitalCarousel;
     }
 
-    // ==========================
     // STATIC
-    // ==========================
     else if (tableName.startsWith("s_")) {
       columns = ["Circuit", "Client", "Start Date", "End Date"];
       targetCarousel = staticCarousel;
     }
 
-    // ==========================
     // UPCOMING CAMPAIGNS
-    // ==========================
     else if (tableName.startsWith("Upcoming_")) {
       columns = ["Client", "Location", "Circuit", "Start Date"];
       targetCarousel = upcomingCarousel;
     }
 
-    // ==========================
     // UNKNOWN NODE → SKIP
-    // ==========================
     else {
       continue;
     }
 
-    // ==========================
     // NORMALIZE ALL DATE FIELDS
-    // ==========================
     const dateColumns = columns.filter(col => col.toLowerCase().includes("date"));
-
     for (const rowKey in data) {
       const row = data[rowKey];
       dateColumns.forEach(col => {
@@ -152,39 +141,9 @@ export async function loadCarousel() {
       });
     }
 
-    // ==========================
-    // SORT UPCOMING CAMPAIGNS BY DATE
-    // ==========================
-    if (tableName.startsWith("Upcoming_")) {
-      const rows = Object.entries(data);
-
-      rows.forEach(([key, row]) => {
-        const dateStr = row["Start Date"];
-        row._sortDate = dateStr !== "—" ? new Date(dateStr) : null;
-      });
-
-      rows.sort((a, b) => {
-        const da = a[1]._sortDate;
-        const db = b[1]._sortDate;
-        if (!da && !db) return 0;
-        if (!da) return 1;
-        if (!db) return -1;
-        return da - db;
-      });
-
-      const sortedObj = Object.fromEntries(rows);
-      const card = createCard(cleanTitle, sortedObj, columns);
-      targetCarousel.appendChild(card);
-      continue;
-    }
-
-    // ==========================
     // CREATE CARD
-    // ==========================
     const card = createCard(cleanTitle, data, columns);
     targetCarousel.appendChild(card);
   }
 }
 
-// Auto-run
-document.addEventListener("DOMContentLoaded", loadCarousel);
