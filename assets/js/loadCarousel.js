@@ -59,7 +59,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
     html += `<tr>`;
 
     columns.forEach(field => {
-      let cellValue = row[field] ?? "—"; // If missing → "-"
+      let cellValue = row[field] ?? "—"; // default to "—"
       let className = "";
 
       // Highlight only specified columns
@@ -155,9 +155,10 @@ export async function loadCarousel() {
     // Convert array or object → array
     const rows = Array.isArray(data) ? data : Object.values(data);
 
-    // Normalize all date columns (format or convert missing → "-")
+    // Normalize all columns (format dates, missing → "-")
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
     rows.forEach(row => {
+      if (!row || typeof row !== "object") return;
       columns.forEach(col => {
         if (dateCols.includes(col)) {
           row[col] = row[col] ? formatDateMMDDYYYY(row[col]) : "—";
@@ -167,13 +168,14 @@ export async function loadCarousel() {
       });
     });
 
-  // Convert array → object for table rendering
-  const validRows = rows.filter(row => row && typeof row === "object");
-  const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
+    // Filter out invalid rows before creating object
+    const validRows = rows.filter(row => row && typeof row === "object");
 
-  const card = createCard(cleanTitle, dataObj, columns, highlightCols);
-  targetCarousel.appendChild(card);
+    // Convert array → object for table rendering
+    const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
 
+    const card = createCard(cleanTitle, dataObj, columns, highlightCols);
+    targetCarousel.appendChild(card);
   }
 }
 
