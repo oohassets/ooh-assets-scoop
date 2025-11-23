@@ -479,6 +479,10 @@ body.no-scroll {
   color: black;
 }
 
+#carouselUpcoming .card {
+  width: 420px !important;
+}
+
 /* Scrollable table area */
 .table-container {
   max-height: 65vh;
