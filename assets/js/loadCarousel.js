@@ -123,6 +123,24 @@ export async function loadCarousel() {
     else if (tableName.startsWith("Upcoming_")) {
       columns = ["Client", "Location", "Circuit", "Start Date"];
       targetCarousel = upcomingCarousel;
+
+    // ✅ Sort rows by Start Date: oldest → newest
+      const rows = Object.entries(allTables[tableName]);
+
+      rows.sort((a, b) => {
+        const dateA = new Date(a[1]["Start Date"]);
+        const dateB = new Date(b[1]["Start Date"]);
+        return dateA - dateB; // oldest first
+    });
+
+    // Convert sorted rows back to an object
+      const sortedObj = Object.fromEntries(rows);
+
+    // Create sorted card
+      const card = createCard(displayTitle, sortedObj);
+      targetCarousel.appendChild(card);
+
+      continue; // prevent default card creation
     }
 
     else {
