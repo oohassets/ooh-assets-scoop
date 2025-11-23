@@ -18,6 +18,28 @@ async function loadAllTables() {
 }
 
 // ===============================
+// Format any date as mm/dd/yyyy
+// ===============================
+function formatDateMMDDYYYY(value) {
+  if (!value) return "—";
+
+  value = value.trim();
+  const parts = value.split("/").map(x => x.trim()).filter(x => x !== "");
+  if (parts.length < 2) return "—";
+
+  let [month, day] = parts;
+  month = month.padStart(2, "0");
+  day = day.padStart(2, "0");
+
+  // Year auto-detect
+  let year = parts.length === 3 ? parts[2] : new Date().getFullYear();
+  if (/^\d{2}$/.test(year)) year = "20" + year;
+  if (!/^\d{4}$/.test(year)) year = new Date().getFullYear();
+
+  return `${month}/${day}/${year}`;
+}
+
+// ===============================
 // Convert JSON → HTML table
 // ===============================
 function jsonToTableAuto(dataObj, columns) {
@@ -62,27 +84,6 @@ function createCard(title, data, columns) {
 }
 
 // ===============================
-// FIX DATE — auto-detect missing year
-// ===============================
-function fixDate(value) {
-  if (!value) return null;
-
-  value = value.trim();
-  const parts = value.split("/").map(x => x.trim()).filter(x => x !== "");
-
-  if (parts.length < 2) return null;
-
-  let [month, day] = parts;
-  month = month.padStart(2, "0");
-  day   = day.padStart(2, "0");
-
-  let year = parts.length === 3 ? parts[2] : new Date().getFullYear().toString();
-  if (!/^\d{4}$/.test(year)) return null;
-
-  return new Date(`${year}-${month}-${day}`);
-}
-
-// ===============================
 // Load Carousel (main function)
 // ===============================
 export async function loadCarousel() {
@@ -123,86 +124,62 @@ export async function loadCarousel() {
     }
 
     // ==========================
-    // UPCOMING CAMPAIGNS (SORTED)
+    // UPCOMING CAMPAIGNS
     // ==========================
-// UPCOMING CAMPAIGNS
-else if (tableName.startsWith("Upcoming_")) {
+    else if (tableName.startsWith("Upcoming_")) {
+      columns = ["Client", "Location", "Circuit", "Start Date"];
+      targetCarousel = upcomingCarousel;
+    }
 
-  const displayTitle = cleanTitle;
-  columns = ["Client", "Location", "Circuit", "Start Date"];
-  targetCarousel = upcomingCarousel;
-
-  // Convert object → array
-  const rows = Object.entries(data);
-
-  // FIXED DATE NORMALIZER
-  function normalizeDate(str) {
-    if (!str) return { date: null, text: "—" };
-
-    str = str.trim();
-    let parts = str.split("/").map(p => p.trim());
-
-    if (parts.length < 2) return { date: null, text: "—" };
-
-    // Month + Day
-    let month = parts[0].padStart(2, "0");
-    let day = parts[1].padStart(2, "0");
-
-    // Year auto-detect
-    let year = parts.length === 3 ? parts[2] : new Date().getFullYear();
-
-    // If year like "25", convert to "2025"
-    if (/^\d{2}$/.test(year)) year = "20" + year;
-
-    if (!/^\d{4}$/.test(year)) return { date: null, text: "—" };
-
-    // Return Date object + formatted string
-    const iso = `${year}-${month}-${day}`;
-    return {
-      date: new Date(iso),
-      text: `${month}/${day}/${year}`
-    };
-  }
-
-  // Add normalized date to each row
-  rows.forEach((entry) => {
-    const key = entry[0];
-    const row = entry[1];
-
-    const fixed = normalizeDate(row["Start Date"]);
-    row["_sortDate"] = fixed.date;
-    row["Start Date"] = fixed.text;   // normalize text
-  });
-
-  // SORT by _sortDate
-  rows.sort((a, b) => {
-    const da = a[1]._sortDate;
-    const db = b[1]._sortDate;
-
-    if (!da && !db) return 0;
-    if (!da) return 1;
-    if (!db) return -1;
-
-    return da - db;
-  });
-
-  // Convert array → object
-  const sortedObj = Object.fromEntries(rows);
-
-  // Create card
-  const card = createCard(displayTitle, sortedObj, columns);
-  targetCarousel.appendChild(card);
-
-  continue;
-}
-
-    // Ignore unknown nodes
+    // ==========================
+    // UNKNOWN NODE → SKIP
+    // ==========================
     else {
       continue;
     }
 
     // ==========================
-    // DEFAULT CARD CREATION
+    // NORMALIZE ALL DATE FIELDS
+    // ==========================
+    const dateColumns = columns.filter(col => col.toLowerCase().includes("date"));
+
+    for (const rowKey in data) {
+      const row = data[rowKey];
+      dateColumns.forEach(col => {
+        if (row[col]) {
+          row[col] = formatDateMMDDYYYY(row[col]);
+        }
+      });
+    }
+
+    // ==========================
+    // SORT UPCOMING CAMPAIGNS BY DATE
+    // ==========================
+    if (tableName.startsWith("Upcoming_")) {
+      const rows = Object.entries(data);
+
+      rows.forEach(([key, row]) => {
+        const dateStr = row["Start Date"];
+        row._sortDate = dateStr !== "—" ? new Date(dateStr) : null;
+      });
+
+      rows.sort((a, b) => {
+        const da = a[1]._sortDate;
+        const db = b[1]._sortDate;
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return da - db;
+      });
+
+      const sortedObj = Object.fromEntries(rows);
+      const card = createCard(cleanTitle, sortedObj, columns);
+      targetCarousel.appendChild(card);
+      continue;
+    }
+
+    // ==========================
+    // CREATE CARD
     // ==========================
     const card = createCard(cleanTitle, data, columns);
     targetCarousel.appendChild(card);
