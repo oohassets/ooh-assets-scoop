@@ -121,26 +121,30 @@ export async function loadCarousel() {
 
     // Upcoming Campaign tables
     else if (tableName.startsWith("Upcoming_")) {
-      columns = ["Client", "Location", "Circuit", "Start Date"];
-      targetCarousel = upcomingCarousel;
+    columns = ["Client", "Location", "Circuit", "Start Date"];
+    targetCarousel = upcomingCarousel;
 
-    // ✅ Sort rows by Start Date: oldest → newest
-      const rows = Object.entries(allTables[tableName]);
+    // Create proper title
+    const displayTitle = cleanTitle;
 
-      rows.sort((a, b) => {
-        const dateA = new Date(a[1]["Start Date"]);
-        const dateB = new Date(b[1]["Start Date"]);
-        return dateA - dateB; // oldest first
+    // Convert object → array
+    const rows = Object.entries(data);
+
+    // Sort by Start Date (oldest → newest)
+    rows.sort((a, b) => {
+      const dateA = new Date(a[1]["Start Date"]);
+      const dateB = new Date(b[1]["Start Date"]);
+      return dateA - dateB;
     });
 
-    // Convert sorted rows back to an object
-      const sortedObj = Object.fromEntries(rows);
+    // Convert array → sorted object
+    const sortedObj = Object.fromEntries(rows);
 
-    // Create sorted card
-      const card = createCard(displayTitle, sortedObj);
-      targetCarousel.appendChild(card);
+    // Create card with sorted data + correct columns
+    const card = createCard(displayTitle, sortedObj, columns);
+    targetCarousel.appendChild(card);
 
-      continue; // prevent default card creation
+    continue; // skip default creation
     }
 
     else {
