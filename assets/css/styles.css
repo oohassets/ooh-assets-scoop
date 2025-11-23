@@ -555,3 +555,20 @@ body.no-scroll {
 .json-table tr:last-child td {
   border-bottom: none;
 }
+
+.date-today {
+  background-color: yellow;
+  font-weight: bold;
+}
+
+.date-tomorrow {
+  background-color: orange;
+  font-weight: bold;
+  color: white;
+}
+
+.date-week {
+  background-color: darkorange;
+  font-weight: bold;
+  color: white;
+}
