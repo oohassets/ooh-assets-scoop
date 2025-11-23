@@ -1,5 +1,4 @@
 // Firebase Imports
-// ===============================
 import { rtdb } from "../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
@@ -43,7 +42,7 @@ function formatDateMMDDYYYY(value) {
 // Convert JSON → HTML table
 // ===============================
 function jsonToTableAuto(dataObj, columns) {
-  if (!dataObj) return "<p>No data</p>";
+  if (!dataObj || Object.keys(dataObj).length === 0) return "<p>No data</p>";
 
   let html = `
     <table class="json-table">
@@ -83,19 +82,27 @@ function createCard(title, data, columns) {
   return card;
 }
 
-// ==========================
+// ===============================
 // LOAD CAROUSEL (main function)
-// ==========================
+// ===============================
 export async function loadCarousel() {
-
+  // Get container references
   const digitalCarousel = document.getElementById("carouselDigital");
   const staticCarousel  = document.getElementById("carouselStatic");
   const upcomingCarousel = document.getElementById("carouselUpcoming");
 
+  if (!digitalCarousel || !staticCarousel || !upcomingCarousel) {
+    console.error("❌ One or more carousel containers are missing in HTML.");
+    return;
+  }
+
+  // Load all tables
   const allTables = await loadAllTables();
+  console.log("✅ Loaded tables:", allTables);
 
   for (const tableName in allTables) {
     const data = allTables[tableName];
+    if (!data) continue;
 
     // Clean readable title
     const cleanTitle = tableName
@@ -104,33 +111,29 @@ export async function loadCarousel() {
       .replace(/_/g, " ")
       .replace(/\b\w/g, c => c.toUpperCase());
 
-    let columns;
-    let targetCarousel;
+    let columns, targetCarousel;
 
-    // DIGITAL
     if (tableName.startsWith("d_")) {
       columns = ["SN", "Client", "Start Date", "End Date"];
       targetCarousel = digitalCarousel;
-    }
-
-    // STATIC
+    } 
+    
     else if (tableName.startsWith("s_")) {
       columns = ["Circuit", "Client", "Start Date", "End Date"];
       targetCarousel = staticCarousel;
-    }
-
-    // UPCOMING CAMPAIGNS
+    } 
+    
     else if (tableName.startsWith("Upcoming_")) {
       columns = ["Client", "Location", "Circuit", "Start Date"];
       targetCarousel = upcomingCarousel;
-    }
-
-    // UNKNOWN NODE → SKIP
+    } 
+    
     else {
+      console.warn("⚠️ Unknown table skipped:", tableName);
       continue;
     }
 
-    // NORMALIZE ALL DATE FIELDS
+    // Normalize all date columns
     const dateColumns = columns.filter(col => col.toLowerCase().includes("date"));
     for (const rowKey in data) {
       const row = data[rowKey];
@@ -141,9 +144,11 @@ export async function loadCarousel() {
       });
     }
 
-    // CREATE CARD
+    // Create and append card
     const card = createCard(cleanTitle, data, columns);
     targetCarousel.appendChild(card);
   }
 }
 
+// Auto-run
+document.addEventListener("DOMContentLoaded", loadCarousel);
