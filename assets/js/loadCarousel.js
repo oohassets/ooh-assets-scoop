@@ -125,35 +125,76 @@ export async function loadCarousel() {
     // ==========================
     // UPCOMING CAMPAIGNS (SORTED)
     // ==========================
-    else if (tableName.startsWith("Upcoming_")) {
-      const displayTitle = cleanTitle;
-      columns = ["Client", "Location", "Circuit", "Start Date"];
-      targetCarousel = upcomingCarousel;
+// UPCOMING CAMPAIGNS
+else if (tableName.startsWith("Upcoming_")) {
 
-      // Convert object → array
-      const rows = Object.entries(data);
+  const displayTitle = cleanTitle;
+  columns = ["Client", "Location", "Circuit", "Start Date"];
+  targetCarousel = upcomingCarousel;
 
-      // Sort dates: oldest → newest
-      rows.sort((a, b) => {
-        const dateA = fixDate(a[1]["Start Date"]);
-        const dateB = fixDate(b[1]["Start Date"]);
+  // Convert object → array
+  const rows = Object.entries(data);
 
-        if (!dateA && !dateB) return 0;
-        if (!dateA) return 1;
-        if (!dateB) return -1;
+  // FIXED DATE NORMALIZER
+  function normalizeDate(str) {
+    if (!str) return { date: null, text: "—" };
 
-        return dateA - dateB;
-      });
+    str = str.trim();
+    let parts = str.split("/").map(p => p.trim());
 
-      // Convert back to object
-      const sortedObj = Object.fromEntries(rows);
+    if (parts.length < 2) return { date: null, text: "—" };
 
-      // Create & append card
-      const card = createCard(displayTitle, sortedObj, columns);
-      targetCarousel.appendChild(card);
+    // Month + Day
+    let month = parts[0].padStart(2, "0");
+    let day = parts[1].padStart(2, "0");
 
-      continue; // Skip default processing
-    }
+    // Year auto-detect
+    let year = parts.length === 3 ? parts[2] : new Date().getFullYear();
+
+    // If year like "25", convert to "2025"
+    if (/^\d{2}$/.test(year)) year = "20" + year;
+
+    if (!/^\d{4}$/.test(year)) return { date: null, text: "—" };
+
+    // Return Date object + formatted string
+    const iso = `${year}-${month}-${day}`;
+    return {
+      date: new Date(iso),
+      text: `${month}/${day}/${year}`
+    };
+  }
+
+  // Add normalized date to each row
+  rows.forEach((entry) => {
+    const key = entry[0];
+    const row = entry[1];
+
+    const fixed = normalizeDate(row["Start Date"]);
+    row["_sortDate"] = fixed.date;
+    row["Start Date"] = fixed.text;   // normalize text
+  });
+
+  // SORT by _sortDate
+  rows.sort((a, b) => {
+    const da = a[1]._sortDate;
+    const db = b[1]._sortDate;
+
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+
+    return da - db;
+  });
+
+  // Convert array → object
+  const sortedObj = Object.fromEntries(rows);
+
+  // Create card
+  const card = createCard(displayTitle, sortedObj, columns);
+  targetCarousel.appendChild(card);
+
+  continue;
+}
 
     // Ignore unknown nodes
     else {
