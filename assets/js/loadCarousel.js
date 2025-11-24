@@ -62,16 +62,15 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
       let cellValue = row[field] ?? "—";
       let className = "";
 
-      // Only highlight specific columns
       if (highlightColumns.includes(field) && cellValue !== "—") {
         const parts = cellValue.split("/").map(x => parseInt(x, 10));
         if (parts.length === 3) {
           const cellDate = new Date(parts[2], parts[0] - 1, parts[1]);
           const diff = (cellDate - today) / (1000 * 60 * 60 * 24);
 
-          if (diff === 0) className = "date-today";             // Today
-          else if (diff === 1) className = "date-tomorrow";     // Tomorrow
-          else if (diff > 1 && diff <= 7) className = "date-week"; // Within this week
+          if (diff === 0) className = "date-today";
+          else if (diff === 1) className = "date-tomorrow";
+          else if (diff > 1 && diff <= 7) className = "date-week";
         }
       }
 
@@ -139,7 +138,7 @@ export async function loadCarousel() {
       targetCarousel = staticCarousel;
       highlightCols = ["End Date"];
     }
-    // UPCOMING CAMPAIGNS (array order)
+    // UPCOMING
     else if (tableName.startsWith("Upcoming_")) {
       columns = ["Client", "Location", "Circuit", "Start Date"];
       targetCarousel = upcomingCarousel;
@@ -147,12 +146,11 @@ export async function loadCarousel() {
     }
     else continue;
 
-    // Row array
+    // Convert to array
     const rows = Array.isArray(data) ? data : Object.values(data);
 
-    // Normalize row values
+    // Normalize
     const dateCols = columns.filter(c => c.toLowerCase().includes("date"));
-
     rows.forEach(row => {
       if (!row) return;
       columns.forEach(col => {
@@ -164,11 +162,12 @@ export async function loadCarousel() {
       });
     });
 
-    // Build safe object
+    // Fix: remove empty rows
     const validRows = rows.filter(r => r && typeof r === "object");
+
+    // Fix: safe Object.fromEntries
     const dataObj = Object.fromEntries(validRows.map((row, i) => [i, row]));
 
-    // Unique card ID
     const cardID = `${tableName}_card`;
 
     const cleanTitle = tableName
@@ -187,23 +186,37 @@ document.addEventListener("DOMContentLoaded", loadCarousel);
 // ===============================
 // Fullscreen Logic
 // ===============================
-window.openFullscreen = function (cardId) {
+window.openFullscreen = function(cardID) {
   const overlay = document.getElementById("fullscreenOverlay");
-  const container = document.getElementById("fullscreenContent");
+  const frame = document.getElementById("fullscreenFrame");
 
-  const originalCard = document.getElementById(cardId);
-  const clone = originalCard.cloneNode(true);
+  const card = document.getElementById(cardID);
+  const tableHTML = card.querySelector(".table-container").innerHTML;
 
-  const expBtn = clone.querySelector(".expand-btn");
-  if (expBtn) expBtn.remove();
-
-  container.innerHTML = "";
-  container.appendChild(clone);
+  frame.srcdoc = `
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
+        th { background: #f5f5f5; }
+      </style>
+    </head>
+    <body>
+      ${tableHTML}
+    </body>
+    </html>
+  `;
 
   overlay.style.display = "flex";
 };
 
-window.closeFullscreen = function () {
+window.closeFullscreen = function() {
   document.getElementById("fullscreenOverlay").style.display = "none";
-  document.getElementById("fullscreenContent").innerHTML = "";
+  document.getElementById("fullscreenFrame").srcdoc = "";
 };
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeFullscreen();
+});
