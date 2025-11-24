@@ -41,15 +41,26 @@
     <img src="images/scooplogo_white.png" class="logo" alt="SCOOP Logo">
   </div>
 
-  <div class="carousel-title">Digital Circuits</div>
-  <div class="carousel-container">
-  <div class="carousel" id="carouselDigital"></div>
-  </div>
+  <div class="global-expand-container">
+  <div class="global-expand" onclick="openFullscreenMode('digital')">Expand Digital ></div>
+  <div class="global-expand" onclick="openFullscreenMode('static')">Expand Static ></div>
+</div>
 
-   <div class="carousel-title">Static Circuits</div>
-  <div class="carousel-container">
+<div class="carousel-header">
+  <div class="carousel-title">Digital Circuits</div>
+  <button class="expand-btn" onclick="expandCarousel('digital')">Expand ></button>
+</div>
+<div class="carousel-container">
+  <div class="carousel" id="carouselDigital"></div>
+</div>
+
+<div class="carousel-header">
+  <div class="carousel-title">Static Circuits</div>
+  <button class="expand-btn" onclick="expandCarousel('static')">Expand ></button>
+</div>
+<div class="carousel-container">
   <div class="carousel" id="carouselStatic"></div>
-  </div>
+</div>
 
    <div class="carousel-title">Upcoming Campaigns</div>
   <div class="carousel-container">
@@ -86,12 +97,10 @@
   <iframe id="inventoryIframe" src="about:blank"></iframe>
 </div>
 
-<!-- Fullscreen Card Overlay -->
-<div id="fullscreenOverlay">
-  <div id="fullscreenClose" onclick="closeFullscreen()">✕</div>
-  <div id="fullscreenContent"></div>
+<div id="iframeOverlay">
+    <div id="iframeCloseBtn">✕</div>
+    <iframe id="fullscreenIframe"></iframe>
 </div>
-
 
 <div class="useful-links">
   <p class="ul-title">Useful Links</p>
