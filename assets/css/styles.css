@@ -568,10 +568,11 @@ body.no-scroll {
   background-color: orange;
 }
 
+/* Expand button on card */
 .expand-btn {
   position: absolute;
-  right: 10px;
-  top: 8px;
+  right: 12px;
+  top: 10px;
   cursor: pointer;
   color: #007bff;
   font-weight: bold;
@@ -582,15 +583,16 @@ body.no-scroll {
   text-decoration: underline;
 }
 
+/* Card header position */
 .card-header {
   position: relative;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
 }
 
-/* Fullscreen iframe container */
-#fullscreenContainer {
+/* Fullscreen overlay */
+#fullscreenOverlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -603,15 +605,18 @@ body.no-scroll {
   z-index: 99999;
 }
 
-
-#fullscreenIframe {
-  width: 95vw;
+/* Container where card clones will be shown */
+#fullscreenContent {
+  width: 96vw;
   height: 92vh;
-  border: none;
-  border-radius: 10px;
-  background: white;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 20px black;
 }
 
+/* Close button */
 #fullscreenClose {
   position: absolute;
   top: 20px;
@@ -619,5 +624,5 @@ body.no-scroll {
   color: white;
   font-size: 32px;
   cursor: pointer;
+  z-index: 999999;
 }
-
