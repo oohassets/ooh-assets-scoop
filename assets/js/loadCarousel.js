@@ -194,3 +194,21 @@ export async function loadCarousel() {
 
 // Auto-run
 document.addEventListener("DOMContentLoaded", loadCarousel);
+
+<script>
+function openFullscreen(title) {
+  const container = document.getElementById("fullscreenContainer");
+  const iframe = document.getElementById("fullscreenIframe");
+
+  // Load your dedicated fullscreen view page
+  iframe.src = "/fullscreen/index.html?table=" + encodeURIComponent(title);
+
+  container.style.display = "flex";
+}
+
+function closeFullscreen() {
+  document.getElementById("fullscreenContainer").style.display = "none";
+  document.getElementById("fullscreenIframe").src = "";
+}
+</script>
+
