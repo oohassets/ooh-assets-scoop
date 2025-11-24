@@ -418,7 +418,7 @@ body.no-scroll {
 
 .logout-link a:hover,
 .logout-link span:hover {
-  color: orange;
+  color: #FF5F15;
 }
 
 
@@ -442,7 +442,7 @@ body.no-scroll {
 }
 
 .useful-links a:hover {
-  color: orange;
+  color: #FF5F15;
 }
 
   #installBadge:hover {
@@ -469,8 +469,10 @@ body.no-scroll {
 }
 
 .expand-btn {
+  padding: 15px;
   color: var(--text);
   cursor: pointer;
+  text-decoration: none;
 }
 
   .carousel-container {
@@ -491,7 +493,7 @@ body.no-scroll {
   padding: 15px;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-  width: 350px;
+  width: 300px;
   margin-right: 14px;
   flex-shrink: 0;
   display: flex;
