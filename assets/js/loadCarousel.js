@@ -17,7 +17,7 @@ async function loadAllTables() {
 }
 
 // ===============================
-// Format any date as mm/dd/yyyy
+// Format date → mm/dd/yyyy
 // ===============================
 function formatDateMMDDYYYY(value) {
   if (!value) return "—";
@@ -38,7 +38,7 @@ function formatDateMMDDYYYY(value) {
 }
 
 // ===============================
-// Convert JSON → HTML table with optional highlighting
+// Convert JSON → HTML table
 // ===============================
 function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   if (!dataObj || Object.keys(dataObj).length === 0) return "<p>No data</p>";
@@ -59,19 +59,19 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
     html += `<tr>`;
 
     columns.forEach(field => {
-      let cellValue = row[field] ?? "—"; // default to "—"
+      let cellValue = row[field] ?? "—";
       let className = "";
 
-      // Highlight only specified columns
+      // Only highlight specific columns
       if (highlightColumns.includes(field) && cellValue !== "—") {
         const parts = cellValue.split("/").map(x => parseInt(x, 10));
         if (parts.length === 3) {
-          const cellDate = new Date(parts[2], parts[0]-1, parts[1]);
-          const diff = (cellDate - today) / (1000*60*60*24);
+          const cellDate = new Date(parts[2], parts[0] - 1, parts[1]);
+          const diff = (cellDate - today) / (1000 * 60 * 60 * 24);
 
-          if (diff === 0) className = "date-today";
-          else if (diff === 1) className = "date-tomorrow";
-          else if (diff > 1 && diff <= 7) className = "date-week";
+          if (diff === 0) className = "date-today";             // Today
+          else if (diff === 1) className = "date-tomorrow";     // Tomorrow
+          else if (diff > 1 && diff <= 7) className = "date-week"; // Within this week
         }
       }
 
@@ -88,20 +88,15 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
 // ===============================
 // Create Card
 // ===============================
-function createCard(title, data, columns, highlightColumns = [], tableType = "") {
+function createCard(title, data, columns, highlightColumns = [], cardID) {
   const card = document.createElement("div");
   card.className = "card";
-
-  // EXPAND only for DIGITAL + STATIC
-  const expandBtn = 
-    tableType === "digital" || tableType === "static"
-      ? `<div class="expand-btn" onclick="openFullscreen('${title}')">Expand ></div>`
-      : "";
+  card.id = cardID;
 
   card.innerHTML = `
     <div class="card-header">
       <h2>${title}</h2>
-      ${expandBtn}
+      <div class="expand-btn" onclick="openFullscreen('${cardID}')">Expand ></div>
     </div>
     <div class="table-container">
       ${jsonToTableAuto(data, columns, highlightColumns)}
@@ -116,62 +111,50 @@ function createCard(title, data, columns, highlightColumns = [], tableType = "")
 // ===============================
 export async function loadCarousel() {
   const digitalCarousel = document.getElementById("carouselDigital");
-  const staticCarousel  = document.getElementById("carouselStatic");
+  const staticCarousel = document.getElementById("carouselStatic");
   const upcomingCarousel = document.getElementById("carouselUpcoming");
 
   if (!digitalCarousel || !staticCarousel || !upcomingCarousel) {
-    console.error("❌ One or more carousel containers are missing in HTML.");
+    console.error("❌ Carousel elements missing.");
     return;
   }
 
   const allTables = await loadAllTables();
-  console.log("✅ Loaded tables:", allTables);
 
   for (const tableName in allTables) {
     const data = allTables[tableName];
     if (!data) continue;
 
-    const cleanTitle = tableName
-      .replace(/^d_/, "")
-      .replace(/^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+    let columns, targetCarousel, highlightCols;
 
-    let columns, targetCarousel, highlightCols = [];
-
-    // Digital
+    // DIGITAL
     if (tableName.startsWith("d_")) {
       columns = ["SN", "Client", "Start Date", "End Date"];
       targetCarousel = digitalCarousel;
       highlightCols = ["End Date"];
-      tableType = "digital";
     }
-    // Static
+    // STATIC
     else if (tableName.startsWith("s_")) {
       columns = ["Circuit", "Client", "Start Date", "End Date"];
       targetCarousel = staticCarousel;
       highlightCols = ["End Date"];
-      tableType = "static";
     }
-    // Upcoming
+    // UPCOMING CAMPAIGNS (array order)
     else if (tableName.startsWith("Upcoming_")) {
       columns = ["Client", "Location", "Circuit", "Start Date"];
       targetCarousel = upcomingCarousel;
       highlightCols = ["Start Date"];
-      tableType = "upcoming";
     }
-    else {
-      console.warn("⚠️ Unknown table skipped:", tableName);
-      continue;
-    }
+    else continue;
 
-    // Convert array or object → array
+    // Row array
     const rows = Array.isArray(data) ? data : Object.values(data);
 
-    // Normalize all columns (format dates, missing → "-")
-    const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
+    // Normalize row values
+    const dateCols = columns.filter(c => c.toLowerCase().includes("date"));
+
     rows.forEach(row => {
-      if (!row || typeof row !== "object") return;
+      if (!row) return;
       columns.forEach(col => {
         if (dateCols.includes(col)) {
           row[col] = row[col] ? formatDateMMDDYYYY(row[col]) : "—";
@@ -181,46 +164,46 @@ export async function loadCarousel() {
       });
     });
 
-    // Filter out invalid rows before creating object
-    const validRows = rows.filter(row => row && typeof row === "object");
+    // Build safe object
+    const validRows = rows.filter(r => r && typeof r === "object");
+    const dataObj = Object.fromEntries(validRows.map((row, i) => [i, row]));
 
-    // Convert array → object for table rendering
-    const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
+    // Unique card ID
+    const cardID = `${tableName}_card`;
 
-    const card = createCard(cleanTitle, dataObj, columns, highlightCols, tableType);
+    const cleanTitle = tableName
+      .replace(/^d_/, "")
+      .replace(/^s_/, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+
+    const card = createCard(cleanTitle, dataObj, columns, highlightCols, cardID);
     targetCarousel.appendChild(card);
   }
 }
 
-// Auto-run
 document.addEventListener("DOMContentLoaded", loadCarousel);
 
-<script>
-function openFullscreen(cardId) {
+// ===============================
+// Fullscreen Logic
+// ===============================
+window.openFullscreen = function (cardId) {
   const overlay = document.getElementById("fullscreenOverlay");
   const container = document.getElementById("fullscreenContent");
 
-  // Get the card by ID
   const originalCard = document.getElementById(cardId);
-
-  // Clone the card content
   const clone = originalCard.cloneNode(true);
 
-  // Remove the expand button from fullscreen view
   const expBtn = clone.querySelector(".expand-btn");
   if (expBtn) expBtn.remove();
 
-  // Insert into fullscreen container
   container.innerHTML = "";
   container.appendChild(clone);
 
   overlay.style.display = "flex";
-}
+};
 
-function closeFullscreen() {
+window.closeFullscreen = function () {
   document.getElementById("fullscreenOverlay").style.display = "none";
   document.getElementById("fullscreenContent").innerHTML = "";
-}
-</script>
-
-
+};
