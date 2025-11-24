@@ -88,16 +88,26 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
 // ===============================
 // Create Card
 // ===============================
-function createCard(title, data, columns, highlightColumns = []) {
+function createCard(title, data, columns, highlightColumns = [], tableType = "") {
   const card = document.createElement("div");
   card.className = "card";
 
+  // EXPAND only for DIGITAL + STATIC
+  const expandBtn = 
+    tableType === "digital" || tableType === "static"
+      ? `<div class="expand-btn" onclick="openFullscreen('${title}')">Expand ></div>`
+      : "";
+
   card.innerHTML = `
-    <h2>${title}</h2>
+    <div class="card-header">
+      <h2>${title}</h2>
+      ${expandBtn}
+    </div>
     <div class="table-container">
       ${jsonToTableAuto(data, columns, highlightColumns)}
     </div>
   `;
+
   return card;
 }
 
@@ -134,18 +144,21 @@ export async function loadCarousel() {
       columns = ["SN", "Client", "Start Date", "End Date"];
       targetCarousel = digitalCarousel;
       highlightCols = ["End Date"];
+      tableType = "digital";
     }
     // Static
     else if (tableName.startsWith("s_")) {
       columns = ["Circuit", "Client", "Start Date", "End Date"];
       targetCarousel = staticCarousel;
       highlightCols = ["End Date"];
+      tableType = "static";
     }
     // Upcoming
     else if (tableName.startsWith("Upcoming_")) {
       columns = ["Client", "Location", "Circuit", "Start Date"];
       targetCarousel = upcomingCarousel;
       highlightCols = ["Start Date"];
+      tableType = "upcoming";
     }
     else {
       console.warn("⚠️ Unknown table skipped:", tableName);
@@ -174,7 +187,7 @@ export async function loadCarousel() {
     // Convert array → object for table rendering
     const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
 
-    const card = createCard(cleanTitle, dataObj, columns, highlightCols);
+    const card = createCard(cleanTitle, dataObj, columns, highlightCols, tableType);
     targetCarousel.appendChild(card);
   }
 }
