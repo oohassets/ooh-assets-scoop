@@ -228,20 +228,33 @@ body {
 
 /* --- Close Button --- */
 .close-btn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 0.95rem;
-  font-weight: 500;
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  font-size: 40px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
+  color: white;
+}
+.close-btn:hover {
+  opacity: 0.8;
 }
 
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.05);
+.fullscreen-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 99999;
+  justify-content: center;
+  align-items: center;
+}
+
+.fullscreen-iframe {
+  width: 96%;
+  height: 90%;
+  border: none;
+  background: white;
+  border-radius: 14px;
 }
 
 /* --- Iframe Under Header --- */
@@ -440,6 +453,14 @@ body.no-scroll {
 
 /* Content Inventory */
 
+.carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-right: 10px;
+}
+
 .carousel-title {
   color: var(--text);
   font-size: 1.4rem;
@@ -458,6 +479,15 @@ body.no-scroll {
 .carousel {
   display: flex;
   gap: 16px;
+}
+
+.expand-btn {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .card {
@@ -568,61 +598,53 @@ body.no-scroll {
   background-color: orange;
 }
 
-/* Expand button on card */
-.expand-btn {
+#expandButtons {
   position: absolute;
-  right: 12px;
-  top: 10px;
-  cursor: pointer;
-  color: #007bff;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.expand-btn:hover {
-  text-decoration: underline;
-}
-
-/* Card header position */
-.card-header {
-  position: relative;
+  top: 40px;
+  right: 60px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 30px;
 }
 
-/* Fullscreen overlay */
-#fullscreenOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(5, 5, 5, 0.92);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-}
-
-/* Container where card clones will be shown */
-#fullscreenContent {
-  width: 96vw;
-  height: 92vh;
-  overflow-y: auto;
-  background: #fff;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 0 20px black;
-}
-
-/* Close button */
-#fullscreenClose {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  color: white;
-  font-size: 32px;
+.expand-global {
   cursor: pointer;
-  z-index: 999999;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
 }
+
+.expand-global:hover {
+  opacity: 0.7;
+}
+
+#iframeOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#fullscreenIframe {
+    width: 95%;
+    height: 95%;
+    border-radius: 12px;
+    background: white;
+    border: none;
+}
+
+#iframeCloseBtn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+    z-index: 10000;
+}
+
