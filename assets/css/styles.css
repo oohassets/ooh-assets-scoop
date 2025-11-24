@@ -467,8 +467,13 @@ body.no-scroll {
   font-weight: 600;
   margin: 25px 0 10px;
 }
-  
-.carousel-container {
+
+.expand-btn {
+  color: var(--text);
+  cursor: pointer;
+}
+
+  .carousel-container {
   width: 100%;
   overflow-x: auto;
   white-space: nowrap;
@@ -481,21 +486,12 @@ body.no-scroll {
   gap: 16px;
 }
 
-.expand-btn {
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 4px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
 .card {
   background: #ffffff;
   padding: 15px;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-  width: 300px;
+  width: 350px;
   margin-right: 14px;
   flex-shrink: 0;
   display: flex;
@@ -598,53 +594,4 @@ body.no-scroll {
   background-color: orange;
 }
 
-#expandButtons {
-  position: absolute;
-  top: 40px;
-  right: 60px;
-  display: flex;
-  gap: 30px;
-}
-
-.expand-global {
-  cursor: pointer;
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.expand-global:hover {
-  opacity: 0.7;
-}
-
-#iframeOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.75);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-#fullscreenIframe {
-    width: 95%;
-    height: 95%;
-    border-radius: 12px;
-    background: white;
-    border: none;
-}
-
-#iframeCloseBtn {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    font-size: 30px;
-    cursor: pointer;
-    color: white;
-    z-index: 10000;
-}
 
