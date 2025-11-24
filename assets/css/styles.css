@@ -567,3 +567,56 @@ body.no-scroll {
 .date-week {
   background-color: orange;
 }
+
+.expand-btn {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  cursor: pointer;
+  color: #007bff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.expand-btn:hover {
+  text-decoration: underline;
+}
+
+.card-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Fullscreen iframe container */
+#fullscreenContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 5, 5, 0.92);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+#fullscreenIframe {
+  width: 95vw;
+  height: 92vh;
+  border: none;
+  border-radius: 10px;
+  background: white;
+}
+
+#fullscreenClose {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+}
+
