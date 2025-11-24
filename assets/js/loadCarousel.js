@@ -196,19 +196,31 @@ export async function loadCarousel() {
 document.addEventListener("DOMContentLoaded", loadCarousel);
 
 <script>
-function openFullscreen(title) {
-  const container = document.getElementById("fullscreenContainer");
-  const iframe = document.getElementById("fullscreenIframe");
+function openFullscreen(cardId) {
+  const overlay = document.getElementById("fullscreenOverlay");
+  const container = document.getElementById("fullscreenContent");
 
-  // Load your dedicated fullscreen view page
-  iframe.src = "/fullscreen/index.html?table=" + encodeURIComponent(title);
+  // Get the card by ID
+  const originalCard = document.getElementById(cardId);
 
-  container.style.display = "flex";
+  // Clone the card content
+  const clone = originalCard.cloneNode(true);
+
+  // Remove the expand button from fullscreen view
+  const expBtn = clone.querySelector(".expand-btn");
+  if (expBtn) expBtn.remove();
+
+  // Insert into fullscreen container
+  container.innerHTML = "";
+  container.appendChild(clone);
+
+  overlay.style.display = "flex";
 }
 
 function closeFullscreen() {
-  document.getElementById("fullscreenContainer").style.display = "none";
-  document.getElementById("fullscreenIframe").src = "";
+  document.getElementById("fullscreenOverlay").style.display = "none";
+  document.getElementById("fullscreenContent").innerHTML = "";
 }
 </script>
+
 
