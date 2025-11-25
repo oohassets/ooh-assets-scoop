@@ -469,12 +469,10 @@ body.no-scroll {
 }
 
 .expand-btn {
-  margin-top: 150px;
+  margin-top: 20px;
   color: var(--text);
   cursor: pointer;
   text-decoration: none;
-  color:#FF5F15;
-  text-decoration:underline;
 }
 
 .expand-btn :hover{
