@@ -470,13 +470,16 @@ body.no-scroll {
 
 .expand-btn {
   margin-top: 20px;
+}
+
+.expand-btn a {
   color: var(--text);
-  cursor: pointer;
   text-decoration: none;
 }
 
-.expand-btn :hover{
+.expand-btn a:hover{
   color:#FF5F15;
+  cursor: pointer;
   text-decoration:underline;
 }
 
