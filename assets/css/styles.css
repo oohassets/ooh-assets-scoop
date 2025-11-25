@@ -477,10 +477,10 @@ body.no-scroll {
   text-decoration: none;
 }
 
-.expand-btn a:hover{
-  color:#FF5F15;
+.expand-btn a:hover {
+  color: #FF5F15;
   cursor: pointer;
-  text-decoration:underline;
+  text-decoration: underline;
 }
 
   .carousel-container {
