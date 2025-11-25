@@ -35,3 +35,4 @@ window.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.getElementById("overlayCloseBtn");
   if (closeBtn) closeBtn.addEventListener("click", closeOverlay);
 });
+
