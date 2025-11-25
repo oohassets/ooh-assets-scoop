@@ -469,10 +469,17 @@ body.no-scroll {
 }
 
 .expand-btn {
-  padding: 15px;
+  margin-top: 150px;
   color: var(--text);
   cursor: pointer;
   text-decoration: none;
+  color:#FF5F15;
+  text-decoration:underline;
+}
+
+.expand-btn :hover{
+  color:#FF5F15;
+  text-decoration:underline;
 }
 
   .carousel-container {
