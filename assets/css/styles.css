@@ -231,12 +231,20 @@ body {
   position: absolute;
   top: 20px;
   right: 35px;
-  font-size: 40px;
   cursor: pointer;
   color: white;
+  transition: background 0.3s;
+  text-decoration: none;
+  background: var(--brand);
+  border: none;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
 }
+
 .close-btn:hover {
-  opacity: 0.8;
+  background: var(--brand-hover);
 }
 
 .fullscreen-overlay {
