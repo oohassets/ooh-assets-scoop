@@ -62,7 +62,20 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
       let cellValue = row[field] ?? "—"; // default to "—"
       let className = "";
 
-      // Highlight only specified columns
+      // Highlight Start Date columns
+      if (field === "Start Date" && cellValue !== "—") {
+        const parts = cellValue.split("/").map(x => parseInt(x, 10));
+        if (parts.length === 3) {
+          const cellDate = new Date(parts[2], parts[0]-1, parts[1]);
+          cellDate.setHours(0,0,0,0);
+
+          if (cellDate.getTime() === today.getTime()) {
+            className = "date-today";
+          }
+        }
+      }
+
+      // Highlight End Date columns
       if (highlightColumns.includes(field) && cellValue !== "—") {
         const parts = cellValue.split("/").map(x => parseInt(x, 10));
         if (parts.length === 3) {
