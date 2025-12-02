@@ -331,6 +331,7 @@ body.no-scroll {
 
 #loginScreen img.login-logo {
   height: 55px !important;
+  weight: 100% !important;
   margin-bottom: .4rem !important;
 }
 
