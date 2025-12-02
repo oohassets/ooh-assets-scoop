@@ -11,6 +11,112 @@
   width:auto; 
 }
 
+/* === ✅ LOGIN SCREEN */
+
+#loginScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+}
+
+/* Ensure perfect alignment */
+#loginScreen .login-box,
+#loginScreen .login-box * {
+  box-sizing: border-box;
+}
+
+#loginScreen .login-box {
+  width: 340px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2rem;
+  border-radius: 18px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+#loginScreen img.login-logo {
+  height: 135px !important;
+  weight: 100% !important;
+  margin-bottom: .4rem !important;
+}
+
+#loginScreen h3 {
+  font-size: 1rem !important;
+  margin-bottom: .6rem !important;
+  color: #333;
+}
+
+/* Inputs */
+#loginScreen input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin: 0.55rem 0;
+  border: none;
+  border-bottom-color: 2px solid black;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+}
+
+#loginScreen input:focus {
+  border: none;
+  border-bottom-color: #1f6feb;
+}
+
+/* Button — aligned perfectly */
+#loginBtn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: none;
+  background: #1f6feb;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 1rem;
+  transition: 0.3s;
+}
+
+#loginBtn:hover {
+  background: #155bc4;
+  cursor: pointer;
+}
+
+/* Login message */
+#loginMessage {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* ✅ Mobile */
+@media (max-width: 480px) {
+  #loginScreen .login-box {
+    max-width: 280px !important;
+    padding: 1rem 1.25rem !important;
+  }
+
+  #loginScreen img.login-logo {
+    height: 135px !important;
+    weight: 100% !important;
+  }
+
+  #loginScreen h3 {
+    font-size: 1.1rem;
+  }
+
+  body { padding:.75rem; }
+  .btn { font-size:.8rem; padding:.45rem .65rem; }
+  .note { font-size:.75rem; }
+  .map-wrapper { aspect-ratio:3/4; }
+  .logo { height:135px; weight: 100%; }
+  .top-right-widget { padding:.35rem .7rem; font-size:.85rem;}
+}
+
 /* Splash */
 #splash-screen {
   position: fixed;
@@ -299,111 +405,6 @@ body {
 
 body.no-scroll {
   overflow: hidden;
-}
-
-/* === ✅ LOGIN SCREEN (FIXED + ALIGNED PERFECTLY) === */
-
-#loginScreen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(6px);
-}
-
-/* Ensure perfect alignment */
-#loginScreen .login-box,
-#loginScreen .login-box * {
-  box-sizing: border-box;
-}
-
-#loginScreen .login-box {
-  width: 340px;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 2rem;
-  border-radius: 18px;
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.25);
-  text-align: center;
-}
-
-#loginScreen img.login-logo {
-  height: 55px !important;
-  weight: 100% !important;
-  margin-bottom: .4rem !important;
-}
-
-#loginScreen h3 {
-  font-size: 1rem !important;
-  margin-bottom: .6rem !important;
-  color: #333;
-}
-
-/* Inputs */
-#loginScreen input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  margin: 0.55rem 0;
-  border: none;
-  border-bottom-color: 2px solid black;
-  background: rgba(255, 255, 255, 0.85);
-  font-size: 1rem;
-}
-
-#loginScreen input:focus {
-  border: none;
-  border-bottom-color: #1f6feb;
-}
-
-/* Button — aligned perfectly */
-#loginBtn {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  border: none;
-  background: #1f6feb;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-top: 1rem;
-  transition: 0.3s;
-}
-
-#loginBtn:hover {
-  background: #155bc4;
-  cursor: pointer;
-}
-
-/* Login message */
-#loginMessage {
-  margin-top: 0.6rem;
-  font-size: 0.9rem;
-}
-
-/* ✅ Mobile */
-@media (max-width: 480px) {
-  #loginScreen .login-box {
-    max-width: 280px !important;
-    padding: 1rem 1.25rem !important;
-  }
-
-  #loginScreen img.login-logo {
-    width: 80px;
-  }
-
-  #loginScreen h3 {
-    font-size: 1.1rem;
-  }
-
-  body { padding:.75rem; }
-  .btn { font-size:.8rem; padding:.45rem .65rem; }
-  .note { font-size:.75rem; }
-  .map-wrapper { aspect-ratio:3/4; }
-  .logo { height:80px; }
-  .top-right-widget { padding:.35rem .7rem; font-size:.85rem;}
 }
 
 .logout-link {
