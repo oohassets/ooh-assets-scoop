@@ -120,7 +120,7 @@ function createCard(title, data, columns, highlightColumns = []) {
 // TODAY Campaign Section
 // ===============================
 function publishCampaignToday(allTables) {
-  const todayCarousel = document.getElementById("carouselUpcoming");
+  const todayCarousel = document.getElementById("carouselPublishToday");
   if (!todayCarousel) {
     console.warn("⚠️ carouselToday container missing.");
     return;

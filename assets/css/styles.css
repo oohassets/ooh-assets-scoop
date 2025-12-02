@@ -525,6 +525,10 @@ body.no-scroll {
   color: black;
 }
 
+#carouselPublishToday .card {
+  width: 420px !important;
+}
+
 #carouselUpcoming .card {
   width: 420px !important;
 }
