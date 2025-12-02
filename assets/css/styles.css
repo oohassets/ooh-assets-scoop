@@ -41,7 +41,7 @@
 
 #loginScreen img.login-logo {
   height: 80px !important;
-  weight: 100% !important;
+  weight: 100% ;
   margin-bottom: .4rem !important;
 }
 
@@ -102,7 +102,7 @@
 
   #loginScreen img.login-logo {
     height: 80px !important;
-    weight: 100% !important;
+    weight: 100% ;
   }
 
   #loginScreen h3 {
