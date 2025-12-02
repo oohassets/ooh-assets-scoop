@@ -120,7 +120,7 @@ function createCard(title, data, columns, highlightColumns = []) {
 // TODAY Campaign Section
 // ===============================
 function publishCampaignToday(allTables) {
-  const todayCarousel = document.getElementById("carouselToday");
+  const todayCarousel = document.getElementById("carouselUpcoming");
   if (!todayCarousel) {
     console.warn("⚠️ carouselToday container missing.");
     return;
@@ -136,7 +136,15 @@ function publishCampaignToday(allTables) {
     const data = allTables[tableName];
     if (!data) continue;
 
+    // Only digital and static tables
     if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+
+    // Extract Location from title
+    const cleanLocation = tableName
+      .replace(/^d_/, "")
+      .replace(/^s_/, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
 
     const rows = Array.isArray(data) ? data : Object.values(data);
 
@@ -149,11 +157,11 @@ function publishCampaignToday(allTables) {
       const rowDate = new Date(y, m - 1, d);
       rowDate.setHours(0, 0, 0, 0);
 
+      // Only campaigns starting today
       if (rowDate.getTime() === today.getTime()) {
         const newRow = {
           Client: row.Client ?? "—",
-          Location: row.Location ?? "—",
-          Circuit: row.Circuit ?? "—",
+          Location: cleanLocation,       // 👈 Location based on title
           "Start Date": formatted
         };
 
@@ -163,20 +171,30 @@ function publishCampaignToday(allTables) {
     });
   }
 
+  // --- Create Cards ---
   if (digitalToday.length > 0) {
     const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
-    todayCarousel.appendChild(
-      createCard("Digital", obj, ["Client", "Location", "Circuit", "Start Date"], ["Start Date"])
+    const card = createCard(
+      "Digital",
+      obj,
+      ["Client", "Location", "Start Date"],
+      ["Start Date"]
     );
+    todayCarousel.appendChild(card);
   }
 
   if (staticToday.length > 0) {
     const obj = Object.fromEntries(staticToday.map((r, i) => [i, r]));
-    todayCarousel.appendChild(
-      createCard("Static", obj, ["Client", "Location", "Circuit", "Start Date"], ["Start Date"])
+    const card = createCard(
+      "Static",
+      obj,
+      ["Client", "Location", "Start Date"],
+      ["Start Date"]
     );
+    todayCarousel.appendChild(card);
   }
 }
+
 
 // ===============================
 // Load Carousel
