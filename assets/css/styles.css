@@ -40,7 +40,7 @@
 }
 
 #loginScreen img.login-logo {
-  height: 135px !important;
+  height: 80px !important;
   weight: 100% !important;
   margin-bottom: .4rem !important;
 }
@@ -101,7 +101,7 @@
   }
 
   #loginScreen img.login-logo {
-    height: 135px !important;
+    height: 80px !important;
     weight: 100% !important;
   }
 
@@ -113,7 +113,7 @@
   .btn { font-size:.8rem; padding:.45rem .65rem; }
   .note { font-size:.75rem; }
   .map-wrapper { aspect-ratio:3/4; }
-  .logo { height:135px; weight: 100%; }
+  .logo { height:80px; weight: 100%; }
   .top-right-widget { padding:.35rem .7rem; font-size:.85rem;}
 }
 
