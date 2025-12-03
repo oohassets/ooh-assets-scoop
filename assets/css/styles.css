@@ -110,12 +110,12 @@
 
   #carouselPublishToday .card {
     width: 100% !important;
-    max-width: 400px;
+    max-width: 350px;
   }
 
   #carouselUpcoming .card {
     width: 100% !important;
-    max-width: 400px;
+    max-width: 350px;
   }
 
   #loginScreen .login-box {
