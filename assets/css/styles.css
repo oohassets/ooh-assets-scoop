@@ -246,7 +246,7 @@ body {
   color:#ffffff;
   font-family:Roboto,sans-serif;
   text-align:center;
-  font-size:18px;
+  font-size:16px;
 }
 
 .asset-links {
@@ -432,7 +432,7 @@ body.no-scroll {
 }
 
 
-  /* Useful Links */
+/* Useful Links */
 .useful-links {
   text-align: left;
   margin-top: 20px;
@@ -455,10 +455,10 @@ body.no-scroll {
   color: #FF5F15;
 }
 
-  #installBadge:hover {
+#installBadge:hover {
     background: #155bc4;
     transform: scale(1.05);
-  }
+}
 
 
 /* Content Inventory */
