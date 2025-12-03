@@ -43,6 +43,9 @@
   height: 80px !important;
   width: auto !important;
   margin-bottom: .4rem !important;
+  display: block;
+  margin-left: auto;
+  margin-right: auto; 
 }
 
 #loginScreen h3 {
@@ -102,7 +105,7 @@
 
   #loginScreen img.login-logo {
     height: 80px !important;
-    width: 100% ;
+    width: auto !important;
   }
 
   #loginScreen h3 {
@@ -113,7 +116,7 @@
   .btn { font-size:.8rem; padding:.45rem .65rem; }
   .note { font-size:.75rem; }
   .map-wrapper { aspect-ratio:3/4 !important; }
-  .logo { height:80px; width: 100%; }
+  .logo { height:80px; width: auto !important;}
   .top-right-widget { padding:.35rem .7rem; font-size:.75rem;}
 }
 
@@ -130,7 +133,7 @@
 }
 
 .splash-logo {
-  width: 180px;
+  width: auto !important;
   height: 180px;
   opacity: 0;
   transform: scale(0.9);
