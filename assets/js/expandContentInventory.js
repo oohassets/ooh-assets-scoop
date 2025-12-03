@@ -299,5 +299,16 @@ function attachExpandButtons() {
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   loadCarousel();
-  attachExpandButtons();
+
+  // Attach event listeners for expand buttons
+  document.querySelector(".expand-digital-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    expandCarousel("digital");
+  });
+
+  document.querySelector(".expand-static-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    expandCarousel("static");
+  });
 });
+
