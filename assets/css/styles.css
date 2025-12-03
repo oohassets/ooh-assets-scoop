@@ -41,7 +41,7 @@
 
 #loginScreen img.login-logo {
   height: 80px !important;
-  width: 100% !important;
+  width: auto !important;
   margin-bottom: .4rem !important;
 }
 
