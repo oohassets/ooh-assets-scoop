@@ -172,6 +172,10 @@ function publishCampaignToday(allTables) {
     });
   }
 
+  // Save to global for expand
+  window.digitalTodayRows = digitalToday;
+  window.staticTodayRows  = staticToday;
+
   // --- Create Cards ---
   if (digitalToday.length > 0) {
     const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
