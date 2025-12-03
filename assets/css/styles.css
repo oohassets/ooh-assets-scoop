@@ -11,8 +11,7 @@
   width:auto; 
 }
 
-/* === ✅ LOGIN SCREEN */
-
+/* Login Screen */
 #loginScreen {
   position: fixed;
   inset: 0;
@@ -24,7 +23,7 @@
   backdrop-filter: blur(6px);
 }
 
-/* Ensure perfect alignment */
+/* Box */
 #loginScreen .login-box,
 #loginScreen .login-box * {
   box-sizing: border-box;
@@ -39,15 +38,17 @@
   text-align: center;
 }
 
+/* Logo */
 #loginScreen img.login-logo {
   height: 80px !important;
   width: auto !important;
   margin-bottom: .4rem !important;
   display: block;
   margin-left: auto;
-  margin-right: auto; 
+  margin-right: auto;
 }
 
+/* Title */
 #loginScreen h3 {
   font-size: 1rem !important;
   margin-bottom: .6rem !important;
@@ -59,16 +60,21 @@
   width: 100%;
   padding: 0.75rem 1rem;
   margin: 0.55rem 0;
-  border: none;
-  border-bottom-color: 2px solid black;
-  /*background: rgba(255, 255, 255, 0.85);/* Light background for inputs */
   font-size: 1rem;
+
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #777;
+  outline: none;
+
+  transition: border-color 0.3s ease;
 }
 
+/* Focus effect */
 #loginScreen input:focus {
-  border: none;
   border-bottom-color: #1f6feb;
 }
+
 
 /* Button — aligned perfectly */
 #loginBtn {
