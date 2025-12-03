@@ -96,8 +96,22 @@
   font-size: 0.9rem;
 }
 
-/* ✅ Mobile */
-@media (max-width: 480px) {
+@media (max-width: 500px) {
+
+  .table-container {
+    max-height: 250px;
+  }
+
+  #carouselPublishToday .card {
+    width: 100% !important;
+    max-width: 400px;
+  }
+
+  #carouselUpcoming .card {
+    width: 100% !important;
+    max-width: 400px;
+  }
+
   #loginScreen .login-box {
     max-width: 280px !important;
     padding: 1rem 1.25rem !important;
@@ -118,7 +132,9 @@
   .map-wrapper { aspect-ratio:3/4 !important; }
   .logo { height:80px; width: auto !important;}
   .top-right-widget { padding:.35rem .7rem; font-size:.75rem;}
+
 }
+
 
 /* Splash */
 #splash-screen {
@@ -494,7 +510,7 @@ body.no-scroll {
   text-decoration: underline;
 }
 
-  .carousel-container {
+.carousel-container {
   width: 100%;
   overflow-x: auto;
   white-space: nowrap;
@@ -540,14 +556,6 @@ body.no-scroll {
   overflow-y: auto;
   padding-right: 8px;
   margin-top: -4px;
-}
-
-
-/* Better on mobile */
-@media (max-width: 500px) {
-  .table-container {
-    max-height: 250px;
-  }
 }
 
 /* Table styling */
