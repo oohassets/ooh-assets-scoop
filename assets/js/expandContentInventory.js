@@ -3,7 +3,7 @@ import { rtdb } from "../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 // ===============================
-// Load all top-level nodes
+// Load all tables
 // ===============================
 async function loadAllTables() {
   try {
@@ -17,11 +17,10 @@ async function loadAllTables() {
 }
 
 // ===============================
-// Format any date as mm/dd/yyyy
+// Date formatting
 // ===============================
 function formatDateMMDDYYYY(value) {
   if (!value) return "—";
-
   value = value.trim();
   const parts = value.split("/").map(x => x.trim()).filter(x => x !== "");
   if (parts.length < 2) return "—";
@@ -38,7 +37,7 @@ function formatDateMMDDYYYY(value) {
 }
 
 // ===============================
-// Convert JSON → HTML table with optional highlighting
+// Convert JSON → HTML Table
 // ===============================
 function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   if (!dataObj || Object.keys(dataObj).length === 0) return "<p>No data</p>";
@@ -46,32 +45,16 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  let html = `
-    <table class="json-table">
-      <thead>
-        <tr>${columns.map(col => `<th>${col}</th>`).join("")}</tr>
-      </thead>
-      <tbody>
-  `;
+  let html = `<table class="json-table"><thead><tr>${columns.map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>`;
 
   for (const rowKey in dataObj) {
     const row = dataObj[rowKey] || {};
-    html += `<tr>`;
-
-    columns.forEach(field => {
-      let cellValue = row[field] ?? "—";
+    html += "<tr>";
+    columns.forEach(col => {
+      let cellValue = row[col] ?? "—";
       let className = "";
 
-      if (field === "Start Date" && cellValue !== "—") {
-        const parts = cellValue.split("/").map(Number);
-        if (parts.length === 3) {
-          const cellDate = new Date(parts[2], parts[0] - 1, parts[1]);
-          cellDate.setHours(0, 0, 0, 0);
-          if (cellDate.getTime() === today.getTime()) className = "date-today";
-        }
-      }
-
-      if (highlightColumns.includes(field) && className === "" && cellValue !== "—") {
+      if (highlightColumns.includes(col) && cellValue !== "—") {
         const parts = cellValue.split("/").map(Number);
         if (parts.length === 3) {
           const cellDate = new Date(parts[2], parts[0] - 1, parts[1]);
@@ -86,8 +69,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
 
       html += `<td class="${className}">${cellValue}</td>`;
     });
-
-    html += `</tr>`;
+    html += "</tr>";
   }
 
   html += "</tbody></table>";
@@ -100,7 +82,6 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
 function createCard(title, data, columns, highlightColumns = []) {
   const card = document.createElement("div");
   card.className = "card";
-
   card.innerHTML = `
     <h2>${title}</h2>
     <div class="table-container">
@@ -126,31 +107,20 @@ function publishCampaignToday(allTables) {
   for (const tableName in allTables) {
     const data = allTables[tableName];
     if (!data) continue;
-
     if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    const cleanLocation = tableName
-      .replace(/^d_/, "")
-      .replace(/^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
-
+    const cleanLocation = tableName.replace(/^d_/, "").replace(/^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
     const rows = Array.isArray(data) ? data : Object.values(data);
 
     rows.forEach(row => {
       if (!row || !row["Start Date"]) return;
-
       const formatted = formatDateMMDDYYYY(row["Start Date"]);
       const [m, d, y] = formatted.split("/").map(Number);
       const rowDate = new Date(y, m - 1, d);
       rowDate.setHours(0, 0, 0, 0);
 
       if (rowDate.getTime() === today.getTime()) {
-        const newRow = {
-          Client: row.Client ?? "—",
-          Location: cleanLocation,
-          "Start Date": formatted
-        };
+        const newRow = { Client: row.Client ?? "—", Location: cleanLocation, "Start Date": formatted };
         if (tableName.startsWith("d_")) digitalToday.push(newRow);
         if (tableName.startsWith("s_")) staticToday.push(newRow);
       }
@@ -161,7 +131,6 @@ function publishCampaignToday(allTables) {
   window.digitalTodayRows = digitalToday;
   window.staticTodayRows = staticToday;
 
-  // Append cards
   if (digitalToday.length > 0) {
     const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
     todayCarousel.appendChild(createCard("Digital", obj, ["Client", "Location", "Start Date"], ["Start Date"]));
@@ -182,48 +151,26 @@ export async function loadCarousel() {
   const upcomingCarousel = document.getElementById("carouselUpcoming");
 
   const allTables = await loadAllTables();
-
   publishCampaignToday(allTables);
 
   for (const tableName in allTables) {
     const data = allTables[tableName];
     if (!data) continue;
 
-    const cleanTitle = tableName
-      .replace(/^d_/, "")
-      .replace(/^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+    const cleanTitle = tableName.replace(/^d_/, "").replace(/^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 
     let columns, targetCarousel, highlightCols = [];
-
-    if (tableName.startsWith("d_")) {
-      columns = ["SN", "Client", "Start Date", "End Date"];
-      targetCarousel = digitalCarousel;
-      highlightCols = ["End Date"];
-    } else if (tableName.startsWith("s_")) {
-      columns = ["Circuit", "Client", "Start Date", "End Date"];
-      targetCarousel = staticCarousel;
-      highlightCols = ["End Date"];
-    } else if (tableName.startsWith("Upcoming_")) {
-      columns = ["Client", "Location", "Circuit", "Start Date"];
-      targetCarousel = upcomingCarousel;
-      highlightCols = ["Start Date"];
-    } else continue;
+    if (tableName.startsWith("d_")) { columns = ["SN", "Client", "Start Date", "End Date"]; targetCarousel = digitalCarousel; highlightCols = ["End Date"]; }
+    else if (tableName.startsWith("s_")) { columns = ["Circuit", "Client", "Start Date", "End Date"]; targetCarousel = staticCarousel; highlightCols = ["End Date"]; }
+    else if (tableName.startsWith("Upcoming_")) { columns = ["Client", "Location", "Circuit", "Start Date"]; targetCarousel = upcomingCarousel; highlightCols = ["Start Date"]; }
+    else continue;
 
     const rows = Array.isArray(data) ? data : Object.values(data);
-    const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
+    const dateCols = columns.filter(c => c.toLowerCase().includes("date"));
+    rows.forEach(row => { columns.forEach(col => row[col] = row[col] ? formatDateMMDDYYYY(row[col]) : (row[col] ?? "—")); });
 
-    rows.forEach(row => {
-      if (!row || typeof row !== "object") return;
-      columns.forEach(col => {
-        if (dateCols.includes(col)) row[col] = row[col] ? formatDateMMDDYYYY(row[col]) : "—";
-        else row[col] = row[col] ?? "—";
-      });
-    });
-
-    const validRows = rows.filter(row => row && typeof row === "object");
-    const dataObj = Object.fromEntries(validRows.map((row, i) => [i, row]));
+    const validRows = rows.filter(r => r && typeof r === "object");
+    const dataObj = Object.fromEntries(validRows.map((r, i) => [i, r]));
     targetCarousel.appendChild(createCard(cleanTitle, dataObj, columns, highlightCols));
   }
 }
@@ -261,19 +208,12 @@ function expandCarousel(type) {
 
   if (!targetOverlay) return;
 
-  if (allRows.length === 0) {
-    targetOverlay.innerHTML += `<p>No campaigns today.</p>`;
-  } else {
-    const enrichedRows = allRows.map((row, i) => ({
-      SN: i + 1,
-      Client: row.Client ?? "—",
-      BO: row.BO ?? "-",
-      "Start Date": row["Start Date"] ?? "—",
-      "End Date": row["End Date"] ?? "—",
-      Days: row.Days ?? "-"
+  if (allRows.length === 0) targetOverlay.innerHTML += `<p>No campaigns today.</p>`;
+  else {
+    const enrichedRows = allRows.map((r, i) => ({
+      SN: i+1, Client: r.Client ?? "—", BO: r.BO ?? "-", "Start Date": r["Start Date"] ?? "—", "End Date": r["End Date"] ?? "—", Days: r.Days ?? "-"
     }));
-
-    const obj = Object.fromEntries(enrichedRows.map((r, i) => [i, r]));
+    const obj = Object.fromEntries(enrichedRows.map((r,i)=>[i,r]));
     targetOverlay.appendChild(createCard("Campaigns Today", obj, columns, highlightCols));
   }
 
@@ -281,34 +221,23 @@ function expandCarousel(type) {
 }
 
 // ===============================
-// Attach Event Listeners (instead of inline onclick)
-// ===============================
-function attachExpandButtons() {
-  const digitalBtn = document.querySelector(".expand-btn a[href='#']:not([id])");
-  const staticBtn = document.querySelectorAll(".expand-btn a")[1];
-
-  const btns = document.querySelectorAll(".expand-btn a");
-  btns.forEach(btn => {
-    const type = btn.textContent.toLowerCase().includes("digital") ? "digital" : "static";
-    btn.addEventListener("click", () => expandCarousel(type));
-  });
-}
-
-// ===============================
-// Initialize
+// Attach Event Listeners
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
   loadCarousel();
 
-  // Attach event listeners for expand buttons
-  document.querySelector(".expand-digital-btn").addEventListener("click", (e) => {
+  document.querySelector(".expand-digital-btn").addEventListener("click", e => {
     e.preventDefault();
     expandCarousel("digital");
   });
 
-  document.querySelector(".expand-static-btn").addEventListener("click", (e) => {
+  document.querySelector(".expand-static-btn").addEventListener("click", e => {
     e.preventDefault();
     expandCarousel("static");
   });
-});
 
+  // Close overlay
+  document.getElementById("overlayCloseBtn").addEventListener("click", () => {
+    document.getElementById("fullscreenOverlay").classList.remove("show");
+  });
+});
