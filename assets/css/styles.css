@@ -638,39 +638,44 @@ body.no-scroll {
 }
 
 #fullscreenOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
   display: none;
-  z-index: 999999;
-  padding: 20px;
-  overflow-y: auto;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 99999;
+  overflow: auto;
+  padding: 1rem;
 }
 
 #fullscreenOverlay.show {
-  display: block !important;
+  display: block;
 }
 
-.overlay-column {
-  background: #1b1b1b;
-  padding: 20px;
+#fullscreenOverlay .overlay-column {
+  background: #fff;
   border-radius: 12px;
-  color: white;
-  max-width: 1000px;
-  margin: 40px auto;
+  padding: 1rem;
+  margin: 1rem auto;
+  max-width: 1200px;
+  width: 95%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 
-#overlayCloseBtn {
-  position: absolute;
-  top: 15px;
-  right: 30px;
-  font-size: 26px;
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
+#fullscreenOverlay table.json-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* ensures responsive columns */
+}
+
+#fullscreenOverlay table.json-table th,
+#fullscreenOverlay table.json-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: left;
+  white-space: nowrap; /* prevent squeezing */
+}
+
+#fullscreenOverlay .table-container {
+  overflow-x: auto; /* scroll horizontally if needed */
 }
 

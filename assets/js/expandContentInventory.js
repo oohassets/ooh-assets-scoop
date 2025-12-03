@@ -1,37 +1,65 @@
-// expandContentInventory.js
-
+// ===============================
+// EXPAND OVERLAY
+// ===============================
 function expandCarousel(type) {
-  console.log("Expand clicked:", type);
   const overlay = document.getElementById("fullscreenOverlay");
-  if (!overlay) { console.error("fullscreenOverlay not found"); return; }
-
   overlay.classList.add("show");
 
-  const digi = document.getElementById("digitalOverlay");
-  const stat = document.getElementById("staticOverlay");
-  if (!digi || !stat) { console.error("Overlay children missing"); return; }
+  const digitalOverlay = document.getElementById("digitalOverlay");
+  const staticOverlay  = document.getElementById("staticOverlay");
 
-  digi.style.display = "none";
-  stat.style.display = "none";
+  digitalOverlay.style.display = "none";
+  staticOverlay.style.display = "none";
 
-  if (type === "digital") digi.style.display = "block";
-  if (type === "static") stat.style.display = "block";
+  // Clear previous tables
+  digitalOverlay.innerHTML = `<h2>Digital Circuits</h2>`;
+  staticOverlay.innerHTML = `<h2>Static Circuits</h2>`;
+
+  // Determine which table to populate
+  let targetOverlay, allRows, columns, highlightCols;
+
+  if (type === "digital") {
+    targetOverlay = digitalOverlay;
+    allRows = window.digitalTodayRows || [];
+    columns = ["Client", "Location", "Start Date"];
+    highlightCols = ["Start Date"];
+  }
+  if (type === "static") {
+    targetOverlay = staticOverlay;
+    allRows = window.staticTodayRows || [];
+    columns = ["Client", "Location", "Start Date"];
+    highlightCols = ["Start Date"];
+  }
+
+  if (!targetOverlay) return;
+
+  if (allRows.length === 0) {
+    targetOverlay.innerHTML += `<p>No campaigns today.</p>`;
+  } else {
+    const obj = Object.fromEntries(allRows.map((r,i)=>[i,r]));
+    const card = createCard("Campaigns Today", obj, columns, highlightCols);
+    targetOverlay.appendChild(card);
+  }
+
+  targetOverlay.style.display = "block";
 }
 
+// Close overlay
 function closeOverlay() {
-  const overlay = document.getElementById("fullscreenOverlay");
-  if (overlay) overlay.classList.remove("show");
+  document.getElementById("fullscreenOverlay").classList.remove("show");
 }
 
+// ESC key closes overlay
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") closeOverlay();
 });
 
+// Close button
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("overlayCloseBtn");
   if (btn) btn.addEventListener("click", closeOverlay);
 });
 
-// <<< IMPORTANT >>> expose to global scope so inline onclick can call them
+// Expose functions globally
 window.expandCarousel = expandCarousel;
 window.closeOverlay = closeOverlay;

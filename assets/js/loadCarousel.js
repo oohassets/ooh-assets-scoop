@@ -263,3 +263,7 @@ export async function loadCarousel() {
 }
 
 document.addEventListener("DOMContentLoaded", loadCarousel);
+
+// Save to global for expand
+window.digitalTodayRows = digitalToday;
+window.staticTodayRows  = staticToday;
