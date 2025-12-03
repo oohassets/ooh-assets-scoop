@@ -61,7 +61,7 @@
   margin: 0.55rem 0;
   border: none;
   border-bottom-color: 2px solid black;
-  background: rgba(255, 255, 255, 0.85);
+  /*background: rgba(255, 255, 255, 0.85);/* Light background for inputs */
   font-size: 1rem;
 }
 
