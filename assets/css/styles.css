@@ -643,11 +643,16 @@ body.no-scroll {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.9);
+  inset: 0;
+  background: rgba(0,0,0,0.6);
   display: none;
   z-index: 999999;
   padding: 20px;
   overflow-y: auto;
+}
+
+#fullscreenOverlay.show {
+  display: block !important;
 }
 
 .overlay-column {
