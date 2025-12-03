@@ -1,8 +1,3 @@
-// ==============================
-// FULLSCREEN OVERLAY FUNCTIONS
-// ==============================
-
-// Open overlay and show only the selected section
 function expandCarousel(type) {
   const overlay = document.getElementById("fullscreenOverlay");
   overlay.classList.add("show");
@@ -20,7 +15,6 @@ function expandCarousel(type) {
   }
 }
 
-// Close overlay
 function closeOverlay() {
   document.getElementById("fullscreenOverlay").classList.remove("show");
 }
@@ -36,3 +30,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if (closeBtn) closeBtn.addEventListener("click", closeOverlay);
 });
 
+// 🔥 Make functions available to HTML onclick=""
+window.expandCarousel = expandCarousel;
+window.closeOverlay = closeOverlay;
