@@ -87,6 +87,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
           if (diff === 0) className = "date-today";
           else if (diff === 1) className = "date-tomorrow";
           else if (diff > 1 && diff <= 7) className = "date-week";
+          else if (diff < 0) className = "date-less-than-today";
         }
       }
 

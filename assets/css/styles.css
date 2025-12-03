@@ -616,6 +616,10 @@ body.no-scroll {
   background-color: orange;
 }
 
+.date-less-than-today {
+  background-color: red;
+}
+
 #fullscreenOverlay {
   position: fixed;
   top: 0;
