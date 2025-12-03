@@ -191,34 +191,42 @@ function expandCarousel(type) {
   digitalOverlay.innerHTML = `<h2>Digital Circuits</h2>`;
   staticOverlay.innerHTML = `<h2>Static Circuits</h2>`;
 
-  let targetOverlay, allRows, columns, highlightCols;
+  let targetOverlay, allRows;
 
   if (type === "digital") {
     targetOverlay = digitalOverlay;
     allRows = window.digitalTodayRows || [];
-    columns = ["SN", "Client", "BO", "Start Date", "End Date", "Days"];
-    highlightCols = ["Start Date", "End Date"];
   }
   if (type === "static") {
     targetOverlay = staticOverlay;
     allRows = window.staticTodayRows || [];
-    columns = ["SN", "Client", "BO", "Start Date", "End Date", "Days"];
-    highlightCols = ["Start Date", "End Date"];
   }
 
   if (!targetOverlay) return;
 
-  if (allRows.length === 0) targetOverlay.innerHTML += `<p>No campaigns today.</p>`;
-  else {
-    const enrichedRows = allRows.map((r, i) => ({
-      SN: i+1, Client: r.Client ?? "—", BO: r.BO ?? "-", "Start Date": r["Start Date"] ?? "—", "End Date": r["End Date"] ?? "—", Days: r.Days ?? "-"
+  if (allRows.length === 0) {
+    targetOverlay.innerHTML += `<p>No campaigns today.</p>`;
+  } else {
+    // Auto-add SN if missing
+    const enrichedRows = allRows.map((row, i) => ({
+      SN: i + 1,
+      ...row
     }));
-    const obj = Object.fromEntries(enrichedRows.map((r,i)=>[i,r]));
+
+    const obj = Object.fromEntries(enrichedRows.map((r, i) => [i, r]));
+
+    // Dynamically get all column names from first row
+    const columns = enrichedRows.length > 0 ? Object.keys(enrichedRows[0]) : [];
+
+    // Highlight only date columns
+    const highlightCols = columns.filter(c => c.toLowerCase().includes("date"));
+
     targetOverlay.appendChild(createCard("Campaigns Today", obj, columns, highlightCols));
   }
 
   targetOverlay.style.display = "block";
 }
+
 
 // ===============================
 // Attach Event Listeners
