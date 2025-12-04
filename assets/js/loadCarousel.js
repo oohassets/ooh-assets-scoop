@@ -160,16 +160,12 @@ function publishCampaignToday(allTables) {
 
       const formatted = formatDateDDMMMYYYY(row["Start Date"]);
 
-      // Convert for comparison
-      const parts = formatted.split("-");
-      const d = parseInt(parts[0]);
-      const mmm = parts[1];
-      const y = parseInt(parts[2]);
-
+      // Convert formatted dd-mmm-yyyy back to a real date
+      const [d, mmm, y] = formatted.split("-");
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const m = months.indexOf(mmm);
 
-      const rowDate = new Date(y, m, d);
+      const rowDate = new Date(parseInt(y), m, parseInt(d));
       rowDate.setHours(0, 0, 0, 0);
 
       if (rowDate.getTime() === today.getTime()) {
@@ -185,6 +181,10 @@ function publishCampaignToday(allTables) {
     });
   }
 
+  // Clear before adding
+  todayCarousel.innerHTML = "";
+
+  // ---- SHOW CARDS IF FOUND ----
   if (digitalToday.length > 0) {
     const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
     todayCarousel.appendChild(
@@ -198,7 +198,16 @@ function publishCampaignToday(allTables) {
       createCard("Static", obj, ["Client", "Location", "Start Date"], ["Start Date"])
     );
   }
+
+  // ---- IF EMPTY → SHOW MESSAGE ----
+  if (digitalToday.length === 0 && staticToday.length === 0) {
+    const msg = document.createElement("div");
+    msg.textContent = "No campaign publish today";
+    msg.classList.add("no-data-message");
+    todayCarousel.appendChild(msg);
+  }
 }
+
 
 // ===============================
 // Load Carousel
@@ -210,7 +219,11 @@ export async function loadCarousel() {
 
   const allTables = await loadAllTables();
 
+  // Today Campaigns
   publishCampaignToday(allTables);
+
+  // Track if Upcoming Campaign has entries
+  let upcomingCount = 0;
 
   for (const tableName in allTables) {
     const data = allTables[tableName];
@@ -238,6 +251,7 @@ export async function loadCarousel() {
       columns = ["Client", "Location", "Circuit", "Start Date"];
       targetCarousel = upcomingCarousel;
       highlightCols = ["Start Date"];
+      upcomingCount++; // Count this card
     }
     else continue;
 
@@ -262,6 +276,17 @@ export async function loadCarousel() {
       createCard(cleanTitle, dataObj, columns, highlightCols)
     );
   }
+
+  // ===============================
+  //  SHOW "No upcoming campaign"
+  // ===============================
+  if (upcomingCount === 0) {
+    const msg = document.createElement("div");
+    msg.textContent = "No upcoming campaign";
+    msg.classList.add("no-data-message");
+    upcomingCarousel.appendChild(msg);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", loadCarousel);
+

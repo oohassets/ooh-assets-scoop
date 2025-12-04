@@ -621,6 +621,14 @@ body.no-scroll {
   border-bottom: none;
 }
 
+.no-data-message {
+  color: var(--text);
+  opacity: 0.8;
+  margin: 10px 0 0 5px;
+  padding: 0;
+  background: transparent;
+}
+
 .date-today {
   background-color: yellow;
 }
