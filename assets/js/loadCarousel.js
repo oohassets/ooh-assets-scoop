@@ -42,7 +42,7 @@ function formatDateDDMMMYYYY(value) {
   const mIndex = parseInt(month, 10) - 1;
   if (mIndex < 0 || mIndex > 11) return "—";
 
-  return `${day}/${monthNames[mIndex]}/${year}`;
+  return `${day}-${monthNames[mIndex]}-${year}`;
 }
 
 // ===============================
