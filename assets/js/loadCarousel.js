@@ -17,24 +17,32 @@ async function loadAllTables() {
 }
 
 // ===============================
-// Format any date as mm/dd/yyyy
+// Format date as dd/mmm/yyyy
 // ===============================
-function formatDateMMDDYYYY(value) {
+function formatDateDDMMMYYYY(value) {
   if (!value) return "—";
 
   value = value.trim();
   const parts = value.split("/").map(x => x.trim()).filter(x => x !== "");
   if (parts.length < 2) return "—";
 
-  let [month, day] = parts;
+  let [month, day, year] = parts;
+
   month = month.padStart(2, "0");
   day = day.padStart(2, "0");
 
-  let year = parts.length === 3 ? parts[2] : new Date().getFullYear();
-  if (/^\d{2}$/.test(year)) year = "20" + year;
-  if (!/^\d{4}$/.test(year)) year = new Date().getFullYear();
+  if (!year) {
+    year = new Date().getFullYear();
+  } else {
+    if (/^\d{2}$/.test(year)) year = "20" + year;
+    if (!/^\d{4}$/.test(year)) year = new Date().getFullYear();
+  }
 
-  return `${month}/${day}/${year}`;
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const mIndex = parseInt(month, 10) - 1;
+  if (mIndex < 0 || mIndex > 11) return "—";
+
+  return `${day}/${monthNames[mIndex]}/${year}`;
 }
 
 // ===============================
@@ -62,33 +70,35 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
       let cellValue = row[field] ?? "—";
       let className = "";
 
-      // ===== FIXED: Start Date priority highlight =====
-      if (field === "Start Date" && cellValue !== "—") {
-        const parts = cellValue.split("/").map(Number);
-        if (parts.length === 3) {
-          const cellDate = new Date(parts[2], parts[0] - 1, parts[1]);
-          cellDate.setHours(0, 0, 0, 0);
+      // Convert to mm/dd/yyyy for comparison
+      let match = cellValue.match(/^(\d{2})\/([A-Za-z]{3})\/(\d{4})$/);
+      let numericDate = null;
 
-          if (cellDate.getTime() === today.getTime()) {
-            className = "date-today";
-          }
+      if (match) {
+        const d = parseInt(match[1]);
+        const mmm = match[2];
+        const y = parseInt(match[3]);
+        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const m = months.indexOf(mmm);
+        numericDate = new Date(y, m, d);
+        numericDate.setHours(0,0,0,0);
+      }
+
+      // ===== Start Date highlight =====
+      if (field === "Start Date" && numericDate) {
+        if (numericDate.getTime() === today.getTime()) {
+          className = "date-today";
         }
       }
 
-      // ===== End Date highlight (only if not Start Date today) =====
-      if (highlightColumns.includes(field) && className === "" && cellValue !== "—") {
-        const parts = cellValue.split("/").map(Number);
-        if (parts.length === 3) {
-          const cellDate = new Date(parts[2], parts[0] - 1, parts[1]);
-          cellDate.setHours(0, 0, 0, 0);
+      // ===== End Date highlight =====
+      if (highlightColumns.includes(field) && className === "" && numericDate) {
+        const diff = (numericDate - today) / (1000 * 60 * 60 * 24);
 
-          const diff = (cellDate - today) / (1000 * 60 * 60 * 24);
-
-          if (diff === 0) className = "date-today";
-          else if (diff === 1) className = "date-tomorrow";
-          else if (diff > 1 && diff <= 7) className = "date-week";
-          else if (diff < 0) className = "date-less-than-today";
-        }
+        if (diff === 0) className = "date-today";
+        else if (diff === 1) className = "date-tomorrow";
+        else if (diff > 1 && diff <= 7) className = "date-week";
+        else if (diff < 0) className = "date-less-than-today";
       }
 
       html += `<td class="${className}">${cellValue}</td>`;
@@ -122,10 +132,7 @@ function createCard(title, data, columns, highlightColumns = []) {
 // ===============================
 function publishCampaignToday(allTables) {
   const todayCarousel = document.getElementById("carouselPublishToday");
-  if (!todayCarousel) {
-    console.warn("⚠️ carouselToday container missing.");
-    return;
-  }
+  if (!todayCarousel) return;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -137,10 +144,8 @@ function publishCampaignToday(allTables) {
     const data = allTables[tableName];
     if (!data) continue;
 
-    // Only digital and static tables
     if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    // Extract Location from title
     const cleanLocation = tableName
       .replace(/^d_/, "")
       .replace(/^s_/, "")
@@ -152,17 +157,24 @@ function publishCampaignToday(allTables) {
     rows.forEach(row => {
       if (!row || !row["Start Date"]) return;
 
-      const formatted = formatDateMMDDYYYY(row["Start Date"]);
-      const [m, d, y] = formatted.split("/").map(Number);
+      const formatted = formatDateDDMMMYYYY(row["Start Date"]);
 
-      const rowDate = new Date(y, m - 1, d);
+      // Convert for comparison
+      const parts = formatted.split("/");
+      const d = parseInt(parts[0]);
+      const mmm = parts[1];
+      const y = parseInt(parts[2]);
+
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const m = months.indexOf(mmm);
+
+      const rowDate = new Date(y, m, d);
       rowDate.setHours(0, 0, 0, 0);
 
-      // Only campaigns starting today
       if (rowDate.getTime() === today.getTime()) {
         const newRow = {
           Client: row.Client ?? "—",
-          Location: cleanLocation,       // 👈 Location based on title
+          Location: cleanLocation,
           "Start Date": formatted
         };
 
@@ -172,31 +184,20 @@ function publishCampaignToday(allTables) {
     });
   }
 
-
-  // --- Create Cards ---
   if (digitalToday.length > 0) {
     const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
-    const card = createCard(
-      "Digital",
-      obj,
-      ["Client", "Location", "Start Date"],
-      ["Start Date"]
+    todayCarousel.appendChild(
+      createCard("Digital", obj, ["Client", "Location", "Start Date"], ["Start Date"])
     );
-    todayCarousel.appendChild(card);
   }
 
   if (staticToday.length > 0) {
     const obj = Object.fromEntries(staticToday.map((r, i) => [i, r]));
-    const card = createCard(
-      "Static",
-      obj,
-      ["Client", "Location", "Start Date"],
-      ["Start Date"]
+    todayCarousel.appendChild(
+      createCard("Static", obj, ["Client", "Location", "Start Date"], ["Start Date"])
     );
-    todayCarousel.appendChild(card);
   }
 }
-
 
 // ===============================
 // Load Carousel
@@ -208,7 +209,6 @@ export async function loadCarousel() {
 
   const allTables = await loadAllTables();
 
-  // NEW SECTION
   publishCampaignToday(allTables);
 
   for (const tableName in allTables) {
@@ -247,7 +247,7 @@ export async function loadCarousel() {
       if (!row || typeof row !== "object") return;
       columns.forEach(col => {
         if (dateCols.includes(col)) {
-          row[col] = row[col] ? formatDateMMDDYYYY(row[col]) : "—";
+          row[col] = row[col] ? formatDateDDMMMYYYY(row[col]) : "—";
         } else {
           row[col] = row[col] ?? "—";
         }
@@ -264,4 +264,3 @@ export async function loadCarousel() {
 }
 
 document.addEventListener("DOMContentLoaded", loadCarousel);
-
