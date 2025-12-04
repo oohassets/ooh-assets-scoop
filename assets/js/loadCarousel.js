@@ -45,6 +45,7 @@ function formatDateDDMMMYYYY(value) {
   return `${day}-${monthNames[mIndex]}-${year}`;
 }
 
+
 // ===============================
 // Convert JSON → HTML table with optional highlighting
 // ===============================
@@ -71,7 +72,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
       let className = "";
 
       // Convert to mm/dd/yyyy for comparison
-      let match = cellValue.match(/^(\d{2})\/([A-Za-z]{3})\/(\d{4})$/);
+      let match = cellValue.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
       let numericDate = null;
 
       if (match) {
@@ -160,7 +161,7 @@ function publishCampaignToday(allTables) {
       const formatted = formatDateDDMMMYYYY(row["Start Date"]);
 
       // Convert for comparison
-      const parts = formatted.split("/");
+      const parts = formatted.split("-");
       const d = parseInt(parts[0]);
       const mmm = parts[1];
       const y = parseInt(parts[2]);

@@ -497,8 +497,8 @@ body.no-scroll {
 .carousel-title {
   color: var(--text);
   font-size: 1.4rem;
-  font-weight: 600;
-  margin: 25px 0 10px;
+  font-weight: 500;
+  margin: 20px 0 10px;
 }
 
 .expand-btn {
