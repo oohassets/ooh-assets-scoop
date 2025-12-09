@@ -531,7 +531,7 @@ body.no-scroll {
 
 .card {
   background: #ffffff;
-  opacity: 0.9 !important;
+  opacity: 0.95 !important;
   padding: 15px;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.1);
