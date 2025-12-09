@@ -42,65 +42,61 @@
   </div>
 
   <!-- DIGITAL CAROUSEL -->
-  <div class="carousel-header">
-    <div class="carousel-title">Digital Circuits</div>
-    <div class="expand-btn">
-      <a href="#" class="expand-digital-btn">Expand ></a>
+  <div class="carousel-section">
+    <div class="carousel-header">
+      <div class="carousel-title">Digital Circuits</div>
+      <div class="expand-btn">
+        <a href="#" class="expand-digital-btn">Expand ></a>
+      </div>
     </div>
-  </div>
-  <div class="carousel-container">
-    <div class="carousel" id="carouselDigital"></div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselDigital"></div>
+    </div>
     <div class="expanded-carousel" id="expandedDigital" style="display:none;"></div>
   </div>
 
   <!-- STATIC CAROUSEL -->
-  <div class="carousel-header">
-    <div class="carousel-title">Static Circuits</div>
-    <div class="expand-btn">
-      <a href="#" class="expand-static-btn">Expand ></a>
+  <div class="carousel-section">
+    <div class="carousel-header">
+      <div class="carousel-title">Static Circuits</div>
+      <div class="expand-btn">
+        <a href="#" class="expand-static-btn">Expand ></a>
+      </div>
     </div>
-  </div>
-  <div class="carousel-container">
-    <div class="carousel" id="carouselStatic"></div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselStatic"></div>
+    </div>
     <div class="expanded-carousel" id="expandedStatic" style="display:none;"></div>
   </div>
 
   <!-- PUBLISHED TODAY -->
-  <div class="carousel-title">Campaign Published Today</div>
-  <div class="carousel-container">
-    <div class="carousel" id="carouselPublishToday"></div>
+  <div class="carousel-section">
+    <div class="carousel-header">
+      <div class="carousel-title">Campaign Published Today</div>
+    </div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselPublishToday"></div>
+    </div>
     <div class="expanded-carousel" id="expandedPublishToday" style="display:none;"></div>
   </div>
 
   <!-- UPCOMING CAMPAIGNS -->
-  <div class="carousel-title">Upcoming Campaigns</div>
-  <div class="carousel-container">
-    <div class="carousel" id="carouselUpcoming"></div>
-    <div class="expanded-carousel" id="expandedUpcoming" style="display:none;"></div>
-    <div class="expand-btn" style="margin-top:10px;">
-      <a href="#" class="expand-upcoming-btn">Expand ></a>
+  <div class="carousel-section">
+    <div class="carousel-header">
+      <div class="carousel-title">Upcoming Campaigns</div>
+      <div class="expand-btn">
+        <a href="#" class="expand-upcoming-btn">Expand ></a>
+      </div>
     </div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselUpcoming"></div>
+    </div>
+    <div class="expanded-carousel" id="expandedUpcoming" style="display:none;"></div>
   </div>
-
-  <!-- Fullscreen Overlay -->
-  <div id="fullscreenOverlay">
-      <div id="overlayCloseBtn">✕</div>
-      <div class="overlay-column" id="digitalOverlay">
-        <h2>Digital Circuits</h2>
-      </div>
-      <div class="overlay-column" id="staticOverlay">
-        <h2>Static Circuits</h2>
-      </div>
-  </div>
-
-
-  <!-- Asset category -->
-  <div class="asset-links" id="assetLinks"></div>
 
   <!-- Map Wrapper -->
   <div class="map-wrapper" id="mapWrapper">
     <iframe id="mapIframe" src=""></iframe>
-
     <div class="map-overlay hide-top-right">
       <div class="top-right-widget">
         <div id="weatherCity">Doha, Qatar</div>
@@ -124,6 +120,7 @@
     <iframe id="inventoryIframe" src="about:blank"></iframe>
   </div>
 
+  <!-- Useful Links -->
   <div class="useful-links">
     <p class="ul-title">Useful Links</p>
     <a href="https://scoop.qa/" target="_blank">Scoop Media and Communication</a><br>
@@ -136,6 +133,7 @@
   </div>
 
 </div>
+
 
 <!-- JS Modules -->
 <script type="module" src="./firebase/firebase.js"></script>
