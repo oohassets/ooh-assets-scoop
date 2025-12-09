@@ -622,13 +622,29 @@ body.no-scroll {
   border-bottom: none;
 }
 
-.no-data-message {
-  color: var(--text);
-  opacity: 0.8;
-  margin: 10px 0 0 5px;
-  padding: 0;
-  background: transparent;
+/* ============================= */
+/* Expanded Grid Styles */
+/* ============================= */
+.expanded-carousel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
 }
+
+.expanded-carousel .card {
+  width: 400px !important;  /* fixed width for expanded view */
+  flex: 0 0 auto;
+  margin: 10px;
+}
+
+.expanded-carousel .no-data-message {
+  font-weight: bold;
+  color: #555;
+  padding: 10px;
+  font-size: 16px;
+}
+
 
 .date-today {
   background-color: yellow;

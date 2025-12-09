@@ -41,6 +41,7 @@
     <img src="images/scooplogo_white.png" class="logo" alt="SCOOP Logo">
   </div>
 
+  <!-- DIGITAL CAROUSEL -->
   <div class="carousel-header">
     <div class="carousel-title">Digital Circuits</div>
     <div class="expand-btn">
@@ -49,8 +50,10 @@
   </div>
   <div class="carousel-container">
     <div class="carousel" id="carouselDigital"></div>
+    <div class="expanded-carousel" id="expandedDigital" style="display:none;"></div>
   </div>
 
+  <!-- STATIC CAROUSEL -->
   <div class="carousel-header">
     <div class="carousel-title">Static Circuits</div>
     <div class="expand-btn">
@@ -59,28 +62,29 @@
   </div>
   <div class="carousel-container">
     <div class="carousel" id="carouselStatic"></div>
+    <div class="expanded-carousel" id="expandedStatic" style="display:none;"></div>
   </div>
 
-    <div class="carousel-title">Campaign Published Today</div>
-    <div class="carousel-container">
-      <div class="carousel" id="carouselPublishToday"></div>
-    </div>
-  
+  <!-- PUBLISHED TODAY -->
+  <div class="carousel-title">Campaign Published Today</div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselPublishToday"></div>
+    <div class="expanded-carousel" id="expandedPublishToday" style="display:none;"></div>
+  </div>
+  <div class="expand-btn" style="margin-top:10px;">
+    <a href="#" class="expand-publish-today-btn">Expand ></a>
+  </div>
+
+  <!-- UPCOMING CAMPAIGNS -->
   <div class="carousel-title">Upcoming Campaigns</div>
-    <div class="carousel-container">
+  <div class="carousel-container">
     <div class="carousel" id="carouselUpcoming"></div>
+    <div class="expanded-carousel" id="expandedUpcoming" style="display:none;"></div>
+    <div class="expand-btn" style="margin-top:10px;">
+      <a href="#" class="expand-upcoming-btn">Expand ></a>
+    </div>
   </div>
-
-  <!-- Fullscreen Overlay -->
-  <div id="fullscreenOverlay">
-      <div id="overlayCloseBtn">✕</div>
-      <div class="overlay-column" id="digitalOverlay">
-        <h2>Digital Circuits</h2>
-      </div>
-      <div class="overlay-column" id="staticOverlay">
-        <h2>Static Circuits</h2>
-      </div>
-  </div>
+</div>
 
 
   <!-- Asset category -->
