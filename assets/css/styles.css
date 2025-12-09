@@ -633,7 +633,7 @@ body.no-scroll {
 }
 
 .expanded-carousel .card {
-  width: 400px !important;  /* fixed width for expanded view */
+  width: 420px !important;  /* fixed width for expanded view */
   flex: 0 0 auto;
   margin: 10px;
 }
