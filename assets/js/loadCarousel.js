@@ -292,8 +292,10 @@ export async function loadCarousel() {
     });
   }
 
+  // Clear previous content
   upcomingCarousel.innerHTML = "";
 
+  // Show card only if there’s data, otherwise show text
   if (upcomingRows.length > 0) {
     const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
     upcomingCarousel.appendChild(
