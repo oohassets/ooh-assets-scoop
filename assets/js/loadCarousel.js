@@ -45,7 +45,6 @@ function formatDateDDMMMYYYY(value) {
   return `${day}-${monthNames[mIndex]}-${year}`;
 }
 
-
 // ===============================
 // Convert JSON → HTML table with optional highlighting
 // ===============================
@@ -71,7 +70,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
       let cellValue = row[field] ?? "—";
       let className = "";
 
-      // Convert to mm/dd/yyyy for comparison
+      // Convert to Date for highlighting
       let match = cellValue.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
       let numericDate = null;
 
@@ -181,10 +180,8 @@ function publishCampaignToday(allTables) {
     });
   }
 
-  // Clear before adding
   todayCarousel.innerHTML = "";
 
-  // ---- SHOW CARDS IF FOUND ----
   if (digitalToday.length > 0) {
     const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
     todayCarousel.appendChild(
@@ -199,7 +196,6 @@ function publishCampaignToday(allTables) {
     );
   }
 
-  // ---- IF EMPTY → SHOW MESSAGE ----
   if (digitalToday.length === 0 && staticToday.length === 0) {
     const msg = document.createElement("div");
     msg.textContent = "No campaign publish today";
@@ -207,7 +203,6 @@ function publishCampaignToday(allTables) {
     todayCarousel.appendChild(msg);
   }
 }
-
 
 // ===============================
 // Load Carousel
@@ -222,18 +217,12 @@ export async function loadCarousel() {
   // Today Campaigns
   publishCampaignToday(allTables);
 
-  // Track if Upcoming Campaign has entries
-  let upcomingCount = 0;
-
+  // ===============================
+  // Digital & Static Sections
+  // ===============================
   for (const tableName in allTables) {
     const data = allTables[tableName];
     if (!data) continue;
-
-    const cleanTitle = tableName
-      .replace(/^d_/, "")
-      .replace(/^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
 
     let columns, targetCarousel, highlightCols = [];
 
@@ -246,12 +235,6 @@ export async function loadCarousel() {
       columns = ["Circuit", "Client", "Start Date", "End Date"];
       targetCarousel = staticCarousel;
       highlightCols = ["End Date"];
-    }
-    else if (tableName.startsWith("Upcoming_")) {
-      columns = ["Client", "Location", "Circuit", "Start Date"];
-      targetCarousel = upcomingCarousel;
-      highlightCols = ["Start Date"];
-      upcomingCount++; // Count this card
     }
     else continue;
 
@@ -270,23 +253,58 @@ export async function loadCarousel() {
     });
 
     const validRows = rows.filter(row => row && typeof row === "object");
+    if (validRows.length === 0) continue;
+
     const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
 
     targetCarousel.appendChild(
-      createCard(cleanTitle, dataObj, columns, highlightCols)
+      createCard(
+        tableName.replace(/^d_|^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+        dataObj,
+        columns,
+        highlightCols
+      )
     );
   }
 
   // ===============================
-  //  SHOW "No upcoming campaign"
+  // Upcoming Campaigns Section
   // ===============================
-  if (upcomingCount === 0) {
+  const upcomingRows = [];
+
+  for (const tableName in allTables) {
+    const data = allTables[tableName];
+    if (!data || !tableName.startsWith("Upcoming_")) continue;
+
+    const rows = Array.isArray(data) ? data : Object.values(data);
+
+    rows.forEach(row => {
+      if (!row || !row["Start Date"]) return;
+
+      const formattedDate = formatDateDDMMMYYYY(row["Start Date"]);
+
+      upcomingRows.push({
+        Client: row.Client ?? "—",
+        Location: row.Location ?? "—",
+        Circuit: row.Circuit ?? "—",
+        "Start Date": formattedDate
+      });
+    });
+  }
+
+  upcomingCarousel.innerHTML = "";
+
+  if (upcomingRows.length > 0) {
+    const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
+    upcomingCarousel.appendChild(
+      createCard("Upcoming Campaigns", dataObj, ["Client", "Location", "Circuit", "Start Date"], ["Start Date"])
+    );
+  } else {
     const msg = document.createElement("div");
-    msg.textContent = "No upcoming campaign";
+    msg.textContent = "No Upcoming Campaigns";
     msg.classList.add("no-data-message");
     upcomingCarousel.appendChild(msg);
   }
 }
 
 document.addEventListener("DOMContentLoaded", loadCarousel);
-
