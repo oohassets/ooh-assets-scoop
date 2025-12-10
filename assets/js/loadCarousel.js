@@ -84,14 +84,17 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
         numericDate.setHours(0,0,0,0);
       }
 
+      // ===== Start Date highlight =====
       if (field === "Start Date" && numericDate) {
         if (numericDate.getTime() === today.getTime()) {
           className = "date-today";
         }
       }
 
+      // ===== End Date highlight =====
       if (highlightColumns.includes(field) && className === "" && numericDate) {
         const diff = (numericDate - today) / (1000 * 60 * 60 * 24);
+
         if (diff === 0) className = "date-today";
         else if (diff === 1) className = "date-tomorrow";
         else if (diff > 1 && diff <= 7) className = "date-week";
@@ -114,6 +117,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
 function createCard(title, data, columns, highlightColumns = []) {
   const card = document.createElement("div");
   card.className = "card";
+
   card.innerHTML = `
     <h2>${title}</h2>
     <div class="table-container">
@@ -139,21 +143,29 @@ function publishCampaignToday(allTables) {
   for (const tableName in allTables) {
     const data = allTables[tableName];
     if (!data) continue;
+
     if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    const cleanLocation = tableName.replace(/^d_|^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    const cleanLocation = tableName
+      .replace(/^d_/, "")
+      .replace(/^s_/, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+
     const rows = Array.isArray(data) ? data : Object.values(data);
 
     rows.forEach(row => {
       if (!row || !row["Start Date"]) return;
+
       const formatted = formatDateDDMMMYYYY(row["Start Date"]);
 
+      // Convert formatted dd-mmm-yyyy back to a real date
       const [d, mmm, y] = formatted.split("-");
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const m = months.indexOf(mmm);
 
       const rowDate = new Date(parseInt(y), m, parseInt(d));
-      rowDate.setHours(0,0,0,0);
+      rowDate.setHours(0, 0, 0, 0);
 
       if (rowDate.getTime() === today.getTime()) {
         const newRow = {
@@ -161,6 +173,7 @@ function publishCampaignToday(allTables) {
           Location: cleanLocation,
           "Start Date": formatted
         };
+
         if (tableName.startsWith("d_")) digitalToday.push(newRow);
         if (tableName.startsWith("s_")) staticToday.push(newRow);
       }
@@ -170,44 +183,24 @@ function publishCampaignToday(allTables) {
   todayCarousel.innerHTML = "";
 
   if (digitalToday.length > 0) {
-    const obj = Object.fromEntries(digitalToday.map((r,i) => [i,r]));
-    todayCarousel.appendChild(createCard("Digital", obj, ["Client","Location","Start Date"], ["Start Date"]));
+    const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
+    todayCarousel.appendChild(
+      createCard("Digital", obj, ["Client", "Location", "Start Date"], ["Start Date"])
+    );
   }
 
   if (staticToday.length > 0) {
-    const obj = Object.fromEntries(staticToday.map((r,i) => [i,r]));
-    todayCarousel.appendChild(createCard("Static", obj, ["Client","Location","Start Date"], ["Start Date"]));
+    const obj = Object.fromEntries(staticToday.map((r, i) => [i, r]));
+    todayCarousel.appendChild(
+      createCard("Static", obj, ["Client", "Location", "Start Date"], ["Start Date"])
+    );
   }
 
-  if (digitalToday.length===0 && staticToday.length===0){
+  if (digitalToday.length === 0 && staticToday.length === 0) {
     const msg = document.createElement("div");
     msg.textContent = "No campaign publish today";
     msg.classList.add("no-data-message");
     todayCarousel.appendChild(msg);
-  }
-}
-
-// ===============================
-// Toggle Expanded Carousel
-// ===============================
-function toggleExpanded(normalContainer, expandedContainer, title, dataObj, columns, highlightCols) {
-  if(expandedContainer.style.display === "none") {
-    normalContainer.style.display = "none";
-    expandedContainer.style.display = "grid";
-    expandedContainer.style.gridTemplateColumns = "repeat(auto-fill, minmax(400px, 1fr))";
-    expandedContainer.style.gap = "16px";
-
-    // Clear and create cards for expanded view
-    expandedContainer.innerHTML = "";
-    for(const key in dataObj){
-      const card = createCard(title, {[key]: dataObj[key]}, columns, highlightCols);
-      card.style.width = "400px";
-      expandedContainer.appendChild(card);
-    }
-
-  } else {
-    expandedContainer.style.display = "none";
-    normalContainer.style.display = "flex";
   }
 }
 
@@ -219,94 +212,93 @@ export async function loadCarousel() {
   const staticCarousel  = document.getElementById("carouselStatic");
   const upcomingCarousel = document.getElementById("carouselUpcoming");
 
-  const expandedDigital = document.getElementById("expandedDigital");
-  const expandedStatic  = document.getElementById("expandedStatic");
-  const expandedUpcoming = document.getElementById("expandedUpcoming");
-
   const allTables = await loadAllTables();
 
-  // Today campaigns
+  // Today Campaigns
   publishCampaignToday(allTables);
 
   // ===============================
   // Digital & Static Sections
   // ===============================
-  const sections = [
-    {prefix: "d_", carousel: digitalCarousel, expanded: expandedDigital, columns: ["SN","Client","Start Date","End Date"], highlight: ["End Date"]},
-    {prefix: "s_", carousel: staticCarousel, expanded: expandedStatic, columns: ["Circuit","Client","Start Date","End Date"], highlight: ["End Date"]}
-  ];
+  for (const tableName in allTables) {
+    const data = allTables[tableName];
+    if (!data) continue;
 
-  for(const sec of sections){
-    for(const tableName in allTables){
-      if(!tableName.startsWith(sec.prefix)) continue;
-      const data = allTables[tableName];
-      if(!data) continue;
+    let columns, targetCarousel, highlightCols = [];
 
-      const rows = Array.isArray(data)? data : Object.values(data);
-      const validRows = rows.filter(r=>r && typeof r === "object").map(r=>{
-        sec.columns.forEach(col=>{
-          if(col.toLowerCase().includes("date")) r[col] = r[col]? formatDateDDMMMYYYY(r[col]) : "—";
-          else r[col] = r[col] ?? "—";
-        });
-        return r;
-      });
-
-      if(validRows.length===0) continue;
-      const dataObj = Object.fromEntries(validRows.map((r,i)=>[i,r]));
-      const cleanTitle = tableName.replace(/^d_|^s_/, "").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
-
-      // Normal carousel
-      sec.carousel.appendChild(createCard(cleanTitle, dataObj, sec.columns, sec.highlight));
-
-      // Add expand button event
-      const expandBtn = document.querySelector(`.expand-${sec.prefix==="d_"?"digital":"static"}-btn`);
-      if(expandBtn){
-        expandBtn.addEventListener("click", e=>{
-          e.preventDefault();
-          toggleExpanded(sec.carousel, sec.expanded, cleanTitle, dataObj, sec.columns, sec.highlight);
-        });
-      }
+    if (tableName.startsWith("d_")) {
+      columns = ["SN", "Client", "Start Date", "End Date"];
+      targetCarousel = digitalCarousel;
+      highlightCols = ["End Date"];
     }
+    else if (tableName.startsWith("s_")) {
+      columns = ["Circuit", "Client", "Start Date", "End Date"];
+      targetCarousel = staticCarousel;
+      highlightCols = ["End Date"];
+    }
+    else continue;
+
+    const rows = Array.isArray(data) ? data : Object.values(data);
+
+    const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
+    rows.forEach(row => {
+      if (!row || typeof row !== "object") return;
+      columns.forEach(col => {
+        if (dateCols.includes(col)) {
+          row[col] = row[col] ? formatDateDDMMMYYYY(row[col]) : "—";
+        } else {
+          row[col] = row[col] ?? "—";
+        }
+      });
+    });
+
+    const validRows = rows.filter(row => row && typeof row === "object");
+    if (validRows.length === 0) continue;
+
+    const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
+
+    targetCarousel.appendChild(
+      createCard(
+        tableName.replace(/^d_|^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+        dataObj,
+        columns,
+        highlightCols
+      )
+    );
   }
 
   // ===============================
-  // Upcoming Campaigns
+  // Upcoming Campaigns Section
   // ===============================
   const upcomingRows = [];
-  for(const tableName in allTables){
-    if(!tableName.startsWith("Upcoming_")) continue;
-    const data = allTables[tableName];
-    if(!data) continue;
 
-    const rows = Array.isArray(data)? data : Object.values(data);
-    rows.forEach(row=>{
-      if(!row) return;
+  for (const tableName in allTables) {
+    const data = allTables[tableName];
+    if (!data || !tableName.startsWith("Upcoming_")) continue;
+
+    const rows = Array.isArray(data) ? data : Object.values(data);
+
+    rows.forEach(row => {
+      if (!row || !row["Start Date"]) return;
+
+      const formattedDate = formatDateDDMMMYYYY(row["Start Date"]);
+
       upcomingRows.push({
         Client: row.Client ?? "—",
         Location: row.Location ?? "—",
         Circuit: row.Circuit ?? "—",
-        "Start Date": row["Start Date"]? formatDateDDMMMYYYY(row["Start Date"]) : "—"
+        "Start Date": formattedDate
       });
     });
   }
 
-  // Clear previous
   upcomingCarousel.innerHTML = "";
-  expandedUpcoming.innerHTML = "";
 
-  if(upcomingRows.length>0){
-    const dataObj = Object.fromEntries(upcomingRows.map((r,i)=>[i,r]));
-    upcomingCarousel.appendChild(createCard("Upcoming Campaigns", dataObj, ["Client","Location","Circuit","Start Date"], ["Start Date"]));
-
-    // Expand button
-    const expandBtn = document.querySelector(".expand-upcoming-btn");
-    if(expandBtn){
-      expandBtn.addEventListener("click", e=>{
-        e.preventDefault();
-        toggleExpanded(upcomingCarousel, expandedUpcoming, "Upcoming Campaigns", dataObj, ["Client","Location","Circuit","Start Date"], ["Start Date"]);
-      });
-    }
-
+  if (upcomingRows.length > 0) {
+    const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
+    upcomingCarousel.appendChild(
+      createCard("Upcoming Campaigns", dataObj, ["Client", "Location", "Circuit", "Start Date"], ["Start Date"])
+    );
   } else {
     const msg = document.createElement("div");
     msg.textContent = "No Upcoming Campaigns";
