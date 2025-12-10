@@ -646,11 +646,10 @@ body.no-scroll {
   margin: 10px;
 }
 
-.expanded-carousel .no-data-message {
-  font-weight: bold;
-  color: #fff;
+.no-data-message {
+  color: var(--text);
   padding: 10px;
-  font-size: 16px;
+  font-size: 12px;
 }
 
 
