@@ -558,11 +558,11 @@ body.no-scroll {
 }
 
 .published-card h2 {
-  color: #2e7d32;
+  color: green;
 }
 
 .removed-card h2 {
-  color: #c62828; 
+  color: red; 
 }
 
 

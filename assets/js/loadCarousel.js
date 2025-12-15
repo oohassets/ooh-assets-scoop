@@ -134,7 +134,6 @@ function publishCampaignToday(allTables) {
   const todayCarousel = document.getElementById("carouselPublishToday");
   if (!todayCarousel) return;
 
-  // 🔒 HARD RESET (prevents duplicates)
   todayCarousel.replaceChildren();
 
   const logs = allTables["Campaign_Logs"];
@@ -148,7 +147,6 @@ function publishCampaignToday(allTables) {
 
   const rows = Array.isArray(logs) ? logs : Object.values(logs);
 
-  // ✅ Deduplicated collections
   const publishedSet = new Map();
   const removedSet = new Map();
 
@@ -156,6 +154,8 @@ function publishCampaignToday(allTables) {
     if (!row?.Date || !row?.Type) return;
 
     const formattedLogDate = formatDateDDMMMYYYY(row.Date);
+    if (formattedLogDate === "—") return;
+
     const [d, mmm, y] = formattedLogDate.split("-");
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const m = months.indexOf(mmm);
@@ -171,13 +171,8 @@ function publishCampaignToday(allTables) {
 
     const record = { Client: client, Location: location };
 
-    if (row.Type === "Add") {
-      publishedSet.set(key, record);
-    }
-
-    if (row.Type === "Removed") {
-      removedSet.set(key, record);
-    }
+    if (row.Type === "Add") publishedSet.set(key, record);
+    if (row.Type === "Removed") removedSet.set(key, record);
   });
 
   let hasData = false;
@@ -185,33 +180,32 @@ function publishCampaignToday(allTables) {
   // ===== ONE Published Card =====
   if (publishedSet.size > 0) {
     hasData = true;
-        todayCarousel.appendChild(
-      createCard(
-        "Campaign Published Today",
-        Object.fromEntries([...publishedSet.values()].map((r, i) => [i, r])),
-        ["Client", "Location"]
-      )
+
+    const publishedCard = createCard(
+      "Campaign Published Today",
+      Object.fromEntries([...publishedSet.values()].map((r,i)=>[i,r])),
+      ["Client", "Location"]
     );
+    publishedCard.classList.add("published-card");
+    todayCarousel.appendChild(publishedCard);
   }
-  publishedCard.classList.add("published-card");
 
   // ===== ONE Removed Card =====
   if (removedSet.size > 0) {
-    hasData = true;    
-    todayCarousel.appendChild(
-      createCard(
-        "Campaign Removed Today",
-        Object.fromEntries([...removedSet.values()].map((r, i) => [i, r])),
-        ["Client", "Location"]
-      )
-    );
-  }
-  removedCard.classList.add("removed-card");
+    hasData = true;
 
-  if (!hasData) {
-    showNoData(todayCarousel);
+    const removedCard = createCard(
+      "Campaign Removed Today",
+      Object.fromEntries([...removedSet.values()].map((r,i)=>[i,r])),
+      ["Client", "Location"]
+    );
+    removedCard.classList.add("removed-card");
+    todayCarousel.appendChild(removedCard);
   }
+
+  if (!hasData) showNoData(todayCarousel);
 }
+
 
 // 🔁 Helper
 function showNoData(container) {
