@@ -181,11 +181,15 @@ function publishCampaignToday(allTables) {
   if (publishedSet.size > 0) {
     hasData = true;
 
+    const sortedPublished = [...publishedSet.values()]
+      .sort((a, b) => a.Client.localeCompare(b.Client));
+
     const publishedCard = createCard(
       "Campaign Published Today",
-      Object.fromEntries([...publishedSet.values()].map((r,i)=>[i,r])),
+      Object.fromEntries(sortedPublished.map((r, i) => [i, r])),
       ["Client", "Location"]
     );
+
     publishedCard.classList.add("published-card");
     todayCarousel.appendChild(publishedCard);
   }
@@ -194,11 +198,15 @@ function publishCampaignToday(allTables) {
   if (removedSet.size > 0) {
     hasData = true;
 
+    const sortedRemoved = [...removedSet.values()]
+      .sort((a, b) => a.Client.localeCompare(b.Client));
+
     const removedCard = createCard(
       "Campaign Removed Today",
-      Object.fromEntries([...removedSet.values()].map((r,i)=>[i,r])),
+      Object.fromEntries(sortedRemoved.map((r, i) => [i, r])),
       ["Client", "Location"]
     );
+
     removedCard.classList.add("removed-card");
     todayCarousel.appendChild(removedCard);
   }
