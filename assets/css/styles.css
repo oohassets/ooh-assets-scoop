@@ -557,6 +557,15 @@ body.no-scroll {
   width: 420px !important;
 }
 
+.published-card h2 {
+  color: #2e7d32;
+}
+
+.removed-card h2 {
+  color: #c62828; 
+}
+
+
 /* Scrollable table area */
 .table-container {
   max-height: 65vh;

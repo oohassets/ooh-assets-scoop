@@ -185,6 +185,7 @@ function publishCampaignToday(allTables) {
   // ===== ONE Published Card =====
   if (publishedSet.size > 0) {
     hasData = true;
+    publishedCard.classList.add("published-card");
     todayCarousel.appendChild(
       createCard(
         "Campaign Published Today",
@@ -197,6 +198,7 @@ function publishCampaignToday(allTables) {
   // ===== ONE Removed Card =====
   if (removedSet.size > 0) {
     hasData = true;
+    removedCard.classList.add("removed-card");
     todayCarousel.appendChild(
       createCard(
         "Campaign Removed Today",
