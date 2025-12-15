@@ -185,8 +185,7 @@ function publishCampaignToday(allTables) {
   // ===== ONE Published Card =====
   if (publishedSet.size > 0) {
     hasData = true;
-    publishedCard.classList.add("published-card");
-    todayCarousel.appendChild(
+        todayCarousel.appendChild(
       createCard(
         "Campaign Published Today",
         Object.fromEntries([...publishedSet.values()].map((r, i) => [i, r])),
@@ -194,11 +193,11 @@ function publishCampaignToday(allTables) {
       )
     );
   }
+  publishedCard.classList.add("published-card");
 
   // ===== ONE Removed Card =====
   if (removedSet.size > 0) {
-    hasData = true;
-    removedCard.classList.add("removed-card");
+    hasData = true;    
     todayCarousel.appendChild(
       createCard(
         "Campaign Removed Today",
@@ -207,6 +206,7 @@ function publishCampaignToday(allTables) {
       )
     );
   }
+  removedCard.classList.add("removed-card");
 
   if (!hasData) {
     showNoData(todayCarousel);
