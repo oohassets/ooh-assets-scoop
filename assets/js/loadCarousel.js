@@ -128,9 +128,6 @@ function createCard(title, data, columns, highlightColumns = []) {
 }
 
 // ===============================
-// TODAY Campaign Section
-// ===============================
-// ===============================
 // TODAY Campaign Logs Section
 // ===============================
 function publishCampaignToday(allTables) {
@@ -192,39 +189,52 @@ function publishCampaignToday(allTables) {
 
   let hasData = false;
 
-  // ===== Published Today =====
-  for (const key in addedToday) {
-    hasData = true;
-    const dataObj = Object.fromEntries(
-      addedToday[key].map((r, i) => [i, r])
-    );
+ // ===== Published Today =====
+for (const key in addedToday) {
+  hasData = true;
 
-    todayCarousel.appendChild(
-      createCard(
-        "Campaign Published Today",
-        dataObj,
-        ["Client", "Location", "Start Date", "End Date"],
-        ["Start Date", "End Date"]
-      )
-    );
-  }
+  const dataObj = Object.fromEntries(
+    addedToday[key].map((r, i) => [
+      i,
+      {
+        Client: r.Client,
+        Location: r.Location
+      }
+    ])
+  );
 
-  // ===== Removed Today =====
-  for (const key in removedToday) {
-    hasData = true;
-    const dataObj = Object.fromEntries(
-      removedToday[key].map((r, i) => [i, r])
-    );
+  todayCarousel.appendChild(
+    createCard(
+      "Campaign Published Today",
+      dataObj,
+      ["Client", "Location"]
+    )
+  );
+}
 
-    todayCarousel.appendChild(
-      createCard(
-        "Campaign Removed Today",
-        dataObj,
-        ["Client", "Location", "Start Date", "End Date"],
-        ["Start Date", "End Date"]
-      )
-    );
-  }
+// ===== Removed Today =====
+for (const key in removedToday) {
+  hasData = true;
+
+  const dataObj = Object.fromEntries(
+    removedToday[key].map((r, i) => [
+      i,
+      {
+        Client: r.Client,
+        Location: r.Location
+      }
+    ])
+  );
+
+  todayCarousel.appendChild(
+    createCard(
+      "Campaign Removed Today",
+      dataObj,
+      ["Client", "Location"]
+    )
+  );
+}
+
 
   // ===== No Data Message =====
   if (!hasData) {
