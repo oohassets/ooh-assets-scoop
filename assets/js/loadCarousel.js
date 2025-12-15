@@ -189,18 +189,37 @@ function publishCampaignToday(allTables) {
 
   let hasData = false;
 
- // ===== Published Today =====
+ // ===== Build ONE card for Published & Removed =====
+const publishedSet = new Map();
+const removedSet = new Map();
+
+// Deduplicate by Client + Location
 for (const key in addedToday) {
+  addedToday[key].forEach(r => {
+    const uniqueKey = `${r.Client}|${r.Location}`;
+    publishedSet.set(uniqueKey, {
+      Client: r.Client,
+      Location: r.Location
+    });
+  });
+}
+
+for (const key in removedToday) {
+  removedToday[key].forEach(r => {
+    const uniqueKey = `${r.Client}|${r.Location}`;
+    removedSet.set(uniqueKey, {
+      Client: r.Client,
+      Location: r.Location
+    });
+  });
+}
+
+// ===== Published Today (ONE card) =====
+if (publishedSet.size > 0) {
   hasData = true;
 
   const dataObj = Object.fromEntries(
-    addedToday[key].map((r, i) => [
-      i,
-      {
-        Client: r.Client,
-        Location: r.Location
-      }
-    ])
+    Array.from(publishedSet.values()).map((r, i) => [i, r])
   );
 
   todayCarousel.appendChild(
@@ -212,18 +231,12 @@ for (const key in addedToday) {
   );
 }
 
-// ===== Removed Today =====
-for (const key in removedToday) {
+// ===== Removed Today (ONE card) =====
+if (removedSet.size > 0) {
   hasData = true;
 
   const dataObj = Object.fromEntries(
-    removedToday[key].map((r, i) => [
-      i,
-      {
-        Client: r.Client,
-        Location: r.Location
-      }
-    ])
+    Array.from(removedSet.values()).map((r, i) => [i, r])
   );
 
   todayCarousel.appendChild(
