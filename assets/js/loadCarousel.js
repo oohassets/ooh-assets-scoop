@@ -130,79 +130,111 @@ function createCard(title, data, columns, highlightColumns = []) {
 // ===============================
 // TODAY Campaign Section
 // ===============================
+// ===============================
+// TODAY Campaign Logs Section
+// ===============================
 function publishCampaignToday(allTables) {
   const todayCarousel = document.getElementById("carouselPublishToday");
   if (!todayCarousel) return;
 
+  todayCarousel.innerHTML = "";
+
+  const logs = allTables["Campaign_Logs"];
+  if (!logs) {
+    const msg = document.createElement("div");
+    msg.textContent = "No Campaign Published and removed Today";
+    msg.classList.add("no-data-message");
+    todayCarousel.appendChild(msg);
+    return;
+  }
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const digitalToday = [];
-  const staticToday = [];
+  const rows = Array.isArray(logs) ? logs : Object.values(logs);
 
-  for (const tableName in allTables) {
-    const data = allTables[tableName];
-    if (!data) continue;
+  const addedToday = {};
+  const removedToday = {};
 
-    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+  rows.forEach(row => {
+    if (!row || !row.Date || !row.Type) return;
 
-    const cleanLocation = tableName
-      .replace(/^d_/, "")
-      .replace(/^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+    const formattedLogDate = formatDateDDMMMYYYY(row.Date);
+    const [d, mmm, y] = formattedLogDate.split("-");
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const m = months.indexOf(mmm);
 
-    const rows = Array.isArray(data) ? data : Object.values(data);
+    const logDate = new Date(parseInt(y), m, parseInt(d));
+    logDate.setHours(0, 0, 0, 0);
 
-    rows.forEach(row => {
-      if (!row || !row["Start Date"]) return;
+    if (logDate.getTime() !== today.getTime()) return;
 
-      const formatted = formatDateDDMMMYYYY(row["Start Date"]);
+    const key = `${row.Client ?? "—"} | ${row.Location ?? "—"}`;
 
-      // Convert formatted dd-mmm-yyyy back to a real date
-      const [d, mmm, y] = formatted.split("-");
-      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const m = months.indexOf(mmm);
+    const entry = {
+      Client: row.Client ?? "—",
+      Location: row.Location ?? "—",
+      "Start Date": formatDateDDMMMYYYY(row["Start Date"]),
+      "End Date": formatDateDDMMMYYYY(row["End Date"])
+    };
 
-      const rowDate = new Date(parseInt(y), m, parseInt(d));
-      rowDate.setHours(0, 0, 0, 0);
+    if (row.Type === "Add") {
+      if (!addedToday[key]) addedToday[key] = [];
+      addedToday[key].push(entry);
+    }
 
-      if (rowDate.getTime() === today.getTime()) {
-        const newRow = {
-          Client: row.Client ?? "—",
-          Location: cleanLocation,
-          "Start Date": formatted
-        };
+    if (row.Type === "Removed") {
+      if (!removedToday[key]) removedToday[key] = [];
+      removedToday[key].push(entry);
+    }
+  });
 
-        if (tableName.startsWith("d_")) digitalToday.push(newRow);
-        if (tableName.startsWith("s_")) staticToday.push(newRow);
-      }
-    });
-  }
 
-  todayCarousel.innerHTML = "";
+  let hasData = false;
 
-  if (digitalToday.length > 0) {
-    const obj = Object.fromEntries(digitalToday.map((r, i) => [i, r]));
+  // ===== Published Today =====
+  for (const key in addedToday) {
+    hasData = true;
+    const dataObj = Object.fromEntries(
+      addedToday[key].map((r, i) => [i, r])
+    );
+
     todayCarousel.appendChild(
-      createCard("Digital", obj, ["Client", "Location", "Start Date"], ["Start Date"])
+      createCard(
+        "Campaign Published Today",
+        dataObj,
+        ["Client", "Location", "Start Date", "End Date"],
+        ["Start Date", "End Date"]
+      )
     );
   }
 
-  if (staticToday.length > 0) {
-    const obj = Object.fromEntries(staticToday.map((r, i) => [i, r]));
+  // ===== Removed Today =====
+  for (const key in removedToday) {
+    hasData = true;
+    const dataObj = Object.fromEntries(
+      removedToday[key].map((r, i) => [i, r])
+    );
+
     todayCarousel.appendChild(
-      createCard("Static", obj, ["Client", "Location", "Start Date"], ["Start Date"])
+      createCard(
+        "Campaign Removed Today",
+        dataObj,
+        ["Client", "Location", "Start Date", "End Date"],
+        ["Start Date", "End Date"]
+      )
     );
   }
 
-  if (digitalToday.length === 0 && staticToday.length === 0) {
+  // ===== No Data Message =====
+  if (!hasData) {
     const msg = document.createElement("div");
-    msg.textContent = "No campaign publish today";
+    msg.textContent = "No Campaign Published and removed Today";
     msg.classList.add("no-data-message");
     todayCarousel.appendChild(msg);
   }
 }
+
 
 // ===============================
 // Load Carousel
