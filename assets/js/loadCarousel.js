@@ -218,7 +218,7 @@ function publishCampaignToday(allTables) {
 // 🔁 Helper
 function showNoData(container) {
   const msg = document.createElement("div");
-  msg.textContent = "No Campaign Published and removed Today";
+  msg.textContent = "No Campaign Published and Removed Today";
   msg.classList.add("no-data-message");
   container.appendChild(msg);
 }
