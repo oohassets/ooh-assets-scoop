@@ -327,10 +327,12 @@ export async function loadCarousel() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadCarousel);
-
 document.addEventListener("DOMContentLoaded", () => {
 
+  // 🔄 Load all inventory content
+  loadCarousel();
+
+  // 🔀 Tabs logic (Digital / Static)
   const tabs = document.querySelectorAll(".inventory-tabs .tab");
   const sections = {
     digital: document.getElementById("digital-section"),
@@ -343,9 +345,15 @@ document.addEventListener("DOMContentLoaded", () => {
       tabs.forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
 
-      Object.values(sections).forEach(sec => sec.style.display = "none");
-      sections[tab.dataset.target].style.display = "block";
+      Object.values(sections).forEach(sec => {
+        if (sec) sec.style.display = "none";
+      });
+
+      if (sections[tab.dataset.target]) {
+        sections[tab.dataset.target].style.display = "block";
+      }
     });
   });
 
 });
+

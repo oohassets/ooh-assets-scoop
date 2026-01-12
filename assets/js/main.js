@@ -7,7 +7,9 @@ import { initFullscreen } from "./fullscreen.js";
 document.addEventListener("DOMContentLoaded", () => {
   const logoutText = document.getElementById("logoutText");
   const container = document.querySelector(".container");
+  const inventoryBtn = document.getElementById("openInventoryBtn");
 
+  // 🔐 Auth check
   onAuthStateChanged(auth, user => {
     console.log("Auth status:", user);
 
@@ -18,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     console.log("User logged in, loading data...");
-
     container.style.display = "block";
 
     initFullscreen();
@@ -26,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadInventory().catch(err => console.error("Inventory load error:", err));
   });
 
+  // 🚪 Logout
   if (logoutText) {
     logoutText.addEventListener("click", () => {
       signOut(auth).then(() => {
@@ -34,13 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("openInventoryBtn");
-  if (!btn) return;
-
-  btn.addEventListener("click", () => {
-    window.open("content-inventory.html", "_blank");
-  });
+  // 📄 Open Content Inventory (NEW PAGE)
+  if (inventoryBtn) {
+    inventoryBtn.addEventListener("click", () => {
+      window.open("content-inventory.html", "_blank");
+    });
+  }
 });
