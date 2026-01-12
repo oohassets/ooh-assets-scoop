@@ -733,3 +733,37 @@ body.no-scroll {
   color: #fff;
   z-index: 10000;
 }
+
+.inventory-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  background: #f47c2c;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.inventory-btn:hover {
+  background: #d9651c;
+}
+
+.inventory-tabs {
+  margin-top: 6px;
+  text-align: center;
+}
+
+.inventory-tabs .tab {
+  display: inline-block;
+  margin: 0 10px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+  padding-bottom: 2px;
+}
+
+.inventory-tabs .tab.active {
+  color: #000;
+  border-bottom: 2px solid #f47c2c;
+}

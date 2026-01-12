@@ -328,3 +328,24 @@ export async function loadCarousel() {
 }
 
 document.addEventListener("DOMContentLoaded", loadCarousel);
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const tabs = document.querySelectorAll(".inventory-tabs .tab");
+  const sections = {
+    digital: document.getElementById("digital-section"),
+    static: document.getElementById("static-section")
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      Object.values(sections).forEach(sec => sec.style.display = "none");
+      sections[tab.dataset.target].style.display = "block";
+    });
+  });
+
+});
