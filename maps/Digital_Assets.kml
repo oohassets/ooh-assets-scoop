@@ -1,0 +1,916 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Scoop (Digital Assets)</name>
+    <description><![CDATA[Out Of Home Assets managed by Scoop Media & Communication]]></description>
+    <Style id="icon-1899-0288D1-normal">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1899-0288D1-highlight">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1899-0288D1">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-0288D1-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-0288D1-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1899-E65100-normal">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1899-E65100-highlight">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1899-E65100">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-E65100-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-E65100-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>TPI - UDC Tower Screen</name>
+      <Placemark>
+        <name>UDC Tower Screen</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4su_AUeoce0ZTaSannjxYv3khZ5WZ3O2ZH3Pzxl94bSdNzTCIlC7-d77ubGNzwk9RZ_ettwoj5taPte2gnGOT-33EoPKvlcfIfreEEYrv0nuMA9ovMMR9AIQw1R5Kfcs0UxIIOl9hYuTPD0rpGZLY7hxqrM15Wo52iy2YJ2qUtOmVXyhQbU1M3muxsD6sr4gL8vG3Gr9YQAFzvRpVoIxKLYLt3YbvTtCJIAJAsdAF1um4bjADJNvBu61dpXJWA2Y24CTvGEpLVx3Rcv7kDaU87GlxI_1S-uteKZsUCDEGh2Ll24J4kztWUV35C5s4TE9m97j8FBD9m8BaJVkzmlCnr5qJMTAajg2CCOAoKrrMV8BRB9mf3pZpzQgfhspP4BZg4KWSy6tJQbmTFNQj5JOyQF_k8UuczSD5gXIqWJ3GPWZZv4FLq2xz-skANZ6aqikeFIxtS2EoLqTQMNu1reTFTgU7sIr3jzVHGWZalU8RV1u6RLq11FUmFRsABa-cdasdt_ap51fHVcZYNLeY0Fll5zxiCKK9Qire8WlndWUDq_-dlS75qyS8bkTg08s-tNWqytSm8b4jCf2o7QDLKDfrSrFkeB4_532NUKJRwoNmV4X4nI3Ei54dUvRaVy-0t-K3_iUF4m8rZGLefNRoh0VrJnqRmQjOksGrdeRiIZWncBOZYA98EP48bqyaS3BBFU38IWthyn-qlUGELFcBjcaJntdXSuw" height="200" width="auto" /><br><br>Location: UDC Tower<br><br>Wall Screen<br><br>Video Artwork<br>1664(W) x 1040(H) px x 4<br><br>Measurement(WxH)<br>10m x 5.5m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v4su_AUeoce0ZTaSannjxYv3khZ5WZ3O2ZH3Pzxl94bSdNzTCIlC7-d77ubGNzwk9RZ_ettwoj5taPte2gnGOT-33EoPKvlcfIfreEEYrv0nuMA9ovMMR9AIQw1R5Kfcs0UxIIOl9hYuTPD0rpGZLY7hxqrM15Wo52iy2YJ2qUtOmVXyhQbU1M3muxsD6sr4gL8vG3Gr9YQAFzvRpVoIxKLYLt3YbvTtCJIAJAsdAF1um4bjADJNvBu61dpXJWA2Y24CTvGEpLVx3Rcv7kDaU87GlxI_1S-uteKZsUCDEGh2Ll24J4kztWUV35C5s4TE9m97j8FBD9m8BaJVkzmlCnr5qJMTAajg2CCOAoKrrMV8BRB9mf3pZpzQgfhspP4BZg4KWSy6tJQbmTFNQj5JOyQF_k8UuczSD5gXIqWJ3GPWZZv4FLq2xz-skANZ6aqikeFIxtS2EoLqTQMNu1reTFTgU7sIr3jzVHGWZalU8RV1u6RLq11FUmFRsABa-cdasdt_ap51fHVcZYNLeY0Fll5zxiCKK9Qire8WlndWUDq_-dlS75qyS8bkTg08s-tNWqytSm8b4jCf2o7QDLKDfrSrFkeB4_532NUKJRwoNmV4X4nI3Ei54dUvRaVy-0t-K3_iUF4m8rZGLefNRoh0VrJnqRmQjOksGrdeRiIZWncBOZYA98EP48bqyaS3BBFU38IWthyn-qlUGELFcBjcaJntdXSuw</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.533831,25.371446,2.45
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>TPI - Underpass</name>
+      <Placemark>
+        <name>DU-C1-Entrance</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7kZrjki5Urr_gzuQe198TD76SZ4GJQzUOLCm1dP3X3FmMTJbawdZjhsB5qJixDRIMZs08eNT4JlHPuqx_7DtDQtBX6tFhMikTlDFI410zvV3-bFLLqewlfQScCFmiHKuO0NX-O8tZgPRvOrp4bR7bfR4yDpMRO9FTtQwEnSetc0gMi19H0siogoKyKCkSDRyy9sgpT6eDIrRJSCVofZ0BvtAIA7j-JIXCOaQ-aiUy23egW553W4AyGFNTJ2hl3R0UxKMzCcEr6FwgBZZ9c1f16nJI3SjGV3aOt0WN8vh_S6Weum1YZpn1fCXTE853b0ol2soCpKHAsgfVN9ED2aeeamvhaK_sf7d9GxSdytztaMWEh3zS2FvkZe_DXgMkAHuv2nTaqt6jzNan3tgwp1SLCVMXvnC0vA6bC8LOKbl1_HU-7-hXaC3DRa2BuZJ7kWhrSd9omfhkOn_yXXuBaLWDQdCfnE_kq2vp_2lDD4J4h8NjRf0OwpB7flQm8WWAS5ds_SzTDJgY_OuLfkITI-Uj5cR9oQmFBT3OookF4v6JCH9PwAFo3qh5nGxHwot2X6kB5jvsRUJOoSLia5i0dd6LOa_11FjYhGX4FYXKnCCIhkWZeQgvCHQqJyUdqKEDx38usugClPSNgYPSgCW3VDT4Y4l5WZRJDZi1F52r7YNT2sfZPvSntm30rqRq40Q7rLH3iWVkw0MIpNIxWmnToH4dgorR1qA" height="200" width="auto" /><br><br>Location: Underpass Entrance<br><br>Video Artwork<br>6240(W) x 420(H) px<br><br>Measurement(WxH)<br>32m x 2m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v7kZrjki5Urr_gzuQe198TD76SZ4GJQzUOLCm1dP3X3FmMTJbawdZjhsB5qJixDRIMZs08eNT4JlHPuqx_7DtDQtBX6tFhMikTlDFI410zvV3-bFLLqewlfQScCFmiHKuO0NX-O8tZgPRvOrp4bR7bfR4yDpMRO9FTtQwEnSetc0gMi19H0siogoKyKCkSDRyy9sgpT6eDIrRJSCVofZ0BvtAIA7j-JIXCOaQ-aiUy23egW553W4AyGFNTJ2hl3R0UxKMzCcEr6FwgBZZ9c1f16nJI3SjGV3aOt0WN8vh_S6Weum1YZpn1fCXTE853b0ol2soCpKHAsgfVN9ED2aeeamvhaK_sf7d9GxSdytztaMWEh3zS2FvkZe_DXgMkAHuv2nTaqt6jzNan3tgwp1SLCVMXvnC0vA6bC8LOKbl1_HU-7-hXaC3DRa2BuZJ7kWhrSd9omfhkOn_yXXuBaLWDQdCfnE_kq2vp_2lDD4J4h8NjRf0OwpB7flQm8WWAS5ds_SzTDJgY_OuLfkITI-Uj5cR9oQmFBT3OookF4v6JCH9PwAFo3qh5nGxHwot2X6kB5jvsRUJOoSLia5i0dd6LOa_11FjYhGX4FYXKnCCIhkWZeQgvCHQqJyUdqKEDx38usugClPSNgYPSgCW3VDT4Y4l5WZRJDZi1F52r7YNT2sfZPvSntm30rqRq40Q7rLH3iWVkw0MIpNIxWmnToH4dgorR1qA</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536227,25.371692,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DU-C1-Exit</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBor1xLSp0piMueXANzcjtO876jyYVyPHq3kIClQoIEQC8fUw7Gg53OwJSjCtCxN8OyywOCI5VoqRGIPuk6-pcmov4yL9nBlallueowUh_TuotvRtktvnEfXrhcHgZsrAmlr0n1-8KeiI5id8ZNhlC6cxxilahaNQ8Gwi1NIr0yiOckNptCADrCwUSd7vW96letMLaiIsRHjU1O-E808DGFXW6P1ZScsQeooNyOS1TJssCFEV4oVM3wgJmgU?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Underpass Exit<br><br>Video Artwork<br>6240(W) x 420(H) px<br><br>Measurement(WxH)<br>32m x 2m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBor1xLSp0piMueXANzcjtO876jyYVyPHq3kIClQoIEQC8fUw7Gg53OwJSjCtCxN8OyywOCI5VoqRGIPuk6-pcmov4yL9nBlallueowUh_TuotvRtktvnEfXrhcHgZsrAmlr0n1-8KeiI5id8ZNhlC6cxxilahaNQ8Gwi1NIr0yiOckNptCADrCwUSd7vW96letMLaiIsRHjU1O-E808DGFXW6P1ZScsQeooNyOS1TJssCFEV4oVM3wgJmgU?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.537314,25.371888,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>TPI-  QQ Screen</name>
+      <Placemark>
+        <name>QQ-C1-01</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoolw9CgYzUJlkSNRPF6QnnxbxnOe2-fb0NEX68BlxFt0VLW02ze7VY_WytbyjVubde6gBqUTgfycBYbUvxZ04oQhImawk7hbweCos1ESnauNNkTDq8jXMHMmyw3h5Nuz_bKWpMMMXZoiR-If0tkvk8r74eDYv3rr-vfYYb6vzg3Ea7XfQR0eAyJG-Ne67pyibowZ8zextNxbPjqQV7bDwG9NW09En2WDOjtmZ9cSOtjVAS2b7xUpu_IdOI?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Qanat Quartier Drive<br><br>Video Artwork<br>3742(W) x 432(H) px<br><br>Measurement(WxH)<br>25.5m x 2.55m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoolw9CgYzUJlkSNRPF6QnnxbxnOe2-fb0NEX68BlxFt0VLW02ze7VY_WytbyjVubde6gBqUTgfycBYbUvxZ04oQhImawk7hbweCos1ESnauNNkTDq8jXMHMmyw3h5Nuz_bKWpMMMXZoiR-If0tkvk8r74eDYv3rr-vfYYb6vzg3Ea7XfQR0eAyJG-Ne67pyibowZ8zextNxbPjqQV7bDwG9NW09En2WDOjtmZ9cSOtjVAS2b7xUpu_IdOI?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.544138,25.375377,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>TPI - Digital Mupi - C1</name>
+      <Placemark>
+        <name>DM-C1-01</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoo0hOz8_dOJYSbmRs4JUPo9YQr6JGh3Lk3Xz_8z0_f8mMdUXjrTyb9Ew4xnk_PzWxlXCqQ0ae0jaRHp5kmlRCXmvEN5uJUlq0PKfNgXHUohm__B8uJbLdMq-DcgC-QkLss8CLLEb23KGVh6YaJH0cAQfAxOXJPsmen9p5F6jMQHU602Z7HE2X10alaPKHt0KCC7yOewh69kKIIH1TA7VKQgCmPnYP-4urwmPwELScbRY2WoURbKMz-hMOc?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Main roundabout, Qanat Quartier<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoo0hOz8_dOJYSbmRs4JUPo9YQr6JGh3Lk3Xz_8z0_f8mMdUXjrTyb9Ew4xnk_PzWxlXCqQ0ae0jaRHp5kmlRCXmvEN5uJUlq0PKfNgXHUohm__B8uJbLdMq-DcgC-QkLss8CLLEb23KGVh6YaJH0cAQfAxOXJPsmen9p5F6jMQHU602Z7HE2X10alaPKHt0KCC7yOewh69kKIIH1TA7VKQgCmPnYP-4urwmPwELScbRY2WoURbKMz-hMOc?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536813,25.372178,3.02
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C1-04</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7B0DDrFB9TUyQKXjkVfKiDh3N6l3xUdQ9Wg_4QABwJ6I8bdJSic1kwFADsN6WGVr23dSx5Sv1bD3Mgd6EjixnT1NR_rOIwv8onPskiMh_BfCoeUq5Em6hGY9d_fIWPfrKfDjz-b_k_FLE5QNVQNtzQPWbkPOApUSN1mo2glVNBWdOSgcjGNoIDA8pvK9xaCRTIzSQxvyKBav7pegstue37LCfx4k33NlaYtd2iXNXbES_x00wrMGyDTfkJJjdkWFwoKn1oZXfHgL6JLRGahWHiNv6Po7JjsUvgzrQR0OM-Jn9rBxI9KRvEZ8_k6V5fF_89IrKRDM9-J6p3rXAEFPm6U8EDr6ZVytPIynV6w43_FOfucDwMG4XOrY-LEudUepMjnXMarRAr5L_o4_XUqYVeFu51pXmRFVchP8qtWPPe95VYxWzF0_QXaLem8h2uTwFCaAo7DxrmzstHcDqQQEb6ItTKKUWvKYOccdsh7UBeRooiXBwhzo8cOnoLgYwCpDb8fNJLCxLP0W9nAjsqFxlY-olfE4C0PLvChh8J65jPjvmTT86hhZNp3kU1SQt2MaLPRHTkqCuRTOLJAqtImLZhPTH-KRhrCXjTCNOR8j-CtdhFvyZ-aiC2JpDamWAntJ2g13m7Bt_E3QHEaHb9PXccktBJL7yv1EK30m6bPbVaa3ERW8hFWrs0UkKFHBbZ77_TTpEcRh0rjcK_D0w1AKJu1wkAbQ" height="200" width="auto" /><br><br>Location: Porto Arabia, Piazza Arabia<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v7B0DDrFB9TUyQKXjkVfKiDh3N6l3xUdQ9Wg_4QABwJ6I8bdJSic1kwFADsN6WGVr23dSx5Sv1bD3Mgd6EjixnT1NR_rOIwv8onPskiMh_BfCoeUq5Em6hGY9d_fIWPfrKfDjz-b_k_FLE5QNVQNtzQPWbkPOApUSN1mo2glVNBWdOSgcjGNoIDA8pvK9xaCRTIzSQxvyKBav7pegstue37LCfx4k33NlaYtd2iXNXbES_x00wrMGyDTfkJJjdkWFwoKn1oZXfHgL6JLRGahWHiNv6Po7JjsUvgzrQR0OM-Jn9rBxI9KRvEZ8_k6V5fF_89IrKRDM9-J6p3rXAEFPm6U8EDr6ZVytPIynV6w43_FOfucDwMG4XOrY-LEudUepMjnXMarRAr5L_o4_XUqYVeFu51pXmRFVchP8qtWPPe95VYxWzF0_QXaLem8h2uTwFCaAo7DxrmzstHcDqQQEb6ItTKKUWvKYOccdsh7UBeRooiXBwhzo8cOnoLgYwCpDb8fNJLCxLP0W9nAjsqFxlY-olfE4C0PLvChh8J65jPjvmTT86hhZNp3kU1SQt2MaLPRHTkqCuRTOLJAqtImLZhPTH-KRhrCXjTCNOR8j-CtdhFvyZ-aiC2JpDamWAntJ2g13m7Bt_E3QHEaHb9PXccktBJL7yv1EK30m6bPbVaa3ERW8hFWrs0UkKFHBbZ77_TTpEcRh0rjcK_D0w1AKJu1wkAbQ</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.538127,25.37091,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C1-05</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6IXLGUew9jtnzR7OWV43-hMOolrlvmgcCECEB9Uq6HmW0txu3eEWuRCkBWyPTshTGmD9l8VG2xU1x0liHQLck3jD6ofTthPe1Z7sxwaw6heXMtVaEQjpbQgmRjF_VYLNb-87D-RS7USAJL3k4iwk1hPnmrs4nH-7GJL5641R4o5xCkqZD4v16MMM4b-630tsLpuMSachMA2ZSehS8dofY8cyzGICaxhQmn6k9mKRZmU8rkb2_AsDGzrWG18WH_hhBmBQSoANZtSGAsV4EwI1IIQgPOE9JalS8d5vZRMHfSldanxqzB3vcH9s33qy-HvvAWQBkQBAzbnG827Zibllpm6f8FGxBdSvYfcH4RIpXyKdB-Hzn2GtQpMcH2hrXqIiO7qtwFX9PsB97lYaauQeBcwEKbEpyXSgoCqX56oOwOjgZre9Robw0Jm6xx60wc8LHq84GGoFUcYpuZIFRRvwUkZeBR5NiVEGX0es9jjvApalcHOqIbZ31iqeLrdQSYDKhcHD2Orbwkfg6TIr4hvK_y7xNXAMjBxQeGyB_056i2hi67nGW27Idwgzy9sTxR_NSD12nXqWSTc5uEM3GQV8w99p72OpJ3hfRj6clWHtpZugeV7-CynN6KgtDHv3BtX6ul4T1Yt0eSedECb8n6M6giTgdbwgI_w603LnpTi4K53d6sPnlUtMvB7R_R5Xov4SNvMIB3w1I5s-oMCrsxQ1Ooro4-" height="200" width="auto" /><br><br>Location: Porto Arabia Drive, Tower 8<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6IXLGUew9jtnzR7OWV43-hMOolrlvmgcCECEB9Uq6HmW0txu3eEWuRCkBWyPTshTGmD9l8VG2xU1x0liHQLck3jD6ofTthPe1Z7sxwaw6heXMtVaEQjpbQgmRjF_VYLNb-87D-RS7USAJL3k4iwk1hPnmrs4nH-7GJL5641R4o5xCkqZD4v16MMM4b-630tsLpuMSachMA2ZSehS8dofY8cyzGICaxhQmn6k9mKRZmU8rkb2_AsDGzrWG18WH_hhBmBQSoANZtSGAsV4EwI1IIQgPOE9JalS8d5vZRMHfSldanxqzB3vcH9s33qy-HvvAWQBkQBAzbnG827Zibllpm6f8FGxBdSvYfcH4RIpXyKdB-Hzn2GtQpMcH2hrXqIiO7qtwFX9PsB97lYaauQeBcwEKbEpyXSgoCqX56oOwOjgZre9Robw0Jm6xx60wc8LHq84GGoFUcYpuZIFRRvwUkZeBR5NiVEGX0es9jjvApalcHOqIbZ31iqeLrdQSYDKhcHD2Orbwkfg6TIr4hvK_y7xNXAMjBxQeGyB_056i2hi67nGW27Idwgzy9sTxR_NSD12nXqWSTc5uEM3GQV8w99p72OpJ3hfRj6clWHtpZugeV7-CynN6KgtDHv3BtX6ul4T1Yt0eSedECb8n6M6giTgdbwgI_w603LnpTi4K53d6sPnlUtMvB7R_R5Xov4SNvMIB3w1I5s-oMCrsxQ1Ooro4-</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.539542,25.372441,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[DM-C1-06 & 07]]></name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6EFTrrWcURUKHprhY78KRVGNOaK9ufVyQh22C5Yu_niphsQ_Hl0hteoq7uqf2AC95tTK9DCeIeOuf-KF-CTjzzOjRpCbmprCSHZfeDlM4Qa629YCivJZzqh5H4xEwX2Qg_BBtDhSk2VIDibjvJlb67ujW6sA7gxCt4izMQQJ5McutWHVq1HVb0NUmLcvMx5W_JEyweaufmvT_vXY5cJ3DUX4SqIf3469-JD3ygIA6o0vP_Iz1G9he408e8eguZHi8m2mbtHM3cUtvhpHMS_NLanPvzfCJKic4N7fBRWgbHa8gOiFsDI7E1-iS7WUT0rwfqKMXs2eeNlacRrnHIpY7rVJNDlpOVaCGaBrmyCHz65My1unZaL9dKyeS-Uv8q5e2XfClY4uTybiaTYhN94au05u3npssdbiKPbus9OSDuiRDIUEbhBFJ-F8P3wWfoyF6W64yhMFn4M-gpwVOb0lDrtpA23dA1Shm2tBym3GPALKGDLoMo_nolTuuV_OFbcuuGD-qgmQktfQNc4yto8jPVlhoZwCMnYKMq8rUnKFnP8cpC3OtXjBfWigq1c4_nAEVDRI_QyW6XxMlyl00E_AR8uiPqpiolT9GjNTZ42CO5mbnX7YslhdvcKqeZ6pf_qCcZOw4KCR5JOOSmgF84oM-DZ82V76mJx7yr-ZysoQmsORfZ_-IBk_2Ws5XkNOHCLUL0tx2-Lw9FaJ9j-W3OLc-gOqDt" height="200" width="auto" /><br><br>Location: Porto Arabia Drive, Tower 11<br><br>Double sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6EFTrrWcURUKHprhY78KRVGNOaK9ufVyQh22C5Yu_niphsQ_Hl0hteoq7uqf2AC95tTK9DCeIeOuf-KF-CTjzzOjRpCbmprCSHZfeDlM4Qa629YCivJZzqh5H4xEwX2Qg_BBtDhSk2VIDibjvJlb67ujW6sA7gxCt4izMQQJ5McutWHVq1HVb0NUmLcvMx5W_JEyweaufmvT_vXY5cJ3DUX4SqIf3469-JD3ygIA6o0vP_Iz1G9he408e8eguZHi8m2mbtHM3cUtvhpHMS_NLanPvzfCJKic4N7fBRWgbHa8gOiFsDI7E1-iS7WUT0rwfqKMXs2eeNlacRrnHIpY7rVJNDlpOVaCGaBrmyCHz65My1unZaL9dKyeS-Uv8q5e2XfClY4uTybiaTYhN94au05u3npssdbiKPbus9OSDuiRDIUEbhBFJ-F8P3wWfoyF6W64yhMFn4M-gpwVOb0lDrtpA23dA1Shm2tBym3GPALKGDLoMo_nolTuuV_OFbcuuGD-qgmQktfQNc4yto8jPVlhoZwCMnYKMq8rUnKFnP8cpC3OtXjBfWigq1c4_nAEVDRI_QyW6XxMlyl00E_AR8uiPqpiolT9GjNTZ42CO5mbnX7YslhdvcKqeZ6pf_qCcZOw4KCR5JOOSmgF84oM-DZ82V76mJx7yr-ZysoQmsORfZ_-IBk_2Ws5XkNOHCLUL0tx2-Lw9FaJ9j-W3OLc-gOqDt</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.543226,25.374369,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C1-13</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4Pnd7dAD38TPxyDJd5h5ShzrdDekL1JQKK6T6QQDgJS7cSLInfJafT9K4jqv71PzodBgaEDPVk_iamgH-ritB1CnrDUWLqZKx8KFbVV4w8DDP7mH85YssycFPGpeHvla5Nh_VwpNuHaZE_2_Wejqibye0kL_HmUQnZlL6uxun6HOOPJPEWs5DEEcWF9OPlKlt3QB1xMul7Tq7zIPZxSnysrQdukkyEg-buZ-bSy3TXddcuc_WFmfL3XD0ti2e3EbrfAah7rSLEXTlhh5ccAPGh5fzIfZI2TyMmsNnXt14yQHvuANpuIXasZLkc_uc-cg-U9DKV1968BoPaWCk4G3n15arL54BIUtsFo-Ea8LyuYEAkEq3Zls82mlDYsXqg3vpJkYX66MJjczSEogSb8PUDYm2V_DSkkhS7ixvehLlTtkd2-7pI3Opc73oDpWPW9fLt5k3xJMsd3UvIMJCU9zyBzJfC7C9S-cWA5W1T56hg3jx3x9RlyuvIhqH8Q7ooFkm4xaKghxAZyF2p-k4YSHh_v0LFwS5X4DZOtqQOcTbC1in9yuzRqHZqGs0b4zRRKk2qXr8nWccjTICi67zOWWgIN374ovalnVQ2uqPvPL4_4V1UuT-zKuxUCbNSuCBWCMgvRZ_G9WY5mENYO6NKhcafR-HOIM5sscJ2UO-Ippg7oRBSFcB-rTBsCDFN4cRQAtDsHuke9NLF3KS2WNT7sZqNmc9aGQ" height="200" width="auto" /><br><br>Location: Medina Central<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v4Pnd7dAD38TPxyDJd5h5ShzrdDekL1JQKK6T6QQDgJS7cSLInfJafT9K4jqv71PzodBgaEDPVk_iamgH-ritB1CnrDUWLqZKx8KFbVV4w8DDP7mH85YssycFPGpeHvla5Nh_VwpNuHaZE_2_Wejqibye0kL_HmUQnZlL6uxun6HOOPJPEWs5DEEcWF9OPlKlt3QB1xMul7Tq7zIPZxSnysrQdukkyEg-buZ-bSy3TXddcuc_WFmfL3XD0ti2e3EbrfAah7rSLEXTlhh5ccAPGh5fzIfZI2TyMmsNnXt14yQHvuANpuIXasZLkc_uc-cg-U9DKV1968BoPaWCk4G3n15arL54BIUtsFo-Ea8LyuYEAkEq3Zls82mlDYsXqg3vpJkYX66MJjczSEogSb8PUDYm2V_DSkkhS7ixvehLlTtkd2-7pI3Opc73oDpWPW9fLt5k3xJMsd3UvIMJCU9zyBzJfC7C9S-cWA5W1T56hg3jx3x9RlyuvIhqH8Q7ooFkm4xaKghxAZyF2p-k4YSHh_v0LFwS5X4DZOtqQOcTbC1in9yuzRqHZqGs0b4zRRKk2qXr8nWccjTICi67zOWWgIN374ovalnVQ2uqPvPL4_4V1UuT-zKuxUCbNSuCBWCMgvRZ_G9WY5mENYO6NKhcafR-HOIM5sscJ2UO-Ippg7oRBSFcB-rTBsCDFN4cRQAtDsHuke9NLF3KS2WNT7sZqNmc9aGQ</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.549883,25.369312,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[DM-C1-11 & 12]]></name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoocgw4zYc7lo18I0Bem47Xn0DyWdZ85NFWWqLBPIIfqWb3G0qrfvNwJalN7zDyevhCvY4sAL91pFOUKGKU3_eaXAA4buUzTNr2iA7Y45I7-WNTjAtCn6HcRsj1pmlb6ZWWm6i4j-tJgQRz2FLaMnsf0Od6e0a6NORiOMJ24LTuRMwCg6iMck-_yfq0mWypmOzkLZlE_rY5WbPgtuWkj0H3oK0bEHuJrHWQ83tzakbwLQ3YrY0iaSRfbdnA?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Medina Central, near Ferrari<br><br>Double sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoocgw4zYc7lo18I0Bem47Xn0DyWdZ85NFWWqLBPIIfqWb3G0qrfvNwJalN7zDyevhCvY4sAL91pFOUKGKU3_eaXAA4buUzTNr2iA7Y45I7-WNTjAtCn6HcRsj1pmlb6ZWWm6i4j-tJgQRz2FLaMnsf0Od6e0a6NORiOMJ24LTuRMwCg6iMck-_yfq0mWypmOzkLZlE_rY5WbPgtuWkj0H3oK0bEHuJrHWQ83tzakbwLQ3YrY0iaSRfbdnA?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.548389,25.365936,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C1-15</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooSkXb6AmEO06lOeNnBl8Vm5WyMggty_GU2H2dbnd9fBF--QHzSXrX4FLCXBl8mLNguhVkusQvu2n-l6szuiBA1H-y42S5ZAKINOXF0PSKKRKSQrhUXkVUo6v6Bu4Qr-afliLKM81_QN6pZL2fiHjdc9I8DhlHkHqjW7nOrJpR__XN9Q9zkPfJyB7091qx3mNtabrJyGZQo4nNSTWhMaa5wRG-aoMiE2WoYpSn2I83-KenJuuzxC0TuhJk?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Near Qatar Cool<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooSkXb6AmEO06lOeNnBl8Vm5WyMggty_GU2H2dbnd9fBF--QHzSXrX4FLCXBl8mLNguhVkusQvu2n-l6szuiBA1H-y42S5ZAKINOXF0PSKKRKSQrhUXkVUo6v6Bu4Qr-afliLKM81_QN6pZL2fiHjdc9I8DhlHkHqjW7nOrJpR__XN9Q9zkPfJyB7091qx3mNtabrJyGZQo4nNSTWhMaa5wRG-aoMiE2WoYpSn2I83-KenJuuzxC0TuhJk?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.550288,25.37151,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C1-17</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoor69eu1JEy7pMBvEoNj4CJg6YyJEgWQ_qABU7sOb0v8bx0zu2gYxM2I-fvHeexmy6ZiHQaL_IE7DDMxfEBpciqxIIYYnUfNXf_46CbM7R7ngaLB3zWxXs2t5N9TcU1vAXNyLLSqEnyEaWR775VgKPxOd8zJeCL-uDmYCPShQG1KhhjeQYdW29_5StLzBICzKPGOUvCTJ7FcR8SToBPj0gFC2l80ESEMAFiGbetMhnumw3lEn0ZFWXGlsM?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Kempinski Road<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoor69eu1JEy7pMBvEoNj4CJg6YyJEgWQ_qABU7sOb0v8bx0zu2gYxM2I-fvHeexmy6ZiHQaL_IE7DDMxfEBpciqxIIYYnUfNXf_46CbM7R7ngaLB3zWxXs2t5N9TcU1vAXNyLLSqEnyEaWR775VgKPxOd8zJeCL-uDmYCPShQG1KhhjeQYdW29_5StLzBICzKPGOUvCTJ7FcR8SToBPj0gFC2l80ESEMAFiGbetMhnumw3lEn0ZFWXGlsM?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.547697,25.375784,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[DM-C1-19 & 20]]></name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorsZE28fucKLQV0udyaGqcPfywy_s27bFzGih-IVbbjrgp46UDOvSX4fe5KESg_vsY0gxHpJ9_7JRJXaJws3Gh6SMSIEU20iaFTQxvQ9j_tCUJR-3NYgV7tjEt3xAdxT71GWKYlAPgXfEEJdZdBAO2hrXwCXyBu4s6DT1vgofUvzBP4eVmLlC_XJyWJy6TxDjzmtrSu2xg04Om-oT-vswqfin25j892m-osFXNj-xnYb4RniIDtgQ1bPKI?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Qanat Quartier Drive<br><br>Single sided screen<br><br>Static or Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorsZE28fucKLQV0udyaGqcPfywy_s27bFzGih-IVbbjrgp46UDOvSX4fe5KESg_vsY0gxHpJ9_7JRJXaJws3Gh6SMSIEU20iaFTQxvQ9j_tCUJR-3NYgV7tjEt3xAdxT71GWKYlAPgXfEEJdZdBAO2hrXwCXyBu4s6DT1vgofUvzBP4eVmLlC_XJyWJy6TxDjzmtrSu2xg04Om-oT-vswqfin25j892m-osFXNj-xnYb4RniIDtgQ1bPKI?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.544739,25.375156,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>TPI - Digital Mupi - C2</name>
+      <Placemark>
+        <name>DM-C2-02</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopMju1jnYJSzh1D8yr1Zs0TMRRQ6y6A0r1t_JwTOYMsU9L9HDS8i1NzhKzSYkYzMnGR1zQJjlPqhFwgFGGCISFhRMToa4aRKndpSSL6yzMutzAkQ29I9hD9EzckDP5Ne0PpNDArxEL5Sk3-qd8frdJVv7UkotQJ-a7IR5r6uA7Yxj4ICSZBvDvdNa42N4TUNLWXUtE65NGQH8X_BQP9Ij7C8sToNA5t-7FRgMKG6vi8TXMh8XnzUjkRj-I?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Medina Central, Porto Arabia<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopMju1jnYJSzh1D8yr1Zs0TMRRQ6y6A0r1t_JwTOYMsU9L9HDS8i1NzhKzSYkYzMnGR1zQJjlPqhFwgFGGCISFhRMToa4aRKndpSSL6yzMutzAkQ29I9hD9EzckDP5Ne0PpNDArxEL5Sk3-qd8frdJVv7UkotQJ-a7IR5r6uA7Yxj4ICSZBvDvdNa42N4TUNLWXUtE65NGQH8X_BQP9Ij7C8sToNA5t-7FRgMKG6vi8TXMh8XnzUjkRj-I?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.53713,25.371094,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C2-03</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7egtVGRabRLApXPEqRTCl89SicLgNe3DkX-xeV-z_XsC4h5Ecz59f-JRcOgVqvXfjakYkQpz2m0MkmrGZzQEEeZgEPO-zJcOAQCWMAy2NjOIf5bU_W_2SFafuleQC9WptCuUiD-IDqOO7vO2VT87H6rgMiza3mE114saLXwmwR9P3Cl_HqFYWPi9C44rXxgXyc2qLquIJgmBm7brFdakk16C3zJIAq3wyC_JK4nSoFR1juDBCm9Lg_OcweAG-YGGCstAVYfYVU_FBjru0qRMdBAz5BdzCGR2S-ozjKcaFnHIRLO8P7gfgfgcRnP4UnvairmssHGPb3-LuKy--RXl3XeFW981Zwb9Zb-jPG44TD-Nh59zpaJFOmVsCRuzhBKhQO8kRdZ1bgtBOPFL7cfs3777K2IU7K3LNjvjRnxZS1SI48Yb2j5r41yzjbQY8z0qnI2rqXffUhgahu70qd1x86G2XcPWHTr7yzGBeL3DzldWN2HDQZtNQAm4eecLAATmNhdu-_QIviHYdChkfGzDozIvNE5vRh9SCcn3ya7HYDfK22_ek8M8V2L0H3QS-oZsz9LjqXL5Yi7fpFOKe_OA8v2sa_3Mu8TFC1iDuFrcux1t_mOFYDQ6n1OkUAEVczAkMYzS3db80YJOIiXbJvjHyhw5lZmikwBOYrFkiJpaeYKdCkjNj051qxHwxgZCNR27pAaqlyJ_d2NBkjPuE5dpP_vJDJXQ" height="200" width="auto" /><br><br>Location: Medina Central, Main Boulevard<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v7egtVGRabRLApXPEqRTCl89SicLgNe3DkX-xeV-z_XsC4h5Ecz59f-JRcOgVqvXfjakYkQpz2m0MkmrGZzQEEeZgEPO-zJcOAQCWMAy2NjOIf5bU_W_2SFafuleQC9WptCuUiD-IDqOO7vO2VT87H6rgMiza3mE114saLXwmwR9P3Cl_HqFYWPi9C44rXxgXyc2qLquIJgmBm7brFdakk16C3zJIAq3wyC_JK4nSoFR1juDBCm9Lg_OcweAG-YGGCstAVYfYVU_FBjru0qRMdBAz5BdzCGR2S-ozjKcaFnHIRLO8P7gfgfgcRnP4UnvairmssHGPb3-LuKy--RXl3XeFW981Zwb9Zb-jPG44TD-Nh59zpaJFOmVsCRuzhBKhQO8kRdZ1bgtBOPFL7cfs3777K2IU7K3LNjvjRnxZS1SI48Yb2j5r41yzjbQY8z0qnI2rqXffUhgahu70qd1x86G2XcPWHTr7yzGBeL3DzldWN2HDQZtNQAm4eecLAATmNhdu-_QIviHYdChkfGzDozIvNE5vRh9SCcn3ya7HYDfK22_ek8M8V2L0H3QS-oZsz9LjqXL5Yi7fpFOKe_OA8v2sa_3Mu8TFC1iDuFrcux1t_mOFYDQ6n1OkUAEVczAkMYzS3db80YJOIiXbJvjHyhw5lZmikwBOYrFkiJpaeYKdCkjNj051qxHwxgZCNR27pAaqlyJ_d2NBkjPuE5dpP_vJDJXQ</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.537446,25.371539,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[DM-C2-08 & 09]]></name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooMwhBd0u4cwaB6-FLK558_2zTQedWoUEPPiENaYsXnkiYGwu3L8o0FI5bk8_-7Sng4KDT-hJYlC8nMX4Ozuut6qpWbtgPGvJL2dgoO4ArLWr3qQIQiHT7En52pSg_QIl4MOHLxyrf0DE87oXk8_ZvHpzGBGvVKWmwSh1Y2mo8P0ZbHWi5s91f57WtjbuQmpeDIjGs_XPAm_zNBx3b3Z96eM_iUDC09zVExqiu8YhPu_RL0B52LkcKEMbk?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Porto Arabia Drive, Tower 18<br><br>Double sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooMwhBd0u4cwaB6-FLK558_2zTQedWoUEPPiENaYsXnkiYGwu3L8o0FI5bk8_-7Sng4KDT-hJYlC8nMX4Ozuut6qpWbtgPGvJL2dgoO4ArLWr3qQIQiHT7En52pSg_QIl4MOHLxyrf0DE87oXk8_ZvHpzGBGvVKWmwSh1Y2mo8P0ZbHWi5s91f57WtjbuQmpeDIjGs_XPAm_zNBx3b3Z96eM_iUDC09zVExqiu8YhPu_RL0B52LkcKEMbk?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.548752,25.37206,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C2-10</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7UxP_M-vHMLqBxU2F1kOzlLDRPOECsXMbggiQyzPp0H8uCXLLVK10y81TgIB48V8lXwFbZDTOKwkRF16jnoVnyUW3JgXXmLDyUnUUXbvHW6RaLxSNcnrPJ0nOEC_Jqfiw-lglBLdEgzKl3NXebtAeY4Tl_ZzMDfhWKiZq1CGe8c94hk7lbmvnoZMODWCN4sTnCq8Q_TQMhiNSVzGLmVmn14hkuqeNV7QPuwwNqRG6DHi58o4MFDrcggPAfGeSUjNoFabBrevcpZz7yn5BG4_IGZV6E849Dx1Bgo3goph5JYOSxoZJeoq6T1gR2OQ6SH1cz3me8avVCzsjUReoU5M-Gjc1BoWLtCbqRW-Mbd95eDj-I45gueopkToUQ2FuJfcepr93f6bst6EVcKFo-eV668U_UwUw3fyB0lNiUyVLOSMOfB-Ah8XaVHtiQBL699eeBx3hMl1l-DBcDk_GNOk3JTldnH-QOw56KslJCPus0g7ET7k170X74OxRyZXSN4Mc_ecJqsgLrjOvMsudjC8fRH8V6-i_uqPMg3U1WSN3xztqXfdO7lmFVPOTx2Z1iWxikTPiULDz8IjPj6we4kgZlEx_1jhSaGCzDlsf7XeHzIMylO0ErcSmx43wwYnObPy6-uf7xoMzrT8gq1YhrUuC1dcDU6_Kfey0wUnWQ29LZAOYkq5GDpkpQXWoxEUzrNj9uU9O3wxgh5jyTrldM0oaJyxS7" height="200" width="auto" /><br><br>Location: Porto Arabia Drive, Tower 22<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v7UxP_M-vHMLqBxU2F1kOzlLDRPOECsXMbggiQyzPp0H8uCXLLVK10y81TgIB48V8lXwFbZDTOKwkRF16jnoVnyUW3JgXXmLDyUnUUXbvHW6RaLxSNcnrPJ0nOEC_Jqfiw-lglBLdEgzKl3NXebtAeY4Tl_ZzMDfhWKiZq1CGe8c94hk7lbmvnoZMODWCN4sTnCq8Q_TQMhiNSVzGLmVmn14hkuqeNV7QPuwwNqRG6DHi58o4MFDrcggPAfGeSUjNoFabBrevcpZz7yn5BG4_IGZV6E849Dx1Bgo3goph5JYOSxoZJeoq6T1gR2OQ6SH1cz3me8avVCzsjUReoU5M-Gjc1BoWLtCbqRW-Mbd95eDj-I45gueopkToUQ2FuJfcepr93f6bst6EVcKFo-eV668U_UwUw3fyB0lNiUyVLOSMOfB-Ah8XaVHtiQBL699eeBx3hMl1l-DBcDk_GNOk3JTldnH-QOw56KslJCPus0g7ET7k170X74OxRyZXSN4Mc_ecJqsgLrjOvMsudjC8fRH8V6-i_uqPMg3U1WSN3xztqXfdO7lmFVPOTx2Z1iWxikTPiULDz8IjPj6we4kgZlEx_1jhSaGCzDlsf7XeHzIMylO0ErcSmx43wwYnObPy6-uf7xoMzrT8gq1YhrUuC1dcDU6_Kfey0wUnWQ29LZAOYkq5GDpkpQXWoxEUzrNj9uU9O3wxgh5jyTrldM0oaJyxS7</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.549581,25.368758,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C2-16</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6A1dj5JQs5rWNWsIiCw5arD0IM8QF5RL_mhO3qMDe0FwIwp3OfyIjbdEuaWeEFDAaCZl_SQqWx38Ie4ewKzxxIbzRyt28C5FXz8dSrPr58lWcZBCsHGF4mQXVc8GHF5GLVaPjhtV-xpHLi8fLWgYSHciXSJCtklzuAbQWa7z4NrL9kGaddr9a2TBqduD-2Ny2Er8rky7HTno25XjZWgk_hzuJxXU_NS5Jtpz9Pat8pDAzG8KezlIM_F2p4tNFRJ_Cg8JDAdecU5Cl-b98v3Y8litMJK4i7K2rPAQUcPZ_mw1i6cYMV4v6rtR-y3hosgPYW3ZEYJ9cMTIuJB8MuUd5UsHn3ZktXVS0R4SjNzKHTfpoX0-1q6_ZgsL4xotzIghbMqNOqkuDhEZQ2fNPf3jeyiiSARWW5HBfU0SRN0BEPo4lrw__YylXmu7WCDo6x4rR3eZhp98tBM7JmUwLcy83j-TTV6pHt4YFMHKmeEpFMS0llU-Qa5sQ22a0mzA3dbz-rmnp1UNAGCRv-kMO5An52GV3Eq71mj-4S26jhitU-y5UdwacmzMDi8S3txaPN7xnOZpVDSXJPmNrvAP6SYHoR8KcmwTnxXhC-0IiJ8E6TQuPrS8onMVWq3iOnVXP0sPQZLYVpj7x5xqGnKyA02kROQ9VcDP9h_evAXwSMzaU_lpF0CfVt-7CETtH29WJRpWztLN1HFuzJu0UMw1N1j60IBpmIhA" height="200" width="auto" /><br><br>Location: Kempinski Road<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6A1dj5JQs5rWNWsIiCw5arD0IM8QF5RL_mhO3qMDe0FwIwp3OfyIjbdEuaWeEFDAaCZl_SQqWx38Ie4ewKzxxIbzRyt28C5FXz8dSrPr58lWcZBCsHGF4mQXVc8GHF5GLVaPjhtV-xpHLi8fLWgYSHciXSJCtklzuAbQWa7z4NrL9kGaddr9a2TBqduD-2Ny2Er8rky7HTno25XjZWgk_hzuJxXU_NS5Jtpz9Pat8pDAzG8KezlIM_F2p4tNFRJ_Cg8JDAdecU5Cl-b98v3Y8litMJK4i7K2rPAQUcPZ_mw1i6cYMV4v6rtR-y3hosgPYW3ZEYJ9cMTIuJB8MuUd5UsHn3ZktXVS0R4SjNzKHTfpoX0-1q6_ZgsL4xotzIghbMqNOqkuDhEZQ2fNPf3jeyiiSARWW5HBfU0SRN0BEPo4lrw__YylXmu7WCDo6x4rR3eZhp98tBM7JmUwLcy83j-TTV6pHt4YFMHKmeEpFMS0llU-Qa5sQ22a0mzA3dbz-rmnp1UNAGCRv-kMO5An52GV3Eq71mj-4S26jhitU-y5UdwacmzMDi8S3txaPN7xnOZpVDSXJPmNrvAP6SYHoR8KcmwTnxXhC-0IiJ8E6TQuPrS8onMVWq3iOnVXP0sPQZLYVpj7x5xqGnKyA02kROQ9VcDP9h_evAXwSMzaU_lpF0CfVt-7CETtH29WJRpWztLN1HFuzJu0UMw1N1j60IBpmIhA</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.547311,25.375705,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[DM-C2-21 & 22]]></name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopf6sgZ6IY5A4Uv0m4smuNDj534XicwQyrjLgSeJcIck3o-nI3DFMwpfKagEZ5oh6FFUWvQx5HRG6tNVYrT_20HwmUe8NYv-5v9UW8qLT7eaE-1si5QGTeuYf8gSIez_lxn_XkugLgE0fW7cHPSAqYk0KZcWoueVsMCq0zvU91UaAzNfTIXXEWmeEPDCBa0U47Narl1ydM5vK9QYeIlyrLua9nJ8Y7RFjU8FdQc_ptSceUqgs8wbSehQ34?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Qanat Quartier Drive<br><br>Double sided screen<br><br>Static or Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m<br><br><img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorMiPYFykLwjzZMqEjckixdbg6kn3BN5ppCckoK0pFjopoqQbV2s3NaI91nESToBm7KSwIemduG5Hquxs2jyeAbUNSIPa5HPHloqKrlHj-lJCZPCL7Yiyxu5d8LCj3RDWIT2w5XhPVpgAgwQ8S781L_B-eINsj23CbJ3Wl_YzbrwAjV1Q7uQUASVw_RNTX0J2yLKPwn600W3geRvr-Oa3Kv_qZRn-4vkZ4mVu6HDtVhGKZ8z6zYAPqt25w?authuser=0&fife=s16383" height="200" width="auto" />]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopf6sgZ6IY5A4Uv0m4smuNDj534XicwQyrjLgSeJcIck3o-nI3DFMwpfKagEZ5oh6FFUWvQx5HRG6tNVYrT_20HwmUe8NYv-5v9UW8qLT7eaE-1si5QGTeuYf8gSIez_lxn_XkugLgE0fW7cHPSAqYk0KZcWoueVsMCq0zvU91UaAzNfTIXXEWmeEPDCBa0U47Narl1ydM5vK9QYeIlyrLua9nJ8Y7RFjU8FdQc_ptSceUqgs8wbSehQ34?authuser=0&fife=s16383 https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorMiPYFykLwjzZMqEjckixdbg6kn3BN5ppCckoK0pFjopoqQbV2s3NaI91nESToBm7KSwIemduG5Hquxs2jyeAbUNSIPa5HPHloqKrlHj-lJCZPCL7Yiyxu5d8LCj3RDWIT2w5XhPVpgAgwQ8S781L_B-eINsj23CbJ3Wl_YzbrwAjV1Q7uQUASVw_RNTX0J2yLKPwn600W3geRvr-Oa3Kv_qZRn-4vkZ4mVu6HDtVhGKZ8z6zYAPqt25w?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.54359,25.375058,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[DM-C2-23 & 24]]></name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoqJUFcsAjSVaFY9e-zVcMzoPQzP8YLLyBGmIXKSCaZJ-428MudyrPp-Fryk3MDU0uIn1xbGIdijYo1iP2aOUlLCpeQ63-mdMqhXvTrZu1ZKo87bezNKA4jKMxLxd7w8z10Cji3fDLVEThY5DGSDrAJsT-5Q25Dr4jKDp82aTVEu0Saa-aVbijtb6c89BJ4fTrWNpmv_AIAisqR0rMWxT_oLKv6_jhy0Kpi1owrhKPNjuoFAimS6i9-uVC0?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Qanat Quartier Drive<br><br>Double sided screen<br><br>Static or Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m<br><br><img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorFbh3rhpAztl_TQYWze6ufX4Mv20ICXBz8INBm_vHIFRyjCfaoerpmWpfKLs6ZDlGM4fj777f70qlv8jsZhmfkO8k1chHPMIOEEjTQlz0qXpxe0cGnERJ5YapPdHRKhTmXxzdG1iBfgOGiEh2pQbOYbdUf8cyFZF7bj683yJorrjOCerVycZ23rC11p0QzjrZal7UK5xcxdMWJ9FA6FwjA63fRn1HrsLmlApvS8H8a0OapcGDDUPpQiuA?authuser=0&fife=s16383" height="200" width="auto" />]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoqJUFcsAjSVaFY9e-zVcMzoPQzP8YLLyBGmIXKSCaZJ-428MudyrPp-Fryk3MDU0uIn1xbGIdijYo1iP2aOUlLCpeQ63-mdMqhXvTrZu1ZKo87bezNKA4jKMxLxd7w8z10Cji3fDLVEThY5DGSDrAJsT-5Q25Dr4jKDp82aTVEu0Saa-aVbijtb6c89BJ4fTrWNpmv_AIAisqR0rMWxT_oLKv6_jhy0Kpi1owrhKPNjuoFAimS6i9-uVC0?authuser=0&fife=s16383 https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorFbh3rhpAztl_TQYWze6ufX4Mv20ICXBz8INBm_vHIFRyjCfaoerpmWpfKLs6ZDlGM4fj777f70qlv8jsZhmfkO8k1chHPMIOEEjTQlz0qXpxe0cGnERJ5YapPdHRKhTmXxzdG1iBfgOGiEh2pQbOYbdUf8cyFZF7bj683yJorrjOCerVycZ23rC11p0QzjrZal7UK5xcxdMWJ9FA6FwjA63fRn1HrsLmlApvS8H8a0OapcGDDUPpQiuA?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.542528,25.374921,0.72
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C2-25</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4M00LIeTrW15ytO_94rxm6aOuW-xCYauTJf-qoK4mABDmSYQ2IBvFX-uPcbKgGwqUQZ-_H6vjtDwrHtwMx0nHCyea4zS8gF_u6khqXUX_YmB92eJc7W17ZXf59d66BntCL50cKZZWBGqfOtxiJ1jN8SOD0QTz8yGwAWnvF7Rp6m0_aGqle6sJgRxoUtk14SK33_Ha1CpaLst4QzcKdHgVE6qpFwLDxeJ38cWU-6bAJaXFe5CqoZuqF909m9XxHRvZ5rpF247yv2xsctLzIa_koRB9vUT2UvGlGpkh6Y1IpC3QjJdpZBmF3bTUrSnwqlGrxcF2N8KpXIhnNZO_Rqt_D2HKqX0D8Swqt63Ybc8k1YScLBN7O7oQU86uKV9DQQdt0ZxUSnkZLD61rjJkT5pDeuodF5IAqMEsuBKlJuoJn1Z68z8LIg9tQlgJLeIeFFtj4QMP6idoL1yeJrptEXaox8AhdEt5c_MBCr5-UFpESg8mBb_2GdHYVZSQI6Ev4w50MWw36BhXC7U35dp7mL8M9PbDk6KSvXMIYsNSkU2fvJQg96P7hHTQzvRGfaKbV2f79fR8e8cMt_daLUwMZJhMtmSrDWKxIaiLCvDfZjPUWF61LO9UNbgjdFIGKMKlCQxfsjSm8vsel2dCdkW2xy5qapKdXQFO8f7W5wyy7KXHItYzu-fE7XbO_n_RJAwIUgr_h9KjYCD50lzR96b2uWZrdxzrT" height="200" width="auto" /><br><br>Location: Near Qatar Cool<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v4M00LIeTrW15ytO_94rxm6aOuW-xCYauTJf-qoK4mABDmSYQ2IBvFX-uPcbKgGwqUQZ-_H6vjtDwrHtwMx0nHCyea4zS8gF_u6khqXUX_YmB92eJc7W17ZXf59d66BntCL50cKZZWBGqfOtxiJ1jN8SOD0QTz8yGwAWnvF7Rp6m0_aGqle6sJgRxoUtk14SK33_Ha1CpaLst4QzcKdHgVE6qpFwLDxeJ38cWU-6bAJaXFe5CqoZuqF909m9XxHRvZ5rpF247yv2xsctLzIa_koRB9vUT2UvGlGpkh6Y1IpC3QjJdpZBmF3bTUrSnwqlGrxcF2N8KpXIhnNZO_Rqt_D2HKqX0D8Swqt63Ybc8k1YScLBN7O7oQU86uKV9DQQdt0ZxUSnkZLD61rjJkT5pDeuodF5IAqMEsuBKlJuoJn1Z68z8LIg9tQlgJLeIeFFtj4QMP6idoL1yeJrptEXaox8AhdEt5c_MBCr5-UFpESg8mBb_2GdHYVZSQI6Ev4w50MWw36BhXC7U35dp7mL8M9PbDk6KSvXMIYsNSkU2fvJQg96P7hHTQzvRGfaKbV2f79fR8e8cMt_daLUwMZJhMtmSrDWKxIaiLCvDfZjPUWF61LO9UNbgjdFIGKMKlCQxfsjSm8vsel2dCdkW2xy5qapKdXQFO8f7W5wyy7KXHItYzu-fE7XbO_n_RJAwIUgr_h9KjYCD50lzR96b2uWZrdxzrT</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.550362,25.370622,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DM-C2-18</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoqCcVzPXZiGrts5SxPDjFhAc5ltnD_WttO65gBFlMbNS-Bp9EaecBWVq9Y2cU0z4HKRmkfade_0kaAzi4XXu0UYGmrmJwVbHJgkvEX-WUsYsMPwfaBCYKFJn8YCFVrVp3s1iLGQBjZBsoRlSKlhOgmlOQd39KjcVYZC9qKbTDy2LEeP5enGhE__n3I52Boe0_QYMnypMQTP8C4Sztl2EseMj8vESL98GojfYirhNhQ2254LBPTLx9rlYkM?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Kempinski Road<br><br>Single sided screen<br><br>Video Artwork<br>256(W) x 384(H) px<br><br>Measurement(WxH)<br>1.28m x 1.92m]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoqCcVzPXZiGrts5SxPDjFhAc5ltnD_WttO65gBFlMbNS-Bp9EaecBWVq9Y2cU0z4HKRmkfade_0kaAzi4XXu0UYGmrmJwVbHJgkvEX-WUsYsMPwfaBCYKFJn8YCFVrVp3s1iLGQBjZBsoRlSKlhOgmlOQd39KjcVYZC9qKbTDy2LEeP5enGhE__n3I52Boe0_QYMnypMQTP8C4Sztl2EseMj8vESL98GojfYirhNhQ2254LBPTLx9rlYkM?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.548049,25.375858,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Medina Central Monoprix Screen</name>
+      <Placemark>
+        <name>MC Elevator</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopI1BiFwMW0rHrxUqVLiLUwm4YVBUU7crkItMJBRsfakI_IMTyCHfunti8Us1J8VbRx4bKuXb61R5SDTv4LBprOpPB1s7WWMPQZIswwfbfPWJmiXt5SJ2oW3OoVWeF5d406XoCcKQjE6g0JoDo2h1dxIO4_O6Jwx5ssIeTu4y_6bi4eK7X6pwWSZS679eSX12z8xDPIyif-QHSnVjVntgcAmE4_n_eq-LCTfqOg4aKRWf_M8H2JrTtBxyI?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Medina Central, near Elevator<br><br>Single sided screen<br><br>Video Artwork<br>1080(W) x 1920(H) px<br><br>Measurement(WxH)<br>55"]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopI1BiFwMW0rHrxUqVLiLUwm4YVBUU7crkItMJBRsfakI_IMTyCHfunti8Us1J8VbRx4bKuXb61R5SDTv4LBprOpPB1s7WWMPQZIswwfbfPWJmiXt5SJ2oW3OoVWeF5d406XoCcKQjE6g0JoDo2h1dxIO4_O6Jwx5ssIeTu4y_6bi4eK7X6pwWSZS679eSX12z8xDPIyif-QHSnVjVntgcAmE4_n_eq-LCTfqOg4aKRWf_M8H2JrTtBxyI?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.549932,25.367512,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>MC Krispy Kreme</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorhGssFaFLKFz0YRV7vl2eYof2NqQEecrVqz3fnsmFIbxmqVqtEx5iM7ZgcXyVkr_M0JC2KJZcBGMb0xJ8Wjf62CTp4LM21fjMnbx128K-heo4g4Tha7hG4u_Tmu3rIUfwZUiUY5_8m_V-Ez6wYFceX3uOvTx6iIaPX7Okqbw6VFOBFzqPKkh7TsaQVw5eB9zAVV3_7OuZOGkW_T0DhiaYvKsJ7KgpOudghZ6EqYC6jiGzlaocnGYwdANI?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Medina Central, near Krispy Creme<br><br>Single sided screen<br><br>Video Artwork<br>1080(W) x 1920(H) px<br><br>Measurement(WxH)<br>55"]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorhGssFaFLKFz0YRV7vl2eYof2NqQEecrVqz3fnsmFIbxmqVqtEx5iM7ZgcXyVkr_M0JC2KJZcBGMb0xJ8Wjf62CTp4LM21fjMnbx128K-heo4g4Tha7hG4u_Tmu3rIUfwZUiUY5_8m_V-Ez6wYFceX3uOvTx6iIaPX7Okqbw6VFOBFzqPKkh7TsaQVw5eB9zAVV3_7OuZOGkW_T0DhiaYvKsJ7KgpOudghZ6EqYC6jiGzlaocnGYwdANI?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.5502,25.367378,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>MC Ooredoo</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4T_JCptF05zASUhZi6fdnfWb-c1r4xTYQeRzXg0mq-YJpPfzeeRfyc1G526rZyIYW_QCGv6SijbnRAIbk8AToN22ozt52_w1I7i0HVKRldFf7LBaGlsxzxSwG5beyQOPwyQj1Is6Uua2oBoXVKWU5nrxKPJ0HIkkoeU3Enstfu3EtTAyDriHDh4upNzf3dbJF-UbnQqdvSO_dFxIN7w8cAsoVPM_kJHg5_FtQoJEB8goJMCPAwYRFpc-8pDv4yXLWrxjkvcEXzMSuj04GGlCCsmXflCEbNO-n_KahaFt96cbGkIm5MWFNH-9RR_bBV1M99eTA3wAZA1pqwK3gXoIoXGPyCeYFRur1Tjx_F4-wps4CJ8-JrRdGBksMwnQJ8rtdbhHQlNfa-wugF2hqKkOzJW0LUF5DjpwYGbNQmnbZKMoPs5TwlqRGc-Sorpk-wlGdtzNwSxCxINYzXz41nZNFMkV8t1RZYoI4BI3u_7JgSL3qMaotO24J2L3QSAEfEkj-N6H-t-8NojFUdiGzMsDcFSFOZyYqGTQ1QXvAW-qxtDrE4x2AqHw_twD9wZYLl_1pYN_R8Eh-9_L4MDsrmHcTjpag1BqAgkT7IkDSNark6iz0gxvymX3tcWXJDhDhYUmEYAqwdkh_NMPIb2WQL5atXvZb8Y3FvyMknR_Ga_W4Fb0mLiil_KOmDhTWfrqJ6tAN15lTxAXw40VtTgZFZKDA-RtNUQg" height="200" width="auto" /><br><br>Location: Medina Central, near Ooredoo<br><br>Single sided screen<br><br>Video Artwork<br>1080(W) x 1920(H) px<br><br>Measurement(WxH)<br>55"]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v4T_JCptF05zASUhZi6fdnfWb-c1r4xTYQeRzXg0mq-YJpPfzeeRfyc1G526rZyIYW_QCGv6SijbnRAIbk8AToN22ozt52_w1I7i0HVKRldFf7LBaGlsxzxSwG5beyQOPwyQj1Is6Uua2oBoXVKWU5nrxKPJ0HIkkoeU3Enstfu3EtTAyDriHDh4upNzf3dbJF-UbnQqdvSO_dFxIN7w8cAsoVPM_kJHg5_FtQoJEB8goJMCPAwYRFpc-8pDv4yXLWrxjkvcEXzMSuj04GGlCCsmXflCEbNO-n_KahaFt96cbGkIm5MWFNH-9RR_bBV1M99eTA3wAZA1pqwK3gXoIoXGPyCeYFRur1Tjx_F4-wps4CJ8-JrRdGBksMwnQJ8rtdbhHQlNfa-wugF2hqKkOzJW0LUF5DjpwYGbNQmnbZKMoPs5TwlqRGc-Sorpk-wlGdtzNwSxCxINYzXz41nZNFMkV8t1RZYoI4BI3u_7JgSL3qMaotO24J2L3QSAEfEkj-N6H-t-8NojFUdiGzMsDcFSFOZyYqGTQ1QXvAW-qxtDrE4x2AqHw_twD9wZYLl_1pYN_R8Eh-9_L4MDsrmHcTjpag1BqAgkT7IkDSNark6iz0gxvymX3tcWXJDhDhYUmEYAqwdkh_NMPIb2WQL5atXvZb8Y3FvyMknR_Ga_W4Fb0mLiil_KOmDhTWfrqJ6tAN15lTxAXw40VtTgZFZKDA-RtNUQg</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.55005,25.367126,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>MC Kiddy Zone</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorc-lZMk2hEwk72r4TD8XxE6MTQurDn5TPasGTIQITpKNZvHEabDKKoFthIdCPKtB51Mw0Q53WQrPw9BM7d3Fk_hb1c9BFoOb0kqRs-BM2bS-pq354u7buNHa-CB5-zqViFhvY4j3p8y43Noa1Ki61aXmKodo5KCcYsznluF4YzKQyLVw7XNEPG5rMyEzE-K3ZDCq_qpJYsfIEHmjE-i5LMthTOXLFhENCctNVzBfeHQeZo-AsR0qHH7pU?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Medina Central, near mumuso<br><br>Double sided screen<br><br>Video Artwork<br>1080(W) x 1920(H) px<br><br>Measurement(WxH)<br>55"]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorc-lZMk2hEwk72r4TD8XxE6MTQurDn5TPasGTIQITpKNZvHEabDKKoFthIdCPKtB51Mw0Q53WQrPw9BM7d3Fk_hb1c9BFoOb0kqRs-BM2bS-pq354u7buNHa-CB5-zqViFhvY4j3p8y43Noa1Ki61aXmKodo5KCcYsznluF4YzKQyLVw7XNEPG5rMyEzE-K3ZDCq_qpJYsfIEHmjE-i5LMthTOXLFhENCctNVzBfeHQeZo-AsR0qHH7pU?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.550672,25.36743,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>MC QNB</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoo4BJBkvuh_feILBwBbz9sVoSqTF9DXk-zFjc2UXdmZHjL6sMljILqVHDiO9W1MpQ4DGoImkWJioMK7M232EETo1fD7BXFvK0lj6Ltr5tPSm_msMbkjFWlrhAMMKkKdVxhzoUH7YSHosAnVQYY9soJp-FzuEZ4-nrFnFX960FMCIuLwZ2UW5MLuszOfU7HHiNRYeaZLrIYrEBjGfO4fLyx95idJPk1TXxxNhO7bFZCmUY3-tgDFG0FRh2w?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Medina Central, near QNB<br>Double sided screen<br><br>Video Artwork<br>1080(W) x 1920(H) px<br><br>Measurement(WxH)<br>55"]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBoo4BJBkvuh_feILBwBbz9sVoSqTF9DXk-zFjc2UXdmZHjL6sMljILqVHDiO9W1MpQ4DGoImkWJioMK7M232EETo1fD7BXFvK0lj6Ltr5tPSm_msMbkjFWlrhAMMKkKdVxhzoUH7YSHosAnVQYY9soJp-FzuEZ4-nrFnFX960FMCIuLwZ2UW5MLuszOfU7HHiNRYeaZLrIYrEBjGfO4fLyx95idJPk1TXxxNhO7bFZCmUY3-tgDFG0FRh2w?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.550672,25.366911,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Gewan - Residential Building</name>
+      <Placemark>
+        <name>RB-01</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooVShwJvYV08XRxdv2f54DjEu7Wm2GRl_KTTsrjlIDVW7GnZ9U_ihTG6I6cmRG0BrPk1O_DAXPLr-Cu9WBhOaelqQpt7XN46_Pjq8S9e7u0Ry963nWi2yZMvuAqpClnoKd8X9aYTlxnkNchWcOOFqqDF5jJixRR_7mDxdKSDC14oMht_7gJMDwIji2MiKCbeZRXQQbvDh3S_MaYeLphRkxWOfv_dwCl4sCazzdDFoq_N0BXeQPfWllRWp0?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Crystal 1<br><br>Static/Video Artwork<br>1296(W)X756(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBooVShwJvYV08XRxdv2f54DjEu7Wm2GRl_KTTsrjlIDVW7GnZ9U_ihTG6I6cmRG0BrPk1O_DAXPLr-Cu9WBhOaelqQpt7XN46_Pjq8S9e7u0Ry963nWi2yZMvuAqpClnoKd8X9aYTlxnkNchWcOOFqqDF5jJixRR_7mDxdKSDC14oMht_7gJMDwIji2MiKCbeZRXQQbvDh3S_MaYeLphRkxWOfv_dwCl4sCazzdDFoq_N0BXeQPfWllRWp0?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536327,25.376924,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>RB-02</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5U8e49-mbSSvi4Acm3Jg9gdm0ruK-Vd0PLPA9csofGWrOZXvf1a3M_mLaxTBl4dk2oJiZlrk5abYmd1Du3uGUhyV_v9KauSiAPdKSU7ff_o8FlOMmCsedMf9A6B61dqCsK5MaF0x-Z0_xicVgo6YQnffY9efWhJnlf8YSZij0pcsTqVDpWZCMxXPQRZNTEF8N5xl_Qa4QsL-VGuzLc1Hr1IMhHRLGZrpfBKh6roSGy3eCnOHovPAAkztvdyBbfoIzjEAd3YJ0Vm07bruzGJxlHvHvkfh8kSzKBa49Wusvc1CYPfVugPMAw6YZv6uYfdFB7B-SC-zm9fWBLvfBVXzWJhtjlA_za_nX48hFHmRrjkyNfwbv_Ngl7t9RE5DMs_PTfk-TRyOlW_cSUgYpq3dYRJPuQfPPuOjk7_6DjVoUhZ86zIJGYANnaFeNaLOb8IoH-SL7k1d-C0eutNBX4RZDQjfVAiSrdJ93RK7fmMN0mNnu-HBqQol62ykJ6Yt5ndRJWg66NZjSLYWu1As6v_fKbZRzhGHyAkAwANr3ttXL4f4SKbTtFoyv_S6kBK60fXnPNgi4Cxx_lx8oSz-0Ho6cLplbZLYNag9G7PPMcf8saLo8OT7-9cKygj_19vqUMvGu1VDHvO98jXKFCq0sTxup2eUHTVRQzgra9VnpLCCeYIaxYpoXqH6vdRwye-nRZqPf-P45Eb4wy6wW02xfCmOo1XPMSYA" height="200" width="auto" /><br><br>Location: Crystal 2<br><br>Static/Video Artwork<br>1296(W)X756(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v5U8e49-mbSSvi4Acm3Jg9gdm0ruK-Vd0PLPA9csofGWrOZXvf1a3M_mLaxTBl4dk2oJiZlrk5abYmd1Du3uGUhyV_v9KauSiAPdKSU7ff_o8FlOMmCsedMf9A6B61dqCsK5MaF0x-Z0_xicVgo6YQnffY9efWhJnlf8YSZij0pcsTqVDpWZCMxXPQRZNTEF8N5xl_Qa4QsL-VGuzLc1Hr1IMhHRLGZrpfBKh6roSGy3eCnOHovPAAkztvdyBbfoIzjEAd3YJ0Vm07bruzGJxlHvHvkfh8kSzKBa49Wusvc1CYPfVugPMAw6YZv6uYfdFB7B-SC-zm9fWBLvfBVXzWJhtjlA_za_nX48hFHmRrjkyNfwbv_Ngl7t9RE5DMs_PTfk-TRyOlW_cSUgYpq3dYRJPuQfPPuOjk7_6DjVoUhZ86zIJGYANnaFeNaLOb8IoH-SL7k1d-C0eutNBX4RZDQjfVAiSrdJ93RK7fmMN0mNnu-HBqQol62ykJ6Yt5ndRJWg66NZjSLYWu1As6v_fKbZRzhGHyAkAwANr3ttXL4f4SKbTtFoyv_S6kBK60fXnPNgi4Cxx_lx8oSz-0Ho6cLplbZLYNag9G7PPMcf8saLo8OT7-9cKygj_19vqUMvGu1VDHvO98jXKFCq0sTxup2eUHTVRQzgra9VnpLCCeYIaxYpoXqH6vdRwye-nRZqPf-P45Eb4wy6wW02xfCmOo1XPMSYA</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536104,25.377173,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Gewan - Crystal Walk - C1</name>
+      <Placemark>
+        <name>PS-C1-01</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorJz9Y6JSWLP1VfFL_9DAuE1EX4yK3rfVbsWjgL8dQPODWc_Tz16-FKg3CWFe0EJsMRQ8_8oHCWrB4tecgDSO5RnHc1CQoBHr7r1uP2vqKJTbrmvzAavTSAVJt-8mdhRTbyNasSbmPbB1H2jKErLAh1AWWf80Qu_vmn9ffqND9ws87qHeWk74PS-NR_2GwvD_9k8E4DYReQRNOmAjpknm_4Ai-FCdBT_ZU3nLWQtRIAZwEZPeHuJTF12vo?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Crystal walk 1<br><br>Measurement<br>512(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorJz9Y6JSWLP1VfFL_9DAuE1EX4yK3rfVbsWjgL8dQPODWc_Tz16-FKg3CWFe0EJsMRQ8_8oHCWrB4tecgDSO5RnHc1CQoBHr7r1uP2vqKJTbrmvzAavTSAVJt-8mdhRTbyNasSbmPbB1H2jKErLAh1AWWf80Qu_vmn9ffqND9ws87qHeWk74PS-NR_2GwvD_9k8E4DYReQRNOmAjpknm_4Ai-FCdBT_ZU3nLWQtRIAZwEZPeHuJTF12vo?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536177,25.377079,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-02</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6QaZQSY5Yk7RC1O_ibP6XZ1Ms-QMd2MTmqqsuHn7-w5gFM9FuSwLCKJXBEvOorjZCu3x7M0PrIpXh9wWQA6MBzxyktOn4n5tL6Yi-ikd_YeHVaw6u6rlKyQChKfe3z7Hd-b5y_Xb5KMJeOnBNysag_dL_Jn67F-KMoGKpm20A6tUJhbKj-2Exu915w3V1fb06iGN9KurMEveEbewbCCR9xOGv9Y07vzGhakAwtLaCqvj0ISvgp_kJCLU0n6eAPuinp5WLx6cQwbVTyTfpSacMV4_hiYc2sqQ0vZE-3sX-b_7QXo-9ATT1DF0FJjzpJekAe-AxpwsLx0ZvSrpnfaLPNxD6kQ69N5-5hgZ0daUkGNbO1QfSLvS-2y7ylJdLpEDktN3knkPQg2Yri98YQOTsfVVASjnEOdbUG1uQjeMKvXTtV3BTJzdFJbXhEqU56ft6dfi9cLkyNt-38SAWPNyhzMB77TYovKnhsRtK1SXk7q15LkyMNI2C9t5o1PhZ2ONn0QVlL2YvYBnqBgyEMHjbK-lAjpdZyiitDZ8-fW7FFoWUfgNqkr_WYTO0yxFPMlpR05snc4qWECICmJvYiKwGOe4SeED3iIBLx1vsjRV6P7sRskkaj4pdKPqYpSI_rFAOAkPxOF8BsMlpG5eYnd25VevCYpDhfXFTmuwjnls_--kyHsKegbD-QhUyNbPnA_VdHT8LFqxvHSujruprcO43zVEkl" height="200" width="auto" /><br><br>Location: Crystal walk 2<br><br>Measurement<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6QaZQSY5Yk7RC1O_ibP6XZ1Ms-QMd2MTmqqsuHn7-w5gFM9FuSwLCKJXBEvOorjZCu3x7M0PrIpXh9wWQA6MBzxyktOn4n5tL6Yi-ikd_YeHVaw6u6rlKyQChKfe3z7Hd-b5y_Xb5KMJeOnBNysag_dL_Jn67F-KMoGKpm20A6tUJhbKj-2Exu915w3V1fb06iGN9KurMEveEbewbCCR9xOGv9Y07vzGhakAwtLaCqvj0ISvgp_kJCLU0n6eAPuinp5WLx6cQwbVTyTfpSacMV4_hiYc2sqQ0vZE-3sX-b_7QXo-9ATT1DF0FJjzpJekAe-AxpwsLx0ZvSrpnfaLPNxD6kQ69N5-5hgZ0daUkGNbO1QfSLvS-2y7ylJdLpEDktN3knkPQg2Yri98YQOTsfVVASjnEOdbUG1uQjeMKvXTtV3BTJzdFJbXhEqU56ft6dfi9cLkyNt-38SAWPNyhzMB77TYovKnhsRtK1SXk7q15LkyMNI2C9t5o1PhZ2ONn0QVlL2YvYBnqBgyEMHjbK-lAjpdZyiitDZ8-fW7FFoWUfgNqkr_WYTO0yxFPMlpR05snc4qWECICmJvYiKwGOe4SeED3iIBLx1vsjRV6P7sRskkaj4pdKPqYpSI_rFAOAkPxOF8BsMlpG5eYnd25VevCYpDhfXFTmuwjnls_--kyHsKegbD-QhUyNbPnA_VdHT8LFqxvHSujruprcO43zVEkl</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536545,25.37755,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-03</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopcFW3wuwYAF51V9TCzRxeA6ADB1c0gyS7L3oXxg_0e5-kgiEQHSg9bQgcEqNWhlPb71baH3bXfuRw2b0LOitfLsoGD9S1XoWy8tIUJxzdVYuWUTIK0iO1SC95EWN01fXR10gAAq8MYZun0o8cEtY7067b0-0x6R0AjynmMr231JLI01JJxIZOC88cFjItzrHTcrgJ0jnNkUl1ecpA5KedUUdwTsFduA4SBMwrEyo-o2uQ7kwQVsxSTRYg?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Road Side, Elevator<br><br>Static/Video Artwork<br>640(W)X384(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopcFW3wuwYAF51V9TCzRxeA6ADB1c0gyS7L3oXxg_0e5-kgiEQHSg9bQgcEqNWhlPb71baH3bXfuRw2b0LOitfLsoGD9S1XoWy8tIUJxzdVYuWUTIK0iO1SC95EWN01fXR10gAAq8MYZun0o8cEtY7067b0-0x6R0AjynmMr231JLI01JJxIZOC88cFjItzrHTcrgJ0jnNkUl1ecpA5KedUUdwTsFduA4SBMwrEyo-o2uQ7kwQVsxSTRYg?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536887,25.377219,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-04</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v46jty5u-FgsTCQXHfY20sDRsgq4sgQ8uVIUEP3u35yoWDNq8gjnF-V5yZH2CkjBPlWAaKf9FQ019nYttasiJFB-Fvrz7Bgi1Db4KundrxXdgUkfr5EQXwWXr0Uv_J-6esDKZ2PH9Ui_IcYgApG3IBXSwbkwqEuVIJFwgRG-ohoE0mE_EYcSzMghW0q9zOK_-xIOgxkc0GceLpcFzXzM1VACVhWEEKYrbNtrJ2wa5ZCC7T7plUMydhJDh-sAEB64nykz53T-WlMADa5ef6rSiY1vxI8baxknVGDo2KRU6dubWKNWPssjwvTpKwurZ76swAHI1N9PntG2jlyK2rGin8RXyrH5nDrKTqE4hEPDs-BhSFo3gptK1esh-U3F4syJXu12P4qbSlxbQRtigib9eVDK1UFAd-CnC6j6Zbj0xMvwb42_np4Ob7drkBUnFxc-pCOe3USQ9pcHl67TbYGfBOVWCeRV5BxiVR3864Nc4vDxPBb5ykI8A5Tk5hps4xSkwu1XxQ49EnKmx9SrOpFU_SBPETLnBhCukHEJZX0_6tjatnVmw0PS-qm8EJuMvH_6b-3HsTutR0zWY3A8EdviLM1oHikeGqGw_HJG0Nb532En7zd-L982osC9syrk9DF5jSPjHlC7a7N-fwQkPsa_-GNnesycVrAzOw_6Ko-yhHJWO-4dD2w4BoFztDqOcFboBjKtDk_TJArQi_qIWYIvJbw0A5N4w" height="200" width="auto" /><br><br>Location: Crystal 5<br><br>Static/Video Artwork<br>384(W)X512(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v46jty5u-FgsTCQXHfY20sDRsgq4sgQ8uVIUEP3u35yoWDNq8gjnF-V5yZH2CkjBPlWAaKf9FQ019nYttasiJFB-Fvrz7Bgi1Db4KundrxXdgUkfr5EQXwWXr0Uv_J-6esDKZ2PH9Ui_IcYgApG3IBXSwbkwqEuVIJFwgRG-ohoE0mE_EYcSzMghW0q9zOK_-xIOgxkc0GceLpcFzXzM1VACVhWEEKYrbNtrJ2wa5ZCC7T7plUMydhJDh-sAEB64nykz53T-WlMADa5ef6rSiY1vxI8baxknVGDo2KRU6dubWKNWPssjwvTpKwurZ76swAHI1N9PntG2jlyK2rGin8RXyrH5nDrKTqE4hEPDs-BhSFo3gptK1esh-U3F4syJXu12P4qbSlxbQRtigib9eVDK1UFAd-CnC6j6Zbj0xMvwb42_np4Ob7drkBUnFxc-pCOe3USQ9pcHl67TbYGfBOVWCeRV5BxiVR3864Nc4vDxPBb5ykI8A5Tk5hps4xSkwu1XxQ49EnKmx9SrOpFU_SBPETLnBhCukHEJZX0_6tjatnVmw0PS-qm8EJuMvH_6b-3HsTutR0zWY3A8EdviLM1oHikeGqGw_HJG0Nb532En7zd-L982osC9syrk9DF5jSPjHlC7a7N-fwQkPsa_-GNnesycVrAzOw_6Ko-yhHJWO-4dD2w4BoFztDqOcFboBjKtDk_TJArQi_qIWYIvJbw0A5N4w</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.538038,25.378184,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-05</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v77BzXjLQs-QzW2HiwnHTu1-4cqKL_dQ_kCGSYsOHYIQlVQD_BFjykc43HLvc6a9d_nKScHOq0LiQVUBfdYPzDy_iOsB3_OkcU-jYvHbNL47BkNg05ISZoCmPZ_hNRIbR9Re-pvsH6Vpm2y52c6PTAoE7F6ZN2cDp95g5eMib181Qmirns4J4iSVJbdTi0FdGhySKfFZIdAR3YYx77sFcs1ZQkZq_p1VipD0ELH4zHyIvJP9F2pzByV77benOnmJZ2MwcHx5W9zQ0j2Vq8MJ5eKCv4RMF8oZs1y5Ze59jFisuzVBOLSpiduqdp0c7LXXQnBxXq7baHAwMJkr7peAX_KefS0K9RrBf5j19pI-56jWzsAliweOP0sd9Qbxv5lqry19mqASS2TNtJSKGvBgqr9CtkT1X-7oeCBC_WvdbQ-hdXnnZosN6Yf2iX8Ubt71RvxcZZbpEu8zY34Bd29ZRNsd1_3A3HfUcQle45DuW-bG9WlqHPUCP33N-F18FZRUZhiH0XX7MeiaxniepLDmQY-T-WoCbMUnP803ewhydLOVcFIQLylfv3RKi6sh2ZyCYnn5vFK45Cr4YzkgEIS_JmIOBKC1fCV3T2l1_FnQLvP9N5D1OydDareE7WN0O1VW2aCMBdUNRqXzcj_qp9NQMGSRD677ViAfrkk_eRWaP-3BT0ZxlzdfJwlrqEiSFj-7kLIy_36cv-n8eMzRJVSUDFrW7ip" height="200" width="auto" /><br><br>Location: Crystal 6<br><br>Static/Video Artwork<br>384(W)X512(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v77BzXjLQs-QzW2HiwnHTu1-4cqKL_dQ_kCGSYsOHYIQlVQD_BFjykc43HLvc6a9d_nKScHOq0LiQVUBfdYPzDy_iOsB3_OkcU-jYvHbNL47BkNg05ISZoCmPZ_hNRIbR9Re-pvsH6Vpm2y52c6PTAoE7F6ZN2cDp95g5eMib181Qmirns4J4iSVJbdTi0FdGhySKfFZIdAR3YYx77sFcs1ZQkZq_p1VipD0ELH4zHyIvJP9F2pzByV77benOnmJZ2MwcHx5W9zQ0j2Vq8MJ5eKCv4RMF8oZs1y5Ze59jFisuzVBOLSpiduqdp0c7LXXQnBxXq7baHAwMJkr7peAX_KefS0K9RrBf5j19pI-56jWzsAliweOP0sd9Qbxv5lqry19mqASS2TNtJSKGvBgqr9CtkT1X-7oeCBC_WvdbQ-hdXnnZosN6Yf2iX8Ubt71RvxcZZbpEu8zY34Bd29ZRNsd1_3A3HfUcQle45DuW-bG9WlqHPUCP33N-F18FZRUZhiH0XX7MeiaxniepLDmQY-T-WoCbMUnP803ewhydLOVcFIQLylfv3RKi6sh2ZyCYnn5vFK45Cr4YzkgEIS_JmIOBKC1fCV3T2l1_FnQLvP9N5D1OydDareE7WN0O1VW2aCMBdUNRqXzcj_qp9NQMGSRD677ViAfrkk_eRWaP-3BT0ZxlzdfJwlrqEiSFj-7kLIy_36cv-n8eMzRJVSUDFrW7ip</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.538026,25.3784,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-06</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v56cN65wf8Bm1zWolui-XKvSV6tyoOoL8121vaib4hTwp2tMGHRWEEXwODsTwHNr7zi0uWiJwZf1ttbbfUdnOTA-3BpuknQUkOxlK3bxeaB4Ix7043HYJndvQgn4bG6W82XKMnL2IU6G-tD7i0hgn7XXPMXjrxyRqTEYufk6KQp6BgyUbt6OrN2B2nbc342Toqqze0frwLpxkvYLlr3zdT0-vwnTzNaDNLf3ILSsDe3thSx2zMEcAl9JkWaQ_Z3aP4VU7_tDgaFGVv8BLEurv6tAgUIR7LULT4v2vLVE6B6S6J7d7jieDVwbgG1rnKMPMvqXdn3H1cWNMFeAEZSQQsd_vMpDCYYMJDt9MeUdjuwzziYW2ieon-5Io8QQYZYmKL1RRGm3zUOPaei59lkUSO5CQzwwXojh_TUOzPu6EOPiMACiLK2Zce3qtfBYq2uwfdJL6oAQlZ6t17R75d8t1ynMD6ACPKsFM-c7aAjDUuzOkprQjqo3rafRKdcpZUV8y2lzEe8kTPhuMLAaTXTmD-GX1jGmKPlFgAw9CqA_0QbzPqe1gFZXvnNUAuBZNvIt6eBww-OOfJfsIutEYru8xBshL7k-yImhzQQkmXT04c9O-tUofqO9e-U6Sno8MYof8rKU77HWVByccsvjkwBRJWsoUEJngkFQV1fUNpOAw8CsO34rHW7qlRdcnNJphbXcomVusBuTiU9rBm0rDiqf7KTaFr9OQ" height="200" width="auto" /><br><br>Location: Crystal 5, Elevator<br><br>Static/Video Artwork<br>640(W)X384(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v56cN65wf8Bm1zWolui-XKvSV6tyoOoL8121vaib4hTwp2tMGHRWEEXwODsTwHNr7zi0uWiJwZf1ttbbfUdnOTA-3BpuknQUkOxlK3bxeaB4Ix7043HYJndvQgn4bG6W82XKMnL2IU6G-tD7i0hgn7XXPMXjrxyRqTEYufk6KQp6BgyUbt6OrN2B2nbc342Toqqze0frwLpxkvYLlr3zdT0-vwnTzNaDNLf3ILSsDe3thSx2zMEcAl9JkWaQ_Z3aP4VU7_tDgaFGVv8BLEurv6tAgUIR7LULT4v2vLVE6B6S6J7d7jieDVwbgG1rnKMPMvqXdn3H1cWNMFeAEZSQQsd_vMpDCYYMJDt9MeUdjuwzziYW2ieon-5Io8QQYZYmKL1RRGm3zUOPaei59lkUSO5CQzwwXojh_TUOzPu6EOPiMACiLK2Zce3qtfBYq2uwfdJL6oAQlZ6t17R75d8t1ynMD6ACPKsFM-c7aAjDUuzOkprQjqo3rafRKdcpZUV8y2lzEe8kTPhuMLAaTXTmD-GX1jGmKPlFgAw9CqA_0QbzPqe1gFZXvnNUAuBZNvIt6eBww-OOfJfsIutEYru8xBshL7k-yImhzQQkmXT04c9O-tUofqO9e-U6Sno8MYof8rKU77HWVByccsvjkwBRJWsoUEJngkFQV1fUNpOAw8CsO34rHW7qlRdcnNJphbXcomVusBuTiU9rBm0rDiqf7KTaFr9OQ</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.538441,25.377912,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-07</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6mLxU59m772UvYuqcO53QLKN8JiYAq9nDQeH6yUJ8Oc7sA4ttvejnl314jnOv_sIizOfqrHwZD2nFTysDYmZajZJ35yO3pznZaJYijgj-6Fxz94Ealc9G-9iWnEWws3xh9iYbzTieKGKFoEfmuZSjaCA_arLd08XXTqEzbhQDyJobgCnEjChvT8RXiqf8r7pIv9-AiTZaKgi8g24CsBTRsJ-m4hv0K3d8a9P3i1v2rK9A0Aphhbem51wUm-Bwy3YUqcUGQ08LnJm3jRQa8miDF4zGeMO9zsezBJICwILi2eV6IuJ0fZgV4ITBd5s1KUqr4I0ERaZvkT134CXy5tFk_aSjow1Zo0D1yg8PHFuMqiIoZtclBsihdR6UMUgWKDwOMJtOIccPRFWpNALn0YaDIH7CIJhmDelfeXl8L06tl9JgozOcw3HHDUK3RinDi6d_C0Euz9WE_RlIpQ8Mu8o8fbNOHRPVNpO16h-75RaRDdCBnPvwe7aMDw1o6X0OHH8gKHKGAwEex_HijwcWOmbDYEfOAGF7oteo1XNNmGDme1UrmLXS6wNz_njj4gBDaiTcnyhZbhQTLjHKHMr-0li3R6JZRKLyKfa4D05V-oztHhXku9gDUQwhr4rRujZcbDnioC_oQOal3c43qHdRFGTBp2mlzmoCsCNvVoH9qdGtVgHG7P4mbtAHDWkxeYlusMinsadsDEV974PqAD6Mq2F97Jy2gvQ" height="200" width="auto" /><br><br>Location: Promenade 3, Seaside<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6mLxU59m772UvYuqcO53QLKN8JiYAq9nDQeH6yUJ8Oc7sA4ttvejnl314jnOv_sIizOfqrHwZD2nFTysDYmZajZJ35yO3pznZaJYijgj-6Fxz94Ealc9G-9iWnEWws3xh9iYbzTieKGKFoEfmuZSjaCA_arLd08XXTqEzbhQDyJobgCnEjChvT8RXiqf8r7pIv9-AiTZaKgi8g24CsBTRsJ-m4hv0K3d8a9P3i1v2rK9A0Aphhbem51wUm-Bwy3YUqcUGQ08LnJm3jRQa8miDF4zGeMO9zsezBJICwILi2eV6IuJ0fZgV4ITBd5s1KUqr4I0ERaZvkT134CXy5tFk_aSjow1Zo0D1yg8PHFuMqiIoZtclBsihdR6UMUgWKDwOMJtOIccPRFWpNALn0YaDIH7CIJhmDelfeXl8L06tl9JgozOcw3HHDUK3RinDi6d_C0Euz9WE_RlIpQ8Mu8o8fbNOHRPVNpO16h-75RaRDdCBnPvwe7aMDw1o6X0OHH8gKHKGAwEex_HijwcWOmbDYEfOAGF7oteo1XNNmGDme1UrmLXS6wNz_njj4gBDaiTcnyhZbhQTLjHKHMr-0li3R6JZRKLyKfa4D05V-oztHhXku9gDUQwhr4rRujZcbDnioC_oQOal3c43qHdRFGTBp2mlzmoCsCNvVoH9qdGtVgHG7P4mbtAHDWkxeYlusMinsadsDEV974PqAD6Mq2F97Jy2gvQ</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.538967,25.377546,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-08</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4mhJT5twOkOVLrZKzZHmPMRGtJp7IOb_Yk1uYY1NRpUQz72-016FDO9BgDrBKWPhVIY5Vab6MpKCktDMuH-brmvYyfglDWbtxEcDOZFwIWepCutuzFf0N89rlz3_0F-QkZBZAUPiH1Zs3bQOsjtqjmNR12b90u2Y2lmA9fp46KHKp_ifOulJxP8nLXQvkZ1NbqqhqbKnwHMuBxpwkmvHX1UW_za0aExxViw1fYlVhxD4a4W9lS0LBN1P5GQvDIH5laDZJaS-UaGvawBT4vSu_txTM3JyYB0kv39iouNmFIX2MQZ_UNKiLgOspclTg2eHaI4GzIyCJLdR4StoMVX8pXEU8y_6AuJAJL5jWffBtlPMRt43dwH0XputiarMyg1Vkcf7yX7UFjFSJwxOOuCotQLtA8D1_YtPBCsK1gGXKgs8IuKhAcTGgRl-HhQlXLJHQ1s1EigIum1pubECOi-BTcyPTNeVXbioSh6nZOgYKSicvRrczEJVr4Go8erdcX-eQwbi-4_sIXj8cV_GciMiqpYbRsWCEqJ2V6wMaJIoBmd8JM6J9z5Cg6HQYouk-W_cMDdMRUOrffQehRBQRAp5et0BUnzLp5hUgV1iO2J9lFw4dx6LS2FZzYP4cNN0i0_R2M9RlZ1_zAfJHq8rrHstFLYAc-YIsCjJ6rAptxtTGURqZQv2eBkdOQMlNnOEl7XD6BTQe8byfeK2XXVA5Z_eyReMXW2Q" height="200" width="auto" /><br><br>Location: Crystal 10, Beside Elevator<br><br>Static/Video Artwork<br>640(W)X384(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v4mhJT5twOkOVLrZKzZHmPMRGtJp7IOb_Yk1uYY1NRpUQz72-016FDO9BgDrBKWPhVIY5Vab6MpKCktDMuH-brmvYyfglDWbtxEcDOZFwIWepCutuzFf0N89rlz3_0F-QkZBZAUPiH1Zs3bQOsjtqjmNR12b90u2Y2lmA9fp46KHKp_ifOulJxP8nLXQvkZ1NbqqhqbKnwHMuBxpwkmvHX1UW_za0aExxViw1fYlVhxD4a4W9lS0LBN1P5GQvDIH5laDZJaS-UaGvawBT4vSu_txTM3JyYB0kv39iouNmFIX2MQZ_UNKiLgOspclTg2eHaI4GzIyCJLdR4StoMVX8pXEU8y_6AuJAJL5jWffBtlPMRt43dwH0XputiarMyg1Vkcf7yX7UFjFSJwxOOuCotQLtA8D1_YtPBCsK1gGXKgs8IuKhAcTGgRl-HhQlXLJHQ1s1EigIum1pubECOi-BTcyPTNeVXbioSh6nZOgYKSicvRrczEJVr4Go8erdcX-eQwbi-4_sIXj8cV_GciMiqpYbRsWCEqJ2V6wMaJIoBmd8JM6J9z5Cg6HQYouk-W_cMDdMRUOrffQehRBQRAp5et0BUnzLp5hUgV1iO2J9lFw4dx6LS2FZzYP4cNN0i0_R2M9RlZ1_zAfJHq8rrHstFLYAc-YIsCjJ6rAptxtTGURqZQv2eBkdOQMlNnOEl7XD6BTQe8byfeK2XXVA5Z_eyReMXW2Q</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.53898,25.379006,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-09</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5L_sCZclifjNLV3ln_GlsHkmXtxyCKOtIuol644DC5LLl9l_8wyuKuSSKf-AYxEiPhTF6eqRHmspz3_h1EmN8-4vFVwMSewCn4FTvyDuQJMBTVo1tU0ScU0hlVTGp8n4ba3cgCNqK3QFqJz9t98Fot-zb4MqFc_0FiMil0SfRH1iQhlHQi0fbFRQvxE_TRbBdIgWu0E4K0RcQRabu31RUmP-jzC4gei0A5vitWR5jUfgtOVBK1A29rvPhAgZF_7-XRSEpjDGwl4EhdvcGU6_68GrJYXKtsBFjvOctgJnNdnp0Azo4H2RxC3KgrqW5_gHL37u07cYy0lnJ7DobMLTLRzjlWT3XRMzXzjO7PX-O3jCu_jqUh_L6NznPZG0ICKsboSY3SHnyyJ6rXODa72QniiDBktIGsGpIib4gdC5FFIG0hJIdbsO3uNNUgCBN42zabfODmtSHsg5jlOd30UI9GJhnf_hMggZXB0rFMzmS6UzBZi43AnA6LqvTfyVueQWe_ETNE138LUxobYq4dhuEjUkFwED6D4qHYWTECt3FU1CpyaFmj6xN-qY3gz_IV2PsShnIPj3VmuFxMMExi7FiCS1CXYpcA0FnTgzqUYBOuwTTPC8kUXjyLqqHRLty9aMV0X6BevIqNdHDdhXbylYKA9HO8fAMS_M6xqU3hiIJnVdJeGEEwP2Gj7B5gtXiii0tEPnPzP-TYnq5_fHyWfeLmjOmy4Q" height="200" width="auto" /><br><br>Location: Promenade 4, Seaside<br><br>Static/Video Artwork<br>640(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v5L_sCZclifjNLV3ln_GlsHkmXtxyCKOtIuol644DC5LLl9l_8wyuKuSSKf-AYxEiPhTF6eqRHmspz3_h1EmN8-4vFVwMSewCn4FTvyDuQJMBTVo1tU0ScU0hlVTGp8n4ba3cgCNqK3QFqJz9t98Fot-zb4MqFc_0FiMil0SfRH1iQhlHQi0fbFRQvxE_TRbBdIgWu0E4K0RcQRabu31RUmP-jzC4gei0A5vitWR5jUfgtOVBK1A29rvPhAgZF_7-XRSEpjDGwl4EhdvcGU6_68GrJYXKtsBFjvOctgJnNdnp0Azo4H2RxC3KgrqW5_gHL37u07cYy0lnJ7DobMLTLRzjlWT3XRMzXzjO7PX-O3jCu_jqUh_L6NznPZG0ICKsboSY3SHnyyJ6rXODa72QniiDBktIGsGpIib4gdC5FFIG0hJIdbsO3uNNUgCBN42zabfODmtSHsg5jlOd30UI9GJhnf_hMggZXB0rFMzmS6UzBZi43AnA6LqvTfyVueQWe_ETNE138LUxobYq4dhuEjUkFwED6D4qHYWTECt3FU1CpyaFmj6xN-qY3gz_IV2PsShnIPj3VmuFxMMExi7FiCS1CXYpcA0FnTgzqUYBOuwTTPC8kUXjyLqqHRLty9aMV0X6BevIqNdHDdhXbylYKA9HO8fAMS_M6xqU3hiIJnVdJeGEEwP2Gj7B5gtXiii0tEPnPzP-TYnq5_fHyWfeLmjOmy4Q</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.5397088,25.3780772,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-10</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6nIe3MLyworAyWLedVaE2FWMc5cr0BkOhXZCKUn0vn4V9Y9u2iiBnZ4bYJDMZFkyB11TKRbpgBT8X5Q7lx3NdHURed5xUmb8T2jXqJGTC2Tp8Qa65wRDIKvt9oGPreVwavBqg5eHXEeoFRk5JJJeTkQTP7K2k9lz91NVQkVhIErO4iYeUEi43K6496zVt9USGd3ZQ4by0tTTAXUnlMwfIj_0slrSCdoQ7WgbSwXhErmuzL8gIm4Ya70XYLQyKL6iYB4I9V9xJwHUwOjw8y4Ic08nGdjTkE_EItB_rGM1wKdP3oFkyxdb-Vsgzj-wvkiwqp9SE9qom4Um8p2qLb-9TgQb0m9lme7cA4OCOIZvlny8v0R0ZPhr8YKVkRummfDjZreqjXT_I1oaUmjl7XL7JN8-9hAghYRiqOLqaRpmDj9DSRYJcndeMl22fTwXhzY7SiK9U9ORekVipyWBP262xu1nU7TKEJG9V_oJbb-NZFM8EOdEiT2sejNRO--U1Adp6ChG_2F9X00dUw1KM5-fItIS0mtLzesNXz7KGiC441lfieSAFAwCsmg0mw3sa_MXWcz5C8YnyHvySIEWJHIUGY3dt0_8K5cc4iDPQKiVYn-QK4iC0z3D4oXrMFk6OzvjkXBKWJmVhDXkktLSlhp89Po-0XUpGMBLMpo0dnNABnwFaRWUcCFo2AYHpIzuzda31awEo2vRYDMDidGgB1b4lXtx8agA" height="200" width="auto" /><br><br>Location: Crystal 10<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6nIe3MLyworAyWLedVaE2FWMc5cr0BkOhXZCKUn0vn4V9Y9u2iiBnZ4bYJDMZFkyB11TKRbpgBT8X5Q7lx3NdHURed5xUmb8T2jXqJGTC2Tp8Qa65wRDIKvt9oGPreVwavBqg5eHXEeoFRk5JJJeTkQTP7K2k9lz91NVQkVhIErO4iYeUEi43K6496zVt9USGd3ZQ4by0tTTAXUnlMwfIj_0slrSCdoQ7WgbSwXhErmuzL8gIm4Ya70XYLQyKL6iYB4I9V9xJwHUwOjw8y4Ic08nGdjTkE_EItB_rGM1wKdP3oFkyxdb-Vsgzj-wvkiwqp9SE9qom4Um8p2qLb-9TgQb0m9lme7cA4OCOIZvlny8v0R0ZPhr8YKVkRummfDjZreqjXT_I1oaUmjl7XL7JN8-9hAghYRiqOLqaRpmDj9DSRYJcndeMl22fTwXhzY7SiK9U9ORekVipyWBP262xu1nU7TKEJG9V_oJbb-NZFM8EOdEiT2sejNRO--U1Adp6ChG_2F9X00dUw1KM5-fItIS0mtLzesNXz7KGiC441lfieSAFAwCsmg0mw3sa_MXWcz5C8YnyHvySIEWJHIUGY3dt0_8K5cc4iDPQKiVYn-QK4iC0z3D4oXrMFk6OzvjkXBKWJmVhDXkktLSlhp89Po-0XUpGMBLMpo0dnNABnwFaRWUcCFo2AYHpIzuzda31awEo2vRYDMDidGgB1b4lXtx8agA</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.539429,25.379202,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-11</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v68k9ypa4OCPUHCE5MTfnJ9fs6RLSUdPg0U6-qlViOv45Oi-d6iCIcOnR5TOB1s9YGvkIUA-LwSx6oNvIWiYO7BwQhqnW_PZpKjXSzVAy0adbgyPYedlWT8idtsmd-l_AywMR6dofjIWa3Mn0_nijrcf7pIIs1sS7mrFtL9CQDMqR7vzLCjwxnzBzWeNZhDkgS0pOQ3K2wVloS2CWN-hoMWTA3U-g22FdQLU-6qkOSZpOkM_rFiT64J5tr-CKrPAekZTKOCiMDlrb6uyltG-UXgT_-xWhM_ghfwe05WVw1rDjJYHTq7em-PAg8lnFFhWFO-oFCU0TXt362_eYi_6PH4KKibyzRMm6rB_BHiekQhoCOEwJs8E7K-f-gSXD2_zwVpsfKZEIwXZuOHaWg7j3lujUso1_38jtNUQSqX_Pr4bjIUoTx97qvwZJ9ybadkV4L8kgo4kQ-TDMwlJjFNtCs81CTME1lsH1DCTd4ASBYX4BKKqIsg7_BalGMBBtr4ds61OUrQl4SxqcFEagBxrn3OEBTaJEK45jFcQrdGKGMw-SHjrRRBAlm48kJrOLvw3gwVZ-eNIYdKuwgxZcbnHDZ5OGnthz0dyaFitFUVWmUxMIytvAAKV1I3-ZdivnsjY2kHmm5ArJR9vqhM-6qsCWH8dNXmeRvUGEfF_KcC005_tetEXAOAPp5Qk41Z2ZJCGHoNocTs1E0hk3gBaW-zb9mjNoWLog" height="200" width="auto" /><br><br>Location: Crystal 9<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v68k9ypa4OCPUHCE5MTfnJ9fs6RLSUdPg0U6-qlViOv45Oi-d6iCIcOnR5TOB1s9YGvkIUA-LwSx6oNvIWiYO7BwQhqnW_PZpKjXSzVAy0adbgyPYedlWT8idtsmd-l_AywMR6dofjIWa3Mn0_nijrcf7pIIs1sS7mrFtL9CQDMqR7vzLCjwxnzBzWeNZhDkgS0pOQ3K2wVloS2CWN-hoMWTA3U-g22FdQLU-6qkOSZpOkM_rFiT64J5tr-CKrPAekZTKOCiMDlrb6uyltG-UXgT_-xWhM_ghfwe05WVw1rDjJYHTq7em-PAg8lnFFhWFO-oFCU0TXt362_eYi_6PH4KKibyzRMm6rB_BHiekQhoCOEwJs8E7K-f-gSXD2_zwVpsfKZEIwXZuOHaWg7j3lujUso1_38jtNUQSqX_Pr4bjIUoTx97qvwZJ9ybadkV4L8kgo4kQ-TDMwlJjFNtCs81CTME1lsH1DCTd4ASBYX4BKKqIsg7_BalGMBBtr4ds61OUrQl4SxqcFEagBxrn3OEBTaJEK45jFcQrdGKGMw-SHjrRRBAlm48kJrOLvw3gwVZ-eNIYdKuwgxZcbnHDZ5OGnthz0dyaFitFUVWmUxMIytvAAKV1I3-ZdivnsjY2kHmm5ArJR9vqhM-6qsCWH8dNXmeRvUGEfF_KcC005_tetEXAOAPp5Qk41Z2ZJCGHoNocTs1E0hk3gBaW-zb9mjNoWLog</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.539456,25.379173,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-12</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v4hnaE3OMmxbH3uQqCs7ZUhjaRp0WL-HdKAP_ZNvdTtYkFh2wDZkwCece882dppGWHeC2vO0_w6w-8kCBG1peDax_yUSbOaWJU-Q_9XbpnRKP9BaTs83Od-x316YIkHJXFQf_ojHCRk85Cwzj-y5K0EejcbSg_QQNyYWyP1eXdPOrwCdcWsQnQJ_TN6mdz8wVDlOg5nSynkD8Iy73u9o8lExGWsEVHduVRCS9utaJvSx-eKC4Txfl0j0uxgzrqcyiqj1iz9DBxGE_U2rk6h9_vKcnlu2oLssxxmgisWVzHffAgtL92UvcTDOeWfnLdazh9475xeje4bZ3miB-eDrLDeLbS7lGLUfKqINaaZTx_L09jcUsNxhGivaho_suY58ZHBQ2sAhkpC32SRyjHAaqmAmaDDmGyMEO5r1zi3xSf-Msz3X-jEKLp5_47tBa3YEcpRAG2Ru_MKItaL5xQD4hFzzD7r8oFUq60PiL8RCTKmXjBhNmDZ-SMjOpfrvkjmpIX27nYHsIkUEPgsRQAHos1uYHRMZXwM9Mpg34gXQbIN5mx9WqHRXhL_cvAKrusOlI8dY6OA25__UpGfPQ1f0xppNocJAusPCbmQOuETGmym0KypCrgbNPEy7-H0j2DVvrUyDkbKB-gzLP2ykXlZElBTSU-NwH4fTWZ1hXJ7tq5GAd9U_yrYTpsp1AElLTOBjlM5KP6II57m70asDfWKAy_sv7AS" height="200" width="auto" /><br><br>Location: Promenade 5, Seaside<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v4hnaE3OMmxbH3uQqCs7ZUhjaRp0WL-HdKAP_ZNvdTtYkFh2wDZkwCece882dppGWHeC2vO0_w6w-8kCBG1peDax_yUSbOaWJU-Q_9XbpnRKP9BaTs83Od-x316YIkHJXFQf_ojHCRk85Cwzj-y5K0EejcbSg_QQNyYWyP1eXdPOrwCdcWsQnQJ_TN6mdz8wVDlOg5nSynkD8Iy73u9o8lExGWsEVHduVRCS9utaJvSx-eKC4Txfl0j0uxgzrqcyiqj1iz9DBxGE_U2rk6h9_vKcnlu2oLssxxmgisWVzHffAgtL92UvcTDOeWfnLdazh9475xeje4bZ3miB-eDrLDeLbS7lGLUfKqINaaZTx_L09jcUsNxhGivaho_suY58ZHBQ2sAhkpC32SRyjHAaqmAmaDDmGyMEO5r1zi3xSf-Msz3X-jEKLp5_47tBa3YEcpRAG2Ru_MKItaL5xQD4hFzzD7r8oFUq60PiL8RCTKmXjBhNmDZ-SMjOpfrvkjmpIX27nYHsIkUEPgsRQAHos1uYHRMZXwM9Mpg34gXQbIN5mx9WqHRXhL_cvAKrusOlI8dY6OA25__UpGfPQ1f0xppNocJAusPCbmQOuETGmym0KypCrgbNPEy7-H0j2DVvrUyDkbKB-gzLP2ykXlZElBTSU-NwH4fTWZ1hXJ7tq5GAd9U_yrYTpsp1AElLTOBjlM5KP6II57m70asDfWKAy_sv7AS</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.5402193,25.3785372,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C1-25</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6uRCRyik1TGW3UcJCGGYyNA96Xq6Fh35uY1UeuAJWed4oGYRQX37_Zq4O205ARzSEnSPSy1in4LC_f95k1x3uMBGuhdEOVBqBLt15-aKg8128OfxF0FS5GrlbE1cd3XfawrMHbMV_zEeUxDh6EwE_Ws5XxIqmCamcwo08BEkHWL9wObCr6kpey71WX-Wfq_6Emn-r0tlJ_PydgBTWdYL9TgnFMWa5x7ObzxELdBQpbCu9AZNu7e-VHAeBZhxUuvi7gUAkAghLP4mzH0lQmb8yoC8sgdb1e65Ui_mhMurKrD4hoxungO-lJKcFJ5e5kvmu7AchzEc2xQf-ioy3ir9wZBPxT1NOYbr2iR2zmt1Hr-AHxbCQCshUqd0clAEAbLvexUgO0xlFdCibx9yB-7Nl5zkIfWtZQm0ZrxQfXYUOiJemz6WxG41beBKQARMC7La1lu5yNR50hSQd7PVMOBY31uCK-fgy7hcJD0gjGeNnf-xXU2uYpk9d_GHLt_G6TpeGHn1f94Q2cAOtz7S0wqcKyOOGEG08lDVDYrGMLgJYzNdlnMvbv79OMJD6J8p3F5ePclxCYIls-phrlBSZR4LPw4nldiq8hHFLFQKXgFvpYw5n2wgcJr6xuK6HFnJvfqP6aj_Qx9qxG8U6ZafgtditbriazzfW22KKHmaf8r5F90GXKWZOb2E78WfCyQdNRxNDvTICS6Hz1-z0zgCinonzWYK1gkg" height="200" width="auto" /><br><br>Location: Crystal Walk<br><br>Static/Video Artwork<br>512(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6uRCRyik1TGW3UcJCGGYyNA96Xq6Fh35uY1UeuAJWed4oGYRQX37_Zq4O205ARzSEnSPSy1in4LC_f95k1x3uMBGuhdEOVBqBLt15-aKg8128OfxF0FS5GrlbE1cd3XfawrMHbMV_zEeUxDh6EwE_Ws5XxIqmCamcwo08BEkHWL9wObCr6kpey71WX-Wfq_6Emn-r0tlJ_PydgBTWdYL9TgnFMWa5x7ObzxELdBQpbCu9AZNu7e-VHAeBZhxUuvi7gUAkAghLP4mzH0lQmb8yoC8sgdb1e65Ui_mhMurKrD4hoxungO-lJKcFJ5e5kvmu7AchzEc2xQf-ioy3ir9wZBPxT1NOYbr2iR2zmt1Hr-AHxbCQCshUqd0clAEAbLvexUgO0xlFdCibx9yB-7Nl5zkIfWtZQm0ZrxQfXYUOiJemz6WxG41beBKQARMC7La1lu5yNR50hSQd7PVMOBY31uCK-fgy7hcJD0gjGeNnf-xXU2uYpk9d_GHLt_G6TpeGHn1f94Q2cAOtz7S0wqcKyOOGEG08lDVDYrGMLgJYzNdlnMvbv79OMJD6J8p3F5ePclxCYIls-phrlBSZR4LPw4nldiq8hHFLFQKXgFvpYw5n2wgcJr6xuK6HFnJvfqP6aj_Qx9qxG8U6ZafgtditbriazzfW22KKHmaf8r5F90GXKWZOb2E78WfCyQdNRxNDvTICS6Hz1-z0zgCinonzWYK1gkg</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536977,25.377683,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Gewan - Crystal Walk - C2</name>
+      <Placemark>
+        <name>PS-C2-13</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopY9WRN28ajaVU7db6HYYSZNN-PWqdXAucn5vndlf9REzukYMs4ZnEyMJz_WYjZz-FYCH8B10FY9CZJqrVxVx27gp_A6gLv46Mf0n2COn-tr48lfhxvSxyAmqG9u8r3voxOt1mpJuN09dcKq998W_MVROhHkBZfkhSbRtU1zDMEU6WrZCXtH-K7Wv808CLRh0wZSgR3nSEL-F3UrtLmC1yGgjGpXrGE7ejykKFrRWgirDpoyZE66IkXS1w?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Crystal 1<br><br>Static/Video Artwork<br>640(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBopY9WRN28ajaVU7db6HYYSZNN-PWqdXAucn5vndlf9REzukYMs4ZnEyMJz_WYjZz-FYCH8B10FY9CZJqrVxVx27gp_A6gLv46Mf0n2COn-tr48lfhxvSxyAmqG9u8r3voxOt1mpJuN09dcKq998W_MVROhHkBZfkhSbRtU1zDMEU6WrZCXtH-K7Wv808CLRh0wZSgR3nSEL-F3UrtLmC1yGgjGpXrGE7ejykKFrRWgirDpoyZE66IkXS1w?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536257,25.377001,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-14</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v7a9MjjThVDqWukA6U4dNab7Gz3VIbtKOz2p8oYIkPm87SXZpGJ9Z2Mryy-45TP3K5yVystJNJVsxhHxTyN42S37oKcGl70G978v2ghf7a0aRRzVBjQdwkOB1AUvF33tdlNalwy5CEyG4evjV6Xl8yqL90a2PqwDzAqcCfTZ_MMUe7AuSkiIUJTSJVo8LHWSuOE1aZ77xPs_S_t4pFL_iYrtfE8UL-ai6I3G9-SLVRcecBiL_pnE0womE8wTBdvI6oamW0kN82-LT7zNd3lDGvsEVLB4ZWZN2o4c6V1FVV4lfTbTQgQVRzcTUfWBSvlmnI_mnwVStBOPdbqyNbiz43nw3HiSPkcN9j3CdhSdkUt2XO_2Lw-MvrRuCn1bCQnQcslz9o1A8I9F4Jfmv0UcsT-4MBY6ZdLwqiOnNHw076XsFlu-IrCpD7fhzhhziQf-uVJyWrri2O7im6zDvXwncqgtPbqiciLxWgQyK5-IzQYfSoFYVX3G1ovX7hldTBI4410gBvmyCRxVCYTVXxke-LwPcK0UINZHofHQ81l27Zz8kB6eBCGjKoFc3wxs6tqcpmHyfmdDQwFRm15WCt3UMLtzJwnWjR21qtGOYkWGKNVO1pdB3S3S_kNcdeLPipt5VIbIDW6_6AJaOQmcWm4-H7cS47C7qc_YvHMhn3TCnS4g9NWhdnurhnC90eQLnqnBS71RHwgzQ51AWpbAy54ThFjSX-L" height="200" width="auto" /><br><br>Location: Crystal 2<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v7a9MjjThVDqWukA6U4dNab7Gz3VIbtKOz2p8oYIkPm87SXZpGJ9Z2Mryy-45TP3K5yVystJNJVsxhHxTyN42S37oKcGl70G978v2ghf7a0aRRzVBjQdwkOB1AUvF33tdlNalwy5CEyG4evjV6Xl8yqL90a2PqwDzAqcCfTZ_MMUe7AuSkiIUJTSJVo8LHWSuOE1aZ77xPs_S_t4pFL_iYrtfE8UL-ai6I3G9-SLVRcecBiL_pnE0womE8wTBdvI6oamW0kN82-LT7zNd3lDGvsEVLB4ZWZN2o4c6V1FVV4lfTbTQgQVRzcTUfWBSvlmnI_mnwVStBOPdbqyNbiz43nw3HiSPkcN9j3CdhSdkUt2XO_2Lw-MvrRuCn1bCQnQcslz9o1A8I9F4Jfmv0UcsT-4MBY6ZdLwqiOnNHw076XsFlu-IrCpD7fhzhhziQf-uVJyWrri2O7im6zDvXwncqgtPbqiciLxWgQyK5-IzQYfSoFYVX3G1ovX7hldTBI4410gBvmyCRxVCYTVXxke-LwPcK0UINZHofHQ81l27Zz8kB6eBCGjKoFc3wxs6tqcpmHyfmdDQwFRm15WCt3UMLtzJwnWjR21qtGOYkWGKNVO1pdB3S3S_kNcdeLPipt5VIbIDW6_6AJaOQmcWm4-H7cS47C7qc_YvHMhn3TCnS4g9NWhdnurhnC90eQLnqnBS71RHwgzQ51AWpbAy54ThFjSX-L</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.536576,25.377566,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-15</name>
+        <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorNR7wtmWvLXhad8wAWULYjnYrpUgFR4Ab37Qv-AzBCHuDm1PMU7N7PxCvQmVn42iKlMLsbJ6LfmeKRkiTAfW9uAi4-jxjngOkKKIVvVoaq1hdnjWLs516sh-0ZzqwDDX83dXBirNDplAD7UEgiI__iSvzvna5p4HSSIBoyST_Md4JojBK9ddLpT8n3RDx73zI7RGPw-rI4X3vSQUry7RBctZDEzzcnT19HnvdKyKKm6QP-8mB8g7bz2KA?authuser=0&fife=s16383" height="200" width="auto" /><br><br>Location: Crystal 3, Elevator<br><br>Static/Video Artwork<br>640(W)X384(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ALCsBorNR7wtmWvLXhad8wAWULYjnYrpUgFR4Ab37Qv-AzBCHuDm1PMU7N7PxCvQmVn42iKlMLsbJ6LfmeKRkiTAfW9uAi4-jxjngOkKKIVvVoaq1hdnjWLs516sh-0ZzqwDDX83dXBirNDplAD7UEgiI__iSvzvna5p4HSSIBoyST_Md4JojBK9ddLpT8n3RDx73zI7RGPw-rI4X3vSQUry7RBctZDEzzcnT19HnvdKyKKm6QP-8mB8g7bz2KA?authuser=0&fife=s16383]]></value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.53692,25.377241,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-16</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6jum2cqhDThpcW-JU29a-QzDzI_HNAP6K_jhWMaajsgorJ15fKw7VHBsfREKCmELuTIw-yBPJWz-2dzmrexqXxRblJqlE0ZBzrI3MnGofG2cyZOhIa4X6NOSvACc2treYw7w66_fdWeQza24H7r1zH_ZXMHPlLbp33hAL3xp3t5GRhhyjQMAGmJINmd6MFrFRnjRWGjlHhxzpXcKbgjDwYGJusT6oxUtGWvxsXej58rezVGBK8XG0zyh4CD_Iam9ISUs2maiNONlFQj50NMJTFILoMShol0a4IiBHXrAsPLz8fB_uzAUJCpQ44AOudjEezxqEwZeZXBdJgBby-WqdSqiFjDe7KiMepGsdtV4hHX8lYBAMGVJNKeLMvuLLdWhCOI16SDkPiRPyOZZSZY2bSIIwxyZBi2zeDClQ3rk3mckJTpAY9q2ARYmrNga47HyHgf7iVDZ9Cyfd9nT-XI1ORKXrsX6MmgU9Rfyi2JvebXoEI1KgdlSV1DZjFwAbrw7rogUFuJYZ_Vi2VTcgkpM-UFF9GJY6aBA29BLQraVHbpb3Ss03MN8RPaihEZR1kWXy9_gUeSum5hVRzf2rbi4cPoAj-PERYfynsLBfoNqZ_tpc2px66OM6IXjD0Gpne0SBwfFUTe3yeIroE4xFUD0JDCneiwDWzrv1ctFt-R6D6sjwHV6L_SG3GMII4aHw5YOZrg2QJ6tNy5taWGszbS-rvOer9fA" height="200" width="auto" /><br><br>Location: Crystal 3<br><br>Static/Video Artwork<br>512(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6jum2cqhDThpcW-JU29a-QzDzI_HNAP6K_jhWMaajsgorJ15fKw7VHBsfREKCmELuTIw-yBPJWz-2dzmrexqXxRblJqlE0ZBzrI3MnGofG2cyZOhIa4X6NOSvACc2treYw7w66_fdWeQza24H7r1zH_ZXMHPlLbp33hAL3xp3t5GRhhyjQMAGmJINmd6MFrFRnjRWGjlHhxzpXcKbgjDwYGJusT6oxUtGWvxsXej58rezVGBK8XG0zyh4CD_Iam9ISUs2maiNONlFQj50NMJTFILoMShol0a4IiBHXrAsPLz8fB_uzAUJCpQ44AOudjEezxqEwZeZXBdJgBby-WqdSqiFjDe7KiMepGsdtV4hHX8lYBAMGVJNKeLMvuLLdWhCOI16SDkPiRPyOZZSZY2bSIIwxyZBi2zeDClQ3rk3mckJTpAY9q2ARYmrNga47HyHgf7iVDZ9Cyfd9nT-XI1ORKXrsX6MmgU9Rfyi2JvebXoEI1KgdlSV1DZjFwAbrw7rogUFuJYZ_Vi2VTcgkpM-UFF9GJY6aBA29BLQraVHbpb3Ss03MN8RPaihEZR1kWXy9_gUeSum5hVRzf2rbi4cPoAj-PERYfynsLBfoNqZ_tpc2px66OM6IXjD0Gpne0SBwfFUTe3yeIroE4xFUD0JDCneiwDWzrv1ctFt-R6D6sjwHV6L_SG3GMII4aHw5YOZrg2QJ6tNy5taWGszbS-rvOer9fA</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.537013,25.37764,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-17</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6yZAchV5PGGxQ6ZL22M2sqxlfR1oxzesipWBRKjjSGrfCwSy96UJuaJB_SbzzczayedP46sZE0gP5fcNakVcD5HvO5uRXT0rq_95YzBNTK01JLZYw3WracQVDAjUC_spPQENzieZad1JHhghTe7zFJaQO7wB4f2IXZrACt_mdzUrimM2vRE1bSz4AgsCquorGfUw4dl1ghX1QJ_Q7yPAqfCt1W_0oL8zMZ2ojt5Ecfv7-wgA_ChoUuHF0D5orSwpN9HnXKumwbNrUZokqx75ZhrOQp7er2133gAUZJ5kS-_uyzjSlCgNfHKKpNXcFgcCwhE5ZvJxnK-7pASyrSAlXrYbgu57uSx9KmhLmw5V6fy6J2COHZAUj-1B09nuStWjFe9JSsT-4PXaeZwaarQac8OCkKP28wrGT96Ypr-W4Yzeyn9eOjfnCAbJ7Q2Yqp_iWJxuKPkk_cAqeAeI1gH_6L3MJ-UM2n069hO5yMzE6-7aYR6A0FhXt5IL5xSxhIh8wsxrq4tBdAiBgOJCNprPJuQ2F74D028hYqnIvkLUq8smU3g7HesH7wL6K3AQ4cqxLCcB9s93LyIzwx-b4r82RMbxQNeGdBX9odHevApWfsDg8RPQ8YzJNhu0W89e3WerYWT1MSrlG2jpeeK7ytURwkDGzgLp7TIbbwje7U7r2cdSPnpLKeGzUrx_fG_HoB0pJaoiFttpdq0WDu7rpnBoXpZAaLxg" height="200" width="auto" /><br><br>Location: Crystal 8, Hundred Coffee<br><br>Static/Video Artwork<br>384(W)X512(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6yZAchV5PGGxQ6ZL22M2sqxlfR1oxzesipWBRKjjSGrfCwSy96UJuaJB_SbzzczayedP46sZE0gP5fcNakVcD5HvO5uRXT0rq_95YzBNTK01JLZYw3WracQVDAjUC_spPQENzieZad1JHhghTe7zFJaQO7wB4f2IXZrACt_mdzUrimM2vRE1bSz4AgsCquorGfUw4dl1ghX1QJ_Q7yPAqfCt1W_0oL8zMZ2ojt5Ecfv7-wgA_ChoUuHF0D5orSwpN9HnXKumwbNrUZokqx75ZhrOQp7er2133gAUZJ5kS-_uyzjSlCgNfHKKpNXcFgcCwhE5ZvJxnK-7pASyrSAlXrYbgu57uSx9KmhLmw5V6fy6J2COHZAUj-1B09nuStWjFe9JSsT-4PXaeZwaarQac8OCkKP28wrGT96Ypr-W4Yzeyn9eOjfnCAbJ7Q2Yqp_iWJxuKPkk_cAqeAeI1gH_6L3MJ-UM2n069hO5yMzE6-7aYR6A0FhXt5IL5xSxhIh8wsxrq4tBdAiBgOJCNprPJuQ2F74D028hYqnIvkLUq8smU3g7HesH7wL6K3AQ4cqxLCcB9s93LyIzwx-b4r82RMbxQNeGdBX9odHevApWfsDg8RPQ8YzJNhu0W89e3WerYWT1MSrlG2jpeeK7ytURwkDGzgLp7TIbbwje7U7r2cdSPnpLKeGzUrx_fG_HoB0pJaoiFttpdq0WDu7rpnBoXpZAaLxg</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.53815,25.378491,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-18</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6GqbM_R5I_3dQ5HqQAbG08rQzAh7_E2YMpI6g99IJnz_-UJPCML1ZPv5SzDN9TtRU7T0VlgYMW0L-oNa7UyDIrp64SH_vSeroEGYwaifRFYnTmATWsbdrjpZPDHW8RVUMD8TcUVHDC8E0yNv3osJljv1ReAVmD7uH_RKcaDfTFWkql4VUNvkpk7fvuYwsMYNWuAhiI56mxey_xOSRHIypzpNpz1P7QatyLls2U9qIX8Z5b9g58Yn8Fl4eWNcENYmBSutUxwt_UGCmutIqKDUltp2YMymmanbIqDYU8S68lGmwkwUwWIPkak-J8KrszpqkOP54P0BXE0Mhw2CdZabrkJe7B25AQ6A5Ncus4PLHcoEHqjGg5Z1XFMBtlEp2wSHTca5fJqnVKp6l35-aik0QvOs86-HTyzFzJQwkYiKHHhbAR3SIj_-9QwlhAfHobFz7UnzEe-LlSbALeWqeO4cEGVxCO_HD_asZ69UYE5-vx0fOwCwKjry9ngEv7w2EdQI8ZqOIJqxTNPqnkLrh3PIxgTcW_zSdbfmAaPORr0JzLizxUju1MZbgUDCLPRY-RN7qnsPEtABok66o7SNjWnAhvS09pKRAM3ZZUBTtdFqlEfh85BufCqnzH7Sf72QIjMwFWga0WE-G0WXsLD1bZcK2cI_9pgAenwu1f2Ov34xa5vdMKqVN42FTivkSIMl2cDHV4b455FPAdYU4RWzzekNszr0Rg" height="200" width="auto" /><br><br>Location: Crystal 7, Elevator<br><br>Static/Video Artwork<br>640(W)X384(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6GqbM_R5I_3dQ5HqQAbG08rQzAh7_E2YMpI6g99IJnz_-UJPCML1ZPv5SzDN9TtRU7T0VlgYMW0L-oNa7UyDIrp64SH_vSeroEGYwaifRFYnTmATWsbdrjpZPDHW8RVUMD8TcUVHDC8E0yNv3osJljv1ReAVmD7uH_RKcaDfTFWkql4VUNvkpk7fvuYwsMYNWuAhiI56mxey_xOSRHIypzpNpz1P7QatyLls2U9qIX8Z5b9g58Yn8Fl4eWNcENYmBSutUxwt_UGCmutIqKDUltp2YMymmanbIqDYU8S68lGmwkwUwWIPkak-J8KrszpqkOP54P0BXE0Mhw2CdZabrkJe7B25AQ6A5Ncus4PLHcoEHqjGg5Z1XFMBtlEp2wSHTca5fJqnVKp6l35-aik0QvOs86-HTyzFzJQwkYiKHHhbAR3SIj_-9QwlhAfHobFz7UnzEe-LlSbALeWqeO4cEGVxCO_HD_asZ69UYE5-vx0fOwCwKjry9ngEv7w2EdQI8ZqOIJqxTNPqnkLrh3PIxgTcW_zSdbfmAaPORr0JzLizxUju1MZbgUDCLPRY-RN7qnsPEtABok66o7SNjWnAhvS09pKRAM3ZZUBTtdFqlEfh85BufCqnzH7Sf72QIjMwFWga0WE-G0WXsLD1bZcK2cI_9pgAenwu1f2Ov34xa5vdMKqVN42FTivkSIMl2cDHV4b455FPAdYU4RWzzekNszr0Rg</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.53849,25.377927,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-19</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v67Zy9vHb-9kJ4fz4MbnwNibjsOI8G0iGr8gJzzydwGhUvl0qiFnT5Y5Lg8VRPqUmFyBUwv6ww_C-xjhbjeXC25coQ7ya0xIG7_PWr2Zr3y-CYxGZryqJ5lZ0hWMO_wQx6tz98bhe74nJ9_uZXEDU5af0e4MSnusB7D-c0onzoZfu9kVUmur1fOnHHk2whP2eU2Jh4wn74jxViEZ1vYsMmG-Bp5Tb5EVaWbBYnBux7KCeiz7jVoqmmQcMR-a-QRE4vaI6NbT2T4wQ-dLIqVZafRtnUavzM0cJnu_JaVNvxogulSih1nMfMK3JBXgDTwtfgqgiZ3eAzvG4c1bgNnpTEBsyWqfE0QvckSh0le1Rt_iHdhLFDEQVFPXYttS2kVnYLP72QdpfIBhNE69-7UN9zyufa4kWUK-D8thgQUTa-P-6iD7-bUyV8h-nsvFRDPHqLGlfSWUKPl_GrMaLm77bKHoXumX_ZDFj4mTfLUdooYeYkKSJbpsmCaa_Oy9p9TemxzXe5r_j2koaAO1DSwG30w4Jkndzw1NSouTcgoUnLyQnkojqWnhIEAD90dptg0otj0YfAi5X02PHmhZglSepPjQ_xYRPa6dd3U0iH9xpZGyXrBpneh219YPJQmlVsIob-0AyMPxPtDEvFzOT48yqRpYQodrpgaI8Lrdsebq-1uVXUMlvlIQQm2mKZ-7BMt4d7yYzkcF9k78V045RAq3J39tXdtDg" height="200" width="auto" /><br><br>Location: Promenade 3, Seaside<br><br>Static/Video Artwork<br>640(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v67Zy9vHb-9kJ4fz4MbnwNibjsOI8G0iGr8gJzzydwGhUvl0qiFnT5Y5Lg8VRPqUmFyBUwv6ww_C-xjhbjeXC25coQ7ya0xIG7_PWr2Zr3y-CYxGZryqJ5lZ0hWMO_wQx6tz98bhe74nJ9_uZXEDU5af0e4MSnusB7D-c0onzoZfu9kVUmur1fOnHHk2whP2eU2Jh4wn74jxViEZ1vYsMmG-Bp5Tb5EVaWbBYnBux7KCeiz7jVoqmmQcMR-a-QRE4vaI6NbT2T4wQ-dLIqVZafRtnUavzM0cJnu_JaVNvxogulSih1nMfMK3JBXgDTwtfgqgiZ3eAzvG4c1bgNnpTEBsyWqfE0QvckSh0le1Rt_iHdhLFDEQVFPXYttS2kVnYLP72QdpfIBhNE69-7UN9zyufa4kWUK-D8thgQUTa-P-6iD7-bUyV8h-nsvFRDPHqLGlfSWUKPl_GrMaLm77bKHoXumX_ZDFj4mTfLUdooYeYkKSJbpsmCaa_Oy9p9TemxzXe5r_j2koaAO1DSwG30w4Jkndzw1NSouTcgoUnLyQnkojqWnhIEAD90dptg0otj0YfAi5X02PHmhZglSepPjQ_xYRPa6dd3U0iH9xpZGyXrBpneh219YPJQmlVsIob-0AyMPxPtDEvFzOT48yqRpYQodrpgaI8Lrdsebq-1uVXUMlvlIQQm2mKZ-7BMt4d7yYzkcF9k78V045RAq3J39tXdtDg</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.539031,25.3775855,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-20</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v62zrLVG7IRw2C4330pxq0PQlHTBlBZa0BmicU3m6ISWei_XSOjhUjrObFozaR5-7Oc5S5mAsfszVbC8y-Ux4XSCt_p2UMdP9eoCKL0SMnw4dC5DzvsTT45TzsoW8u4JThbOzTaREj1CXLdKWUpcLSuzFTWQ101xpPGIYBxHyr2on2VIsCuwkX_VYpBD47D3_FJUOi-c3WmkZyfCjvpPxtBa651gIG2vn5mprw80o6jVO6fr9HgovE48aVxoplYpgDwzN2mGkq80sevPB8ng_0wu1hgyW_2x2cyMyeb8_hj5tVSGOQihptENvrbxVcfqffkdCQmz25kXP1MsoYXgeajzAaq6TStkycJI7nwHmCSn_KVqBqEaNcArgP3gvm7hU1eCl4oOYmf13PAyRRkMpdP82fSMGEos_G5v7cI7wUYnhWZvsgyVJJgNB5gmt0LjUl2sQyVQh8LKKxCXGsvnJExpS7o6PNemKlhV8SUPmgRuJ0oTGCxQi8GtYhcAQ6E5vsphMT9bRNSgn_rgQgn8JjDM6k4tafcECpTGOBidnbVeyFd52amnLGCLUotvL4sg7znueApfcr0orc7BRJneOEm22shNlUXz-3c4fqR1EfsX2vWT9Gj0TGVEaniMsFMfWrv8iwLZ60E64W9-Qz2jPlZ2f3J9SEBX1xPW-KyQns4wGQhUEMCJkuznRGmsYUrcHq7zbW5DqH4K6aWcO3jt4yKnG0lpQ" height="200" width="auto" /><br><br>Location: Crystal 7, Chimney Code Cafe<br><br>Static/Video Artwork<br>384(W)X512(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v62zrLVG7IRw2C4330pxq0PQlHTBlBZa0BmicU3m6ISWei_XSOjhUjrObFozaR5-7Oc5S5mAsfszVbC8y-Ux4XSCt_p2UMdP9eoCKL0SMnw4dC5DzvsTT45TzsoW8u4JThbOzTaREj1CXLdKWUpcLSuzFTWQ101xpPGIYBxHyr2on2VIsCuwkX_VYpBD47D3_FJUOi-c3WmkZyfCjvpPxtBa651gIG2vn5mprw80o6jVO6fr9HgovE48aVxoplYpgDwzN2mGkq80sevPB8ng_0wu1hgyW_2x2cyMyeb8_hj5tVSGOQihptENvrbxVcfqffkdCQmz25kXP1MsoYXgeajzAaq6TStkycJI7nwHmCSn_KVqBqEaNcArgP3gvm7hU1eCl4oOYmf13PAyRRkMpdP82fSMGEos_G5v7cI7wUYnhWZvsgyVJJgNB5gmt0LjUl2sQyVQh8LKKxCXGsvnJExpS7o6PNemKlhV8SUPmgRuJ0oTGCxQi8GtYhcAQ6E5vsphMT9bRNSgn_rgQgn8JjDM6k4tafcECpTGOBidnbVeyFd52amnLGCLUotvL4sg7znueApfcr0orc7BRJneOEm22shNlUXz-3c4fqR1EfsX2vWT9Gj0TGVEaniMsFMfWrv8iwLZ60E64W9-Qz2jPlZ2f3J9SEBX1xPW-KyQns4wGQhUEMCJkuznRGmsYUrcHq7zbW5DqH4K6aWcO3jt4yKnG0lpQ</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.538493,25.378428,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-21</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v6H-_jsTSKwhNlAexhWKcaNnv71EnrwYIE4RFOoW4Ds5L0zwhw35xFvvPP7eNYni_cx-TxWzRP5pYyTVdMEK-KIjhxkdnjECyKCDmCLOUZSqtleyyp1w36tBt3DMwqLVUriIjquiWuKq5uHwAVtjyFmhgHGTcpsu10Vbl6WdHO2MIrGrAZUAI6p9eifloIlgxe9YeI0I94ZGJYxvz83OI0atKHnCjlHNb_9eovjQQ3s0ZIeo3ztbWlw_dlwXXFMw6-Cx_d5N9sPDVzoWuzUDjUQdDeWuY_WQpcurpgLuhSizsQHINKguk2XFO7UEX4AkXhaL-2jU3GhhhiL2AnWDYY0UVkR6mtanb6xyY_SPGz0wPlo-hPkAhsTMkO8xyUpcuJ8tresb8cjdp16StTcNAiRx9y_D4Jifo3rIM_WdRt8vX9Wz28k_u4-VyyjlXy0c6_ckmainHv063EkHlAXALTTyZlr7wfybah0Z9m7HQ8sFS5UOPjXJrFo7qBI1SuVHpjv6Cogr7B5UGEv0xsP1r72BOVSM-olrQTjWXgYCX9BfMQz3EAkqsVu-GW5wJ_7v0EbgoMVZQwgWMSgwvoALa9GnYQbGfZwjSB7i-146fyzcQCQEPA-LSRi1PUbe383PjOoC37IPTHcCMtiN4JETb7kE92jGbQYZtJ-FcH21iuAJWpsjJcyZZ6ujs4TnSe9xWShXUzpZXE7ps8Iad8Q_HiLjpz_BA" height="200" width="auto" /><br><br>Location: Crystal 9<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v6H-_jsTSKwhNlAexhWKcaNnv71EnrwYIE4RFOoW4Ds5L0zwhw35xFvvPP7eNYni_cx-TxWzRP5pYyTVdMEK-KIjhxkdnjECyKCDmCLOUZSqtleyyp1w36tBt3DMwqLVUriIjquiWuKq5uHwAVtjyFmhgHGTcpsu10Vbl6WdHO2MIrGrAZUAI6p9eifloIlgxe9YeI0I94ZGJYxvz83OI0atKHnCjlHNb_9eovjQQ3s0ZIeo3ztbWlw_dlwXXFMw6-Cx_d5N9sPDVzoWuzUDjUQdDeWuY_WQpcurpgLuhSizsQHINKguk2XFO7UEX4AkXhaL-2jU3GhhhiL2AnWDYY0UVkR6mtanb6xyY_SPGz0wPlo-hPkAhsTMkO8xyUpcuJ8tresb8cjdp16StTcNAiRx9y_D4Jifo3rIM_WdRt8vX9Wz28k_u4-VyyjlXy0c6_ckmainHv063EkHlAXALTTyZlr7wfybah0Z9m7HQ8sFS5UOPjXJrFo7qBI1SuVHpjv6Cogr7B5UGEv0xsP1r72BOVSM-olrQTjWXgYCX9BfMQz3EAkqsVu-GW5wJ_7v0EbgoMVZQwgWMSgwvoALa9GnYQbGfZwjSB7i-146fyzcQCQEPA-LSRi1PUbe383PjOoC37IPTHcCMtiN4JETb7kE92jGbQYZtJ-FcH21iuAJWpsjJcyZZ6ujs4TnSe9xWShXUzpZXE7ps8Iad8Q_HiLjpz_BA</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.53909,25.3789,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-22</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5CGtukrj0h1j3xWkQibEu3Ue2YYFMNmhk6GeSAAYqdvHr97cb2whH3QO0JxuYOZl19NlrWAHT1upkpxosjpOy3HAxh5d6gW4f3scPvwVcyOHCvhfqMrYBBhQyzEL9UHE5svJzWsGgjlRboOWo-4RjmtMk3H-ZMdV53qwoQM914PtCOtNJ38PmInhUF2Pr3ywv9iVLBnmKWX_u2twcaCNzG_idqrwoH4Q3JbE9Vyv2ZzlfHyNYYjBpOM6ltt4ne3TZr19bBo1AvlGt1eol0jlvXJfBK9CyPOyxcAqnFbjnlnJeff7JMKBaPHc0HvANiH7H6W4Hi4HNkNP9GXsffuOPG2WK4WQAjJK7haBtoOalfxmIJlADJ2EmWLWL6X-ZA80DzawgBUmj42ehEzN6SlSOLK9Pwzt46wDshyk-GaQpKseZ3Ca_guOqWnrPYuvZNS0wijRAeotepvoPaQferDaJmBov1aVSgFxFbzGpLcKRmp70PyVyFP3_4DHG5fDcI6nlkIkzaJ4nXmL2M1qqN_b8gBwa3wP1j5bvZrYDQXUzwldBWumc3AYsamJXDGk8HFIrI-RCd9zYU1U5_z5LtYARVT5x6auv-18Hi3RLDeGmM95g_Kd9PHXAYJ5UtWYlStyJ25iPc3pD920jY5mwoob2pBn-r2wbEGwskBpQ7k9aIGRRsUqCsZeFKjfmMy-XivN-ehruS8MtKZt9_tQaafko_brha" height="200" width="auto" /><br><br>Location: Crystal 9<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v5CGtukrj0h1j3xWkQibEu3Ue2YYFMNmhk6GeSAAYqdvHr97cb2whH3QO0JxuYOZl19NlrWAHT1upkpxosjpOy3HAxh5d6gW4f3scPvwVcyOHCvhfqMrYBBhQyzEL9UHE5svJzWsGgjlRboOWo-4RjmtMk3H-ZMdV53qwoQM914PtCOtNJ38PmInhUF2Pr3ywv9iVLBnmKWX_u2twcaCNzG_idqrwoH4Q3JbE9Vyv2ZzlfHyNYYjBpOM6ltt4ne3TZr19bBo1AvlGt1eol0jlvXJfBK9CyPOyxcAqnFbjnlnJeff7JMKBaPHc0HvANiH7H6W4Hi4HNkNP9GXsffuOPG2WK4WQAjJK7haBtoOalfxmIJlADJ2EmWLWL6X-ZA80DzawgBUmj42ehEzN6SlSOLK9Pwzt46wDshyk-GaQpKseZ3Ca_guOqWnrPYuvZNS0wijRAeotepvoPaQferDaJmBov1aVSgFxFbzGpLcKRmp70PyVyFP3_4DHG5fDcI6nlkIkzaJ4nXmL2M1qqN_b8gBwa3wP1j5bvZrYDQXUzwldBWumc3AYsamJXDGk8HFIrI-RCd9zYU1U5_z5LtYARVT5x6auv-18Hi3RLDeGmM95g_Kd9PHXAYJ5UtWYlStyJ25iPc3pD920jY5mwoob2pBn-r2wbEGwskBpQ7k9aIGRRsUqCsZeFKjfmMy-XivN-ehruS8MtKZt9_tQaafko_brha</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.539146,25.378845,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-23</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v79-P5Qw2ijFCLURtQNsc0RIqRMGBCq1WOIfLaK59o-0qtS3vlgc6-GSI78sHYjlJhY390KkkOVrJPdnmmcpX1nGbsYtGrPESqromJyino5ANg48Mbx_a33FGDeM_cw6nEvuVt-BvWQo09ZkNiuQJi5b5YY38-grc_pEDj-x2HPJcykCoIIYGiwaEx9kni3QN6G1MABDWXvgwDnoQDuFGawm4O40dwjTgbDDmAQumR7LnUz5GjreUPEZAsupyk2HFchTsfA-RMD_OF_frGQSYK-n4bQU7le40EsW9gtKdb634ttWokOuIBe9I3L5ASaD4BQLZuXtXKLZcI1PzjsE0VMkMFiZNMUrvN0hHXsOqDE0EQgb1luxG-X7fZ7eB3cN8UFBRFctnb7qbdlCwAC1xlE0PKLwMyzegzpoLjLPd8kFJtatJFVKGUx14FkUrXVu8uI8UPQiOCLUMPw1V8A3N3scNDb7f2t6x_t1C3Z8zA1dVs2V71IoK2prWyVSGP7IOBPILxlvUpDw_vs--J6W5xmLGJV1EZD0M99F0etFPnjlxyCHBdTmW4yTq4quNmSb56BtPWcfecD70na-1Ad7gb3PlV85Q6iknsVEBqFnFB8vMYL7xBZWtUxCCiHausxTqRJE70bxxV0q0wquYlBxXVgSSJx_RGC5zfIkv4C2sdwT2itpskqJPP-nbkfrOxIQaHz4Gt47_2fFS5zU9qnyp2Xniyo" height="200" width="auto" /><br><br>Location: Promenade 4, Seaside<br><br>Static/Video Artwork<br>384(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v79-P5Qw2ijFCLURtQNsc0RIqRMGBCq1WOIfLaK59o-0qtS3vlgc6-GSI78sHYjlJhY390KkkOVrJPdnmmcpX1nGbsYtGrPESqromJyino5ANg48Mbx_a33FGDeM_cw6nEvuVt-BvWQo09ZkNiuQJi5b5YY38-grc_pEDj-x2HPJcykCoIIYGiwaEx9kni3QN6G1MABDWXvgwDnoQDuFGawm4O40dwjTgbDDmAQumR7LnUz5GjreUPEZAsupyk2HFchTsfA-RMD_OF_frGQSYK-n4bQU7le40EsW9gtKdb634ttWokOuIBe9I3L5ASaD4BQLZuXtXKLZcI1PzjsE0VMkMFiZNMUrvN0hHXsOqDE0EQgb1luxG-X7fZ7eB3cN8UFBRFctnb7qbdlCwAC1xlE0PKLwMyzegzpoLjLPd8kFJtatJFVKGUx14FkUrXVu8uI8UPQiOCLUMPw1V8A3N3scNDb7f2t6x_t1C3Z8zA1dVs2V71IoK2prWyVSGP7IOBPILxlvUpDw_vs--J6W5xmLGJV1EZD0M99F0etFPnjlxyCHBdTmW4yTq4quNmSb56BtPWcfecD70na-1Ad7gb3PlV85Q6iknsVEBqFnFB8vMYL7xBZWtUxCCiHausxTqRJE70bxxV0q0wquYlBxXVgSSJx_RGC5zfIkv4C2sdwT2itpskqJPP-nbkfrOxIQaHz4Gt47_2fFS5zU9qnyp2Xniyo</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.5396605,25.3780262,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>PS-C2-24</name>
+        <description><![CDATA[<img src="https://lh3.googleusercontent.com/umsh/AN6v0v5F17BYS-jISS5Hn5oYSTnWbNul2xKOMsCZkJRkCMkQ0tAJGFGt1i02FIsP8fyDHl07ngUgrUlwOW9atuPhPjw4nfd3woNNHFMTLV5Zy6mbJKrNvkBYf8IMuTCxaH7pJFZnz98B_7ZI9YmXH3TSFaT89vH9wns9BlmC45QkJT9x-IHUSWacKtp_ycz0DvCAX9ZD2YOZ-QZREOoVFJzYKodHSPZahMW7utKEWHn-ASvhNy-LdWp1WOFEwy3hTXKGzsN2ZOshgX5lCMF9HRzj3bxi7xWZ2-ahZ8LAht88wivPaTCiRNsvzNS3YI2uex8Wx-QU2vxpbqlirqaYN0qFh98Ywwyj1qmEb9lOwH8cWSssbP4J7tkcehO-JzCBK0azqPhGnNYUaNjkIxhgQYE4_9qV5e2e2cjf6fdicNuRRp2vD1WlKQjcRczP4RtaPC7dSP_47Tn5FXImZ_cQAF-RJzHGKAjoANGNgUfPtI38usNwE-avSAVNPaW8aAOKWE-lZNiosFOTYTizkJgXzbAY1BLhIYsd3BXD2eAFBW0_1WVx66N_F1leOW_fOwkvmGKsOi9lkS3qEz0-5qYbm-VrCXf4Me9hxkzR_48py85XpA_ik8QZOKc-43QA08IAYEYWUpktUuRu5Kt5EwTiaPZ5w93r52QJN1W85ZB0YEyDtTQOrtMORoOk8vOUQYX4qHikf_RWqmVxWAsQDjo-UrKmK7MsBjdG" height="200" width="auto" /><br><br>Location: Promenade 5, Seaside<br><br>Static/Video Artwork<br>640(W)X640(H) px]]></description>
+        <styleUrl>#icon-1899-E65100</styleUrl>
+        <ExtendedData>
+          <Data name="gx_media_links">
+            <value>https://lh3.googleusercontent.com/umsh/AN6v0v5F17BYS-jISS5Hn5oYSTnWbNul2xKOMsCZkJRkCMkQ0tAJGFGt1i02FIsP8fyDHl07ngUgrUlwOW9atuPhPjw4nfd3woNNHFMTLV5Zy6mbJKrNvkBYf8IMuTCxaH7pJFZnz98B_7ZI9YmXH3TSFaT89vH9wns9BlmC45QkJT9x-IHUSWacKtp_ycz0DvCAX9ZD2YOZ-QZREOoVFJzYKodHSPZahMW7utKEWHn-ASvhNy-LdWp1WOFEwy3hTXKGzsN2ZOshgX5lCMF9HRzj3bxi7xWZ2-ahZ8LAht88wivPaTCiRNsvzNS3YI2uex8Wx-QU2vxpbqlirqaYN0qFh98Ywwyj1qmEb9lOwH8cWSssbP4J7tkcehO-JzCBK0azqPhGnNYUaNjkIxhgQYE4_9qV5e2e2cjf6fdicNuRRp2vD1WlKQjcRczP4RtaPC7dSP_47Tn5FXImZ_cQAF-RJzHGKAjoANGNgUfPtI38usNwE-avSAVNPaW8aAOKWE-lZNiosFOTYTizkJgXzbAY1BLhIYsd3BXD2eAFBW0_1WVx66N_F1leOW_fOwkvmGKsOi9lkS3qEz0-5qYbm-VrCXf4Me9hxkzR_48py85XpA_ik8QZOKc-43QA08IAYEYWUpktUuRu5Kt5EwTiaPZ5w93r52QJN1W85ZB0YEyDtTQOrtMORoOk8vOUQYX4qHikf_RWqmVxWAsQDjo-UrKmK7MsBjdG</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            51.5402511,25.3785968,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>
