@@ -226,16 +226,18 @@ function showNoData(container) {
 // Load Carousel
 // ===============================
 export async function loadCarousel() {
-  const digitalCarousel  = document.getElementById("carouselDigital");
-  const staticCarousel   = document.getElementById("carouselStatic");
+  const digitalCarousel = document.getElementById("carouselDigital");
+  const staticCarousel  = document.getElementById("carouselStatic");
   const upcomingCarousel = document.getElementById("carouselUpcoming");
 
   const allTables = await loadAllTables();
 
-  // ===== Today Campaigns =====
+  // Today Campaigns
   publishCampaignToday(allTables);
 
-  // ===== Digital & Static Sections =====
+  // ===============================
+  // Digital & Static Sections
+  // ===============================
   for (const tableName in allTables) {
     const data = allTables[tableName];
     if (!data) continue;
@@ -284,96 +286,103 @@ export async function loadCarousel() {
   }
 
   // ===============================
-  // Upcoming & Ending Campaigns Section
+  // Upcoming Campaigns Section
   // ===============================
-  upcomingCarousel.innerHTML = "";
   const upcomingRows = [];
-  const endingRows   = [];
+
+  for (const tableName in allTables) {
+    const data = allTables[tableName];
+    if (!data || !tableName.startsWith("Upcoming_")) continue;
+
+    const rows = Array.isArray(data) ? data : Object.values(data);
+
+    rows.forEach(row => {
+      if (!row || !row["Start Date"]) return;
+
+      upcomingRows.push({
+        Client: row.Client ?? "—",
+        Location: row.Location ?? "—",
+        Circuit: row.Circuit ?? "—",
+        "Start Date": formatDateDDMMMYYYY(row["Start Date"])
+      });
+    });
+  }
+
+  upcomingCarousel.innerHTML = "";
+
+  if (upcomingRows.length > 0) {
+    const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
+    upcomingCarousel.appendChild(
+      createCard(
+        "Upcoming Campaigns",
+        dataObj,
+        ["Client", "Location", "Circuit", "Start Date"],
+        ["Start Date"]
+      )
+    );
+  } else {
+    const msg = document.createElement("div");
+    msg.textContent = "No Upcoming Campaigns";
+    msg.classList.add("no-data-message");
+    upcomingCarousel.appendChild(msg);
+  }
+
+  // ===============================
+  // Ending Campaigns Section (Next 3 Days)
+  // ===============================
+  const endingRows = [];
 
   for (const tableName in allTables) {
     const data = allTables[tableName];
     if (!data) continue;
 
+    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+
     const rows = Array.isArray(data) ? data : Object.values(data);
 
     rows.forEach(row => {
-      if (!row) return;
+      if (!row || !row["End Date"]) return;
 
-      // ===== Upcoming campaigns =====
-      if (row["Start Date"]) {
-        const startDate = formatDateDDMMMYYYY(row["Start Date"]);
-        upcomingRows.push({
-          Client: row.Client ?? "—",
-          Location: row.Location ?? "—",
-          Circuit: row.Circuit ?? row.SN ?? "—",
-          "Start Date": startDate
-        });
-      }
+      // ✅ Format End Date properly
+      const formattedEndDate = formatDateDDMMMYYYY(row["End Date"]);
+      if (formattedEndDate === "—") return;
 
-      // ===== Ending campaigns (next 3 days, only Digital & Static) =====
-      if ((tableName.startsWith("d_") || tableName.startsWith("s_")) && row["End Date"]) {
-        const endDate = formatDateDDMMMYYYY(row["End Date"]);
-        if (endDate === "—") return;
+      const [d, mmm, y] = formattedEndDate.split("-");
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const m = months.indexOf(mmm);
+      if (m === -1) return;
 
-        const [d, mmm, y] = endDate.split("-");
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        const m = months.indexOf(mmm);
-        if (m === -1) return;
+      const endDate = new Date(y, m, d);
+      endDate.setHours(0,0,0,0);
 
-        const endDateObj = new Date(y, m, d);
-        endDateObj.setHours(0,0,0,0);
+      const today = new Date();
+      today.setHours(0,0,0,0);
 
-        const today = new Date();
-        today.setHours(0,0,0,0);
+      const diff = (endDate - today) / 86400000;
+      if (diff < 0 || diff > 3) return;
 
-        const diff = (endDateObj - today) / 86400000;
-        if (diff < 0 || diff > 3) return;
-
-        endingRows.push({
-          Client: row.Client ?? "—",
-          Location: row.Location ?? "—",
-          Circuit: row.Circuit ?? row.SN ?? "—",
-          "End Date": endDate
-        });
-      }
+      endingRows.push({
+        Client: row.Client ?? "—",
+        Location: row.Location ?? "—",
+        Circuit: row.Circuit ?? row.SN ?? "—",
+        "End Date": formattedEndDate
+      });
     });
   }
 
-  // ===== Render Upcoming campaigns =====
-  if (upcomingRows.length > 0) {
-    const dataObj = Object.fromEntries(upcomingRows.map((r,i)=>[i,r]));
-    upcomingCarousel.appendChild(
-      createCard(
-        "Upcoming Campaigns",
-        dataObj,
-        ["Client","Location","Circuit","Start Date"],
-        ["Start Date"]
-      )
-    );
-  }
-
-  // ===== Render Ending campaigns =====
   if (endingRows.length > 0) {
-    const dataObj = Object.fromEntries(endingRows.map((r,i)=>[i,r]));
+    const dataObj = Object.fromEntries(endingRows.map((r, i) => [i, r]));
+
     upcomingCarousel.appendChild(
       createCard(
-        "Ending Campaigns (Next 3 Days)",
+        "Ending Campaigns",
         dataObj,
-        ["Client","Location","Circuit","End Date"],
-        ["End Date"] // 🔥 enables color formatting
+        ["Client", "Location", "Circuit", "End Date"],
+        ["End Date"] // 🔥 Enables color formatting
       )
     );
-  }
-
-  // ===== No data message if both empty =====
-  if (upcomingRows.length === 0 && endingRows.length === 0) {
-    const msg = document.createElement("div");
-    msg.textContent = "No Upcoming or Ending Campaigns";
-    msg.classList.add("no-data-message");
-    upcomingCarousel.appendChild(msg);
   }
 }
-
 
 
 // ===============================
