@@ -2,9 +2,9 @@
 import { rtdb } from "../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-/* ===============================
-   Load all top-level nodes
-================================ */
+// ===============================
+// Load all top-level nodes
+// ===============================
 async function loadAllTables() {
   try {
     const rootRef = ref(rtdb, "/");
@@ -16,22 +16,26 @@ async function loadAllTables() {
   }
 }
 
-/* ===============================
-   Format date as dd-mmm-yyyy
-================================ */
+// ===============================
+// Format date as dd-mmm-yyyy
+// ===============================
 function formatDateDDMMMYYYY(value) {
   if (!value) return "—";
 
   value = value.trim();
-  const parts = value.split("/").map(x => x.trim()).filter(Boolean);
+  const parts = value.split("/").map(x => x.trim()).filter(x => x !== "");
   if (parts.length < 2) return "—";
 
   let [month, day, year] = parts;
+
   month = month.padStart(2, "0");
   day = day.padStart(2, "0");
 
   if (!year) year = new Date().getFullYear();
-  else if (/^\d{2}$/.test(year)) year = "20" + year;
+  else {
+    if (/^\d{2}$/.test(year)) year = "20" + year;
+    if (!/^\d{4}$/.test(year)) year = new Date().getFullYear();
+  }
 
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const mIndex = parseInt(month, 10) - 1;
@@ -40,9 +44,9 @@ function formatDateDDMMMYYYY(value) {
   return `${day}-${monthNames[mIndex]}-${year}`;
 }
 
-/* ===============================
-   JSON → HTML table
-================================ */
+// ===============================
+// JSON → HTML Table
+// ===============================
 function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   if (!dataObj || Object.keys(dataObj).length === 0) return "<p>No data</p>";
 
@@ -57,8 +61,8 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
       <tbody>
   `;
 
-  for (const k in dataObj) {
-    const row = dataObj[k];
+  for (const key in dataObj) {
+    const row = dataObj[key];
     html += `<tr>`;
 
     columns.forEach(col => {
@@ -91,9 +95,9 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   return html;
 }
 
-/* ===============================
-   Create Card
-================================ */
+// ===============================
+// Create Card
+// ===============================
 function createCard(title, data, columns, highlightCols = []) {
   const card = document.createElement("div");
   card.className = "card";
@@ -106,12 +110,13 @@ function createCard(title, data, columns, highlightCols = []) {
   return card;
 }
 
-/* ===============================
-   Campaign Published / Removed Today
-================================ */
+// ===============================
+// Campaign Published / Removed Today
+// ===============================
 function publishCampaignToday(allTables) {
   const container = document.getElementById("carouselPublishToday");
   if (!container) return;
+
   container.replaceChildren();
 
   const logs = allTables["Campaign_Logs"];
@@ -120,12 +125,12 @@ function publishCampaignToday(allTables) {
   const today = new Date();
   today.setHours(0,0,0,0);
 
+  const rows = Array.isArray(logs) ? logs : Object.values(logs);
   const published = new Map();
   const removed = new Map();
 
-  Object.values(logs).forEach(r => {
+  rows.forEach(r => {
     if (!r?.Date || !r?.Type) return;
-
     const d = formatDateDDMMMYYYY(r.Date);
     if (d === "—") return;
 
@@ -164,10 +169,10 @@ function publishCampaignToday(allTables) {
   }
 }
 
-/* ===============================
-   Ending within 3 days (formatted)
-================================ */
-function isEndingWithin3DaysFromFormatted(formatted) {
+// ===============================
+// End Date Filter (Next 3 Days)
+// ===============================
+function isEndingWithin3Days(formatted) {
   if (!formatted || formatted === "—") return false;
 
   const [d, mmm, y] = formatted.split("-");
@@ -184,9 +189,9 @@ function isEndingWithin3DaysFromFormatted(formatted) {
   return diff >= 0 && diff <= 3;
 }
 
-/* ===============================
-   Load Carousel
-================================ */
+// ===============================
+// Load All Carousels
+// ===============================
 export async function loadCarousel() {
   const digitalCarousel  = document.getElementById("carouselDigital");
   const staticCarousel   = document.getElementById("carouselStatic");
@@ -196,96 +201,89 @@ export async function loadCarousel() {
 
   publishCampaignToday(allTables);
 
-  /* ========= DIGITAL & STATIC (UNCHANGED) ========= */
-  for (const tableName in allTables) {
-    const data = allTables[tableName];
+  // Digital & Static
+  for (const name in allTables) {
+    const data = allTables[name];
     if (!data) continue;
 
-    let columns, target, highlightCols = [];
-
-    if (tableName.startsWith("d_")) {
-      columns = ["SN","Client","Start Date","End Date"];
+    let cols, target;
+    if (name.startsWith("d_")) {
+      cols = ["SN","Client","Start Date","End Date"];
       target = digitalCarousel;
-      highlightCols = ["End Date"];
-    } else if (tableName.startsWith("s_")) {
-      columns = ["Circuit","Client","Start Date","End Date"];
+    } else if (name.startsWith("s_")) {
+      cols = ["Circuit","Client","Start Date","End Date"];
       target = staticCarousel;
-      highlightCols = ["End Date"];
     } else continue;
 
-    const rows = Object.values(data);
-    rows.forEach(r => {
-      columns.forEach(c => {
-        if (c.toLowerCase().includes("date")) {
-          r[c] = r[c] ? formatDateDDMMMYYYY(r[c]) : "—";
-        }
+    const rows = Object.values(data).map(r => {
+      cols.forEach(c => {
+        if (c.toLowerCase().includes("date")) r[c] = formatDateDDMMMYYYY(r[c]);
       });
+      return r;
     });
 
     target.appendChild(
       createCard(
-        tableName.replace(/^d_|^s_/,"").replace(/_/g," "),
+        name.replace(/^d_|^s_/,"").replace(/_/g," "),
         Object.fromEntries(rows.map((r,i)=>[i,r])),
-        columns,
-        highlightCols
+        cols,
+        ["End Date"]
       )
     );
   }
 
-  /* ========= UPCOMING (UNCHANGED) ========= */
+  // ===============================
+  // Upcoming + Ending Campaigns
+  // ===============================
   upcomingCarousel.innerHTML = "";
-  const upcomingRows = [];
 
-  for (const t in allTables) {
-    if (!t.startsWith("Upcoming_")) continue;
-    Object.values(allTables[t]).forEach(r => {
-      if (!r["Start Date"]) return;
-      upcomingRows.push({
-        Client: r.Client ?? "—",
-        Location: r.Location ?? "—",
-        Circuit: r.Circuit ?? "—",
-        "Start Date": formatDateDDMMMYYYY(r["Start Date"])
-      });
+  const upcoming = [];
+  const ending = [];
+
+  for (const name in allTables) {
+    const data = allTables[name];
+    if (!data) continue;
+
+    const rows = Object.values(data);
+
+    rows.forEach(r => {
+      if (r["Start Date"]) {
+        upcoming.push({
+          Client: r.Client ?? "—",
+          Location: r.Location ?? "—",
+          Circuit: r.Circuit ?? "—",
+          "Start Date": formatDateDDMMMYYYY(r["Start Date"])
+        });
+      }
+
+      if (r["End Date"]) {
+        const end = formatDateDDMMMYYYY(r["End Date"]);
+        if (isEndingWithin3Days(end)) {
+          ending.push({
+            Client: r.Client ?? "—",
+            Location: r.Location ?? "—",
+            Circuit: r.Circuit ?? "—",
+            "End Date": end
+          });
+        }
+      }
     });
   }
 
-  if (upcomingRows.length) {
+  if (upcoming.length) {
     upcomingCarousel.appendChild(
-      createCard(
-        "Upcoming Campaigns",
-        Object.fromEntries(upcomingRows.map((r,i)=>[i,r])),
+      createCard("Upcoming Campaigns",
+        Object.fromEntries(upcoming.map((r,i)=>[i,r])),
         ["Client","Location","Circuit","Start Date"],
         ["Start Date"]
       )
     );
   }
 
-  /* ========= 🔴 ENDING CAMPAIGNS (NEW, SAFE ADDITION) ========= */
-  const endingRows = [];
-
-  for (const t in allTables) {
-    if (!t.startsWith("d_") && !t.startsWith("s_")) continue;
-
-    Object.values(allTables[t]).forEach(r => {
-      if (!r["End Date"]) return;
-
-      const formatted = formatDateDDMMMYYYY(r["End Date"]);
-      if (!isEndingWithin3DaysFromFormatted(formatted)) return;
-
-      endingRows.push({
-        Client: r.Client ?? "—",
-        Location: r.Location ?? "—",
-        Circuit: r.Circuit ?? r.SN ?? "—",
-        "End Date": formatted
-      });
-    });
-  }
-
-  if (endingRows.length) {
+  if (ending.length) {
     upcomingCarousel.appendChild(
-      createCard(
-        "Ending Campaigns",
-        Object.fromEntries(endingRows.map((r,i)=>[i,r])),
+      createCard("Ending Campaign",
+        Object.fromEntries(ending.map((r,i)=>[i,r])),
         ["Client","Location","Circuit","End Date"],
         ["End Date"]
       )
@@ -293,7 +291,5 @@ export async function loadCarousel() {
   }
 }
 
-/* ===============================
-   Init
-================================ */
+// ===============================
 document.addEventListener("DOMContentLoaded", loadCarousel);
