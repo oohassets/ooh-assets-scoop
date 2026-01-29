@@ -290,42 +290,101 @@ export async function loadCarousel() {
   // ===============================
   // Upcoming Campaigns Section
   // ===============================
-  const upcomingRows = [];
 
-  for (const tableName in allTables) {
-    const data = allTables[tableName];
-    if (!data || !tableName.startsWith("Upcoming_")) continue;
+const upcomingRows = [];
 
-    const rows = Array.isArray(data) ? data : Object.values(data);
+for (const tableName in allTables) {
+  const data = allTables[tableName];
+  if (!data || !tableName.startsWith("Upcoming_")) continue;
 
-    rows.forEach(row => {
-      if (!row || !row["Start Date"]) return;
+  const rows = Array.isArray(data) ? data : Object.values(data);
 
-      const formattedDate = formatDateDDMMMYYYY(row["Start Date"]);
+  rows.forEach(row => {
+    if (!row || !row["Start Date"]) return;
 
-      upcomingRows.push({
-        Client: row.Client ?? "—",
-        Location: row.Location ?? "—",
-        Circuit: row.Circuit ?? "—",
-        "Start Date": formattedDate
-      });
+    upcomingRows.push({
+      Client: row.Client ?? "—",
+      Location: row.Location ?? "—",
+      Circuit: row.Circuit ?? "—",
+      "Start Date": formatDateDDMMMYYYY(row["Start Date"])
     });
-  }
-
-  upcomingCarousel.innerHTML = "";
-
-  if (upcomingRows.length > 0) {
-    const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
-    upcomingCarousel.appendChild(
-      createCard("Upcoming Campaigns", dataObj, ["Client", "Location", "Circuit", "Start Date"], ["Start Date"])
-    );
-  } else {
-    const msg = document.createElement("div");
-    msg.textContent = "No Upcoming Campaigns";
-    msg.classList.add("no-data-message");
-    upcomingCarousel.appendChild(msg);
-  }
+  });
 }
+
+upcomingCarousel.innerHTML = "";
+
+if (upcomingRows.length > 0) {
+  const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
+  upcomingCarousel.appendChild(
+    createCard(
+      "Upcoming Campaigns",
+      dataObj,
+      ["Client", "Location", "Circuit", "Start Date"],
+      ["Start Date"]
+    )
+  );
+} else {
+  const msg = document.createElement("div");
+  msg.textContent = "No Upcoming Campaigns";
+  msg.classList.add("no-data-message");
+  upcomingCarousel.appendChild(msg);
+}
+
+// ===============================
+// Ending Campaigns Section (Next 3 Days)
+// ===============================
+const endingRows = [];
+
+for (const tableName in allTables) {
+  const data = allTables[tableName];
+  if (!data) continue;
+
+  if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+
+  const rows = Array.isArray(data) ? data : Object.values(data);
+
+  rows.forEach(row => {
+    if (!row || !row["End Date"]) return;
+
+    const formattedEndDate = row["End Date"]; // 👈 already formatted earlier
+    if (formattedEndDate === "—") return;
+
+    const [d, mmm, y] = formattedEndDate.split("-");
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const m = months.indexOf(mmm);
+    if (m === -1) return;
+
+    const endDate = new Date(y, m, d);
+    endDate.setHours(0,0,0,0);
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const diff = (endDate - today) / 86400000;
+    if (diff < 0 || diff > 3) return;
+
+    endingRows.push({
+      Client: row.Client ?? "—",
+      Location: row.Location ?? "—",
+      Circuit: row.Circuit ?? row.SN ?? "—",
+      "End Date": formattedEndDate
+    });
+  });
+}
+
+if (endingRows.length > 0) {
+  const dataObj = Object.fromEntries(endingRows.map((r, i) => [i, r]));
+
+  upcomingCarousel.appendChild(
+    createCard(
+      "Ending Campaigns",
+      dataObj,
+      ["Client", "Location", "Circuit", "End Date"],
+      ["End Date"]
+    )
+  );
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
