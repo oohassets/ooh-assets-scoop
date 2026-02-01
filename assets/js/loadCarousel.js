@@ -343,7 +343,10 @@ export async function loadCarousel() {
     rows.forEach(row => {
       if (!row || !row["End Date"]) return;
 
-      // 🔥 Parse End Date SAFELY (same logic as formatter)
+      // 🚫 Skip invalid dash values
+      if (row["End Date"].trim() === "-") return;
+
+      // 🔥 Parse End Date SAFELY
       const raw = row["End Date"].trim();
       const parts = raw.split("/").map(p => p.trim());
 
@@ -380,6 +383,7 @@ export async function loadCarousel() {
         "End Date": formatDateDDMMMYYYY(row["End Date"])
       });
     });
+
   }
 
   if (endingRows.length > 0) {
