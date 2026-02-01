@@ -222,6 +222,35 @@ function showNoData(container) {
   container.appendChild(msg);
 }
 
+  // ===============================
+  // Check if date is ending within next 3 days
+  // Expects format: DD-MMM-YYYY
+  // ===============================
+  function isEndingWithin3Days(formattedDate) {
+    if (!formattedDate || formattedDate === "—") return false;
+
+    const match = formattedDate.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+    if (!match) return false;
+
+    const d = parseInt(match[1], 10);
+    const mmm = match[2];
+    const y = parseInt(match[3], 10);
+
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Aug","Sep","Oct","Nov","Dec"];
+    const m = months.indexOf(mmm);
+    if (m === -1) return false;
+
+    const endDate = new Date(y, m, d);
+    endDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const diff = (endDate - today) / 86400000;
+    return diff >= 0 && diff <= 3;
+  }
+
+
 // ===============================
 // Load Carousel
 // ===============================
@@ -332,10 +361,10 @@ export async function loadCarousel() {
   // ===============================
   const endingRows = [];
 
-  for (const name in allTables) {
-    if (!name.startsWith("d_") && !name.startsWith("s_")) continue;
+  for (const tableName in allTables) {
+    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    Object.values(allTables[name]).forEach(r => {
+    Object.values(allTables[tableName]).forEach(r => {
       if (!r["End Date"]) return;
 
       const end = formatDateDDMMMYYYY(r["End Date"]);
