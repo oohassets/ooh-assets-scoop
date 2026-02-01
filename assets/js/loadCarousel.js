@@ -372,8 +372,8 @@ export async function loadCarousel() {
 
       endingRows.push({
         Client: r.Client ?? "—",
-        Location: r.Location ?? "—",
-        Circuit: r.Circuit ?? "—",
+        Location: tableName.startsWith("d_") ? (r.SN ?? "—") : "—",
+        Circuit: tableName.startsWith("s_") ? (r.Circuit ?? "—") : "—",
         "End Date": end
       });
     });
