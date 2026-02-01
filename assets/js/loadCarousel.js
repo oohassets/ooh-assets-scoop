@@ -327,88 +327,35 @@ export async function loadCarousel() {
     upcomingCarousel.appendChild(msg);
   }
 
-  // ===============================
-  // Ending Campaigns Section (Next 3 Days)
+// ===============================
+  // ENDING CAMPAIGNS (Digital + Static ONLY)
   // ===============================
   const endingRows = [];
 
-  for (const tableName in allTables) {
-    const data = allTables[tableName];
-    if (!data) continue;
+  for (const name in allTables) {
+    if (!name.startsWith("d_") && !name.startsWith("s_")) continue;
 
-    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+    Object.values(allTables[name]).forEach(r => {
+      if (!r["End Date"]) return;
 
-    const rows = Array.isArray(data) ? data : Object.values(data);
-
-    rows.forEach(row => {
-      if (!row || !row["End Date"]) return;
-
-      const raw = row["End Date"].trim();
-
-      // 🚫 Skip dash or empty
-      if (raw === "-" || raw === "—") return;
-
-      let endDate = null;
-
-      // ✅ Case 1: already formatted (DD-MMM-YYYY)
-      const match = raw.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
-      if (match) {
-        const d = parseInt(match[1], 10);
-        const mmm = match[2];
-        const y = parseInt(match[3], 10);
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        const m = months.indexOf(mmm);
-        if (m !== -1) {
-          endDate = new Date(y, m, d);
-        }
-      }
-
-      // ✅ Case 2: raw slash format (MM/DD/YYYY or MM/DD)
-      if (!endDate && raw.includes("/")) {
-        const parts = raw.split("/").map(p => p.trim());
-        if (parts.length >= 2) {
-          let [month, day, year] = parts;
-          month = parseInt(month, 10) - 1;
-          day = parseInt(day, 10);
-
-          if (!year) year = new Date().getFullYear();
-          else if (/^\d{2}$/.test(year)) year = parseInt("20" + year, 10);
-          else year = parseInt(year, 10);
-
-          if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
-            endDate = new Date(year, month, day);
-          }
-        }
-      }
-
-      if (!endDate || isNaN(endDate)) return;
-
-      endDate.setHours(0, 0, 0, 0);
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const diff = (endDate - today) / 86400000;
-      if (diff < 0 || diff > 3) return;
+      const end = formatDateDDMMMYYYY(r["End Date"]);
+      if (!isEndingWithin3Days(end)) return;
 
       endingRows.push({
-        Client: row.Client ?? "—",
-        Location: row.Location ?? "—",
-        Circuit: row.Circuit ?? "—",
-        "End Date": raw   // already formatted correctly
+        Client: r.Client ?? "—",
+        Location: r.Location ?? "—",
+        Circuit: r.Circuit ?? "—",
+        "End Date": end
       });
     });
   }
 
-  if (endingRows.length > 0) {
-    const dataObj = Object.fromEntries(endingRows.map((r, i) => [i, r]));
-
+  if (endingRows.length) {
     upcomingCarousel.appendChild(
       createCard(
-        "Ending Campaigns (Next 3 Days)",
-        dataObj,
-        ["Client", "Location", "Circuit", "End Date"],
-        ["End Date"]
+        "Ending Campaign",
+        Object.fromEntries(endingRows.map((r,i)=>[i,r])),
+        ["Client","Location","Circuit","End Date"]
       )
     );
   }
