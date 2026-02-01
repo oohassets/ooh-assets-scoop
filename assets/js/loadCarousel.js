@@ -364,7 +364,7 @@ export async function loadCarousel() {
       endingRows.push({
         Client: row.Client ?? "—",
         Location: row.Location ?? "—",
-        Circuit: row.Circuit ?? row.SN ?? "—",
+        Circuit: row.Circuit ?? "—",
         "End Date": formattedEndDate
       });
     });
