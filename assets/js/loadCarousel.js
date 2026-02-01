@@ -343,31 +343,46 @@ export async function loadCarousel() {
     rows.forEach(row => {
       if (!row || !row["End Date"]) return;
 
-      // 🚫 Skip invalid dash values
-      if (row["End Date"].trim() === "-") return;
-
-      // 🔥 Parse End Date SAFELY
       const raw = row["End Date"].trim();
-      const parts = raw.split("/").map(p => p.trim());
 
-      if (parts.length < 2) return;
+      // 🚫 Skip dash or empty
+      if (raw === "-" || raw === "—") return;
 
-      let [month, day, year] = parts;
+      let endDate = null;
 
-      month = parseInt(month, 10) - 1;
-      day = parseInt(day, 10);
-
-      if (!year) {
-        year = new Date().getFullYear();
-      } else if (/^\d{2}$/.test(year)) {
-        year = parseInt("20" + year, 10);
-      } else {
-        year = parseInt(year, 10);
+      // ✅ Case 1: already formatted (DD-MMM-YYYY)
+      const match = raw.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+      if (match) {
+        const d = parseInt(match[1], 10);
+        const mmm = match[2];
+        const y = parseInt(match[3], 10);
+        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const m = months.indexOf(mmm);
+        if (m !== -1) {
+          endDate = new Date(y, m, d);
+        }
       }
 
-      if (isNaN(month) || isNaN(day) || isNaN(year)) return;
+      // ✅ Case 2: raw slash format (MM/DD/YYYY or MM/DD)
+      if (!endDate && raw.includes("/")) {
+        const parts = raw.split("/").map(p => p.trim());
+        if (parts.length >= 2) {
+          let [month, day, year] = parts;
+          month = parseInt(month, 10) - 1;
+          day = parseInt(day, 10);
 
-      const endDate = new Date(year, month, day);
+          if (!year) year = new Date().getFullYear();
+          else if (/^\d{2}$/.test(year)) year = parseInt("20" + year, 10);
+          else year = parseInt(year, 10);
+
+          if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
+            endDate = new Date(year, month, day);
+          }
+        }
+      }
+
+      if (!endDate || isNaN(endDate)) return;
+
       endDate.setHours(0, 0, 0, 0);
 
       const today = new Date();
@@ -380,10 +395,9 @@ export async function loadCarousel() {
         Client: row.Client ?? "—",
         Location: row.Location ?? "—",
         Circuit: row.Circuit ?? "—",
-        "End Date": formatDateDDMMMYYYY(row["End Date"])
+        "End Date": raw   // already formatted correctly
       });
     });
-
   }
 
   if (endingRows.length > 0) {
@@ -398,6 +412,7 @@ export async function loadCarousel() {
       )
     );
   }
+
 }
 
 
