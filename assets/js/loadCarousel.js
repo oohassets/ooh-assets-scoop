@@ -356,7 +356,7 @@ export async function loadCarousel() {
     upcomingCarousel.appendChild(msg);
   }
 
-// ===============================
+  // ===============================
   // ENDING CAMPAIGNS (Digital + Static ONLY)
   // ===============================
   const endingRows = [];
@@ -365,9 +365,9 @@ export async function loadCarousel() {
     if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
     Object.values(allTables[tableName]).forEach(r => {
-      if (!r["End Date"]) return;
+      if (!r["End Date"] || r["End Date"] === "—" || r["End Date"] === "-") return;
 
-      const end = formatDateDDMMMYYYY(r["End Date"]);
+      const end = r["End Date"]; // ✅ already DD-MMM-YYYY
       if (!isEndingWithin3Days(end)) return;
 
       endingRows.push({
@@ -379,16 +379,16 @@ export async function loadCarousel() {
     });
   }
 
-  if (endingRows.length) {
+  if (endingRows.length > 0) {
     upcomingCarousel.appendChild(
       createCard(
-        "Ending Campaign",
-        Object.fromEntries(endingRows.map((r,i)=>[i,r])),
-        ["Client","Location","Circuit","End Date"]
+        "Ending Campaign (Next 3 Days)",
+        Object.fromEntries(endingRows.map((r, i) => [i, r])),
+        ["Client", "Location", "Circuit", "End Date"],
+        ["End Date"]
       )
     );
   }
-
 }
 
 
