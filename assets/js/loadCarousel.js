@@ -356,39 +356,40 @@ export async function loadCarousel() {
     upcomingCarousel.appendChild(msg);
   }
 
-  // ===============================
-  // ENDING CAMPAIGNS (Digital + Static ONLY)
-  // ===============================
-  const endingRows = [];
+// ===============================
+// ENDING CAMPAIGNS (Next 3 Days)
+// ===============================
+const endingRows = [];
 
-  for (const tableName in allTables) {
-    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+for (const tableName in allTables) {
+  if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    Object.values(allTables[tableName]).forEach(r => {
-      if (!r["End Date"] || r["End Date"] === "—" || r["End Date"] === "-") return;
+  Object.values(allTables[tableName]).forEach(r => {
+    if (!r || !r["End Date"]) return;
 
-      const end = r["End Date"]; // ✅ already DD-MMM-YYYY
-      if (!isEndingWithin3Days(end)) return;
+    const end = formatDateDDMMMYYYY(r["End Date"]);
+    if (end === "—" || end.includes("-")) return;  // skip invalid end dates
+    if (!isEndingWithin3Days(end)) return;
 
-      endingRows.push({
-        Client: r.Client ?? "—",
-        Location: tableName.startsWith("d_") ? (r.SN ?? "—") : "—",
-        Circuit: tableName.startsWith("s_") ? (r.Circuit ?? "—") : "—",
-        "End Date": end
-      });
+    endingRows.push({
+      Client: r.Client ?? "—",
+      Location: r.Location ?? r.Circuit ?? "—", // same logic as Campaign Activity
+      "End Date": end
     });
-  }
+  });
+}
 
-  if (endingRows.length > 0) {
-    upcomingCarousel.appendChild(
-      createCard(
-        "Ending Campaign (Next 3 Days)",
-        Object.fromEntries(endingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "Circuit", "End Date"],
-        ["End Date"]
-      )
-    );
-  }
+if (endingRows.length) {
+  upcomingCarousel.appendChild(
+    createCard(
+      "Ending Campaigns (Next 3 Days)", // H2 title
+      Object.fromEntries(endingRows.map((r, i) => [i, r])),
+      ["Client", "Location", "End Date"], // ✅ correct column order
+      ["End Date"] // enable highlighting
+    )
+  );
+}
+
 }
 
 
