@@ -327,61 +327,59 @@ export async function loadCarousel() {
     upcomingCarousel.appendChild(msg);
   }
 
-  // ===============================
-  // Ending Campaigns Section (Next 3 Days)
-  // ===============================
-  const endingRows = [];
+ // ===============================
+// Ending Campaigns Section (Next 3 Days)
+// ===============================
+const endingRows = [];
 
-  for (const tableName in allTables) {
-    const data = allTables[tableName];
-    if (!data) continue;
+for (const tableName in allTables) {
+  const data = allTables[tableName];
+  if (!data) continue;
 
-    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+  if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    const rows = Array.isArray(data) ? data : Object.values(data);
+  const rows = Array.isArray(data) ? data : Object.values(data);
 
-    rows.forEach(row => {
-      if (!row || !row["End Date"]) return;
+  rows.forEach(row => {
+    if (!row || !row["End Date"]) return;
 
-      // ✅ Format End Date properly
-      const formattedEndDate = formatDateDDMMMYYYY(row["End Date"]);
-      if (formattedEndDate === "—") return;
+    // ✅ Parse RAW end date (DO NOT format yet)
+    const endDate = new Date(row["End Date"]);
+    if (isNaN(endDate)) return;
 
-      const [d, mmm, y] = formattedEndDate.split("-");
-      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const m = months.indexOf(mmm);
-      if (m === -1) return;
+    endDate.setHours(0, 0, 0, 0);
 
-      const endDate = new Date(y, m, d);
-      endDate.setHours(0,0,0,0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      const today = new Date();
-      today.setHours(0,0,0,0);
+    const diff = (endDate - today) / 86400000;
+    if (diff < 0 || diff > 3) return;
 
-      const diff = (endDate - today) / 86400000;
-      if (diff < 0 || diff > 3) return;
+    // ✅ Format ONLY for display
+    const formattedEndDate = formatDateDDMMMYYYY(row["End Date"]);
 
-      endingRows.push({
-        Client: row.Client ?? "—",
-        Location: row.Location ?? "—",
-        Circuit: row.Circuit ?? "—",
-        "End Date": formattedEndDate
-      });
+    endingRows.push({
+      Client: row.Client ?? "—",
+      Location: row.Location ?? "—",
+      Circuit: row.Circuit ?? "—",
+      "End Date": formattedEndDate
     });
-  }
+  });
+}
 
-  if (endingRows.length > 0) {
-    const dataObj = Object.fromEntries(endingRows.map((r, i) => [i, r]));
+if (endingRows.length > 0) {
+  const dataObj = Object.fromEntries(endingRows.map((r, i) => [i, r]));
 
-    upcomingCarousel.appendChild(
-      createCard(
-        "Ending Campaigns",
-        dataObj,
-        ["Client", "Location", "Circuit", "End Date"],
-        ["End Date"] // 🔥 Enables color formatting
-      )
-    );
-  }
+  upcomingCarousel.appendChild(
+    createCard(
+      "Ending Campaigns",
+      dataObj,
+      ["Client", "Location", "Circuit", "End Date"],
+      ["End Date"] // enables color formatting
+    )
+  );
+}
+
 }
 
 
