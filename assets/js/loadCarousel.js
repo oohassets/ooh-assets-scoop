@@ -399,7 +399,6 @@ export async function loadCarousel() {
     upcomingCarousel.appendChild(msg);
   }
 
-
 }
 
 
