@@ -370,15 +370,16 @@ export async function loadCarousel() {
       .replace(/\b\w/g, c => c.toUpperCase());
 
     Object.values(allTables[tableName]).forEach(r => {
-       if (!r["End Date"] || r["End Date"] === "—" || r["End Date"] === "-") return;
+      if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
 
       const end = formatDateDDMMMYYYY(r["End Date"]);
-      if (end === "—" || end.includes("-")) return;
+      if (end === "—") return;
+
       if (!isEndingWithin3Days(end)) return;
 
       endingRows.push({
         Client: r.Client ?? "—",
-        Location: locationName,   // ✅ from table name
+        Location: locationName,
         "End Date": end
       });
     });
