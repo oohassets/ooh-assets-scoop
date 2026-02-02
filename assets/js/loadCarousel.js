@@ -339,8 +339,10 @@ export async function loadCarousel() {
 
       endingRows.push({
         Client: r.Client ?? "—",
-        Location: locationName,
-        "End Date": end
+        Location: tableName.startsWith("s_")
+          ? `${locationName} - ${r.Circuit ?? "—"}`
+          : locationName,
+        "End Date": formattedEnd
       });
     });
   }
