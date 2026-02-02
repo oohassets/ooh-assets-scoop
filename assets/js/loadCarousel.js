@@ -236,7 +236,7 @@ function showNoData(container) {
     const mmm = match[2];
     const y = parseInt(match[3], 10);
 
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Aug","Sep","Oct","Nov","Dec"];
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const m = months.indexOf(mmm);
     if (m === -1) return false;
 
@@ -372,8 +372,8 @@ export async function loadCarousel() {
     Object.values(allTables[tableName]).forEach(r => {
       if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
 
-      const end = formatDateDDMMMYYYY(r["End Date"]);
-      if (end === "—") return;
+      // ✅ End Date is ALREADY formatted earlier
+      const end = r["End Date"];
 
       if (!isEndingWithin3Days(end)) return;
 
