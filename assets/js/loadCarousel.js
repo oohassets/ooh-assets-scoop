@@ -316,47 +316,38 @@ export async function loadCarousel() {
 
   upcomingCarousel.innerHTML = "";
 
-  // ===============================
-  // ENDING CAMPAIGNS (Next 3 Days)
-  // ===============================
-  const endingRows = [];
+// ===============================
+// ENDING CAMPAIGNS (Next 3 Days)
+// ===============================
+const endingRows = [];
 
-  for (const tableName in allTables) {
-    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+for (const tableName in allTables) {
+  if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    const locationName = tableName
-      .replace(/^d_|^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+  const baseLocation = tableName
+    .replace(/^d_|^s_/, "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
 
-    Object.values(allTables[tableName]).forEach(r => {
-      if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
+  Object.values(allTables[tableName]).forEach(r => {
+    if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
 
-      // ✅ End Date is ALREADY formatted earlier
-      const end = r["End Date"];
+    const end = r["End Date"];
+    if (!isEndingWithin3Days(end)) return;
 
-      if (!isEndingWithin3Days(end)) return;
+    const location =
+      tableName.startsWith("s_")
+        ? `${baseLocation} - ${r.Circuit ?? "—"}`
+        : baseLocation;
 
-      endingRows.push({
-        Client: r.Client ?? "—",
-        Location: tableName.startsWith("s_")
-          ? `${locationName} - ${r.Circuit ?? "—"}`
-          : locationName,
-        "End Date": formattedEnd
-      });
+    endingRows.push({
+      Client: r.Client ?? "—",
+      Location: location,
+      "End Date": end
     });
-  }
+  });
+}
 
-  if (endingRows.length) {
-    upcomingCarousel.appendChild(
-      createCard(
-        "Ending Campaigns (Next 3 Days)",
-        Object.fromEntries(endingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "End Date"],
-        ["End Date"]
-      )
-    );
-  }
 
 
   // ===============================
