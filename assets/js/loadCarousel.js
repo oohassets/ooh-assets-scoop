@@ -314,6 +314,47 @@ export async function loadCarousel() {
     );
   }
 
+    // ===============================
+  // ENDING CAMPAIGNS (Next 3 Days)
+  // ===============================
+  const endingRows = [];
+
+  for (const tableName in allTables) {
+    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+
+    const locationName = tableName
+      .replace(/^d_|^s_/, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+
+    Object.values(allTables[tableName]).forEach(r => {
+      if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
+
+      // ✅ End Date is ALREADY formatted earlier
+      const end = r["End Date"];
+
+      if (!isEndingWithin3Days(end)) return;
+
+      endingRows.push({
+        Client: r.Client ?? "—",
+        Location: locationName,
+        "End Date": end
+      });
+    });
+  }
+
+  if (endingRows.length) {
+    upcomingCarousel.appendChild(
+      createCard(
+        "Ending Campaigns (Next 3 Days)",
+        Object.fromEntries(endingRows.map((r, i) => [i, r])),
+        ["Client", "Location", "End Date"],
+        ["End Date"]
+      )
+    );
+  }
+
+
   // ===============================
   // Upcoming Campaigns Section
   // ===============================
@@ -356,45 +397,6 @@ export async function loadCarousel() {
     upcomingCarousel.appendChild(msg);
   }
 
-  // ===============================
-  // ENDING CAMPAIGNS (Next 3 Days)
-  // ===============================
-  const endingRows = [];
-
-  for (const tableName in allTables) {
-    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
-
-    const locationName = tableName
-      .replace(/^d_|^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
-
-    Object.values(allTables[tableName]).forEach(r => {
-      if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
-
-      // ✅ End Date is ALREADY formatted earlier
-      const end = r["End Date"];
-
-      if (!isEndingWithin3Days(end)) return;
-
-      endingRows.push({
-        Client: r.Client ?? "—",
-        Location: locationName,
-        "End Date": end
-      });
-    });
-  }
-
-  if (endingRows.length) {
-    upcomingCarousel.appendChild(
-      createCard(
-        "Ending Campaigns (Next 3 Days)",
-        Object.fromEntries(endingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "End Date"],
-        ["End Date"]
-      )
-    );
-  }
 
 }
 
