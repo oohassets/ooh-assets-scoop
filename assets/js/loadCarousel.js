@@ -314,7 +314,9 @@ export async function loadCarousel() {
     );
   }
 
-    // ===============================
+  upcomingCarousel.innerHTML = "";
+
+  // ===============================
   // ENDING CAMPAIGNS (Next 3 Days)
   // ===============================
   const endingRows = [];
@@ -378,7 +380,7 @@ export async function loadCarousel() {
     });
   }
 
-  upcomingCarousel.innerHTML = "";
+  
 
   if (upcomingRows.length > 0) {
     const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
