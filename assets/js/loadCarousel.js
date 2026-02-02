@@ -370,7 +370,7 @@ export async function loadCarousel() {
       .replace(/\b\w/g, c => c.toUpperCase());
 
     Object.values(allTables[tableName]).forEach(r => {
-      if (!r || !r["End Date"]) return;
+       if (!r["End Date"] || r["End Date"] === "—" || r["End Date"] === "-") return;
 
       const end = formatDateDDMMMYYYY(r["End Date"]);
       if (end === "—" || end.includes("-")) return;
