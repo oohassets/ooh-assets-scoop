@@ -357,38 +357,44 @@ export async function loadCarousel() {
   }
 
   // ===============================
-  // ENDING CAMPAIGNS (Digital + Static ONLY)
+  // ENDING CAMPAIGNS (Next 3 Days)
   // ===============================
   const endingRows = [];
 
   for (const tableName in allTables) {
     if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    Object.values(allTables[tableName]).forEach(r => {
-      if (!r["End Date"] || r["End Date"] === "—" || r["End Date"] === "-") return;
+    const locationName = tableName
+      .replace(/^d_|^s_/, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
 
-      const end = r["End Date"]; // ✅ already DD-MMM-YYYY
+    Object.values(allTables[tableName]).forEach(r => {
+      if (!r || !r["End Date"]) return;
+
+      const end = formatDateDDMMMYYYY(r["End Date"]);
+      if (end === "—" || end.includes("-")) return;
       if (!isEndingWithin3Days(end)) return;
 
       endingRows.push({
         Client: r.Client ?? "—",
-        Location: tableName.startsWith("d_") ? (r.SN ?? "—") : "—",
-        Circuit: tableName.startsWith("s_") ? (r.Circuit ?? "—") : "—",
+        Location: locationName,   // ✅ from table name
         "End Date": end
       });
     });
   }
 
-  if (endingRows.length > 0) {
+  if (endingRows.length) {
     upcomingCarousel.appendChild(
       createCard(
-        "Ending Campaign (Next 3 Days)",
+        "Ending Campaigns (Next 3 Days)",
         Object.fromEntries(endingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "Circuit", "End Date"],
+        ["Client", "Location", "End Date"],
         ["End Date"]
       )
     );
   }
+
 }
 
 
