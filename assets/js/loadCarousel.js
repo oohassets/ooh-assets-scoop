@@ -332,9 +332,7 @@ export async function loadCarousel() {
     Object.values(allTables[tableName]).forEach(r => {
       if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
 
-      // ✅ End Date is ALREADY formatted earlier
       const end = r["End Date"];
-
       if (!isEndingWithin3Days(end)) return;
 
       endingRows.push({
@@ -344,6 +342,17 @@ export async function loadCarousel() {
       });
     });
   }
+
+  // ✅ SORT: older → newer
+  endingRows.sort((a, b) => {
+    const parse = d => {
+      const [day, mmm, year] = d.split("-");
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      return new Date(year, months.indexOf(mmm), day);
+    };
+
+    return parse(a["End Date"]) - parse(b["End Date"]);
+  });
 
   if (endingRows.length) {
     upcomingCarousel.appendChild(
@@ -381,7 +390,6 @@ export async function loadCarousel() {
   }
 
   
-
   if (upcomingRows.length > 0) {
     const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
     upcomingCarousel.appendChild(
