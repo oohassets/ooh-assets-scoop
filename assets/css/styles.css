@@ -108,6 +108,10 @@
     max-height: 250px;
   }
 
+  .carousel-title {
+    font-size: 18px !important;
+  }
+
   #carouselPublishToday .card {
     width: 100% !important;
     max-width: 350px;
@@ -495,7 +499,7 @@ body.no-scroll {
 
 .carousel-title {
   color: var(--text);
-  font-size: 1.4rem;
+  font-size: 20px;
   font-weight: 600;
   margin: 20px 0 10px;
 }
