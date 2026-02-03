@@ -302,7 +302,10 @@ export async function loadCarousel() {
 
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
-    const validRows = rows.filter(row => row && typeof row === "object");
+    const validRows = rows.filter(
+      row => row !== null && typeof row === "object" && !Array.isArray(row)
+    );
+
 
     validRows.forEach(row => {
       columns.forEach(col => {
@@ -337,7 +340,10 @@ export async function loadCarousel() {
 
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
-    const validRows = rows.filter(row => row && typeof row === "object");
+    const validRows = rows.filter(
+      row => row !== null && typeof row === "object" && !Array.isArray(row)
+    );
+
 
     validRows.forEach(row => {
       columns.forEach(col => {
@@ -358,8 +364,6 @@ export async function loadCarousel() {
       )
     );
   });
-
-
 
   upcomingCarousel.innerHTML = "";
 
