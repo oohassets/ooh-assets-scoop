@@ -112,13 +112,17 @@
     font-size: 18px !important;
   }
 
+  .card {
+    width: 350px !important;
+  }
+
   #carouselPublishToday .card {
-    width: 100% !important;
+    width: fit-content;
     max-width: 350px;
   }
 
   #carouselUpcoming .card {
-    width: 100% ;
+    width: fit-content;
     max-width: 350px !important;
   }
 
@@ -136,12 +140,12 @@
     font-size: 1.1rem;
   }
 
-  body { padding:.75rem; }
-  .btn { font-size:.8rem; padding:.45rem .65rem; }
-  .note { font-size:.75rem; }
-  .map-wrapper { aspect-ratio:3/4 !important; }
-  .logo { height:80px; width: auto !important;}
-  .top-right-widget { padding:.35rem .7rem; font-size:.75rem;}
+    body { padding:.75rem; }
+    .btn { font-size:.8rem; padding:.45rem .65rem; }
+    .note { font-size:.75rem; }
+    .map-wrapper { aspect-ratio:3/4 !important; }
+    .logo { height:80px; width: auto !important;}
+    .top-right-widget { padding:.35rem .7rem; font-size:.75rem;}
 
 }
 
@@ -538,7 +542,7 @@ body.no-scroll {
   padding: 15px;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-  width: 320px;
+  width: fit-content;
   margin-right: 14px;
   flex-shrink: 0;
   display: flex;
@@ -554,11 +558,11 @@ body.no-scroll {
 }
 
 #carouselPublishToday .card {
-  width: 420px !important;
+  width: fit-content;
 }
 
 #carouselUpcoming .card {
-  width: 580px !important;
+  width: fit-content;
 }
 
 .published-card h2 {
