@@ -113,17 +113,18 @@
   }
 
   .card {
-    width: 350px !important;
+    width: fit-content;
+    max-width: 320px !important;
   }
 
   #carouselPublishToday .card {
     width: fit-content;
-    max-width: 350px;
+    max-width: 320px !important;
   }
 
   #carouselUpcoming .card {
     width: fit-content;
-    max-width: 350px !important;
+    max-width: 320px !important;
   }
 
   #loginScreen .login-box {
