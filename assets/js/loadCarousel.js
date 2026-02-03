@@ -301,8 +301,10 @@ export async function loadCarousel() {
     const rows = Array.isArray(data) ? data : Object.values(data);
 
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
-    rows.forEach(row => {
-      if (!row || typeof row !== "object") return;
+
+    const validRows = rows.filter(row => row && typeof row === "object");
+
+    validRows.forEach(row => {
       columns.forEach(col => {
         row[col] = dateCols.includes(col)
           ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
@@ -310,19 +312,20 @@ export async function loadCarousel() {
       });
     });
 
-    if (!rows.length) return;
+    if (validRows.length === 0) return;
 
     digitalCarousel.appendChild(
       createCard(
         tableName.replace(/^d_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-        Object.fromEntries(rows.map((r, i) => [i, r])),
+        Object.fromEntries(validRows.map((r, i) => [i, r])),
         columns,
         highlightCols
       )
     );
   });
 
-  // ===== STATIC (unchanged order) =====
+
+  // ===== STATIC =====
   staticTables.forEach(tableName => {
     const data = allTables[tableName];
     if (!data) return;
@@ -333,8 +336,10 @@ export async function loadCarousel() {
     const rows = Array.isArray(data) ? data : Object.values(data);
 
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
-    rows.forEach(row => {
-      if (!row || typeof row !== "object") return;
+
+    const validRows = rows.filter(row => row && typeof row === "object");
+
+    validRows.forEach(row => {
       columns.forEach(col => {
         row[col] = dateCols.includes(col)
           ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
@@ -342,17 +347,18 @@ export async function loadCarousel() {
       });
     });
 
-    if (!rows.length) return;
+    if (validRows.length === 0) return;
 
     staticCarousel.appendChild(
       createCard(
         tableName.replace(/^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-        Object.fromEntries(rows.map((r, i) => [i, r])),
+        Object.fromEntries(validRows.map((r, i) => [i, r])),
         columns,
         highlightCols
       )
     );
   });
+
 
 
   upcomingCarousel.innerHTML = "";
