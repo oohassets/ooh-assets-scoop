@@ -267,23 +267,36 @@ export async function loadCarousel() {
   // ===============================
   // Digital & Static Sections
   // ===============================
+
+  // 🔹 Separate table names
+  const digitalTables = [];
+  const staticTables = [];
+
   for (const tableName in allTables) {
+    if (tableName.startsWith("d_")) digitalTables.push(tableName);
+    else if (tableName.startsWith("s_")) staticTables.push(tableName);
+  }
+
+  digitalTables.sort((a, b) => {
+    const nameA = a.toLowerCase();
+    const nameB = b.toLowerCase();
+
+    const priority = name => {
+      if (name.includes("tpi")) return 1;
+      if (name.includes("gewan")) return 2;
+      return 3;
+    };
+
+    return priority(nameA) - priority(nameB);
+  });
+
+  // ===== DIGITAL =====
+  digitalTables.forEach(tableName => {
     const data = allTables[tableName];
-    if (!data) continue;
+    if (!data) return;
 
-    let columns, targetCarousel, highlightCols = [];
-
-    if (tableName.startsWith("d_")) {
-      columns = ["SN", "Client", "Start Date", "End Date"];
-      targetCarousel = digitalCarousel;
-      highlightCols = ["End Date"];
-    }
-    else if (tableName.startsWith("s_")) {
-      columns = ["Circuit", "Client", "Start Date", "End Date"];
-      targetCarousel = staticCarousel;
-      highlightCols = ["End Date"];
-    }
-    else continue;
+    const columns = ["SN", "Client", "Start Date", "End Date"];
+    const highlightCols = ["End Date"];
 
     const rows = Array.isArray(data) ? data : Object.values(data);
 
@@ -291,28 +304,56 @@ export async function loadCarousel() {
     rows.forEach(row => {
       if (!row || typeof row !== "object") return;
       columns.forEach(col => {
-        if (dateCols.includes(col)) {
-          row[col] = row[col] ? formatDateDDMMMYYYY(row[col]) : "—";
-        } else {
-          row[col] = row[col] ?? "—";
-        }
+        row[col] = dateCols.includes(col)
+          ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
+          : (row[col] ?? "—");
       });
     });
 
-    const validRows = rows.filter(row => row && typeof row === "object");
-    if (validRows.length === 0) continue;
+    if (!rows.length) return;
 
-    const dataObj = Object.fromEntries(validRows.map((row, index) => [index, row]));
-
-    targetCarousel.appendChild(
+    digitalCarousel.appendChild(
       createCard(
-        tableName.replace(/^d_|^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-        dataObj,
+        tableName.replace(/^d_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+        Object.fromEntries(rows.map((r, i) => [i, r])),
         columns,
         highlightCols
       )
     );
-  }
+  });
+
+  // ===== STATIC (unchanged order) =====
+  staticTables.forEach(tableName => {
+    const data = allTables[tableName];
+    if (!data) return;
+
+    const columns = ["Circuit", "Client", "Start Date", "End Date"];
+    const highlightCols = ["End Date"];
+
+    const rows = Array.isArray(data) ? data : Object.values(data);
+
+    const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
+    rows.forEach(row => {
+      if (!row || typeof row !== "object") return;
+      columns.forEach(col => {
+        row[col] = dateCols.includes(col)
+          ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
+          : (row[col] ?? "—");
+      });
+    });
+
+    if (!rows.length) return;
+
+    staticCarousel.appendChild(
+      createCard(
+        tableName.replace(/^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+        Object.fromEntries(rows.map((r, i) => [i, r])),
+        columns,
+        highlightCols
+      )
+    );
+  });
+
 
   upcomingCarousel.innerHTML = "";
 
@@ -363,6 +404,11 @@ export async function loadCarousel() {
         ["End Date"]
       )
     );
+  } else {
+    const msg = document.createElement("div");
+    msg.textContent = "No Ending Campaigns";
+    msg.classList.add("no-data-message");
+    upcomingCarousel.appendChild(msg);
   }
 
 
