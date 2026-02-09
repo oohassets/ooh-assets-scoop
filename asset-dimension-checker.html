@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Artwork Dimension Checker</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 20px;
+    background: #f5f5f5;
+    color: #333;
+}
+
+.header {
+    display: grid;
+    grid-template-columns: 180px 1fr 180px 1fr 180px;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.header label {
+    font-weight: bold;
+}
+
+.header input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.header button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+
+
+#scanBtn {
+    background: linear-gradient(135deg, #ff9f50, #e26b20);
+}
+
+#scanBtn:hover {
+    opacity: 0.9;
+}
+
+#renameBtn {
+    background: linear-gradient(135deg, #ff9f50, #e26b20);
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+#renameBtn:hover {
+    opacity: 0.9;
+}
+
+.tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Modern table styling */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    table-layout: auto;
+}
+
+thead th {
+    background: #444;
+    color: #fff;
+    font-weight: bold;
+    padding: 10px;
+    text-align: left;
+}
+
+tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+    background: #f0f8ff;
+}
+
+.bad {
+    background: #ffc8c8 !important;
+    color: #900;
+    font-weight: bold;
+}
+
+tfoot th {
+    background: #f0f0f0;
+    font-weight: bold;
+    text-align: left;
+    padding: 8px 10px;
+}
+
+.total {
+    margin-top: 12px;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 8px 10px;
+}
+
+@media (max-width: 900px) {
+    .header {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .header label, .header input, .header button {
+        width: 100%;
+    }
+
+    .tables {
+        grid-template-columns: 1fr;
+    }
+
+    #renameBtn {
+        width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <label for="folderPicker">Artwork Path</label>
+    <input type="text" id="pathDisplay" readonly placeholder="Click to browse folder" />
+    <input type="file" id="folderPicker" webkitdirectory multiple hidden />
+
+    <label for="abbr">Artwork Abbreviation</label>
+    <input type="text" id="abbr" placeholder="Write Abbreviation Name" />
+    <button id="scanBtn">Check Artwork Dimension</button>
+</div>
+
+<div class="tables">
+
+<!-- LEFT TABLE -->
+<div>
+<table id="dimensionTable">
+<thead>
+<tr><th>Asset</th><th>Dimension</th><th>Count</th></tr>
+</thead>
+<tbody>
+<tr><td>Underpass</td><td>6240X420</td><td>-</td></tr>
+<tr><td>UDC Tower</td><td>6656X1040</td><td>-</td></tr>
+<tr><td>QQ</td><td>3742X432</td><td>-</td></tr>
+<tr><td>Mupi</td><td>256X384</td><td>-</td></tr>
+<tr><td>Monoprix</td><td>1080X1920</td><td>-</td></tr>
+<tr><td>Gewan Crystal Walk</td><td>512X640</td><td>-</td></tr>
+<tr><td>Gewan Crystal Walk</td><td>384X640</td><td>-</td></tr>
+<tr><td>Gewan Crystal Walk</td><td>640X384</td><td>-</td></tr>
+<tr><td>Gewan Crystal Walk</td><td>384X512</td><td>-</td></tr>
+<tr><td>Gewan Crystal Walk</td><td>640X640</td><td>-</td></tr>
+<tr><td>Gewan Building</td><td>1296X756</td><td>-</td></tr>
+</tbody>
+<tfoot>
+<tr><th colspan="2">Total</th><th id="leftTotal">0</th></tr>
+</tfoot>
+</table>
+
+<div class="total">
+Total Count Wrong Dimension:
+<span id="wrongCount">0</span>
+</div>
+</div>
+
+<!-- RIGHT TABLE -->
+<div>
+<table id="resultTable">
+<thead>
+<tr>
+<th>Artwork Name</th>
+<th>Actual Dimension</th>
+<th>Duration</th>
+<th>Artwork Rename</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button id="renameBtn" style="margin-top:10px">Download Renamed Files</button>
+</div>
+
+</div>
+
+<script>
+const allowedDimensions = [
+    "6240X420","6656X1040","3742X432","256X384",
+    "1080X1920","512X640","384X640","640X384",
+    "384X512","640X512","1296X756","640X640"
+];
+
+const folderPicker = document.getElementById("folderPicker");
+const pathDisplay = document.getElementById("pathDisplay");
+const scanBtn = document.getElementById("scanBtn");
+const renameBtn = document.getElementById("renameBtn");
+
+scanBtn.onclick = () => folderPicker.click();
+pathDisplay.onclick = () => folderPicker.click();
+
+folderPicker.onchange = async () => {
+    const files = [...folderPicker.files];
+    pathDisplay.value = files[0]?.webkitRelativePath.split("/")[0] || "";
+
+    const resultBody = document.querySelector("#resultTable tbody");
+    resultBody.innerHTML = "";
+    let wrong = 0;
+
+    const dimensionCounts = {
+        "6240X420":0,"6656X1040":0,"3742X432":0,"256X384":0,
+        "1080X1920":0,"512X640":0,"384X640":0,"640X384":0,
+        "384X512":0,"640X512":0,"1296X756":0,"640X640":0
+    };
+
+    for (const file of files) {
+        let w = 0, h = 0, duration = "";
+
+        if (file.type.startsWith("image/")) {
+            const img = await loadImage(file);
+            w = img.width;
+            h = img.height;
+        }
+
+        if (file.type.startsWith("video/")) {
+            const meta = await loadVideo(file);
+            w = meta.videoWidth;
+            h = meta.videoHeight;
+            duration = formatMMSS(meta.duration);
+        }
+
+        if (!w || !h) {
+            const m = file.name.match(/(\d{2,5})\s*[xX]\s*(\d{2,5})/);
+            if (m) { w = +m[1]; h = +m[2]; }
+        }
+
+        const dimText = (w && h) ? `${w}X${h}` : "N/A";
+        const valid = allowedDimensions.includes(dimText);
+
+        if (!valid) wrong++;
+
+        if(dimensionCounts[dimText] !== undefined) dimensionCounts[dimText]++;
+
+        addResultRow(file.name, dimText, duration, valid);
+    }
+
+    // Update left table counts
+    const dimTbody = document.querySelector("#dimensionTable tbody");
+    let totalCount = 0;
+    for (const row of dimTbody.rows) {
+        const dim = row.cells[1].textContent;
+        const count = dimensionCounts[dim] || 0;
+        row.cells[2].textContent = count > 0 ? count : "-";
+        totalCount += count;
+    }
+
+    document.getElementById("leftTotal").textContent = totalCount;
+    document.getElementById("wrongCount").textContent = wrong;
+};
+
+function addResultRow(name, dim, dur, valid) {
+    const tbody = document.querySelector("#resultTable tbody");
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+        <td>${name}</td>
+        <td class="${valid ? "" : "bad"}">${dim}</td>
+        <td>${dur}</td>
+        <td>${document.getElementById("abbr").value}-${dim}</td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function loadImage(file) {
+    return new Promise(res => {
+        const img = new Image();
+        img.onload = () => res(img);
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+function loadVideo(file) {
+    return new Promise(res => {
+        const v = document.createElement("video");
+        v.onloadedmetadata = () => res(v);
+        v.src = URL.createObjectURL(file);
+    });
+}
+
+function formatMMSS(sec) {
+    if (!sec) return "";
+    sec = Math.floor(sec);
+    return String(Math.floor(sec / 60)).padStart(2, "0") +
+           ":" + String(sec % 60).padStart(2, "0");
+}
+
+renameBtn.onclick = async () => {
+    const abbr = document.getElementById("abbr").value.trim();
+    if (!abbr) {
+        alert("Please enter an artwork abbreviation first.");
+        return;
+    }
+
+    const tbody = document.querySelector("#resultTable tbody");
+    if (!tbody.rows.length) {
+        alert("No files to rename. Scan first.");
+        return;
+    }
+
+    for (const row of tbody.rows) {
+        const originalName = row.cells[0].textContent;
+        const dim = row.cells[1].textContent;
+        const ext = originalName.split('.').pop();
+        const newName = `${abbr}-${dim}.${ext}`;
+
+        row.cells[3].textContent = newName;
+
+        // Prepare file for download
+        const file = [...folderPicker.files].find(f => f.name === originalName);
+        if (file) {
+            const url = URL.createObjectURL(file);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = newName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    alert("Renamed files prepared for download. Check your browser's download folder.");
+
+};
+</script>
+
+</body>
+</html>
