@@ -1,8 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Artwork Dimension Checker</title>
+
 
 <link rel="icon" href="images/scooplogo_black_192x192.png">
 
@@ -16,7 +19,7 @@ body {
 
 .header {
     display: grid;
-    grid-template-columns: 180px 1fr 180px 1fr 180px;
+    grid-template-columns: 180px 1fr 180px 1fr;
     gap: 40px;
     align-items: center;
     margin-bottom: 20px;
@@ -130,6 +133,14 @@ tfoot th {
     padding: 8px 10px;
 }
 
+#pathDisplay {
+    background-color: #fafafa;
+}
+
+#pathDisplay:hover {
+    border-color: #ff9f50;
+}
+
 @media (max-width: 900px) {
     .header {
         grid-template-columns: 1fr;
@@ -147,6 +158,29 @@ tfoot th {
         width: 100%;
     }
 }
+
+@media (max-width: 480px) {
+
+    .header {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .tables {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .header input,
+    .header button,
+    #renameBtn {
+        width: 100%;
+    }
+}
+
+
+
+
 </style>
 </head>
 <body>
@@ -154,11 +188,13 @@ tfoot th {
 <div class="header">
     <label for="abbr">Abbreviation Name</label>
     <input type="text" id="abbr" placeholder="Write Abbreviation Name" />
+
     <label for="folderPicker">Artwork Path</label>
     <input type="text" id="pathDisplay" readonly placeholder="Click to browse folder" />
+
     <input type="file" id="folderPicker" webkitdirectory multiple hidden />
-    <button id="scanBtn">Check Artwork Dimension</button>
 </div>
+
 
 <div class="tables">
 
@@ -220,10 +256,9 @@ const allowedDimensions = [
 
 const folderPicker = document.getElementById("folderPicker");
 const pathDisplay = document.getElementById("pathDisplay");
-const scanBtn = document.getElementById("scanBtn");
+
 const renameBtn = document.getElementById("renameBtn");
 
-scanBtn.onclick = () => folderPicker.click();
 pathDisplay.onclick = () => folderPicker.click();
 
 folderPicker.onchange = async () => {
