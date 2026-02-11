@@ -1,8 +1,44 @@
-import { auth, db } from "../../firebase/firebase.js";
+import { auth, db, messaging, rtdb } from "../../firebase/firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js";
+import { ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
 import { loadMapLinks } from "./map.js";
 import { loadInventory } from "./inventory.js";
 import { initFullscreen } from "./fullscreen.js";
+
+
+
+async function initPush(user) {
+  try {
+    if (!("Notification" in window)) return;
+
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return;
+
+    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+
+    const token = await getToken(messaging, {
+      vapidKey: "BOEOz9dvragMRiAJHTr0DpF8NUxJR_C3ppqtIeNG3C27--2cIHBAV_yfduVWx0gNNjQU72g0-9YvqdQVUgMNxK0",
+      serviceWorkerRegistration: registration
+    });
+
+    if (token) {
+      console.log("FCM Token:", token);
+
+      // 🔥 Save token under logged-in user
+      await set(ref(rtdb, "fcmTokens/" + user.uid + "/" + token), {
+        token: token,
+        email: user.email,
+        lastUpdated: Date.now()
+      });
+    }
+
+  } catch (err) {
+    console.error("Push error:", err);
+  }
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const logoutText = document.getElementById("logoutText");
@@ -10,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const inventoryBtn = document.getElementById("openInventoryBtn");
 
   // 🔐 Auth check
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, async user => {
     console.log("Auth status:", user);
 
     if (!user) {
@@ -21,6 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("User logged in, loading data...");
     container.style.display = "block";
+
+    await initPush(user); // 🔔 Initialize push after login
+
 
     initFullscreen();
     loadMapLinks().catch(err => console.error("Map load error:", err));
