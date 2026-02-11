@@ -31,7 +31,7 @@ function parseDate(dateStr) {
 // Scheduled Function (Daily 8 AM Qatar Time)
 // ===============================
 exports.checkEndingCampaigns = functions.pubsub
-  .schedule("0 8 * * *")
+  .schedule("1 6 * * *")
   .timeZone("Asia/Qatar")
   .onRun(async () => {
 
