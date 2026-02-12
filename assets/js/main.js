@@ -16,7 +16,7 @@ async function initPush(user) {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") return;
 
-    const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    const registration = await navigator.serviceWorker.register("./firebase-messaging-sw.js");
 
     const token = await getToken(messaging, {
       vapidKey: "BOEOz9dvragMRiAJHTr0DpF8NUxJR_C3ppqtIeNG3C27--2cIHBAV_yfduVWx0gNNjQU72g0-9YvqdQVUgMNxK0",
