@@ -8,7 +8,6 @@ import { loadInventory } from "./inventory.js";
 import { initFullscreen } from "./fullscreen.js";
 
 
-
 async function initPush(user) {
   try {
     if (!("Notification" in window)) return;
@@ -16,7 +15,8 @@ async function initPush(user) {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") return;
 
-    const registration = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+    // Wait for the already-registered PWA service worker
+    const registration = await navigator.serviceWorker.ready;
 
     const token = await getToken(messaging, {
       vapidKey: "BOEOz9dvragMRiAJHTr0DpF8NUxJR_C3ppqtIeNG3C27--2cIHBAV_yfduVWx0gNNjQU72g0-9YvqdQVUgMNxK0",
@@ -26,9 +26,8 @@ async function initPush(user) {
     if (token) {
       console.log("FCM Token:", token);
 
-      // 🔥 Save token under logged-in user
       await set(ref(rtdb, "fcmTokens/" + user.uid + "/" + token), {
-        token: token,
+        token,
         email: user.email,
         lastUpdated: Date.now()
       });
@@ -38,6 +37,7 @@ async function initPush(user) {
     console.error("Push error:", err);
   }
 }
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
