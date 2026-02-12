@@ -39,7 +39,6 @@ async function initPush(user) {
 }
 
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const logoutText = document.getElementById("logoutText");
   const container = document.querySelector(".container");

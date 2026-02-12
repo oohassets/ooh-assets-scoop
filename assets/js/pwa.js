@@ -11,15 +11,27 @@ if ('serviceWorker' in navigator) {
         }, 60 * 60 * 1000); // Every 1 hour
 
         // --- Listen for updates ---
+        let refreshing = false;
+
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
+
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New version ready
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               showUpdatePopup(newWorker);
             }
           });
         });
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          window.location.reload();
+        });
+
       })
       .catch(err => console.error('❌ SW registration failed:', err));
   });
