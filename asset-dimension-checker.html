@@ -59,7 +59,7 @@ body {
     opacity: 0.9;
 }
 
-#renameBtn {
+#downloadBtn {
     background: linear-gradient(135deg, #ff9f50, #e26b20);
     padding: 10px 20px;
     cursor: pointer;
@@ -71,7 +71,7 @@ body {
     font-size: 14px;
 }
 
-#renameBtn:hover {
+#downloadBtn:hover {
     opacity: 0.9;
 }
 
@@ -150,7 +150,7 @@ tfoot th {
         grid-template-columns: 1fr;
     }
 
-    #renameBtn {
+    #downloadBtn {
         width: 100%;
     }
 }
@@ -169,7 +169,7 @@ tfoot th {
 
     .header input,
     .header button,
-    #renameBtn {
+    #downloadBtn {
         width: 100%;
     }
 }
@@ -236,10 +236,24 @@ Total Count Wrong Dimension:
 <tbody></tbody>
 </table>
 
-<button id="renameBtn" style="margin-top:10px">Download Renamed Files</button>
+<button id="downloadBtn" style="margin-top:10px">Download Renamed Files</button>
 </div>
 
 </div>
+<div id="progressContainer" style="margin-top:15px; display:none;">
+    <div style="background:#ddd;border-radius:6px;overflow:hidden;height:20px;">
+        <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(135deg,#ff9f50,#e26b20);transition:0.3s;"></div>
+    </div>
+    <div id="progressText" style="margin-top:5px;font-size:13px;font-weight:bold;">
+        0%
+    </div>
+    <div id="downloadNote" style="margin-top:5px;font-size:11px;color:#555;display:none;">
+        Note: Please right-click the downloaded ZIP file, select Properties, check Unblock, and click Apply before extracting.
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
 const allowedDimensions = [
@@ -251,7 +265,7 @@ const allowedDimensions = [
 const folderPicker = document.getElementById("folderPicker");
 const pathDisplay = document.getElementById("pathDisplay");
 
-const renameBtn = document.getElementById("renameBtn");
+const downloadBtn = document.getElementById("downloadBtn");
 
 pathDisplay.onclick = () => folderPicker.click();
 
@@ -350,7 +364,7 @@ function formatMMSS(sec) {
            ":" + String(sec % 60).padStart(2, "0");
 }
 
-renameBtn.onclick = async () => {
+downloadBtn.onclick = async () => {
     const abbr = document.getElementById("abbr").value.trim();
     if (!abbr) {
         alert("Please enter an artwork abbreviation first.");
@@ -363,30 +377,92 @@ renameBtn.onclick = async () => {
         return;
     }
 
+    downloadBtn.disabled = true;
+
+    const progressContainer = document.getElementById("progressContainer");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+
+    progressContainer.style.display = "block";
+    progressBar.style.width = "0%";
+    progressText.textContent = "0%";
+
+    const zip = new JSZip();
+    const files = [...folderPicker.files];
+    const usedNames = new Set();
+
+    let validRows = [];
     for (const row of tbody.rows) {
-        const originalName = row.cells[0].textContent;
         const dim = row.cells[1].textContent;
-        const ext = originalName.split('.').pop();
-        const newName = `${abbr}-${dim}.${ext}`;
-
-        row.cells[3].textContent = newName;
-
-        // Prepare file for download
-        const file = [...folderPicker.files].find(f => f.name === originalName);
-        if (file) {
-            const url = URL.createObjectURL(file);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = newName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        if (allowedDimensions.includes(dim)) {
+            validRows.push(row);
         }
     }
 
-    alert("Renamed files prepared for download. Check your browser's download folder.");
+    if (validRows.length === 0) {
+        alert("No valid artworks found to download.");
+        downloadBtn.disabled = false;
+        progressContainer.style.display = "none";
+        return;
+    }
 
+    let processed = 0;
+
+    for (const row of tbody.rows) {
+        const originalName = row.cells[0].textContent;
+        const dim = row.cells[1].textContent;
+        const renameCell = row.cells[3];
+        const isValid = allowedDimensions.includes(dim);
+
+        if (!isValid) {
+            renameCell.innerHTML = `
+                <span style="color:red;font-weight:bold;">✖</span>
+                Skipped
+            `;
+            continue;
+        }
+
+        const file = files.find(f => f.name === originalName);
+        if (!file) continue;
+
+        const ext = originalName.split('.').pop();
+        let baseName = `${abbr}-${dim}`;
+        let newName = `${baseName}.${ext}`;
+
+        let counter = 1;
+        while (usedNames.has(newName)) {
+            newName = `${baseName}_${counter}.${ext}`;
+            counter++;
+        }
+
+        usedNames.add(newName);
+
+        renameCell.innerHTML = `
+            <span style="color:green;font-weight:bold;">✔</span>
+            ${newName}
+        `;
+
+        const fileData = await file.arrayBuffer();
+        zip.file(newName, fileData);
+
+        processed++;
+        const percent = Math.round((processed / validRows.length) * 100);
+        progressBar.style.width = percent + "%";
+        progressText.textContent = percent + "%";
+    }
+
+    const content = await zip.generateAsync({ type: "blob" });
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(content);
+    a.download = `${abbr}_Artworks.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    progressText.textContent = "Download Complete ✔";
+    document.getElementById("downloadNote").style.display = "block";
+    downloadBtn.disabled = false;
 };
 </script>
 
