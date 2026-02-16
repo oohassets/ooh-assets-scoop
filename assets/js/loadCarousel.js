@@ -368,59 +368,66 @@ export async function loadCarousel() {
   upcomingCarousel.innerHTML = "";
 
   // ===============================
-  // ENDING CAMPAIGNS (Next 3 Days)
-  // ===============================
-  const endingRows = [];
+// ENDING CAMPAIGNS (Next 3 Days)
+// ===============================
+const endingRows = [];
 
-  for (const tableName in allTables) {
-    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+for (const tableName in allTables) {
+  if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-    const locationName = tableName
-      .replace(/^d_|^s_/, "")
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+  const formattedName = tableName
+    .replace(/^d_|^s_/, "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
 
-    Object.values(allTables[tableName]).forEach(r => {
-      if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
+  Object.values(allTables[tableName]).forEach(r => {
+    if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
 
-      const end = r["End Date"];
-      if (!isEndingWithin3Days(end)) return;
+    const end = r["End Date"];
+    if (!isEndingWithin3Days(end)) return;
 
-      endingRows.push({
-        Client: r.Client ?? "—",
-        Location: locationName,
-        "End Date": end
-      });
+    // 🔹 Location logic
+    let locationName = formattedName;
+
+    // If Static table → add Circuit
+    if (tableName.startsWith("s_") && r["Circuit"]) {
+      locationName = `${formattedName} ${r["Circuit"]}`;
+    }
+
+    endingRows.push({
+      Client: r.Client ?? "—",
+      Location: locationName,
+      "End Date": end
     });
-  }
-
-  // ✅ SORT: older → newer
-  endingRows.sort((a, b) => {
-    const parse = d => {
-      const [day, mmm, year] = d.split("-");
-      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      return new Date(year, months.indexOf(mmm), day);
-    };
-
-    return parse(a["End Date"]) - parse(b["End Date"]);
   });
+}
 
-  if (endingRows.length) {
-    upcomingCarousel.appendChild(
-      createCard(
-        "Ending Campaigns (Next 3 Days)",
-        Object.fromEntries(endingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "End Date"],
-        ["End Date"]
-      )
-    );
-  } else {
-    const msg = document.createElement("div");
-    msg.textContent = "No Ending Campaigns";
-    msg.classList.add("no-data-message");
-    upcomingCarousel.appendChild(msg);
-  }
+// ✅ SORT: older → newer
+endingRows.sort((a, b) => {
+  const parse = d => {
+    const [day, mmm, year] = d.split("-");
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return new Date(year, months.indexOf(mmm), day);
+  };
 
+  return parse(a["End Date"]) - parse(b["End Date"]);
+});
+
+if (endingRows.length) {
+  upcomingCarousel.appendChild(
+    createCard(
+      "Ending Campaigns (Next 3 Days)",
+      Object.fromEntries(endingRows.map((r, i) => [i, r])),
+      ["Client", "Location", "End Date"],
+      ["End Date"]
+    )
+  );
+} else {
+  const msg = document.createElement("div");
+  msg.textContent = "No Ending Campaigns";
+  msg.classList.add("no-data-message");
+  upcomingCarousel.appendChild(msg);
+}
 
   // ===============================
   // Upcoming Campaigns Section
