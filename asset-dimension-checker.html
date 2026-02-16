@@ -273,8 +273,10 @@ folderPicker.onchange = async () => {
     const files = [...folderPicker.files];
     pathDisplay.value = files[0]?.webkitRelativePath.split("/")[0] || "";
 
+    const abbr = document.getElementById("abbr").value.trim();
     const resultBody = document.querySelector("#resultTable tbody");
     resultBody.innerHTML = "";
+
     let wrong = 0;
 
     const dimensionCounts = {
@@ -282,6 +284,8 @@ folderPicker.onchange = async () => {
         "1080X1920":0,"512X640":0,"384X640":0,"640X384":0,
         "384X512":0,"640X512":0,"1296X756":0,"640X640":0
     };
+
+    const nameCounters = {}; // <-- NEW (for _1, _2, _3 logic)
 
     for (const file of files) {
         let w = 0, h = 0, duration = "";
@@ -311,10 +315,18 @@ folderPicker.onchange = async () => {
 
         if(dimensionCounts[dimText] !== undefined) dimensionCounts[dimText]++;
 
-        addResultRow(file.name, dimText, duration, valid);
+        // 🔹 Generate rename preview with _1, _2, _3
+        let renamePreview = "";
+        if (valid && abbr) {
+            const baseKey = `${abbr}-${dimText}`;
+            nameCounters[baseKey] = (nameCounters[baseKey] || 0) + 1;
+            renamePreview = `${baseKey}_${nameCounters[baseKey]}`;
+        }
+
+        addResultRow(file.name, dimText, duration, valid, renamePreview);
     }
 
-    // Update left table counts
+    // Update left table
     const dimTbody = document.querySelector("#dimensionTable tbody");
     let totalCount = 0;
     for (const row of dimTbody.rows) {
@@ -328,7 +340,8 @@ folderPicker.onchange = async () => {
     document.getElementById("wrongCount").textContent = wrong;
 };
 
-function addResultRow(name, dim, dur, valid) {
+
+function addResultRow(name, dim, dur, valid, renamePreview = "") {
     const tbody = document.querySelector("#resultTable tbody");
     const tr = document.createElement("tr");
 
@@ -336,10 +349,16 @@ function addResultRow(name, dim, dur, valid) {
         <td>${name}</td>
         <td class="${valid ? "" : "bad"}">${dim}</td>
         <td>${dur}</td>
-        <td>${document.getElementById("abbr").value}-${dim}</td>
+        <td>
+            ${valid && renamePreview 
+                ? renamePreview 
+                : '<span style="color:red;font-weight:bold;">✖</span> Skipped'}
+        </td>
     `;
+
     tbody.appendChild(tr);
 }
+
 
 function loadImage(file) {
     return new Promise(res => {
@@ -412,6 +431,7 @@ downloadBtn.onclick = async () => {
         const originalName = row.cells[0].textContent;
         const dim = row.cells[1].textContent;
         const renameCell = row.cells[3];
+
         const isValid = allowedDimensions.includes(dim);
 
         if (!isValid) {
@@ -426,15 +446,12 @@ downloadBtn.onclick = async () => {
         if (!file) continue;
 
         const ext = originalName.split('.').pop();
-        let baseName = `${abbr}-${dim}`;
-        let newName = `${baseName}.${ext}`;
 
-        let counter = 1;
-        while (usedNames.has(newName)) {
-            newName = `${baseName}_${counter}.${ext}`;
-            counter++;
-        }
+        // ✅ USE PREVIEW NAME (already _1 _2 _3)
+        const previewName = renameCell.textContent.trim();
+        const newName = previewName + "." + ext;
 
+        if (usedNames.has(newName)) continue;
         usedNames.add(newName);
 
         renameCell.innerHTML = `
