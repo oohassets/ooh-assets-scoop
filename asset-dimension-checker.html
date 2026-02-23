@@ -227,13 +227,14 @@ Total Count Wrong Dimension:
 <th>Artwork Name</th>
 <th>Actual Dimension</th>
 <th>Duration</th>
+<th>File Size</th>
 <th>Artwork Rename</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
 
-<button id="downloadBtn" style="margin-top:10px">Download Renamed Files</button>
+<button id="downloadBtn" style="margin-top:10px">Download Files</button>
 </div>
 </div>
 
@@ -259,7 +260,7 @@ const folderPicker = document.getElementById("folderPicker");
 const pathDisplay = document.getElementById("pathDisplay");
 const downloadBtn = document.getElementById("downloadBtn");
 
-let processedFiles = []; // all scanned files
+let processedFiles = [];
 
 pathDisplay.onclick = () => folderPicker.click();
 
@@ -277,10 +278,9 @@ folderPicker.onchange = async () => {
     const baseKeyRunning = {};
 
     processedFiles = [];
-
     allowedDimensions.forEach(d => dimensionCounts[d] = 0);
 
-    // PASS 1 → Detect dimensions
+    // PASS 1 → Detect dimensions and file info
     for (const file of files) {
         let w = 0, h = 0, duration = "";
 
@@ -304,7 +304,6 @@ folderPicker.onchange = async () => {
 
         const dimText = (w && h) ? `${w}X${h}` : "N/A";
         const valid = allowedDimensions.includes(dimText);
-
         if (!valid) wrong++;
         if (dimensionCounts[dimText] !== undefined) dimensionCounts[dimText]++;
 
@@ -319,6 +318,7 @@ folderPicker.onchange = async () => {
             originalName: file.name,
             dimText,
             duration,
+            fileSize: formatBytes(file.size),
             valid
         });
     }
@@ -332,7 +332,7 @@ folderPicker.onchange = async () => {
             renamePreview = baseKeyTotals[baseKey] === 1 ? baseKey : `${baseKey}_${baseKeyRunning[baseKey]}`;
         }
 
-        addResultRow(item.id, item.originalName, item.dimText, item.duration, item.valid, renamePreview);
+        addResultRow(item.id, item.originalName, item.dimText, item.duration, item.fileSize, item.valid, renamePreview);
     }
 
     // Update left table counts
@@ -348,15 +348,15 @@ folderPicker.onchange = async () => {
     document.getElementById("wrongCount").textContent = wrong;
 };
 
-function addResultRow(id, name, dim, dur, valid, renamePreview = "") {
+function addResultRow(id, name, dim, dur, size, valid, renamePreview = "") {
     const tbody = document.querySelector("#resultTable tbody");
     const tr = document.createElement("tr");
     tr.dataset.fileId = id;
-
     tr.innerHTML = `
         <td>${name}</td>
         <td class="${valid ? "" : "bad"}">${dim}</td>
         <td>${dur}</td>
+        <td>${size}</td>
         <td>${valid && renamePreview ? renamePreview : '<span style="color:red;font-weight:bold;">✖</span> Wrong Dimension'}</td>
     `;
     tbody.appendChild(tr);
@@ -373,7 +373,10 @@ function loadImage(file) {
 function loadVideo(file) {
     return new Promise(res => {
         const v = document.createElement("video");
-        v.onloadedmetadata = () => res(v);
+        v.preload = "metadata";
+        v.onloadedmetadata = () => {
+            res({ videoWidth: v.videoWidth, videoHeight: v.videoHeight, duration: v.duration });
+        };
         v.src = URL.createObjectURL(file);
     });
 }
@@ -381,13 +384,19 @@ function loadVideo(file) {
 function formatMMSS(sec) {
     if (!sec) return "";
     sec = Math.floor(sec);
-    return String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0");
+    return String(Math.floor(sec / 60)).padStart(2,"0")+":"+String(sec % 60).padStart(2,"0");
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return "0 B";
+    const k = 1024, sizes = ["B","KB","MB","GB"];
+    const i = Math.floor(Math.log(bytes)/Math.log(k));
+    return (bytes / Math.pow(k,i)).toFixed(2) + " " + sizes[i];
 }
 
 downloadBtn.onclick = async () => {
     const abbr = document.getElementById("abbr").value.trim();
     if (!abbr) return alert("Please enter an artwork abbreviation first.");
-
     const tbody = document.querySelector("#resultTable tbody");
     if (!tbody.rows.length) return alert("No files to rename. Scan first.");
 
@@ -405,30 +414,28 @@ downloadBtn.onclick = async () => {
     if (!validFiles.length) return alert("No valid artworks found to download.");
 
     let processed = 0;
-
     for (let row of tbody.rows) {
         const fileId = row.dataset.fileId;
         const item = processedFiles.find(f => f.id === fileId);
         if (!item || !item.valid) {
-            row.cells[3].innerHTML = `<span style="color:red;font-weight:bold;">✖</span> Skipped`;
+            row.cells[4].innerHTML = `<span style="color:red;font-weight:bold;">✖</span> Skipped`;
             continue;
         }
 
         const ext = item.file.name.split('.').pop();
-        const previewName = row.cells[3].textContent.trim();
+        const previewName = row.cells[4].textContent.trim();
         const newName = previewName + "." + ext;
         if (usedNames.has(newName)) continue;
         usedNames.add(newName);
 
-        row.cells[3].innerHTML = `<span style="color:green;font-weight:bold;">✔</span> ${newName}`;
-
+        row.cells[4].innerHTML = `<span style="color:green;font-weight:bold;">✔</span> ${newName}`;
         const fileData = await item.file.arrayBuffer();
         zip.file(newName, fileData);
 
         processed++;
         const percent = Math.round((processed / validFiles.length) * 100);
-        progressBar.style.width = percent + "%";
-        progressText.textContent = percent + "%";
+        progressBar.style.width = percent+"%";
+        progressText.textContent = percent+"%";
     }
 
     const content = await zip.generateAsync({ type: "blob" });
