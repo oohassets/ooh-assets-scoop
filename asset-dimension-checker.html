@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Artwork Dimension Checker</title>
 
-
 <link rel="icon" href="images/scooplogo_black_192x192.png">
 
 <style>
@@ -185,10 +184,8 @@ tfoot th {
 
     <label for="folderPicker">Artwork Path</label>
     <input type="text" id="pathDisplay" readonly placeholder="Click to browse folder" />
-
     <input type="file" id="folderPicker" webkitdirectory multiple hidden />
 </div>
-
 
 <div class="tables">
 
@@ -238,23 +235,19 @@ Total Count Wrong Dimension:
 
 <button id="downloadBtn" style="margin-top:10px">Download Renamed Files</button>
 </div>
-
 </div>
+
 <div id="progressContainer" style="margin-top:15px; display:none;">
     <div style="background:#ddd;border-radius:6px;overflow:hidden;height:20px;">
         <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(135deg,#ff9f50,#e26b20);transition:0.3s;"></div>
     </div>
-    <div id="progressText" style="margin-top:5px;font-size:13px;font-weight:bold;">
-        0%
-    </div>
+    <div id="progressText" style="margin-top:5px;font-size:13px;font-weight:bold;">0%</div>
     <div id="downloadNote" style="margin-top:5px;font-size:11px;color:#555;display:none;">
         Note: Please right-click the downloaded ZIP file, select Properties, check Unblock, and click Apply before extracting.
     </div>
 </div>
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
 <script>
 const allowedDimensions = [
     "6240X420","6656X1040","3742X432","256X384",
@@ -264,8 +257,9 @@ const allowedDimensions = [
 
 const folderPicker = document.getElementById("folderPicker");
 const pathDisplay = document.getElementById("pathDisplay");
-
 const downloadBtn = document.getElementById("downloadBtn");
+
+let processedFiles = []; // all scanned files
 
 pathDisplay.onclick = () => folderPicker.click();
 
@@ -278,18 +272,15 @@ folderPicker.onchange = async () => {
     resultBody.innerHTML = "";
 
     let wrong = 0;
-
     const dimensionCounts = {};
-    const baseKeyTotals = {};     // total files per dimension
-    const baseKeyRunning = {};    // running counter for numbering
-    const processedFiles = [];    // store processed file data
+    const baseKeyTotals = {};
+    const baseKeyRunning = {};
 
-    // initialize dimension counts
+    processedFiles = [];
+
     allowedDimensions.forEach(d => dimensionCounts[d] = 0);
 
-    // ===============================
     // PASS 1 → Detect dimensions
-    // ===============================
     for (const file of files) {
         let w = 0, h = 0, duration = "";
 
@@ -315,9 +306,7 @@ folderPicker.onchange = async () => {
         const valid = allowedDimensions.includes(dimText);
 
         if (!valid) wrong++;
-        if (dimensionCounts[dimText] !== undefined) {
-            dimensionCounts[dimText]++;
-        }
+        if (dimensionCounts[dimText] !== undefined) dimensionCounts[dimText]++;
 
         if (valid && abbr) {
             const baseKey = `${abbr}-${dimText}`;
@@ -325,6 +314,7 @@ folderPicker.onchange = async () => {
         }
 
         processedFiles.push({
+            id: crypto.randomUUID(),
             file,
             originalName: file.name,
             dimText,
@@ -333,71 +323,44 @@ folderPicker.onchange = async () => {
         });
     }
 
-    // ===============================
     // PASS 2 → Generate Rename Preview
-    // ===============================
     for (const item of processedFiles) {
         let renamePreview = "";
-
         if (item.valid && abbr) {
             const baseKey = `${abbr}-${item.dimText}`;
             baseKeyRunning[baseKey] = (baseKeyRunning[baseKey] || 0) + 1;
-
-            if (baseKeyTotals[baseKey] === 1) {
-                // Only one file → NO _1
-                renamePreview = baseKey;
-            } else {
-                // Multiple files → add numbering
-                renamePreview = `${baseKey}_${baseKeyRunning[baseKey]}`;
-            }
+            renamePreview = baseKeyTotals[baseKey] === 1 ? baseKey : `${baseKey}_${baseKeyRunning[baseKey]}`;
         }
 
-        addResultRow(
-            item.originalName,
-            item.dimText,
-            item.duration,
-            item.valid,
-            renamePreview
-        );
+        addResultRow(item.id, item.originalName, item.dimText, item.duration, item.valid, renamePreview);
     }
 
-    // ===============================
-    // Update Left Table Counts
-    // ===============================
+    // Update left table counts
     const dimTbody = document.querySelector("#dimensionTable tbody");
     let totalCount = 0;
-
     for (const row of dimTbody.rows) {
         const dim = row.cells[1].textContent;
         const count = dimensionCounts[dim] || 0;
         row.cells[2].textContent = count > 0 ? count : "-";
         totalCount += count;
     }
-
     document.getElementById("leftTotal").textContent = totalCount;
     document.getElementById("wrongCount").textContent = wrong;
 };
 
-
-
-function addResultRow(name, dim, dur, valid, renamePreview = "") {
+function addResultRow(id, name, dim, dur, valid, renamePreview = "") {
     const tbody = document.querySelector("#resultTable tbody");
     const tr = document.createElement("tr");
+    tr.dataset.fileId = id;
 
     tr.innerHTML = `
         <td>${name}</td>
         <td class="${valid ? "" : "bad"}">${dim}</td>
         <td>${dur}</td>
-        <td>
-            ${valid && renamePreview 
-                ? renamePreview 
-                : '<span style="color:red;font-weight:bold;">✖</span> Wrong Dimension'}
-        </td>
+        <td>${valid && renamePreview ? renamePreview : '<span style="color:red;font-weight:bold;">✖</span> Wrong Dimension'}</td>
     `;
-
     tbody.appendChild(tr);
 }
-
 
 function loadImage(file) {
     return new Promise(res => {
@@ -418,97 +381,57 @@ function loadVideo(file) {
 function formatMMSS(sec) {
     if (!sec) return "";
     sec = Math.floor(sec);
-    return String(Math.floor(sec / 60)).padStart(2, "0") +
-           ":" + String(sec % 60).padStart(2, "0");
+    return String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0");
 }
 
 downloadBtn.onclick = async () => {
     const abbr = document.getElementById("abbr").value.trim();
-    if (!abbr) {
-        alert("Please enter an artwork abbreviation first.");
-        return;
-    }
+    if (!abbr) return alert("Please enter an artwork abbreviation first.");
 
     const tbody = document.querySelector("#resultTable tbody");
-    if (!tbody.rows.length) {
-        alert("No files to rename. Scan first.");
-        return;
-    }
+    if (!tbody.rows.length) return alert("No files to rename. Scan first.");
 
     downloadBtn.disabled = true;
-
     const progressContainer = document.getElementById("progressContainer");
     const progressBar = document.getElementById("progressBar");
     const progressText = document.getElementById("progressText");
-
     progressContainer.style.display = "block";
     progressBar.style.width = "0%";
     progressText.textContent = "0%";
 
     const zip = new JSZip();
-    const files = [...folderPicker.files];
     const usedNames = new Set();
-
-    let validRows = [];
-    for (const row of tbody.rows) {
-        const dim = row.cells[1].textContent;
-        if (allowedDimensions.includes(dim)) {
-            validRows.push(row);
-        }
-    }
-
-    if (validRows.length === 0) {
-        alert("No valid artworks found to download.");
-        downloadBtn.disabled = false;
-        progressContainer.style.display = "none";
-        return;
-    }
+    const validFiles = Array.from(tbody.rows).filter(r => allowedDimensions.includes(r.cells[1].textContent));
+    if (!validFiles.length) return alert("No valid artworks found to download.");
 
     let processed = 0;
 
-    for (const row of tbody.rows) {
-        const originalName = row.cells[0].textContent;
-        const dim = row.cells[1].textContent;
-        const renameCell = row.cells[3];
-
-        const isValid = allowedDimensions.includes(dim);
-
-        if (!isValid) {
-            renameCell.innerHTML = `
-                <span style="color:red;font-weight:bold;">✖</span>
-                Skipped
-            `;
+    for (let row of tbody.rows) {
+        const fileId = row.dataset.fileId;
+        const item = processedFiles.find(f => f.id === fileId);
+        if (!item || !item.valid) {
+            row.cells[3].innerHTML = `<span style="color:red;font-weight:bold;">✖</span> Skipped`;
             continue;
         }
 
-        const file = files.find(f => f.name === originalName);
-        if (!file) continue;
-
-        const ext = originalName.split('.').pop();
-
-        // ✅ USE PREVIEW NAME (already _1 _2 _3)
-        const previewName = renameCell.textContent.trim();
+        const ext = item.file.name.split('.').pop();
+        const previewName = row.cells[3].textContent.trim();
         const newName = previewName + "." + ext;
-
         if (usedNames.has(newName)) continue;
         usedNames.add(newName);
 
-        renameCell.innerHTML = `
-            <span style="color:green;font-weight:bold;">✔</span>
-            ${newName}
-        `;
+        row.cells[3].innerHTML = `<span style="color:green;font-weight:bold;">✔</span> ${newName}`;
 
-        const fileData = await file.arrayBuffer();
+        const fileData = await item.file.arrayBuffer();
         zip.file(newName, fileData);
 
         processed++;
-        const percent = Math.round((processed / validRows.length) * 100);
+        const percent = Math.round((processed / validFiles.length) * 100);
         progressBar.style.width = percent + "%";
         progressText.textContent = percent + "%";
     }
 
     const content = await zip.generateAsync({ type: "blob" });
-
     const a = document.createElement("a");
     a.href = URL.createObjectURL(content);
     a.download = `${abbr}_Artworks.zip`;
@@ -521,6 +444,5 @@ downloadBtn.onclick = async () => {
     downloadBtn.disabled = false;
 };
 </script>
-
 </body>
 </html>
