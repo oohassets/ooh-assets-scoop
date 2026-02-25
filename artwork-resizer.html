@@ -109,7 +109,8 @@ button:disabled{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
-const { createFFmpeg, fetchFile } = FFmpeg; // <-- FIX: UMD global
+//  FIXED: Correct UMD Global Name
+const { createFFmpeg, fetchFile } = FFmpeg;
 const ffmpeg = createFFmpeg({ log: false });
 
 const fileInput = document.getElementById("fileInput");
