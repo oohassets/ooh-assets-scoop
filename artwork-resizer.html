@@ -8,7 +8,7 @@
 <style>
 body{
     font-family: Arial, sans-serif;
-    background:#f1f4f9;
+    background:#f4f6f9;
     padding:30px;
 }
 .container{
@@ -23,10 +23,10 @@ h2{
     background:#fff;
     padding:20px;
     margin-bottom:20px;
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap:15px;
     border:1px solid #ddd;
+}
+.controls input{
+    margin-top:5px;
 }
 table{
     width:100%;
@@ -73,20 +73,14 @@ button:disabled{
 <h2>Artwork Resizer</h2>
 
 <div class="controls">
-<div>
-<label>Width</label>
+<label>Output Width</label>
 <input type="number" id="width" value="3670">
-</div>
-
-<div>
-<label>Height</label>
+<br><br>
+<label>Output Height</label>
 <input type="number" id="height" value="247">
-</div>
-
-<div>
+<br><br>
 <label>Select Videos</label>
 <input type="file" id="fileInput" accept="video/*" multiple>
-</div>
 </div>
 
 <button id="startBtn" disabled>Start Conversion</button>
@@ -110,6 +104,7 @@ button:disabled{
 
 </div>
 
+<!-- Correct UMD Build -->
 <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
@@ -194,6 +189,7 @@ startBtn.addEventListener("click", async ()=>{
             "-i", inputName,
             "-vf", `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`,
             "-r", "30",
+            "-vsync", "cfr",
             "-c:v", "libx264",
             "-preset", "slow",
             "-profile:v", "high",
@@ -219,20 +215,21 @@ startBtn.addEventListener("click", async ()=>{
     if(convertedFiles.length>0){
         downloadBtn.disabled=false;
     }
-
 });
 
 downloadBtn.addEventListener("click", async ()=>{
 
     const zip=new JSZip();
+
     convertedFiles.forEach(file=>{
         zip.file(file.name,file.data);
     });
 
     const content=await zip.generateAsync({type:"blob"});
+
     const link=document.createElement("a");
     link.href=URL.createObjectURL(content);
-    link.download="converted_30fps_HQ_batch.zip";
+    link.download="converted_batch_30fps_HQ.zip";
     link.click();
 });
 </script>
