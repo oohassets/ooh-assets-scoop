@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Artwork Resizer</title>
+<title>Professional Batch Video Converter</title>
 
 <style>
 body{
@@ -70,7 +70,7 @@ button:disabled{
 
 <div class="container">
 
-<h2>Artwork Resizer</h2>
+<h2>Professional Batch Video Converter</h2>
 
 <div class="controls">
 <label>Output Width</label>
@@ -104,14 +104,13 @@ button:disabled{
 
 </div>
 
-<!-- Correct UMD Build -->
+<!-- Correct UMD FFmpeg Build -->
 <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
-// UMD build exposes FFmpegFFmpeg globally
-const { createFFmpeg, fetchFile } = FFmpegFFmpeg;
-const ffmpeg = createFFmpeg({ log: true });
+const { createFFmpeg, fetchFile } = FFmpegFFmpeg; // <-- FIX: UMD global
+const ffmpeg = createFFmpeg({ log: false });
 
 const fileInput = document.getElementById("fileInput");
 const startBtn = document.getElementById("startBtn");
@@ -122,7 +121,6 @@ let loadedFiles = [];
 let convertedFiles = [];
 
 fileInput.addEventListener("change", async (e)=>{
-
     loadedFiles = Array.from(e.target.files);
     convertedFiles = [];
     resultBody.innerHTML="";
@@ -154,7 +152,6 @@ fileInput.addEventListener("change", async (e)=>{
 });
 
 startBtn.addEventListener("click", async ()=>{
-
     startBtn.disabled=true;
     downloadBtn.disabled=true;
 
@@ -168,7 +165,6 @@ startBtn.addEventListener("click", async ()=>{
     const rows=resultBody.querySelectorAll("tr");
 
     for(let i=0;i<loadedFiles.length;i++){
-
         const file=loadedFiles[i];
         const row=rows[i];
 
@@ -219,15 +215,11 @@ startBtn.addEventListener("click", async ()=>{
 });
 
 downloadBtn.addEventListener("click", async ()=>{
-
     const zip=new JSZip();
-
     convertedFiles.forEach(file=>{
         zip.file(file.name,file.data);
     });
-
     const content=await zip.generateAsync({type:"blob"});
-
     const link=document.createElement("a");
     link.href=URL.createObjectURL(content);
     link.download="converted_batch_30fps_HQ.zip";
