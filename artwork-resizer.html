@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Professional Batch Video Converter</title>
+<title>Professional Batch Converter</title>
 
 <style>
 body{
@@ -24,17 +24,9 @@ h2{
     padding:20px;
     margin-bottom:20px;
     display:grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap:15px;
     border:1px solid #ddd;
-}
-.controls label{
-    font-size:13px;
-    display:block;
-}
-.controls input, .controls select{
-    width:100%;
-    padding:5px;
 }
 table{
     width:100%;
@@ -48,17 +40,8 @@ th, td{
     text-align:center;
 }
 th{
-    background:#1e88e5;
+    background:#1565c0;
     color:#fff;
-}
-.progress-bar{
-    height:8px;
-    background:#ccc;
-}
-.progress-fill{
-    height:8px;
-    width:0%;
-    background:#1e88e5;
 }
 button{
     padding:10px 20px;
@@ -69,8 +52,18 @@ button:disabled{
     background:#ccc;
     cursor:not-allowed;
 }
+.status-loaded{color:#555;}
 .status-processing{color:orange;}
 .status-done{color:green;}
+.progress-bar{
+    height:8px;
+    background:#ddd;
+}
+.progress-fill{
+    height:8px;
+    width:0%;
+    background:#1565c0;
+}
 </style>
 </head>
 <body>
@@ -91,33 +84,15 @@ button:disabled{
 </div>
 
 <div>
-<label>Video Bitrate (kbps)</label>
-<input type="number" id="bitrate" value="4000">
-</div>
-
-<div>
-<label>Background</label>
-<select id="bgColor">
-<option value="black">Black</option>
-<option value="white">White</option>
-<option value="blue">Blue</option>
-</select>
-</div>
-
-<div>
-<label>Audio</label>
-<select id="audio">
-<option value="copy">Keep Audio</option>
-<option value="none">Remove Audio</option>
-</select>
-</div>
-
-<div style="grid-column: span 3;">
 <label>Select Videos</label>
 <input type="file" id="fileInput" accept="video/*" multiple>
 </div>
-
 </div>
+
+<button id="startBtn" disabled>Start Conversion</button>
+<button id="downloadBtn" disabled>Download All</button>
+
+<br><br>
 
 <table>
 <thead>
@@ -125,15 +100,13 @@ button:disabled{
 <th>Name</th>
 <th>Resolution</th>
 <th>Duration</th>
-<th>Orig Size (MB)</th>
-<th>New Size (MB)</th>
+<th>Orig MB</th>
+<th>New MB</th>
 <th>Status</th>
 </tr>
 </thead>
 <tbody id="resultBody"></tbody>
 </table>
-
-<button id="downloadBtn" disabled>Download All</button>
 
 </div>
 
@@ -145,38 +118,28 @@ const { createFFmpeg, fetchFile } = FFmpeg;
 const ffmpeg = createFFmpeg({ log: false });
 
 const fileInput = document.getElementById("fileInput");
-const resultBody = document.getElementById("resultBody");
+const startBtn = document.getElementById("startBtn");
 const downloadBtn = document.getElementById("downloadBtn");
+const resultBody = document.getElementById("resultBody");
 
+let loadedFiles = [];
 let convertedFiles = [];
 
 fileInput.addEventListener("change", async (e)=>{
 
-    const files = e.target.files;
-    if(!files.length) return;
-
+    loadedFiles = Array.from(e.target.files);
+    convertedFiles = [];
     resultBody.innerHTML="";
-    convertedFiles=[];
     downloadBtn.disabled=true;
 
-    if(!ffmpeg.isLoaded()){
-        await ffmpeg.load();
-    }
+    if(!loadedFiles.length) return;
 
-    const width=document.getElementById("width").value;
-    const height=document.getElementById("height").value;
-    const bitrate=document.getElementById("bitrate").value;
-    const bg=document.getElementById("bgColor").value;
-    const audioOpt=document.getElementById("audio").value;
-
-    for(let file of files){
-
+    for(let file of loadedFiles){
         if(!file.type.startsWith("video/")) continue;
 
         const videoURL=URL.createObjectURL(file);
         const video=document.createElement("video");
         video.src=videoURL;
-
         await new Promise(res=>video.onloadedmetadata=res);
 
         const row=document.createElement("tr");
@@ -186,12 +149,37 @@ fileInput.addEventListener("change", async (e)=>{
         <td>${video.duration.toFixed(2)}s</td>
         <td>${(file.size/1024/1024).toFixed(2)}</td>
         <td>-</td>
-        <td class="status-processing">Processing...</td>
+        <td class="status-loaded">Loaded</td>
         `;
         resultBody.appendChild(row);
+    }
+
+    startBtn.disabled=false;
+});
+
+startBtn.addEventListener("click", async ()=>{
+
+    startBtn.disabled=true;
+    downloadBtn.disabled=true;
+
+    if(!ffmpeg.isLoaded()){
+        await ffmpeg.load();
+    }
+
+    const width=document.getElementById("width").value;
+    const height=document.getElementById("height").value;
+
+    const rows=resultBody.querySelectorAll("tr");
+
+    for(let i=0;i<loadedFiles.length;i++){
+
+        const file=loadedFiles[i];
+        const row=rows[i];
+
+        row.cells[5].innerHTML=`<span class="status-processing">Processing...</span>`;
 
         const inputName=file.name;
-        const outputName="converted_"+width+"x"+height+"_"+file.name;
+        const outputName=`${width}x${height}_30fps_HQ_${file.name}`;
 
         ffmpeg.FS("writeFile",inputName,await fetchFile(file));
 
@@ -202,24 +190,20 @@ fileInput.addEventListener("change", async (e)=>{
              </div>`;
         });
 
-        let vf=`scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:${bg}`;
-
-        let args=[
-            "-i",inputName,
-            "-vf",vf,
-            "-b:v",bitrate+"k",
-            "-preset","ultrafast"
-        ];
-
-        if(audioOpt==="none"){
-            args.push("-an");
-        }else{
-            args.push("-c:a","copy");
-        }
-
-        args.push(outputName);
-
-        await ffmpeg.run(...args);
+        await ffmpeg.run(
+            "-i", inputName,
+            "-vf", `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`,
+            "-r", "30",
+            "-c:v", "libx264",
+            "-preset", "slow",
+            "-profile:v", "high",
+            "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
+            "-crf", "18",
+            "-c:a", "aac",
+            "-b:a", "192k",
+            outputName
+        );
 
         const data=ffmpeg.FS("readFile",outputName);
 
@@ -238,15 +222,17 @@ fileInput.addEventListener("change", async (e)=>{
 
 });
 
-downloadBtn.addEventListener("click",async()=>{
+downloadBtn.addEventListener("click", async ()=>{
+
     const zip=new JSZip();
     convertedFiles.forEach(file=>{
         zip.file(file.name,file.data);
     });
+
     const content=await zip.generateAsync({type:"blob"});
     const link=document.createElement("a");
     link.href=URL.createObjectURL(content);
-    link.download="converted_batch.zip";
+    link.download="converted_30fps_HQ_batch.zip";
     link.click();
 });
 </script>
