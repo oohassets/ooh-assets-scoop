@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Professional Batch Video Converter</title>
 
 <style>
@@ -70,163 +70,182 @@ button:disabled{
 
 <div class="container">
 
-<h2>Professional Batch Video Converter</h2>
+  <h2>Professional Batch Video Converter</h2>
 
-<div class="controls">
-<label>Output Width</label>
-<input type="number" id="width" value="3670">
-<br><br>
-<label>Output Height</label>
-<input type="number" id="height" value="247">
-<br><br>
-<label>Select Videos</label>
-<input type="file" id="fileInput" accept="video/*" multiple>
+  <div class="controls">
+    <label>Output Width</label>
+    <input type="number" id="width" value="3670">
+    <br><br>
+    <label>Output Height</label>
+    <input type="number" id="height" value="247">
+    <br><br>
+    <label>Select Videos</label>
+    <input type="file" id="fileInput" accept="video/*" multiple>
+  </div>
+
+  <button id="startBtn" disabled>Start Conversion</button>
+  <button id="downloadBtn" disabled>Download All</button>
+
+  <br><br>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Resolution</th>
+        <th>Duration</th>
+        <th>Orig MB</th>
+        <th>New MB</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+
 </div>
 
-<button id="startBtn" disabled>Start Conversion</button>
-<button id="downloadBtn" disabled>Download All</button>
-
-<br><br>
-
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Resolution</th>
-<th>Duration</th>
-<th>Orig MB</th>
-<th>New MB</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody id="resultBody"></tbody>
-</table>
-
-</div>
-
-<!-- Correct UMD FFmpeg Build -->
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- Load dependencies FIRST (UMD build exposes window.FFmpeg) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.12.15/umd/ffmpeg.min.js" integrity="sha512-E4H1E0z7l4b1y7v7k8H0..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-ZR..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-//  FIXED: Correct UMD Global Name
-const { createFFmpeg, fetchFile } = FFmpeg;
-const ffmpeg = createFFmpeg({ log: false });
+// Correct UMD global + explicit corePath so the worker loads from the same CDN
+const { createFFmpeg, fetchFile } = FFmpeg; // UMD global name
+const ffmpeg = createFFmpeg({
+  log: false,
+  corePath: 'https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.12.15/umd' // location of 814.ffmpeg.js
+});
 
-const fileInput = document.getElementById("fileInput");
-const startBtn = document.getElementById("startBtn");
+const fileInput   = document.getElementById("fileInput");
+const startBtn    = document.getElementById("startBtn");
 const downloadBtn = document.getElementById("downloadBtn");
-const resultBody = document.getElementById("resultBody");
+const resultBody  = document.getElementById("resultBody");
 
 let loadedFiles = [];
 let convertedFiles = [];
 
-fileInput.addEventListener("change", async (e)=>{
-    loadedFiles = Array.from(e.target.files);
-    convertedFiles = [];
-    resultBody.innerHTML="";
-    downloadBtn.disabled=true;
+// Enable the Start button when files are chosen and list them
+fileInput.addEventListener("change", async (e) => {
+  loadedFiles = Array.from(e.target.files || []);
+  convertedFiles = [];
+  resultBody.innerHTML = "";
+  downloadBtn.disabled = true;
 
-    if(!loadedFiles.length) return;
+  if (!loadedFiles.length) {
+    startBtn.disabled = true;
+    return;
+  }
 
-    for(let file of loadedFiles){
-        if(!file.type.startsWith("video/")) continue;
+  for (const file of loadedFiles) {
+    if (!file.type.startsWith("video/")) continue;
 
-        const videoURL=URL.createObjectURL(file);
-        const video=document.createElement("video");
-        video.src=videoURL;
-        await new Promise(res=>video.onloadedmetadata=res);
+    const videoURL = URL.createObjectURL(file);
+    const video    = document.createElement("video");
+    video.src      = videoURL;
+    await new Promise(res => video.onloadedmetadata = res);
 
-        const row=document.createElement("tr");
-        row.innerHTML=`
-        <td>${file.name}</td>
-        <td>${video.videoWidth}x${video.videoHeight}</td>
-        <td>${video.duration.toFixed(2)}s</td>
-        <td>${(file.size/1024/1024).toFixed(2)}</td>
-        <td>-</td>
-        <td class="status-loaded">Loaded</td>
-        `;
-        resultBody.appendChild(row);
-    }
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${file.name}</td>
+      <td>${video.videoWidth}x${video.videoHeight}</td>
+      <td>${video.duration.toFixed(2)}s</td>
+      <td>${(file.size/1024/1024).toFixed(2)}</td>
+      <td>-</td>
+      <td class="status-loaded">Loaded</td>
+    `;
+    resultBody.appendChild(row);
 
-    startBtn.disabled=false;
+    // Revoke object URL—metadata already read
+    URL.revokeObjectURL(videoURL);
+  }
+
+  startBtn.disabled = false;
 });
 
-startBtn.addEventListener("click", async ()=>{
-    startBtn.disabled=true;
-    downloadBtn.disabled=true;
+// Convert
+startBtn.addEventListener("click", async () => {
+  startBtn.disabled = true;
+  downloadBtn.disabled = true;
 
-    if(!ffmpeg.isLoaded()){
-        await ffmpeg.load();
-    }
+  if (!ffmpeg.isLoaded()) {
+    await ffmpeg.load();
+  }
 
-    const width=document.getElementById("width").value;
-    const height=document.getElementById("height").value;
+  const width  = String(document.getElementById("width").value || '').trim();
+  const height = String(document.getElementById("height").value || '').trim();
 
-    const rows=resultBody.querySelectorAll("tr");
+  const rows = resultBody.querySelectorAll("tr");
 
-    for(let i=0;i<loadedFiles.length;i++){
-        const file=loadedFiles[i];
-        const row=rows[i];
+  for (let i = 0; i < loadedFiles.length; i++) {
+    const file = loadedFiles[i];
+    const row  = rows[i];
 
-        row.cells[5].innerHTML=`<span class="status-processing">Processing...</span>`;
+    row.cells[5].innerHTML = `<span class="status-processing">Processing...</span>`;
 
-        const inputName=file.name;
-        const outputName=`${width}x${height}_30fps_HQ_${file.name}`;
+    const inputName  = file.name;
+    const outputName = `${width}x${height}_30fps_HQ_${file.name}`;
 
-        ffmpeg.FS("writeFile",inputName,await fetchFile(file));
+    // Write input to MEMFS
+    ffmpeg.FS("writeFile", inputName, await fetchFile(file));
 
-        ffmpeg.setProgress(({ratio})=>{
-            row.cells[5].innerHTML=
-            `<div class="progress-bar">
-               <div class="progress-fill" style="width:${Math.round(ratio*100)}%"></div>
-             </div>`;
-        });
-
-        await ffmpeg.run(
-            "-i", inputName,
-            "-vf", `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`,
-            "-r", "30",
-            "-vsync", "cfr",
-            "-c:v", "libx264",
-            "-preset", "slow",
-            "-profile:v", "high",
-            "-pix_fmt", "yuv420p",
-            "-movflags", "+faststart",
-            "-crf", "18",
-            "-c:a", "aac",
-            "-b:a", "192k",
-            outputName
-        );
-
-        const data=ffmpeg.FS("readFile",outputName);
-
-        convertedFiles.push({
-            name:outputName,
-            data:data
-        });
-
-        row.cells[4].innerText=(data.length/1024/1024).toFixed(2);
-        row.cells[5].innerHTML=`<span class="status-done">Done</span>`;
-    }
-
-    if(convertedFiles.length>0){
-        downloadBtn.disabled=false;
-    }
-});
-
-downloadBtn.addEventListener("click", async ()=>{
-    const zip=new JSZip();
-    convertedFiles.forEach(file=>{
-        zip.file(file.name,file.data);
+    // Simple progress UI
+    ffmpeg.setProgress(({ ratio }) => {
+      const pct = Math.max(0, Math.min(100, Math.round((ratio || 0) * 100)));
+      row.cells[5].innerHTML =
+        `<div class="progress-bar">
+           <div class="progress-fill" style="width:${pct}%"></div>
+         </div>`;
     });
-    const content=await zip.generateAsync({type:"blob"});
-    const link=document.createElement("a");
-    link.href=URL.createObjectURL(content);
-    link.download="converted_batch_30fps_HQ.zip";
-    link.click();
+
+    // Run ffmpeg
+    await ffmpeg.run(
+      "-i", inputName,
+      "-vf", `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`,
+      "-r", "30",
+      "-vsync", "cfr",
+      "-c:v", "libx264",
+      "-preset", "slow",
+      "-profile:v", "high",
+      "-pix_fmt", "yuv420p",
+      "-movflags", "+faststart",
+      "-crf", "18",
+      "-c:a", "aac",
+      "-b:a", "192k",
+      outputName
+    );
+
+    // Read output
+    const data = ffmpeg.FS("readFile", outputName);
+
+    convertedFiles.push({ name: outputName, data });
+
+    row.cells[4].innerText = (data.length / 1024 / 1024).toFixed(2);
+    row.cells[5].innerHTML = `<span class="status-done">Done</span>`;
+
+    // (Optional) free up MEMFS space if many files
+    try {
+      ffmpeg.FS("unlink", inputName);
+      ffmpeg.FS("unlink", outputName);
+    } catch (_) {}
+  }
+
+  if (convertedFiles.length > 0) {
+    downloadBtn.disabled = false;
+  }
+});
+
+// Zip & download
+downloadBtn.addEventListener("click", async () => {
+  const zip = new JSZip();
+  convertedFiles.forEach(f => zip.file(f.name, f.data));
+  const content = await zip.generateAsync({ type: "blob" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(content);
+  link.download = "converted_batch_30fps_HQ.zip";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 });
 </script>
-
 </body>
 </html>
