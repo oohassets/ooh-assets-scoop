@@ -109,8 +109,9 @@ button:disabled{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
-const { createFFmpeg, fetchFile } = FFmpeg;
-const ffmpeg = createFFmpeg({ log: false });
+// UMD build exposes FFmpegFFmpeg globally
+const { createFFmpeg, fetchFile } = FFmpegFFmpeg;
+const ffmpeg = createFFmpeg({ log: true });
 
 const fileInput = document.getElementById("fileInput");
 const startBtn = document.getElementById("startBtn");
