@@ -110,7 +110,7 @@ button:disabled{
 
 <script>
 // Correct UMD global + explicit corePath so the worker loads from the same CDN
-const { createFFmpeg, fetchFile } = FFmpeg; // UMD global name
+const { createFFmpeg, fetchFile } = ffmpeg; // UMD global name
 const ffmpeg = createFFmpeg({
   log: false,
   corePath: 'https://cdnjs.cloudflare.com/ajax/libs/ffmpeg/0.12.15/umd' // location of 814.ffmpeg.js
