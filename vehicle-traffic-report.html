@@ -11,6 +11,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{
   font-family: Arial;
@@ -83,6 +86,12 @@ th{
   width:100%;
   max-width:400px;
   overflow-x:auto; /* horizontal scroll for tables on mobile */
+}
+
+#chartContainer{
+  width:90%;
+  max-width:900px;
+  margin:40px auto;
 }
 
 input{
@@ -179,6 +188,11 @@ input{
 
 </div>
 
+<!-- Chart Container -->
+<div id="chartContainer">
+<canvas id="vehicleChart"></canvas>
+</div>
+
 <script>
 // FIREBASE CONFIG
 const firebaseConfig = {
@@ -194,6 +208,8 @@ const dbRef = firebase.database().ref('vehicleTraffic');
 
 const adsPerMinute = 6;
 const personPerCar = 2;
+
+let chart; // Chart.js instance
 
 function updateDaysCount() {
   const from = new Date(document.getElementById("dateFrom").value);
@@ -247,6 +263,8 @@ async function loadData() {
 
   calculateMetrics(tpi, "tpi");
   calculateMetrics(gewan, "gewan");
+
+  renderChart(tpi, gewan);
 }
 
 function populateTable(tableId, data) {
@@ -299,6 +317,79 @@ function calculateMetrics(data, prefix) {
   document.getElementById(prefix+"_imp_day").innerText = impPerDay.toLocaleString();
   document.getElementById(prefix+"_total_imp").innerText = totalImp.toLocaleString();
 }
+
+// Render Chart.js stacked bar chart
+function renderChart(tpiData, gewanData) {
+  const labels = Array.from(new Set([
+    ...tpiData.map(d => d.ContentDate || d["Content.Date"]),
+    ...gewanData.map(d => d.ContentDate || d["Content.Date"])
+  ])).sort((a,b) => new Date(a) - new Date(b))
+    .map(d => new Date(d).toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}));
+
+  const tpiCounts = labels.map(l => {
+    const row = tpiData.find(d => {
+      const date = new Date(d.ContentDate || d["Content.Date"]);
+      return date.toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}) === l;
+    });
+    return row ? Number(row.ContentTotal || row["Content.Total"] || 0) : 0;
+  });
+
+  const gewanCounts = labels.map(l => {
+    const row = gewanData.find(d => {
+      const date = new Date(d.ContentDate || d["Content.Date"]);
+      return date.toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}) === l;
+    });
+    return row ? Number(row.ContentTotal || row["Content.Total"] || 0) : 0;
+  });
+
+  const ctx = document.getElementById('vehicleChart').getContext('2d');
+
+  if(chart) chart.destroy(); // remove previous chart
+
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'TPI Vehicles',
+          data: tpiCounts,
+          backgroundColor: '#4CAF50'
+        },
+        {
+          label: 'Gewan Vehicles',
+          data: gewanCounts,
+          backgroundColor: '#2196F3'
+        }
+      ]
+    },
+    options: {
+      responsive:true,
+      plugins: {
+        legend:{ position:'top' },
+        title:{ display:true, text:'Vehicle Traffic per Day' }
+      },
+      scales: {
+        x: {
+          stacked: window.innerWidth < 768, // stacked on mobile
+          title:{ display:true, text:'Date' }
+        },
+        y: {
+          stacked: window.innerWidth < 768, // stacked on mobile
+          beginAtZero:true,
+          title:{ display:true, text:'Vehicles' }
+        }
+      }
+    }
+  });
+}
+
+// Optional: re-render chart on window resize to adjust stacking
+window.addEventListener('resize', () => {
+  if(chart) chart.options.scales.x.stacked = window.innerWidth < 768;
+  if(chart) chart.options.scales.y.stacked = window.innerWidth < 768;
+  if(chart) chart.update();
+});
 </script>
 
 </body>
