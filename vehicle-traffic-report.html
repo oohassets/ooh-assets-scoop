@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vehicle Traffic Report</title>
 
-<link rel="icon" href="images/scooplogo_black_192x192.png">
-
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js local -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <style>
 body{
@@ -21,9 +19,7 @@ body{
   margin:20px;
 }
 
-h1{
-  text-align:center;
-}
+h1{text-align:center;}
 
 .card{
   background:white;
@@ -40,83 +36,37 @@ h1{
   justify-content:center;
   gap:120px;
   margin-top:40px;
-  flex-wrap: wrap; /* responsive wrap for cards */
+  flex-wrap: wrap;
 }
 
-.metric{
-  margin:10px 0;
-  font-size:16px;
-}
+.metric{margin:10px 0;font-size:16px;}
+.metric span{float:right;font-weight:bold;}
 
-.metric span{
-  float:right;
-  font-weight:bold;
-}
+table{border-collapse:collapse;width:100%;margin-top:15px;}
+th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right;}
+th:first-child,td:first-child{text-align:left;}
+th{background:#222;color:white;}
 
-table{
-  border-collapse:collapse;
-  width:100%;
-  margin-top:15px;
-}
-
-th,td{
-  padding:8px;
-  border-bottom:1px solid #ddd;
-  text-align:right;
-}
-
-th:first-child,
-td:first-child{
-  text-align:left;
-}
-
-th{
-  background:#222;
-  color:white;
-}
-
-.section{
-  margin-top:50px;
-  display:flex;
-  gap:50px;
-  justify-content:center;
-}
-
-.table-container{
-  width:100%;
-  max-width:400px;
-  overflow-x:auto; /* horizontal scroll for tables on mobile */
-}
+.section{margin-top:50px;display:flex;gap:50px;justify-content:center;}
+.table-container{width:100%;max-width:400px;overflow-x:auto;}
 
 #chartContainer{
-  width:90%;
-  max-width:900px;
+  width:100%;           /* full width */
   margin:40px auto;
 }
-
-input{
-  padding:6px;
-  margin:2px 4px;
+#vehicleChart{
+  width:100% !important;
+  height:400px !important;  /* fixed height for responsive display */
 }
 
-/* Responsive only for summary cards */
+input{padding:6px;margin:2px 4px;}
+
 @media (max-width: 768px) {
-  .summary {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .card {
-    width:90%;
-  }
+  .summary {flex-direction: column;align-items: center;gap: 20px;}
+  .card {width:90%;}
 }
 
-#daysCount {
-  text-align:center;
-  margin-top:10px;
-  font-weight:bold;
-}
+#daysCount{text-align:center;margin-top:10px;font-weight:bold;}
 </style>
 </head>
 
@@ -125,76 +75,59 @@ input{
 <h1>Vehicle Traffic Report</h1>
 
 <div style="text-align:center;margin-bottom:20px;">
-  From
-  <input type="date" id="dateFrom" onchange="updateDaysCount()">
-  To
-  <input type="date" id="dateTo" onchange="updateDaysCount()">
+  From <input type="date" id="dateFrom" onchange="updateDaysCount()">
+  To <input type="date" id="dateTo" onchange="updateDaysCount()">
   <button onclick="loadData()">Load Data</button>
-
   <div id="daysCount">Days Count: -</div>
 </div>
 
 <div class="summary">
+  <div class="card">
+    <h3>The Pearl Island</h3>
+    <div class="metric">Total Vehicle Count <span id="tpi_total"></span></div>
+    <div class="metric">Average Total <span id="tpi_avg"></span></div>
+    <div class="metric">Total Person Count <span id="tpi_person"></span></div>
+    <div class="metric">Average person per day <span id="tpi_person_day"></span></div>
+    <div class="metric">Impression per day <span id="tpi_imp_day"></span></div>
+    <div class="metric">Total Impressions <span id="tpi_total_imp"></span></div>
+  </div>
 
-<div class="card">
-<h3>The Pearl Island</h3>
-<div class="metric">Total Vehicle Count <span id="tpi_total"></span></div>
-<div class="metric">Average Total <span id="tpi_avg"></span></div>
-<div class="metric">Total Person Count <span id="tpi_person"></span></div>
-<div class="metric">Average person per day <span id="tpi_person_day"></span></div>
-<div class="metric">Impression per day <span id="tpi_imp_day"></span></div>
-<div class="metric">Total Impressions <span id="tpi_total_imp"></span></div>
-</div>
-
-<div class="card">
-<h3>Gewan Island</h3>
-<div class="metric">Total Vehicle Count <span id="gewan_total"></span></div>
-<div class="metric">Average Total <span id="gewan_avg"></span></div>
-<div class="metric">Total Person Count <span id="gewan_person"></span></div>
-<div class="metric">Average person per day <span id="gewan_person_day"></span></div>
-<div class="metric">Impression per day <span id="gewan_imp_day"></span></div>
-<div class="metric">Total Impressions <span id="gewan_total_imp"></span></div>
-</div>
-
+  <div class="card">
+    <h3>Gewan Island</h3>
+    <div class="metric">Total Vehicle Count <span id="gewan_total"></span></div>
+    <div class="metric">Average Total <span id="gewan_avg"></span></div>
+    <div class="metric">Total Person Count <span id="gewan_person"></span></div>
+    <div class="metric">Average person per day <span id="gewan_person_day"></span></div>
+    <div class="metric">Impression per day <span id="gewan_imp_day"></span></div>
+    <div class="metric">Total Impressions <span id="gewan_total_imp"></span></div>
+  </div>
 </div>
 
 <div class="section">
+  <div class="table-container">
+    <h3>The Pearl Island</h3>
+    <table id="tpi_table">
+      <thead><tr><th>Date</th><th>Vehicle</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-<div class="table-container">
-<h3>The Pearl Island</h3>
-<table id="tpi_table">
-<thead>
-<tr>
-<th>Date</th>
-<th>Vehicle</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+  <div class="table-container">
+    <h3>Gewan Island</h3>
+    <table id="gewan_table">
+      <thead><tr><th>Date</th><th>Vehicle</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
-<div class="table-container">
-<h3>Gewan Island</h3>
-<table id="gewan_table">
-<thead>
-<tr>
-<th>Date</th>
-<th>Vehicle</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
-
-</div>
-
-<!-- Chart Container -->
+<!-- Chart -->
 <div id="chartContainer">
-<canvas id="vehicleChart"></canvas>
+  <canvas id="vehicleChart"></canvas>
 </div>
 
 <script>
-// FIREBASE CONFIG
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
   authDomain: "scoopassets.firebaseapp.com",
@@ -202,15 +135,13 @@ const firebaseConfig = {
   projectId: "scoopassets"
 };
 firebase.initializeApp(firebaseConfig);
-
-// Realtime Database reference
 const dbRef = firebase.database().ref('vehicleTraffic');
 
 const adsPerMinute = 6;
 const personPerCar = 2;
+let chart;
 
-let chart; // Chart.js instance
-
+// Update days count
 function updateDaysCount() {
   const from = new Date(document.getElementById("dateFrom").value);
   const to = new Date(document.getElementById("dateTo").value);
@@ -220,90 +151,66 @@ function updateDaysCount() {
     countEl.innerText = "Days Count: -";
     return;
   }
-
-  const diffTime = Math.abs(to - from);
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  const diffDays = Math.floor((to-from)/(1000*60*60*24))+1;
   countEl.innerText = `Days Count: ${diffDays}`;
 }
 
+// Load data
 async function loadData() {
-  let fromInput = document.getElementById("dateFrom").value;
-  let toInput = document.getElementById("dateTo").value;
-
-  if (!fromInput || !toInput) {
-    alert("Please select both dates.");
-    return;
-  }
-
-  let from = new Date(fromInput);
-  let to = new Date(toInput);
+  const fromInput = document.getElementById("dateFrom").value;
+  const toInput = document.getElementById("dateTo").value;
+  if(!fromInput || !toInput){ alert("Select both dates."); return; }
+  const from = new Date(fromInput);
+  const to = new Date(toInput);
 
   const snapshot = await dbRef.once('value');
   const allData = snapshot.val();
 
-  let tpi = [];
-  let gewan = [];
-
-  for (let key in allData) {
+  let tpi=[], gewan=[];
+  for(let key in allData){
     let data = allData[key];
-
     let rawDate = data.ContentDate || data["Content.Date"] || "-";
     let dateObj = new Date(rawDate);
-
-    if (isNaN(dateObj)) continue;
-
-    if (dateObj >= from && dateObj <= to) {
-      if (data.Name && data.Name.toUpperCase().includes("TPI")) tpi.push(data);
-      if (data.Name && data.Name.toUpperCase().includes("GEWAN")) gewan.push(data);
+    if(isNaN(dateObj)) continue;
+    if(dateObj>=from && dateObj<=to){
+      if(data.Name && data.Name.toUpperCase().includes("TPI")) tpi.push(data);
+      if(data.Name && data.Name.toUpperCase().includes("GEWAN")) gewan.push(data);
     }
   }
 
   populateTable("tpi_table", tpi);
   populateTable("gewan_table", gewan);
 
-  calculateMetrics(tpi, "tpi");
-  calculateMetrics(gewan, "gewan");
+  calculateMetrics(tpi,"tpi");
+  calculateMetrics(gewan,"gewan");
 
   renderChart(tpi, gewan);
 }
 
-function populateTable(tableId, data) {
-  let tbody = document.querySelector("#" + tableId + " tbody");
-  tbody.innerHTML = "";
-
-  data.sort((a,b) => new Date(a.ContentDate || a["Content.Date"]) - new Date(b.ContentDate || b["Content.Date"]));
-
-  data.forEach(row => {
+function populateTable(tableId, data){
+  let tbody = document.querySelector("#"+tableId+" tbody");
+  tbody.innerHTML="";
+  data.sort((a,b)=>new Date(a.ContentDate||a["Content.Date"]) - new Date(b.ContentDate||b["Content.Date"]));
+  data.forEach(row=>{
     let rawDate = row.ContentDate || row["Content.Date"] || "-";
     let dateObj = new Date(rawDate);
-    let dateStr = isNaN(dateObj) ? "-" : dateObj.toLocaleDateString('en-GB', {
-        weekday: 'short',
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
+    let dateStr = isNaN(dateObj) ? "-" : dateObj.toLocaleDateString('en-GB',{
+      weekday:'short', day:'2-digit', month:'short', year:'numeric'
     });
-
     let vehicleCount = Number(row.ContentTotal || row["Content.Total"] || 0);
-
     let tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${dateStr}</td>
-      <td>${vehicleCount.toLocaleString()}</td>
-    `;
+    tr.innerHTML = `<td>${dateStr}</td><td>${vehicleCount.toLocaleString()}</td>`;
     tbody.appendChild(tr);
   });
 }
 
-function calculateMetrics(data, prefix) {
-  if (!data.length) {
-    ["total","avg","person","person_day","imp_day","total_imp"].forEach(id => {
-      document.getElementById(prefix+"_"+id).innerText = "-";
-    });
+function calculateMetrics(data,prefix){
+  if(!data.length){
+    ["total","avg","person","person_day","imp_day","total_imp"].forEach(id=>document.getElementById(prefix+"_"+id).innerText="-");
     return;
   }
-
   let days = data.length;
-  let total = data.reduce((sum,x)=>sum+Number(x.ContentTotal || x["Content.Total"] || 0),0);
+  let total = data.reduce((sum,x)=>sum+Number(x.ContentTotal||x["Content.Total"]||0),0);
   let avg = Math.round(total/days);
   let totalPerson = total*personPerCar;
   let avgPerson = Math.round(totalPerson/days);
@@ -318,79 +225,72 @@ function calculateMetrics(data, prefix) {
   document.getElementById(prefix+"_total_imp").innerText = totalImp.toLocaleString();
 }
 
-// Render Chart.js stacked bar chart
-function renderChart(tpiData, gewanData) {
-  const labels = Array.from(new Set([
-    ...tpiData.map(d => d.ContentDate || d["Content.Date"]),
-    ...gewanData.map(d => d.ContentDate || d["Content.Date"])
-  ])).sort((a,b) => new Date(a) - new Date(b))
-    .map(d => new Date(d).toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}));
+// Chart.js
+function renderChart(tpiData, gewanData){
+  const labels = Array.from(new Set([...tpiData.map(d=>d.ContentDate||d["Content.Date"]),...gewanData.map(d=>d.ContentDate||d["Content.Date"])]))
+    .sort((a,b)=>new Date(a)-new Date(b))
+    .map(d=>new Date(d).toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}));
 
-  const tpiCounts = labels.map(l => {
-    const row = tpiData.find(d => {
-      const date = new Date(d.ContentDate || d["Content.Date"]);
-      return date.toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}) === l;
+  const tpiCounts = labels.map(l=>{
+    const row = tpiData.find(d=>{
+      const date = new Date(d.ContentDate||d["Content.Date"]);
+      return date.toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'})===l;
     });
-    return row ? Number(row.ContentTotal || row["Content.Total"] || 0) : 0;
+    return row?Number(row.ContentTotal||row["Content.Total"]||0):0;
   });
 
-  const gewanCounts = labels.map(l => {
-    const row = gewanData.find(d => {
-      const date = new Date(d.ContentDate || d["Content.Date"]);
-      return date.toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}) === l;
+  const gewanCounts = labels.map(l=>{
+    const row = gewanData.find(d=>{
+      const date = new Date(d.ContentDate||d["Content.Date"]);
+      return date.toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'})===l;
     });
-    return row ? Number(row.ContentTotal || row["Content.Total"] || 0) : 0;
+    return row?Number(row.ContentTotal||row["Content.Total"]||0):0;
   });
 
   const ctx = document.getElementById('vehicleChart').getContext('2d');
+  if(chart) chart.destroy();
 
-  if(chart) chart.destroy(); // remove previous chart
-
-  chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
+  chart = new Chart(ctx,{
+    type:'bar',
+    data:{
       labels: labels,
-      datasets: [
-        {
-          label: 'TPI Vehicles',
-          data: tpiCounts,
-          backgroundColor: '#4CAF50'
-        },
-        {
-          label: 'Gewan Vehicles',
-          data: gewanCounts,
-          backgroundColor: '#2196F3'
-        }
+      datasets:[
+        {label:'TPI Vehicles', data:tpiCounts, backgroundColor:'rgba(76,175,80,0.6)', borderColor:'rgba(76,175,80,1)', borderWidth:1},
+        {label:'Gewan Vehicles', data:gewanCounts, backgroundColor:'rgba(33,150,243,0.6)', borderColor:'rgba(33,150,243,1)', borderWidth:1}
       ]
     },
-    options: {
+    options:{
       responsive:true,
-      plugins: {
-        legend:{ position:'top' },
-        title:{ display:true, text:'Vehicle Traffic per Day' }
-      },
-      scales: {
-        x: {
-          stacked: window.innerWidth < 768, // stacked on mobile
-          title:{ display:true, text:'Date' }
-        },
-        y: {
-          stacked: window.innerWidth < 768, // stacked on mobile
-          beginAtZero:true,
-          title:{ display:true, text:'Vehicles' }
+      maintainAspectRatio:false, // <--- fill container width
+      plugins:{
+        legend:{position:'top'},
+        title:{display:true,text:'Vehicle Traffic per Day'},
+        tooltip:{
+          enabled:true,
+          mode:'index',
+          intersect:false,
+          callbacks:{
+            label: function(context){
+              return `${context.dataset.label}: ${context.parsed.y.toLocaleString()}`;
+            }
+          }
         }
+      },
+      scales:{
+        x:{stacked: window.innerWidth<768, title:{display:true,text:'Date'}},
+        y:{stacked: window.innerWidth<768, beginAtZero:true, title:{display:true,text:'Vehicles'}}
       }
     }
   });
 }
 
-// Optional: re-render chart on window resize to adjust stacking
-window.addEventListener('resize', () => {
-  if(chart) chart.options.scales.x.stacked = window.innerWidth < 768;
-  if(chart) chart.options.scales.y.stacked = window.innerWidth < 768;
-  if(chart) chart.update();
+window.addEventListener('resize',()=>{
+  if(chart){
+    chart.options.scales.x.stacked = window.innerWidth<768;
+    chart.options.scales.y.stacked = window.innerWidth<768;
+    chart.update();
+  }
 });
 </script>
-
 </body>
 </html>
