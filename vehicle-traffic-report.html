@@ -22,19 +22,14 @@ h1{
   text-align:center;
 }
 
-.dashboard{
-  display:flex;
-  justify-content:center;
-  gap:80px;
-  margin-top:30px;
-}
-
 .card{
   background:white;
   padding:20px;
   border-radius:8px;
   box-shadow:0 2px 6px rgba(0,0,0,0.2);
   width:350px;
+  box-sizing:border-box;
+  margin-bottom:20px;
 }
 
 .summary{
@@ -42,6 +37,7 @@ h1{
   justify-content:center;
   gap:120px;
   margin-top:40px;
+  flex-wrap: wrap; /* responsive wrap for cards */
 }
 
 .metric{
@@ -83,8 +79,34 @@ th{
   justify-content:center;
 }
 
+.table-container{
+  width:100%;
+  max-width:400px;
+  overflow-x:auto; /* horizontal scroll for tables on mobile */
+}
+
 input{
   padding:6px;
+  margin:2px 4px;
+}
+
+/* Responsive only for summary cards */
+@media (max-width: 768px) {
+  .summary {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .card {
+    width:90%;
+  }
+}
+
+#daysCount {
+  text-align:center;
+  margin-top:10px;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -95,10 +117,12 @@ input{
 
 <div style="text-align:center;margin-bottom:20px;">
   From
-  <input type="date" id="dateFrom">
+  <input type="date" id="dateFrom" onchange="updateDaysCount()">
   To
-  <input type="date" id="dateTo">
+  <input type="date" id="dateTo" onchange="updateDaysCount()">
   <button onclick="loadData()">Load Data</button>
+
+  <div id="daysCount">Days Count: -</div>
 </div>
 
 <div class="summary">
@@ -127,7 +151,7 @@ input{
 
 <div class="section">
 
-<div style="width:400px;">
+<div class="table-container">
 <h3>The Pearl Island</h3>
 <table id="tpi_table">
 <thead>
@@ -140,7 +164,7 @@ input{
 </table>
 </div>
 
-<div style="width:400px;">
+<div class="table-container">
 <h3>Gewan Island</h3>
 <table id="gewan_table">
 <thead>
@@ -171,6 +195,21 @@ const dbRef = firebase.database().ref('vehicleTraffic');
 const adsPerMinute = 6;
 const personPerCar = 2;
 
+function updateDaysCount() {
+  const from = new Date(document.getElementById("dateFrom").value);
+  const to = new Date(document.getElementById("dateTo").value);
+  const countEl = document.getElementById("daysCount");
+
+  if (isNaN(from) || isNaN(to)) {
+    countEl.innerText = "Days Count: -";
+    return;
+  }
+
+  const diffTime = Math.abs(to - from);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  countEl.innerText = `Days Count: ${diffDays}`;
+}
+
 async function loadData() {
   let fromInput = document.getElementById("dateFrom").value;
   let toInput = document.getElementById("dateTo").value;
@@ -192,11 +231,10 @@ async function loadData() {
   for (let key in allData) {
     let data = allData[key];
 
-    // Handle both "ContentDate" (VBA fixed field) or old "Content.Date"
     let rawDate = data.ContentDate || data["Content.Date"] || "-";
     let dateObj = new Date(rawDate);
 
-    if (isNaN(dateObj)) continue; // skip invalid dates
+    if (isNaN(dateObj)) continue;
 
     if (dateObj >= from && dateObj <= to) {
       if (data.Name && data.Name.toUpperCase().includes("TPI")) tpi.push(data);
@@ -218,7 +256,6 @@ function populateTable(tableId, data) {
   data.sort((a,b) => new Date(a.ContentDate || a["Content.Date"]) - new Date(b.ContentDate || b["Content.Date"]));
 
   data.forEach(row => {
-    // Format date as "Wed, 11 Mar 2026"
     let rawDate = row.ContentDate || row["Content.Date"] || "-";
     let dateObj = new Date(rawDate);
     let dateStr = isNaN(dateObj) ? "-" : dateObj.toLocaleDateString('en-GB', {
@@ -241,7 +278,6 @@ function populateTable(tableId, data) {
 
 function calculateMetrics(data, prefix) {
   if (!data.length) {
-    // clear metrics if no data
     ["total","avg","person","person_day","imp_day","total_imp"].forEach(id => {
       document.getElementById(prefix+"_"+id).innerText = "-";
     });
