@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Traffic Report</title>
+
+<link rel="icon" href="images/scooplogo_black_192x192.png">
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+body{
+  font-family: Arial;
+  background:#f4f4f4;
+  margin:20px;
+}
+
+h1{
+  text-align:center;
+}
+
+.dashboard{
+  display:flex;
+  justify-content:center;
+  gap:80px;
+  margin-top:30px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:8px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  width:350px;
+}
+
+.summary{
+  display:flex;
+  justify-content:center;
+  gap:120px;
+  margin-top:40px;
+}
+
+.metric{
+  margin:10px 0;
+  font-size:16px;
+}
+
+.metric span{
+  float:right;
+  font-weight:bold;
+}
+
+table{
+  border-collapse:collapse;
+  width:100%;
+  margin-top:15px;
+}
+
+th,td{
+  padding:8px;
+  border-bottom:1px solid #ddd;
+  text-align:right;
+}
+
+th:first-child,
+td:first-child{
+  text-align:left;
+}
+
+th{
+  background:#222;
+  color:white;
+}
+
+.section{
+  margin-top:50px;
+  display:flex;
+  gap:50px;
+  justify-content:center;
+}
+
+input{
+  padding:6px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Vehicle Traffic Report</h1>
+
+<div style="text-align:center;margin-bottom:20px;">
+  From
+  <input type="date" id="dateFrom">
+  To
+  <input type="date" id="dateTo">
+  <button onclick="loadData()">Load Data</button>
+</div>
+
+<div class="summary">
+
+<div class="card">
+<h3>The Pearl Island</h3>
+<div class="metric">Total Vehicle Count <span id="tpi_total"></span></div>
+<div class="metric">Average Total <span id="tpi_avg"></span></div>
+<div class="metric">Total Person Count <span id="tpi_person"></span></div>
+<div class="metric">Average person per day <span id="tpi_person_day"></span></div>
+<div class="metric">Impression per day <span id="tpi_imp_day"></span></div>
+<div class="metric">Total Impressions <span id="tpi_total_imp"></span></div>
+</div>
+
+<div class="card">
+<h3>Gewan Island</h3>
+<div class="metric">Total Vehicle Count <span id="gewan_total"></span></div>
+<div class="metric">Average Total <span id="gewan_avg"></span></div>
+<div class="metric">Total Person Count <span id="gewan_person"></span></div>
+<div class="metric">Average person per day <span id="gewan_person_day"></span></div>
+<div class="metric">Impression per day <span id="gewan_imp_day"></span></div>
+<div class="metric">Total Impressions <span id="gewan_total_imp"></span></div>
+</div>
+
+</div>
+
+<div class="section">
+
+<div style="width:400px;">
+<h3>The Pearl Island</h3>
+<table id="tpi_table">
+<thead>
+<tr>
+<th>Date</th>
+<th>Vehicle</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div style="width:400px;">
+<h3>Gewan Island</h3>
+<table id="gewan_table">
+<thead>
+<tr>
+<th>Date</th>
+<th>Vehicle</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+// FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
+  authDomain: "scoopassets.firebaseapp.com",
+  databaseURL: "https://scoopassets-default-rtdb.firebaseio.com",
+  projectId: "scoopassets"
+};
+firebase.initializeApp(firebaseConfig);
+
+// Realtime Database reference
+const dbRef = firebase.database().ref('vehicleTraffic');
+
+const adsPerMinute = 6;
+const personPerCar = 2;
+
+async function loadData() {
+  let fromInput = document.getElementById("dateFrom").value;
+  let toInput = document.getElementById("dateTo").value;
+
+  if (!fromInput || !toInput) {
+    alert("Please select both dates.");
+    return;
+  }
+
+  let from = new Date(fromInput);
+  let to = new Date(toInput);
+
+  const snapshot = await dbRef.once('value');
+  const allData = snapshot.val();
+
+  let tpi = [];
+  let gewan = [];
+
+  for (let key in allData) {
+    let data = allData[key];
+
+    // Handle both "ContentDate" (VBA fixed field) or old "Content.Date"
+    let rawDate = data.ContentDate || data["Content.Date"] || "-";
+    let dateObj = new Date(rawDate);
+
+    if (isNaN(dateObj)) continue; // skip invalid dates
+
+    if (dateObj >= from && dateObj <= to) {
+      if (data.Name && data.Name.toUpperCase().includes("TPI")) tpi.push(data);
+      if (data.Name && data.Name.toUpperCase().includes("GEWAN")) gewan.push(data);
+    }
+  }
+
+  populateTable("tpi_table", tpi);
+  populateTable("gewan_table", gewan);
+
+  calculateMetrics(tpi, "tpi");
+  calculateMetrics(gewan, "gewan");
+}
+
+function populateTable(tableId, data) {
+  let tbody = document.querySelector("#" + tableId + " tbody");
+  tbody.innerHTML = "";
+
+  data.sort((a,b) => new Date(a.ContentDate || a["Content.Date"]) - new Date(b.ContentDate || b["Content.Date"]));
+
+  data.forEach(row => {
+    // Format date as "Wed, 11 Mar 2026"
+    let rawDate = row.ContentDate || row["Content.Date"] || "-";
+    let dateObj = new Date(rawDate);
+    let dateStr = isNaN(dateObj) ? "-" : dateObj.toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+
+    let vehicleCount = Number(row.ContentTotal || row["Content.Total"] || 0);
+
+    let tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${dateStr}</td>
+      <td>${vehicleCount.toLocaleString()}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function calculateMetrics(data, prefix) {
+  if (!data.length) {
+    // clear metrics if no data
+    ["total","avg","person","person_day","imp_day","total_imp"].forEach(id => {
+      document.getElementById(prefix+"_"+id).innerText = "-";
+    });
+    return;
+  }
+
+  let days = data.length;
+  let total = data.reduce((sum,x)=>sum+Number(x.ContentTotal || x["Content.Total"] || 0),0);
+  let avg = Math.round(total/days);
+  let totalPerson = total*personPerCar;
+  let avgPerson = Math.round(totalPerson/days);
+  let impPerDay = Math.round(avgPerson/adsPerMinute);
+  let totalImp = impPerDay*days;
+
+  document.getElementById(prefix+"_total").innerText = total.toLocaleString();
+  document.getElementById(prefix+"_avg").innerText = avg.toLocaleString();
+  document.getElementById(prefix+"_person").innerText = totalPerson.toLocaleString();
+  document.getElementById(prefix+"_person_day").innerText = avgPerson.toLocaleString();
+  document.getElementById(prefix+"_imp_day").innerText = impPerDay.toLocaleString();
+  document.getElementById(prefix+"_total_imp").innerText = totalImp.toLocaleString();
+}
+</script>
+
+</body>
+</html>
