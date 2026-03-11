@@ -250,18 +250,24 @@ function renderChart(tpiData, gewanData){
   const ctx = document.getElementById('vehicleChart').getContext('2d');
   if(chart) chart.destroy();
 
+  // Detect mobile
+  const isMobile = window.innerWidth < 768;
+
   chart = new Chart(ctx,{
     type:'bar',
     data:{
       labels: labels,
-      datasets:[
+      datasets: isMobile ? [
+        {label:'Gewan Vehicles', data:gewanCounts, backgroundColor:'rgba(33,150,243,0.6)', borderColor:'rgba(33,150,243,1)', borderWidth:1},
+        {label:'TPI Vehicles', data:tpiCounts, backgroundColor:'rgba(76,175,80,0.6)', borderColor:'rgba(76,175,80,1)', borderWidth:1}
+      ] : [
         {label:'TPI Vehicles', data:tpiCounts, backgroundColor:'rgba(76,175,80,0.6)', borderColor:'rgba(76,175,80,1)', borderWidth:1},
         {label:'Gewan Vehicles', data:gewanCounts, backgroundColor:'rgba(33,150,243,0.6)', borderColor:'rgba(33,150,243,1)', borderWidth:1}
       ]
     },
     options:{
       responsive:true,
-      maintainAspectRatio:false, // <--- fill container width
+      maintainAspectRatio:false,
       plugins:{
         legend:{position:'top'},
         title:{display:true,text:'Vehicle Traffic per Day'},
@@ -277,13 +283,12 @@ function renderChart(tpiData, gewanData){
         }
       },
       scales:{
-        x:{stacked: window.innerWidth<768, title:{display:true,text:'Date'}},
-        y:{stacked: window.innerWidth<768, beginAtZero:true, title:{display:true,text:'Vehicles'}}
+        x:{stacked:isMobile, title:{display:true,text:'Date'}},
+        y:{stacked:isMobile, beginAtZero:true, title:{display:true,text:'Vehicles'}}
       }
     }
   });
 }
-
 window.addEventListener('resize',()=>{
   if(chart){
     chart.options.scales.x.stacked = window.innerWidth<768;
