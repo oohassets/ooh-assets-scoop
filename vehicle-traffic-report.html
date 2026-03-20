@@ -3,136 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vehicle Traffic Report</title>
+<title>Vehicle Traffic Dashboard</title>
 
-<!-- Firebase SDKs -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<!-- Chart.js local -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
 body{
-  font-family: Arial;
-  background:#f4f4f4;
-  margin:20px;
+  font-family:'Segoe UI', Arial;
+  background:#f6f8fc;
+  margin:0;
+  padding:20px;
 }
 
-h1{text-align:center;}
+/* HEADER */
+h1{
+  text-align:center;
+  margin-bottom:20px;
+  font-weight:600;
+}
 
+/* CONTROLS */
+.top-bar{
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+  text-align:center;
+}
+
+input,button{
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+button{
+  background:#4CAF50;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+#daysCount{
+  font-weight:bold;
+  padding:8px 12px;
+}
+
+/* GRID */
+.cards{
+  display:grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+
+/* KPI CARD */
 .card{
   background:white;
-  padding:20px;
-  border-radius:8px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
-  width:350px;
-  box-sizing:border-box;
-  margin-bottom:20px;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+  transition:0.3s;
+  position:relative;
 }
 
-.summary{
+.card:hover{
+  transform:translateY(-4px);
+}
+
+/* ICON */
+.card .icon{
+  position:absolute;
+  top:15px;
+  right:15px;
+  font-size:28px;
+  color:#ddd;
+}
+
+/* TITLE */
+.card h3{
+  font-size:14px;
+  margin-top:5px;
+  margin-bottom:5px;
+  color:#666;
   display:flex;
-  justify-content:center;
-  gap:120px;
-  margin-top:40px;
-  flex-wrap: wrap;
+  justify-content:space-between;
 }
 
-.metric{margin:10px 0;font-size:16px;}
-.metric span{float:right;font-weight:bold;}
+/* BIG KPI */
+.big{
+  font-size:22px;
+  font-weight:700;
+  color:#111;
+  margin-bottom:10px;
+}
 
-table{border-collapse:collapse;width:100%;margin-top:15px;}
-th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right;}
-th:first-child,td:first-child{text-align:left;}
-th{background:#222;color:white;}
+/* SUB METRICS */
+.metric{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  margin:3px 0;
+  color:#555;
+}
 
-.section{margin-top:50px;display:flex;gap:50px;justify-content:center;}
-.table-container{width:100%;max-width:400px;overflow-x:auto;}
-
+/* CHART */
 #chartContainer{
-  width:100%;           /* full width */
-  margin:40px auto;
+  margin-top:30px;
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
 }
+
 #vehicleChart{
   width:100% !important;
-  height:400px !important;  /* fixed height for responsive display */
+  height:400px !important;
 }
-
-input{padding:6px;margin:2px 4px;}
-
-@media (max-width: 768px) {
-  .summary {flex-direction: column;align-items: center;gap: 20px;}
-  .card {width:90%;}
-}
-
-#daysCount{text-align:center;margin-top:10px;font-weight:bold;}
 </style>
 </head>
 
 <body>
 
-<h1>Vehicle Traffic Report</h1>
+<h1>Vehicle Traffic Dashboard</h1>
 
-<div style="text-align:center;margin-bottom:20px;">
+<div class="top-bar">
   From <input type="date" id="dateFrom" onchange="updateDaysCount()">
   To <input type="date" id="dateTo" onchange="updateDaysCount()">
-  <button onclick="loadData()">Load Data</button>
-  <div id="daysCount">Days Count: -</div>
+  <button onclick="loadData()">Load</button>
+  <div id="daysCount">Days: -</div>
 </div>
 
-<div class="summary">
-  <div class="card">
-    <h3>The Pearl Island</h3>
-    <div class="metric">Total Vehicle Count <span id="tpi_total"></span></div>
-    <div class="metric">Average Total <span id="tpi_avg"></span></div>
-    <div class="metric">Total Person Count <span id="tpi_person"></span></div>
-    <div class="metric">Average person per day <span id="tpi_person_day"></span></div>
-    <div class="metric">Impression per day <span id="tpi_imp_day"></span></div>
-    <div class="metric">Total Impressions <span id="tpi_total_imp"></span></div>
-  </div>
+<div class="cards" id="cardsContainer"></div>
 
-  <div class="card">
-    <h3>Gewan Island</h3>
-    <div class="metric">Total Vehicle Count <span id="gewan_total"></span></div>
-    <div class="metric">Average Total <span id="gewan_avg"></span></div>
-    <div class="metric">Total Person Count <span id="gewan_person"></span></div>
-    <div class="metric">Average person per day <span id="gewan_person_day"></span></div>
-    <div class="metric">Impression per day <span id="gewan_imp_day"></span></div>
-    <div class="metric">Total Impressions <span id="gewan_total_imp"></span></div>
-  </div>
-</div>
-
-<div class="section">
-  <div class="table-container">
-    <h3>The Pearl Island</h3>
-    <table id="tpi_table">
-      <thead><tr><th>Date</th><th>Vehicle</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="table-container">
-    <h3>Gewan Island</h3>
-    <table id="gewan_table">
-      <thead><tr><th>Date</th><th>Vehicle</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Chart -->
 <div id="chartContainer">
   <canvas id="vehicleChart"></canvas>
 </div>
 
 <script>
-// Firebase config
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
-  authDomain: "scoopassets.firebaseapp.com",
-  databaseURL: "https://scoopassets-default-rtdb.firebaseio.com",
-  projectId: "scoopassets"
+  databaseURL: "https://scoopassets-default-rtdb.firebaseio.com"
 };
 firebase.initializeApp(firebaseConfig);
 const dbRef = firebase.database().ref('vehiclecounts');
@@ -141,88 +160,90 @@ const adsPerMinute = 6;
 const personPerCar = 2;
 let chart;
 
-// Update days count
-function updateDaysCount() {
-  const from = new Date(document.getElementById("dateFrom").value);
-  const to = new Date(document.getElementById("dateTo").value);
-  const countEl = document.getElementById("daysCount");
+// CONFIG WITH ICONS
+const screenConfig = [
+  {name:"Underpass", screens:1, source:"tpi", icon:"directions_car"},
+  {name:"Digital Mupi", screens:12, source:"tpi", icon:"tv"},
+  {name:"UDC Tower", screens:1, source:"tpi", icon:"apartment"},
+  {name:"Qanat Quartier", screens:1, source:"tpi", icon:"location_city"},
+  {name:"Gewan Crystal Walk", screens:12, source:"gewan", icon:"storefront"}
+];
 
-  if (isNaN(from) || isNaN(to)) {
-    countEl.innerText = "Days Count: -";
-    return;
-  }
-  const diffDays = Math.floor((to-from)/(1000*60*60*24))+1;
-  countEl.innerText = `Days Count: ${diffDays}`;
+// Days
+function updateDaysCount(){
+  const from = new Date(dateFrom.value);
+  const to = new Date(dateTo.value);
+  if(isNaN(from)||isNaN(to)) return daysCount.innerText="Days: -";
+  const diff = Math.floor((to-from)/(1000*60*60*24))+1;
+  daysCount.innerText = "Days: "+diff;
 }
 
-// Load data
-async function loadData() {
-  const fromInput = document.getElementById("dateFrom").value;
-  const toInput = document.getElementById("dateTo").value;
-  if(!fromInput || !toInput){ alert("Select both dates."); return; }
-  const from = new Date(fromInput);
-  const to = new Date(toInput);
+// Load
+async function loadData(){
+  const from = new Date(dateFrom.value);
+  const to = new Date(dateTo.value);
 
-  const snapshot = await dbRef.once('value');
-  const allData = snapshot.val();
+  const snap = await dbRef.once('value');
+  const allData = snap.val();
 
   let tpi=[], gewan=[];
+
   for(let key in allData){
-    let data = allData[key];
-    let rawDate = data.ContentDate || data["Content.Date"] || "-";
-    let dateObj = new Date(rawDate);
-    if(isNaN(dateObj)) continue;
-    if(dateObj>=from && dateObj<=to){
-      if(data.Name && data.Name.toUpperCase().includes("TPI")) tpi.push(data);
-      if(data.Name && data.Name.toUpperCase().includes("GEWAN")) gewan.push(data);
-    }
+    let d = allData[key];
+    let date = new Date(d.ContentDate || d["Content.Date"]);
+    if(isNaN(date)||date<from||date>to) continue;
+
+    if(d.Name && d.Name.toUpperCase().includes("TPI")) tpi.push(d);
+    if(d.Name && d.Name.toUpperCase().includes("GEWAN")) gewan.push(d);
   }
 
-  populateTable("tpi_table", tpi);
-  populateTable("gewan_table", gewan);
-
-  calculateMetrics(tpi,"tpi");
-  calculateMetrics(gewan,"gewan");
-
-  renderChart(tpi, gewan);
+  renderCards(tpi, gewan);
+  renderChart(tpi, gewan); // unchanged
 }
 
-function populateTable(tableId, data){
-  let tbody = document.querySelector("#"+tableId+" tbody");
-  tbody.innerHTML="";
-  data.sort((a,b)=>new Date(a.ContentDate||a["Content.Date"]) - new Date(b.ContentDate||b["Content.Date"]));
-  data.forEach(row=>{
-    let rawDate = row.ContentDate || row["Content.Date"] || "-";
-    let dateObj = new Date(rawDate);
-    let dateStr = isNaN(dateObj) ? "-" : dateObj.toLocaleDateString('en-GB',{
-      weekday:'short', day:'2-digit', month:'short', year:'numeric'
-    });
-    let vehicleCount = Number(row.ContentTotal || row["Content.Total"] || 0);
-    let tr = document.createElement("tr");
-    tr.innerHTML = `<td>${dateStr}</td><td>${vehicleCount.toLocaleString()}</td>`;
-    tbody.appendChild(tr);
+// Cards
+function renderCards(tpiData, gewanData){
+  const container = document.getElementById("cardsContainer");
+  container.innerHTML="";
+
+  screenConfig.forEach(loc=>{
+    const data = loc.source==="tpi"?tpiData:gewanData;
+
+    if(!data.length){
+      container.innerHTML += createCard(loc,"-","-","-","-");
+      return;
+    }
+
+    let days = data.length;
+    let total = data.reduce((s,x)=>s+Number(x.ContentTotal||0),0);
+    let avg = Math.round(total/days);
+
+    let persons = total * personPerCar;
+    let avgPersons = Math.round(persons/days);
+
+    let impDay = Math.round((avgPersons/adsPerMinute)*loc.screens);
+    let totalImp = impDay * days;
+
+    container.innerHTML += createCard(loc,totalImp,impDay,avg,avgPersons);
   });
 }
 
-function calculateMetrics(data,prefix){
-  if(!data.length){
-    ["total","avg","person","person_day","imp_day","total_imp"].forEach(id=>document.getElementById(prefix+"_"+id).innerText="-");
-    return;
-  }
-  let days = data.length;
-  let total = data.reduce((sum,x)=>sum+Number(x.ContentTotal||x["Content.Total"]||0),0);
-  let avg = Math.round(total/days);
-  let totalPerson = total*personPerCar;
-  let avgPerson = Math.round(totalPerson/days);
-  let impPerDay = Math.round(avgPerson/adsPerMinute);
-  let totalImp = impPerDay*days;
+function createCard(loc,totalImp,impDay,avg,avgPersons){
+  return `
+  <div class="card">
 
-  document.getElementById(prefix+"_total").innerText = total.toLocaleString();
-  document.getElementById(prefix+"_avg").innerText = avg.toLocaleString();
-  document.getElementById(prefix+"_person").innerText = totalPerson.toLocaleString();
-  document.getElementById(prefix+"_person_day").innerText = avgPerson.toLocaleString();
-  document.getElementById(prefix+"_imp_day").innerText = impPerDay.toLocaleString();
-  document.getElementById(prefix+"_total_imp").innerText = totalImp.toLocaleString();
+    <h3>${loc.name}</h3>
+
+    <div class="big">${format(totalImp)}</div>
+
+    <div class="metric">Impression/day <span>${format(impDay)}</span></div>
+    <div class="metric">Avg Traffic <span>${format(avg)}</span></div>
+    <div class="metric">Avg Persons/day <span>${format(avgPersons)}</span></div>
+  </div>`;
+}
+
+function format(val){
+  return val==="-"? "-" : Number(val).toLocaleString();
 }
 
 // Chart.js
@@ -296,6 +317,8 @@ window.addEventListener('resize',()=>{
     chart.update();
   }
 });
+
 </script>
+
 </body>
 </html>
