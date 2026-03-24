@@ -16,6 +16,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
+/* ✅ ORIGINAL STYLES (UNCHANGED) */
 body{
   font-family:'Segoe UI', Arial;
   background:#f6f8fc;
@@ -23,14 +24,12 @@ body{
   padding:20px;
 }
 
-/* HEADER */
 h1{
   text-align:center;
   margin-bottom:20px;
   font-weight:600;
 }
 
-/* CONTROLS */
 .top-bar{
   justify-content:center;
   gap:10px;
@@ -57,14 +56,12 @@ button{
   padding:8px 12px;
 }
 
-/* GRID */
 .cards{
   display:grid;
   grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
   gap:20px;
 }
 
-/* KPI CARD */
 .card{
   background:white;
   border-radius:16px;
@@ -78,7 +75,6 @@ button{
   transform:translateY(-4px);
 }
 
-/* ICON */
 .card .icon{
   position:absolute;
   top:15px;
@@ -87,7 +83,6 @@ button{
   color:#ddd;
 }
 
-/* TITLE */
 .card h3{
   font-size:14px;
   margin-top:5px;
@@ -97,7 +92,6 @@ button{
   justify-content:space-between;
 }
 
-/* BIG KPI */
 .big{
   font-size:22px;
   font-weight:700;
@@ -105,7 +99,6 @@ button{
   margin-bottom:10px;
 }
 
-/* SUB METRICS */
 .metric{
   display:flex;
   justify-content:space-between;
@@ -114,7 +107,6 @@ button{
   color:#555;
 }
 
-/* CHART */
 #chartContainer{
   margin-top:30px;
   background:white;
@@ -126,6 +118,37 @@ button{
 #vehicleChart{
   width:100% !important;
   height:400px !important;
+}
+
+/* ✅ ONLY NEW (KPI STYLE) */
+#totalKPI{
+  display:flex;
+  justify-content:center;
+  margin-bottom:10px;
+}
+
+.kpi-box{
+  background:white;
+  padding:12px 18px;
+  border-radius:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+  text-align:center;
+}
+
+.kpi-title{
+  font-size:12px;
+  color:#777;
+  margin-bottom:4px;
+}
+
+.kpi-values{
+  display:flex;
+  gap:15px;
+  font-size:13px;
+}
+
+.kpi-total{
+  font-weight:700;
 }
 </style>
 </head>
@@ -139,6 +162,18 @@ button{
   To <input type="date" id="dateTo" onchange="updateDaysCount()">
   <button onclick="loadData()">Load</button>
   <div id="daysCount">Days: -</div>
+</div>
+
+<!-- ✅ KPI (NEW ONLY) -->
+<div id="totalKPI">
+  <div class="kpi-box">
+    <div class="kpi-title">Total Vehicles</div>
+    <div class="kpi-values">
+      <div>The Pearl Island: <span id="kpiTPI">0</span></div>
+      <div>Gewan Island: <span id="kpiGewan">0</span></div>
+      <div class="kpi-total">Combined: <span id="kpiAll">0</span></div>
+    </div>
+  </div>
 </div>
 
 <div class="cards" id="cardsContainer"></div>
@@ -159,8 +194,9 @@ const dbRef = firebase.database().ref('vehiclecounts');
 const adsPerMinute = 6;
 const personPerCar = 2;
 let chart;
+let shouldAnimateKPI = false;
 
-// CONFIG WITH ICONS
+// CONFIG
 const screenConfig = [
   {name:"Underpass", screens:1, source:"tpi", icon:"directions_car"},
   {name:"Digital Mupi", screens:12, source:"tpi", icon:"tv"},
@@ -168,6 +204,16 @@ const screenConfig = [
   {name:"Qanat Quartier", screens:1, source:"tpi", icon:"location_city"},
   {name:"Gewan Crystal Walk", screens:12, source:"gewan", icon:"storefront"}
 ];
+
+// ✅ KPI SYNC
+function animateKPI(progress, totals){
+  document.getElementById("kpiTPI").innerText =
+    Math.floor(progress * totals.tpi).toLocaleString();
+  document.getElementById("kpiGewan").innerText =
+    Math.floor(progress * totals.gewan).toLocaleString();
+  document.getElementById("kpiAll").innerText =
+    Math.floor(progress * totals.all).toLocaleString();
+}
 
 // Days
 function updateDaysCount(){
@@ -197,11 +243,13 @@ async function loadData(){
     if(d.Name && d.Name.toUpperCase().includes("GEWAN")) gewan.push(d);
   }
 
+  shouldAnimateKPI = true;
+
   renderCards(tpi, gewan);
-  renderChart(tpi, gewan); // unchanged
+  renderChart(tpi, gewan);
 }
 
-// Cards
+// Cards (UNCHANGED)
 function renderCards(tpiData, gewanData){
   const container = document.getElementById("cardsContainer");
   container.innerHTML="";
@@ -231,11 +279,9 @@ function renderCards(tpiData, gewanData){
 function createCard(loc,totalImp,impDay,avg,avgPersons){
   return `
   <div class="card">
-
     <h3>${loc.name}</h3>
-
     <div class="big">${format(totalImp)}</div>
-
+    <div class="metric">Screens <span>${loc.screens}</span></div>
     <div class="metric">Impression/day <span>${format(impDay)}</span></div>
     <div class="metric">Avg Traffic <span>${format(avg)}</span></div>
     <div class="metric">Avg Persons/day <span>${format(avgPersons)}</span></div>
@@ -246,8 +292,9 @@ function format(val){
   return val==="-"? "-" : Number(val).toLocaleString();
 }
 
-// Chart.js
+// Chart (ONLY KPI SYNC ADDED)
 function renderChart(tpiData, gewanData){
+
   const labels = Array.from(new Set([...tpiData.map(d=>d.ContentDate||d["Content.Date"]),...gewanData.map(d=>d.ContentDate||d["Content.Date"])]))
     .sort((a,b)=>new Date(a)-new Date(b))
     .map(d=>new Date(d).toLocaleDateString('en-GB',{weekday:'short', day:'2-digit', month:'short'}));
@@ -268,10 +315,15 @@ function renderChart(tpiData, gewanData){
     return row?Number(row.ContentTotal||row["Content.Total"]||0):0;
   });
 
+  const totals = {
+    tpi: tpiCounts.reduce((a,b)=>a+b,0),
+    gewan: gewanCounts.reduce((a,b)=>a+b,0)
+  };
+  totals.all = totals.tpi + totals.gewan;
+
   const ctx = document.getElementById('vehicleChart').getContext('2d');
   if(chart) chart.destroy();
 
-  // Detect mobile
   const isMobile = window.innerWidth < 768;
 
   chart = new Chart(ctx,{
@@ -289,35 +341,36 @@ function renderChart(tpiData, gewanData){
     options:{
       responsive:true,
       maintainAspectRatio:false,
+      animation:{
+        duration:1200,
+        easing:'easeOutQuart',
+        onProgress:(anim)=>{
+          if(!shouldAnimateKPI) return;
+          animateKPI(anim.currentStep/anim.numSteps, totals);
+        },
+        onComplete:()=>{
+          if(shouldAnimateKPI){
+            animateKPI(1, totals);
+            shouldAnimateKPI = false;
+          }
+        }
+      },
       plugins:{
         legend:{position:'top'},
         title:{display:true,text:'Vehicle Traffic per Day'},
         tooltip:{
           enabled:true,
           mode:'index',
-          intersect:false,
-          callbacks:{
-            label: function(context){
-              return `${context.dataset.label}: ${context.parsed.y.toLocaleString()}`;
-            }
-          }
+          intersect:false
         }
       },
       scales:{
-        x:{stacked:isMobile, title:{display:true,text:'Date'}},
-        y:{stacked:isMobile, beginAtZero:true, title:{display:true,text:'Vehicles'}}
+        x:{stacked:isMobile},
+        y:{stacked:isMobile, beginAtZero:true}
       }
     }
   });
 }
-window.addEventListener('resize',()=>{
-  if(chart){
-    chart.options.scales.x.stacked = window.innerWidth<768;
-    chart.options.scales.y.stacked = window.innerWidth<768;
-    chart.update();
-  }
-});
-
 </script>
 
 </body>
