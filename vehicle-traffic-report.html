@@ -45,10 +45,19 @@ input,button{
 }
 
 button{
-  background:#4CAF50;
-  color:white;
-  border:none;
-  cursor:pointer;
+    background: linear-gradient(135deg, #ff9f50, #e26b20);
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+button:hover {
+    opacity: 0.9;
 }
 
 #daysCount{
@@ -73,6 +82,7 @@ button{
 
 .card:hover{
   transform:translateY(-4px);
+  border-bottom: 2px solid #e26b20;
 }
 
 .card .icon{
@@ -99,12 +109,33 @@ button{
   margin-bottom:10px;
 }
 
-.metric{
-  display:flex;
-  justify-content:space-between;
-  font-size:12px;
-  margin:3px 0;
-  color:#555;
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin: 6px 0;
+  color: #555;
+}
+
+/* LEFT SIDE */
+.metric .label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* RIGHT SIDE */
+.metric .value {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ICON */
+.material-icons {
+  font-size: 16px;
+  opacity: 0.7;
 }
 
 #chartContainer{
@@ -280,11 +311,41 @@ function createCard(loc,totalImp,impDay,avg,avgPersons){
   return `
   <div class="card">
     <h3>${loc.name}</h3>
+
     <div class="big">${format(totalImp)}</div>
-    <div class="metric">Screens <span>${loc.screens}</span></div>
-    <div class="metric">Impression/day <span>${format(impDay)}</span></div>
-    <div class="metric">Avg Traffic <span>${format(avg)}</span></div>
-    <div class="metric">Avg Persons/day <span>${format(avgPersons)}</span></div>
+
+    <div class="metric">
+      <div class="label">
+        <span class="material-icons">airplay</span>
+        Screens
+      </div>
+      <div class="value">${loc.screens}</div>
+    </div>
+
+    <div class="metric">
+      <div class="label">
+        <span class="material-icons">visibility</span>
+        Impression/day
+      </div>
+      <div class="value">${format(impDay)}</div>
+    </div>
+
+    <div class="metric">
+      <div class="label">
+        <span class="material-icons">directions_car</span>
+        Avg Traffic
+      </div>
+      <div class="value">${format(avg)}</div>
+    </div>
+
+    <div class="metric">
+      <div class="label">
+        <span class="material-icons">accessibility</span>
+        Avg Persons/day
+      </div>
+      <div class="value">${format(avgPersons)}</div>
+    </div>
+
   </div>`;
 }
 
