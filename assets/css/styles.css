@@ -155,21 +155,25 @@
 #splash-screen {
   position: fixed;
   inset: 0;
-  /*background: #000;*/
   background-image: url("https://oohassets.github.io/ooh-assets-scoop/images/thepearlisland.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
   display: flex;
+  flex-direction: column; /* FIX: stack logo + text */
   align-items: center;
   justify-content: center;
+
   z-index: 99999;
   overflow: hidden;
+
+  opacity: 1; /* FIX: needed for fade-out */
 }
 
+/* Logo */
 .splash-logo {
-  width: auto !important;
-  height: 60px;
+  height: 180px;
   opacity: 0;
   transform: scale(0.9);
   object-fit: contain;
@@ -177,6 +181,7 @@
   transition: opacity 1.5s ease, transform 1.5s ease;
 }
 
+/* Text */
 .splash-text {
   color: #fff;
   font-size: 1.5rem;
@@ -186,11 +191,14 @@
   transition: opacity 1.5s ease, transform 1.5s ease;
 }
 
-.splash-logo.visible {
+/* Show animation */
+.splash-logo.visible,
+.splash-text.visible {
   opacity: 1;
-  transform: scale(1);
+  transform: translateY(0) scale(1);
 }
 
+/* Fade out whole screen */
 #splash-screen.fade-out {
   opacity: 0;
   transition: opacity 1s ease;
