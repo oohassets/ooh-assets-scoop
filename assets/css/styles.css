@@ -184,8 +184,7 @@
   opacity: 0;
   transform: translateY(-30px) scale(0.95);
   transition: all 1.2s ease;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.5));
-}
+ }
 
 /* Text (UNDER logo) */
 .splash-text {
