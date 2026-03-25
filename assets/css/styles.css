@@ -200,7 +200,7 @@
 /* Animate IN */
 .splash-logo.visible,
 .splash-text.visible {
-  opacity: 1;
+  
   transform: translateY(0) scale(1);
 }
 
