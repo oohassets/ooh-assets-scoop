@@ -178,7 +178,7 @@
 
 /* LOGO animation */
 .splash-logo {
-  height: 160px;
+  height: 120px;
   opacity: 0;
   transform: translateY(50px) scale(0.95);
   animation: ascendFade 2s ease forwards;
@@ -559,14 +559,21 @@ body.no-scroll {
   box-sizing: border-box;
   display: flex;
   gap: 16px;
+  padding-top: 20px;
+  padding-bottom: 25px;
+
 }
 
 .carousel {
   display: grid !important;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(320px, 1fr);
   grid-template-rows: repeat(2, auto);
   gap: 16px;
+  grid-auto-columns: minmax(350px, 1fr);
+  grid-template-rows: repeat(2, auto);
+  column-gap: 20px;
+  row-gap: 26px;
+
 }
 
 .card {
