@@ -4,17 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Artwork Dimension Checker</title>
-
 <link rel="icon" href="images/scooplogo_black_192x192.png">
 
 <style>
 body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-family:'Segoe UI', Arial;
     margin: 20px;
     background: #f5f5f5;
     color: #333;
 }
-
 .header {
     display: grid;
     grid-template-columns: 180px 1fr 180px 1fr;
@@ -27,8 +25,8 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 
-.header label {
-    font-weight: bold;
+.header label { 
+    font-weight: bold; 
 }
 
 .header input[type="text"] {
@@ -37,6 +35,9 @@ body {
     border-radius: 6px;
     cursor: pointer;
     width: auto;
+}
+.header input:hover { 
+    border-color: #ff9f50; 
 }
 
 .header button {
@@ -50,37 +51,29 @@ body {
     font-size: 14px;
 }
 
-#scanBtn {
-    background: linear-gradient(135deg, #ff9f50, #e26b20);
-}
-
-#scanBtn:hover {
-    opacity: 0.9;
-}
-
 #downloadBtn {
-    background: linear-gradient(135deg, #ff9f50, #e26b20);
+    display: none;
+    margin-top: 10px;
     padding: 10px 20px;
-    cursor: pointer;
+    background: linear-gradient(135deg,#ff9f50,#e26b20);
     border: none;
     border-radius: 6px;
     color: #fff;
     font-weight: bold;
-    transition: 0.3s;
     font-size: 14px;
+    cursor: pointer;
 }
 
-#downloadBtn:hover {
-    opacity: 0.9;
+#downloadBtn:hover { 
+    opacity: 0.9; 
 }
 
-.tables {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.tables { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
 }
 
-/* Modern table styling */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -99,101 +92,125 @@ thead th {
     padding: 10px;
     text-align: left;
 }
-
 tbody td {
     padding: 8px 10px;
     border-bottom: 1px solid #eee;
 }
 
-tbody tr:hover {
-    background: #f0f8ff;
+tbody tr:hover { 
+    background: #f0f8ff; 
 }
 
-.bad {
-    background: #ffc8c8 !important;
-    color: #900;
+.filter-header { 
+    position: relative; 
+    cursor: pointer; 
 }
 
-tfoot th {
-    background: #f0f0f0;
-    font-weight: bold;
-    text-align: left;
-    padding: 8px 10px;
+.filter-btn { 
+    float: right; 
+    font-size: 13px; 
+    margin-left: 6px; 
 }
 
-.total {
-    margin-top: 12px;
-    font-weight: bold;
-    font-size: 14px;
-    padding: 8px 10px;
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    color: #333;
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    padding: 10px;
+    z-index: 999;
+    min-width: 180px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+.filter-dropdown label { 
+    display: block; 
+    margin-bottom: 4px; 
+    cursor: pointer; 
+    font-size: 12px; 
+    font-weight: 500; 
 }
 
-#pathDisplay {
-    background-color: #fafafa;
+.filter-dropdown input { 
+    margin-right: 6px; 
 }
 
-#pathDisplay:hover {
-    border-color: #ff9f50;
+.bad { 
+    background: #ffc8c8 !important; 
+    color: #900; 
 }
 
-@media (max-width: 900px) {
-    .header {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    .header label, .header input, .header button {
-        width: 100%;
-    }
-
-    .tables {
-        grid-template-columns: 1fr;
-    }
-
-    #downloadBtn {
-        width: 100%;
-    }
+tfoot th { 
+    background: #f0f0f0; 
+    font-weight: bold; 
+    text-align: left; 
+    padding: 8px 10px; 
 }
 
-@media (max-width: 480px) {
-
-    .header {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .tables {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .header input,
-    .header button,
-    #downloadBtn {
-        width: 100%;
-    }
+.total { 
+    margin-top:12px; 
+    font-weight:bold; 
+    font-size:14px; 
+    padding:8px 10px; 
 }
 
+#pathDisplay { 
+    background-color: #fafafa; 
+}
+
+#pathDisplay:hover { 
+    border-color:#ff9f50; 
+}
+
+@media (max-width:900px) {
+    .header { grid-template-columns: 1fr; gap:10px; }
+    .header label, .header input, .header button { width:100%; }
+    .tables { grid-template-columns:1fr; }
+    #downloadBtn { width:100%; }
+}
+@media (max-width:480px) {
+    .header { grid-template-columns:1fr; gap:10px; }
+    .tables { grid-template-columns:1fr; gap:10px; }
+    .header input, .header button, #downloadBtn { width:100%; }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
+
+<h3> Artwork Dimension Checker</h3>
+
 <div class="header">
     <label for="abbr">Abbreviation Name</label>
     <input type="text" id="abbr" placeholder="Write Abbreviation Name" />
-
-    <label for="folderPicker">Artwork Path</label>
+    <label>Artwork Path</label>
     <input type="text" id="pathDisplay" readonly placeholder="Click to browse folder" />
     <input type="file" id="folderPicker" webkitdirectory multiple hidden />
 </div>
 
 <div class="tables">
-
-<!-- LEFT TABLE -->
 <div>
 <table id="dimensionTable">
 <thead>
-<tr><th>Asset</th><th>Dimension</th><th>Count</th></tr>
+<tr>
+<th class="filter-header">
+    Asset <span class="filter-btn">▼</span>
+    <div class="filter-dropdown" id="assetDropdown"></div>
+</th>
+<th>Dimension</th>
+<th>Count</th>
+</tr>
 </thead>
 <tbody>
 <tr><td>Underpass</td><td>6240X420</td><td>-</td></tr>
@@ -212,14 +229,10 @@ tfoot th {
 <tr><th colspan="2">Total</th><th id="leftTotal">0</th></tr>
 </tfoot>
 </table>
-
-<div class="total">
-Total Count Wrong Dimension:
-<span id="wrongCount">0</span>
-</div>
+<div class="total">Total Count Wrong Dimension: <span id="wrongCount">0</span></div>
 </div>
 
-<!-- RIGHT TABLE -->
+<!-- RESULT TABLE -->
 <div>
 <table id="resultTable">
 <thead>
@@ -228,75 +241,82 @@ Total Count Wrong Dimension:
 <th>Actual Dimension</th>
 <th>Duration</th>
 <th>File Size</th>
-<th>Artwork Rename</th>
+<th class="filter-header">
+Remarks <span class="filter-btn">▼</span>
+<div class="filter-dropdown" id="remarksDropdown"></div>
+</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
 
-<button id="downloadBtn" style="margin-top:10px">Download Files</button>
+<button id="downloadBtn">Download Files</button>
 </div>
-</div>
-
-<div id="progressContainer" style="margin-top:15px; display:none;">
-    <div style="background:#ddd;border-radius:6px;overflow:hidden;height:20px;">
-        <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(135deg,#ff9f50,#e26b20);transition:0.3s;"></div>
-    </div>
-    <div id="progressText" style="margin-top:5px;font-size:13px;font-weight:bold;">0%</div>
-    <div id="downloadNote" style="margin-top:5px;font-size:11px;color:#555;display:none;">
-        Note: Please right-click the downloaded ZIP file, select Properties, check Unblock, and click Apply before extracting.
-    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script>
-const allowedDimensions = [
-    "6240X420","6656X1040","3742X432","256X384",
-    "1080X1920","512X640","384X640","640X384",
-    "384X512","640X512","1296X756","640X640"
-];
 
-const folderPicker = document.getElementById("folderPicker");
-const pathDisplay = document.getElementById("pathDisplay");
-const downloadBtn = document.getElementById("downloadBtn");
+<script>
+
+const loadImage = file => new Promise(res => { const img = new Image(); img.onload = () => res(img); img.src = URL.createObjectURL(file); });
+const loadVideo = file => new Promise(res => { const v=document.createElement("video"); v.preload="metadata"; v.onloadedmetadata=()=>res({videoWidth:v.videoWidth,videoHeight:v.videoHeight,duration:v.duration}); v.src=URL.createObjectURL(file); });
+const formatMMSS = sec => sec ? `${String(Math.floor(sec/60)).padStart(2,"0")}:${String(Math.floor(sec%60)).padStart(2,"0")}` : "";
+const formatBytes = bytes => { if(bytes===0)return"0 B"; const k=1024,sizes=["B","KB","MB","GB"]; const i=Math.floor(Math.log(bytes)/Math.log(k)); return (bytes/Math.pow(k,i)).toFixed(2)+" "+sizes[i]; };
 
 let processedFiles = [];
+
+/* ============================================================
+   FILE PICKER
+============================================================ */
+const folderPicker = document.getElementById("folderPicker");
+const pathDisplay = document.getElementById("pathDisplay");
 
 pathDisplay.onclick = () => folderPicker.click();
 
 folderPicker.onchange = async () => {
+    
+    document.getElementById("loader").style.display = "flex";
+
     const files = [...folderPicker.files];
-    pathDisplay.value = files[0]?.webkitRelativePath.split("/")[0] || "";
+    if (!files.length) return alert("No files selected!");
+    pathDisplay.value = files[0].webkitRelativePath.split("/")[0] || "";
 
     const abbr = document.getElementById("abbr").value.trim();
     const resultBody = document.querySelector("#resultTable tbody");
     resultBody.innerHTML = "";
+
+    const allowedDimensions = [
+        "6240X420","6656X1040","3742X432","256X384","1080X1920",
+        "512X640","384X640","640X384","384X512","640X512",
+        "1296X756","640X640"
+    ];
 
     let wrong = 0;
     const dimensionCounts = {};
     const baseKeyTotals = {};
     const baseKeyRunning = {};
 
-    processedFiles = [];
     allowedDimensions.forEach(d => dimensionCounts[d] = 0);
+    processedFiles = [];
 
-    // PASS 1 → Detect dimensions and file info
+    /* -----------------------------------------
+       SCAN FILES
+    ----------------------------------------- */
     for (const file of files) {
         let w = 0, h = 0, duration = "";
 
         if (file.type.startsWith("image/")) {
             const img = await loadImage(file);
-            w = img.width;
-            h = img.height;
+            w = img.width; h = img.height;
         }
 
         if (file.type.startsWith("video/")) {
             const meta = await loadVideo(file);
-            w = meta.videoWidth;
-            h = meta.videoHeight;
+            w = meta.videoWidth; h = meta.videoHeight;
             duration = formatMMSS(meta.duration);
         }
 
+        // fallback detect 1234x5678 from filename
         if (!w || !h) {
             const m = file.name.match(/(\d{2,5})\s*[xX]\s*(\d{2,5})/);
             if (m) { w = +m[1]; h = +m[2]; }
@@ -304,6 +324,7 @@ folderPicker.onchange = async () => {
 
         const dimText = (w && h) ? `${w}X${h}` : "N/A";
         const valid = allowedDimensions.includes(dimText);
+
         if (!valid) wrong++;
         if (dimensionCounts[dimText] !== undefined) dimensionCounts[dimText]++;
 
@@ -319,137 +340,238 @@ folderPicker.onchange = async () => {
             dimText,
             duration,
             fileSize: formatBytes(file.size),
-            valid
+            valid,
+            renamePreview: ""
         });
     }
 
-    // PASS 2 → Generate Rename Preview
+    /* -----------------------------------------
+       GENERATE RENAME PREVIEWS + TABLE ROWS
+    ----------------------------------------- */
     for (const item of processedFiles) {
-        let renamePreview = "";
+        let preview = "";
+
         if (item.valid && abbr) {
             const baseKey = `${abbr}-${item.dimText}`;
             baseKeyRunning[baseKey] = (baseKeyRunning[baseKey] || 0) + 1;
-            renamePreview = baseKeyTotals[baseKey] === 1 ? baseKey : `${baseKey}_${baseKeyRunning[baseKey]}`;
+            preview = baseKeyTotals[baseKey] === 1
+                ? baseKey
+                : `${baseKey}_${baseKeyRunning[baseKey]}`;
         }
 
-        addResultRow(item.id, item.originalName, item.dimText, item.duration, item.fileSize, item.valid, renamePreview);
+        item.renamePreview = preview;
+
+        addResultRow(
+            item.id,
+            item.originalName,
+            item.dimText,
+            item.duration,
+            item.fileSize,
+            item.valid
+        );
     }
 
-    // Update left table counts
+    createDropdownFilter("resultTable", 4, "remarksDropdown");
+
+    /* -----------------------------------------
+       UPDATE LEFT TABLE COUNTS
+    ----------------------------------------- */
     const dimTbody = document.querySelector("#dimensionTable tbody");
     let totalCount = 0;
+
     for (const row of dimTbody.rows) {
         const dim = row.cells[1].textContent;
         const count = dimensionCounts[dim] || 0;
         row.cells[2].textContent = count > 0 ? count : "-";
         totalCount += count;
     }
+
     document.getElementById("leftTotal").textContent = totalCount;
     document.getElementById("wrongCount").textContent = wrong;
+    document.getElementById("loader").style.display = "none";
+    
+    document.getElementById("downloadBtn").style.display = "block";
 };
 
-function addResultRow(id, name, dim, dur, size, valid, renamePreview = "") {
+/* ============================================================
+   ADD A ROW TO RESULT TABLE
+============================================================ */
+function addResultRow(id, name, dim, dur, size, valid) {
     const tbody = document.querySelector("#resultTable tbody");
     const tr = document.createElement("tr");
     tr.dataset.fileId = id;
+
+    let remarks = valid
+        ? `<span style="color:green;font-weight:bold;">✔</span> Correct Dimension`
+        : `<span style="color:red;font-weight:bold;">✖</span> Wrong Dimension`;
+
     tr.innerHTML = `
         <td>${name}</td>
         <td class="${valid ? "" : "bad"}">${dim}</td>
         <td>${dur}</td>
         <td>${size}</td>
-        <td>${valid && renamePreview ? renamePreview : '<span style="color:red;font-weight:bold;">✖</span> Wrong Dimension'}</td>
+        <td>${remarks}</td>
     `;
+
     tbody.appendChild(tr);
 }
 
-function loadImage(file) {
-    return new Promise(res => {
-        const img = new Image();
-        img.onload = () => res(img);
-        img.src = URL.createObjectURL(file);
-    });
+/* ============================================================
+   FILTER DROPDOWN
+============================================================ */
+
+createDropdownFilter("dimensionTable", 0, "assetDropdown", true);
+
+function createDropdownFilter(tableId, colIndex, dropdownId) {
+    const table = document.getElementById(tableId);
+    const dropdown = document.getElementById(dropdownId);
+    const btn = dropdown.parentElement.querySelector(".filter-btn");
+
+    // ⭐ Remember selections even when dropdown is reopened
+    let selectedValues = new Set();
+    let initialized = false;
+
+    btn.onclick = (e) => {
+        e.stopPropagation();
+        document.querySelectorAll(".filter-dropdown").forEach(d => d.style.display = "none");
+        dropdown.style.display = "block";
+        populate();
+    };
+
+    dropdown.onclick = (e) => e.stopPropagation();
+    document.addEventListener("click", () => dropdown.style.display = "none");
+
+    function populate() {
+        const values = new Set();
+        table.querySelectorAll("tbody tr").forEach(row => {
+            values.add(row.cells[colIndex].textContent.trim());
+        });
+
+        dropdown.innerHTML = "";
+
+        // "Select All"
+        const allLabel = document.createElement("label");
+        allLabel.innerHTML = `<input type="checkbox" value="__all__"> Select All`;
+        dropdown.appendChild(allLabel);
+
+        // FIRST TIME: select all by default
+        if (!initialized) {
+            selectedValues = new Set(values);
+            initialized = true;
+        }
+
+        // Rebuild with saved state
+        values.forEach(v => {
+            const checked = selectedValues.has(v) ? "checked" : "";
+            const label = document.createElement("label");
+            label.innerHTML = `<input type="checkbox" value="${v}" ${checked}> ${v}`;
+            dropdown.appendChild(label);
+        });
+
+        // Update Select All checkbox
+        dropdown.querySelector('input[value="__all__"]').checked =
+            selectedValues.size === values.size;
+
+        // Add event listeners
+        dropdown.querySelectorAll("input").forEach(input => {
+            input.addEventListener("change", (e) => {
+                const value = e.target.value;
+
+                if (value === "__all__") {
+                    const isChecked = e.target.checked;
+                    selectedValues = isChecked ? new Set(values) : new Set();
+                    dropdown.querySelectorAll("input").forEach(i => i.checked = isChecked);
+                } else {
+                    if (e.target.checked) selectedValues.add(value);
+                    else selectedValues.delete(value);
+
+                    dropdown.querySelector('input[value="__all__"]').checked =
+                        selectedValues.size === values.size;
+                }
+
+                filterRows();
+            });
+        });
+    }
+
+    function filterRows() {
+        table.querySelectorAll("tbody tr").forEach(row => {
+            const val = row.cells[colIndex].textContent.trim();
+            row.style.display = selectedValues.has(val) ? "" : "none";
+        });
+    }
 }
 
-function loadVideo(file) {
-    return new Promise(res => {
-        const v = document.createElement("video");
-        v.preload = "metadata";
-        v.onloadedmetadata = () => {
-            res({ videoWidth: v.videoWidth, videoHeight: v.videoHeight, duration: v.duration });
-        };
-        v.src = URL.createObjectURL(file);
-    });
-}
-
-function formatMMSS(sec) {
-    if (!sec) return "";
-    sec = Math.floor(sec);
-    return String(Math.floor(sec / 60)).padStart(2,"0")+":"+String(sec % 60).padStart(2,"0");
-}
-
-function formatBytes(bytes) {
-    if (bytes === 0) return "0 B";
-    const k = 1024, sizes = ["B","KB","MB","GB"];
-    const i = Math.floor(Math.log(bytes)/Math.log(k));
-    return (bytes / Math.pow(k,i)).toFixed(2) + " " + sizes[i];
-}
+const downloadBtn = document.getElementById("downloadBtn");
 
 downloadBtn.onclick = async () => {
+
     const abbr = document.getElementById("abbr").value.trim();
     if (!abbr) return alert("Please enter an artwork abbreviation first.");
-    const tbody = document.querySelector("#resultTable tbody");
-    if (!tbody.rows.length) return alert("No files to rename. Scan first.");
 
-    downloadBtn.disabled = true;
-    const progressContainer = document.getElementById("progressContainer");
-    const progressBar = document.getElementById("progressBar");
-    const progressText = document.getElementById("progressText");
-    progressContainer.style.display = "block";
-    progressBar.style.width = "0%";
-    progressText.textContent = "0%";
+    if (!processedFiles.length) return alert("No scanned files.");
 
     const zip = new JSZip();
     const usedNames = new Set();
-    const validFiles = Array.from(tbody.rows).filter(r => allowedDimensions.includes(r.cells[1].textContent));
-    if (!validFiles.length) return alert("No valid artworks found to download.");
 
-    let processed = 0;
-    for (let row of tbody.rows) {
-        const fileId = row.dataset.fileId;
-        const item = processedFiles.find(f => f.id === fileId);
-        if (!item || !item.valid) {
-            row.cells[4].innerHTML = `<span style="color:red;font-weight:bold;">✖</span> Skipped`;
+    const tbody = document.querySelector("#resultTable tbody");
+
+    let validItems = processedFiles.filter(f => f.valid);
+
+    if (!validItems.length) return alert("No valid artworks found.");
+
+    for (const item of processedFiles) {
+
+        const row = [...tbody.rows].find(r => r.dataset.fileId === item.id);
+
+        if (!item.valid) {
+            row.cells[4].innerHTML =
+                `<span style="color:red;font-weight:bold;">✖</span> Skipped`;
             continue;
         }
 
-        const ext = item.file.name.split('.').pop();
-        const previewName = row.cells[4].textContent.trim();
-        const newName = previewName + "." + ext;
+        const ext = item.file.name.split(".").pop();
+        const newName = item.renamePreview + "." + ext;
+
         if (usedNames.has(newName)) continue;
         usedNames.add(newName);
 
-        row.cells[4].innerHTML = `<span style="color:green;font-weight:bold;">✔</span> ${newName}`;
-        const fileData = await item.file.arrayBuffer();
-        zip.file(newName, fileData);
+        row.cells[4].innerHTML =
+            `<span style="color:green;font-weight:bold;">✔</span> ${newName}`;
 
-        processed++;
-        const percent = Math.round((processed / validFiles.length) * 100);
-        progressBar.style.width = percent+"%";
-        progressText.textContent = percent+"%";
+        const data = await item.file.arrayBuffer();
+        zip.file(newName, data);
     }
 
     const content = await zip.generateAsync({ type: "blob" });
+
     const a = document.createElement("a");
     a.href = URL.createObjectURL(content);
     a.download = `${abbr}_Artworks.zip`;
-    document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-
-    progressText.textContent = "Download Complete ✔";
-    document.getElementById("downloadNote").style.display = "block";
-    downloadBtn.disabled = false;
 };
 </script>
+
+
+<div id="loader" style="
+    display:none;
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(3px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+">
+    <div style="
+        width: 60px; 
+        height: 60px; 
+        border: 6px solid #e26b20; 
+        border-top: 6px solid transparent; 
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    "></div>
+</div>
+
 </body>
 </html>
