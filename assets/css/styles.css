@@ -151,8 +151,7 @@
 }
 
 
-/* Splash */
-/* Splash screen background */
+/* Fullscreen Splash */
 #splash-screen {
   position: fixed;
   inset: 0;
@@ -160,14 +159,16 @@
   background-size: cover;
   background-position: center;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start; /* <-- Moves content to TOP */
   align-items: center;
+  padding-top: 80px; /* <-- Adjust how far from top */
   z-index: 99999;
   opacity: 1;
   transition: opacity 1s ease;
 }
 
-/* Content wrapper */
+/* Container for logo + text */
 .splash-content {
   display: flex;
   flex-direction: column;
@@ -179,24 +180,24 @@
 .splash-logo {
   height: 160px;
   opacity: 0;
-  transform: translateY(40px) scale(0.95);
-  animation: ascendFade 1.8s ease forwards;
+  transform: translateY(50px) scale(0.95);
+  animation: ascendFade 2s ease forwards;
 }
 
-/* TEXT animation – starts slightly later */
+/* TEXT animation (starts slightly after logo) */
 .splash-text {
   color: #fff;
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   opacity: 0;
-  transform: translateY(50px);
+  transform: translateY(55px);
   animation: ascendFade 2s 0.3s ease forwards;
 }
 
-/* Ascend + Fade Animation */
+/* Ascending + fading keyframes */
 @keyframes ascendFade {
   0% {
     opacity: 0;
-    transform: translateY(40px) scale(0.95);
+    transform: translateY(50px) scale(0.95);
   }
   100% {
     opacity: 1;
@@ -204,7 +205,7 @@
   }
 }
 
-/* Fade out after animation */
+/* Fade-out class */
 #splash-screen.fade-out {
   opacity: 0;
   pointer-events: none;
