@@ -152,62 +152,61 @@
 
 
 /* Splash */
+/* Splash screen background */
 #splash-screen {
   position: fixed;
   inset: 0;
   background-image: url("https://oohassets.github.io/ooh-assets-scoop/images/thepearlisland.jpg");
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-
   display: flex;
-  align-items: center;
   justify-content: center;
-
+  align-items: center;
   z-index: 99999;
-  overflow: hidden;
   opacity: 1;
+  transition: opacity 1s ease;
 }
 
-/* Center container */
+/* Content wrapper */
 .splash-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
 }
 
-/* Logo (TOP) */
+/* LOGO animation */
 .splash-logo {
   height: 160px;
-  margin-bottom: 15px; /* space between logo & text */
   opacity: 0;
-  transform: translateY(-30px) scale(0.95);
-  transition: all 1.2s ease;
- }
+  transform: translateY(40px) scale(0.95);
+  animation: ascendFade 1.8s ease forwards;
+}
 
-/* Text (UNDER logo) */
+/* TEXT animation – starts slightly later */
 .splash-text {
   color: #fff;
   font-size: 1.8rem;
-  font-weight: 500;
-  text-align: center;
-
-  transform: translateY(30px);
-  transition: all 1.2s ease;
+  opacity: 0;
+  transform: translateY(50px);
+  animation: ascendFade 2s 0.3s ease forwards;
 }
 
-/* Animate IN */
-.splash-logo.visible,
-.splash-text.visible {
-  
-  transform: translateY(0) scale(1);
+/* Ascend + Fade Animation */
+@keyframes ascendFade {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-/* Fade out */
+/* Fade out after animation */
 #splash-screen.fade-out {
   opacity: 0;
-  transition: opacity 1s ease;
   pointer-events: none;
 }
 
@@ -680,9 +679,6 @@ body.no-scroll {
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 16px;
 }
-
-
-
 
 .carousel-section {
   margin-bottom: 30px;
