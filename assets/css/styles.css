@@ -557,10 +557,12 @@ body.no-scroll {
   white-space: nowrap;
   padding: 15px;
   box-sizing: border-box;
+  display: flex;
+  gap: 16px;
 }
 
 .carousel {
-  display: grid;
+  display: grid !important;
   grid-auto-flow: column;
   grid-auto-columns: minmax(320px, 1fr);
   grid-template-rows: repeat(2, auto);
@@ -679,11 +681,9 @@ body.no-scroll {
   gap: 16px;
 }
 
-.carousel-container {
-  display: flex;
-  overflow-x: auto;
-  gap: 16px;
-}
+
+
+
 .carousel-section {
   margin-bottom: 30px;
 }
