@@ -564,10 +564,9 @@ body.no-scroll {
 .carousel {
   display: grid !important;
   grid-auto-flow: column;
-  grid-template-rows: repeat(2, auto);
+  grid-template-rows: repeat(6, auto);
   gap: 16px;
-  grid-auto-columns: minmax(350px, 1fr);
-  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: minmax(650px, 1fr);
   column-gap: 20px;
   row-gap: 26px;
 
