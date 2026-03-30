@@ -176,8 +176,7 @@
 }
 
 .splash-logo {
-  width: 140px;
-  max-width: 40vw;
+  width: clamp(80px, 12vw, 140px);
   height: auto;
   opacity: 0;
   transform: translateY(50px) scale(0.95);
