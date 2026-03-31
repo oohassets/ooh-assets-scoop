@@ -16,7 +16,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-/* ✅ ORIGINAL STYLES (UNCHANGED) */
+
 body{
   font-family:'Segoe UI', Arial;
   background:#f6f8fc;
@@ -42,6 +42,26 @@ input,button{
   padding:8px 12px;
   border-radius:8px;
   border:1px solid #ddd;
+}
+
+.date-modern {
+    width: 120px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    font-size: 13px;
+    transition: 0.2s;
+}
+.date-modern:hover {
+    border-color: #ff9f50;
+}
+.date-modern:focus {
+    outline: none;
+    border-color: #ff9f50;
+    box-shadow: 0 0 0 2px rgba(255,159,80,0.2);
 }
 
 button{
@@ -128,7 +148,7 @@ button:hover {
 
 /* RIGHT SIDE */
 .metric .value {
-  font-weight: 600;
+  /* font-weight: 600; */
   text-align: right;
 }
 
@@ -179,7 +199,7 @@ button:hover {
 }
 
 .kpi-total{
-  font-weight:700;
+  font-size:13px;
 }
 </style>
 </head>
@@ -189,8 +209,8 @@ button:hover {
 <h1>Vehicle Traffic Dashboard</h1>
 
 <div class="top-bar">
-  From <input type="date" id="dateFrom" onchange="updateDaysCount()">
-  To <input type="date" id="dateTo" onchange="updateDaysCount()">
+  From <input type="date" class="date-modern" id="dateFrom" onchange="updateDaysCount()">
+  To <input type="date" class="date-modern" id="dateTo" onchange="updateDaysCount()">
   <button onclick="loadData()">Load</button>
   <div id="daysCount">Days: -</div>
 </div>
