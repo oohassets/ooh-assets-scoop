@@ -303,9 +303,33 @@ export async function loadCarousel() {
     return 999;
   };
 
+    const getStaticOrder = (name) => {
+    name = name.toLowerCase().replace(/_/g, " ");
+
+    // ===== Light Poles =====
+    if (name.includes("light poles main entrance")) return 1;
+    if (name.includes("light poles main boulevard")) return 2;
+
+    if (name.includes("light poles porto arabia drive")) return 3;
+    if (name.includes("light poles medina centrale")) return 4;
+
+    if (name.includes("light poles porto arabia boardwalk")) return 5;
+    if (name.includes("light poles viva bahriya boardwalk")) return 6;
+
+    // ===== MUPI =====
+    if (name.includes("mupi medina centrale")) return 7;
+    if (name.includes("mupi porto arabia boardwalk")) return 8;
+
+    // ===== Others =====
+    if (name.includes("arcade porto arabia retail")) return 9;
+    if (name.includes("senior medina centrale")) return 10;
+
+    return 999;
+  };
+
   // Apply sorting
   digitalTables.sort((a, b) => getOrder(a) - getOrder(b));
-  staticTables.sort((a, b) => getOrder(a) - getOrder(b));
+  staticTables.sort((a, b) => getStaticOrder(a) - getStaticOrder(b));
 
   // ===============================
   // DIGITAL
