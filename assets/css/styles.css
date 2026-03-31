@@ -570,13 +570,19 @@ body.no-scroll {
 
 .carousel {
   display: grid !important;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(6, auto);
-  gap: 16px;
-  grid-auto-columns: minmax(650px, 1fr);
-  column-gap: 20px;
-  row-gap: 26px;
 
+  grid-template-columns: repeat(2, 1fr); /* ✅ 2 columns */
+  gap: 20px;
+
+  row-gap: 26px;
+  column-gap: 20px;
+
+}
+
+@media (max-width: 768px) {
+  .carousel {
+    grid-template-columns: 1fr; /* stack */
+  }
 }
 
 .card {

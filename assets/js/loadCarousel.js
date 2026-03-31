@@ -265,10 +265,8 @@ export async function loadCarousel() {
   publishCampaignToday(allTables);
 
   // ===============================
-  // Digital & Static Sections
+  // Separate table names
   // ===============================
-
-  // 🔹 Separate table names
   const digitalTables = [];
   const staticTables = [];
 
@@ -277,20 +275,43 @@ export async function loadCarousel() {
     else if (tableName.startsWith("s_")) staticTables.push(tableName);
   }
 
-  digitalTables.sort((a, b) => {
-    const nameA = a.toLowerCase();
-    const nameB = b.toLowerCase();
+  // ===============================
+  // Custom Order Logic
+  // ===============================
+  const getOrder = (name) => {
+    name = name.toLowerCase().replace(/_/g, " ");
 
-    const priority = name => {
-      if (name.includes("tpi")) return 1;
-      if (name.includes("gewan")) return 2;
-      return 3;
-    };
+    // ===== TPI =====
+    if (name.includes("underpass in")) return 1;
+    if (name.includes("underpass out")) return 2;
 
-    return priority(nameA) - priority(nameB);
-  });
+    if (name.includes("mupi") && name.includes("1")) return 3;
+    if (name.includes("mupi") && name.includes("2")) return 4;
 
-  // ===== DIGITAL =====
+    if (name.includes("udc tower")) return 5;
+    if (name.includes("qanat quartier")) return 6;
+
+    if (name.includes("monoprix")) return 7;
+
+    // ===== Gewan =====
+    if (name.includes("crystal walk") && name.includes("1")) return 8;
+    if (name.includes("crystal walk") && name.includes("2")) return 9;
+
+    if (name.includes("residential") && name.includes("1")) return 10;
+    if (name.includes("residential") && name.includes("2")) return 11;
+
+    return 999;
+  };
+
+  // Apply sorting
+  digitalTables.sort((a, b) => getOrder(a) - getOrder(b));
+  staticTables.sort((a, b) => getOrder(a) - getOrder(b));
+
+  // ===============================
+  // DIGITAL
+  // ===============================
+  digitalCarousel.innerHTML = "";
+
   digitalTables.forEach(tableName => {
     const data = allTables[tableName];
     if (!data) return;
@@ -303,9 +324,8 @@ export async function loadCarousel() {
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
     const validRows = rows.filter(
-      row => row !== null && typeof row === "object" && !Array.isArray(row)
+      row => row && typeof row === "object" && !Array.isArray(row)
     );
-
 
     validRows.forEach(row => {
       columns.forEach(col => {
@@ -319,7 +339,10 @@ export async function loadCarousel() {
 
     digitalCarousel.appendChild(
       createCard(
-        tableName.replace(/^d_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+        tableName
+          .replace(/^d_/, "")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, c => c.toUpperCase()),
         Object.fromEntries(validRows.map((r, i) => [i, r])),
         columns,
         highlightCols
@@ -327,8 +350,11 @@ export async function loadCarousel() {
     );
   });
 
+  // ===============================
+  // STATIC
+  // ===============================
+  staticCarousel.innerHTML = "";
 
-  // ===== STATIC =====
   staticTables.forEach(tableName => {
     const data = allTables[tableName];
     if (!data) return;
@@ -341,9 +367,8 @@ export async function loadCarousel() {
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
     const validRows = rows.filter(
-      row => row !== null && typeof row === "object" && !Array.isArray(row)
+      row => row && typeof row === "object" && !Array.isArray(row)
     );
-
 
     validRows.forEach(row => {
       columns.forEach(col => {
@@ -357,7 +382,10 @@ export async function loadCarousel() {
 
     staticCarousel.appendChild(
       createCard(
-        tableName.replace(/^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+        tableName
+          .replace(/^s_/, "")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, c => c.toUpperCase()),
         Object.fromEntries(validRows.map((r, i) => [i, r])),
         columns,
         highlightCols
@@ -365,72 +393,71 @@ export async function loadCarousel() {
     );
   });
 
+  // ===============================
+  // CLEAR UPCOMING
+  // ===============================
   upcomingCarousel.innerHTML = "";
 
   // ===============================
-// ENDING CAMPAIGNS (Next 3 Days)
-// ===============================
-const endingRows = [];
+  // ENDING CAMPAIGNS (Next 3 Days)
+  // ===============================
+  const endingRows = [];
 
-for (const tableName in allTables) {
-  if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+  for (const tableName in allTables) {
+    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
 
-  const formattedName = tableName
-    .replace(/^d_|^s_/, "")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, c => c.toUpperCase());
+    const formattedName = tableName
+      .replace(/^d_|^s_/, "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
 
-  Object.values(allTables[tableName]).forEach(r => {
-    if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
+    Object.values(allTables[tableName]).forEach(r => {
+      if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
 
-    const end = r["End Date"];
-    if (!isEndingWithin3Days(end)) return;
+      const end = r["End Date"];
+      if (!isEndingWithin3Days(end)) return;
 
-    // 🔹 Location logic
-    let locationName = formattedName;
+      let locationName = formattedName;
 
-    // If Static table → add Circuit
-    if (tableName.startsWith("s_") && r["Circuit"]) {
-      locationName = `${formattedName} ${r["Circuit"]}`;
-    }
+      if (tableName.startsWith("s_") && r["Circuit"]) {
+        locationName = `${formattedName} ${r["Circuit"]}`;
+      }
 
-    endingRows.push({
-      Client: r.Client ?? "—",
-      Location: locationName,
-      "End Date": end
+      endingRows.push({
+        Client: r.Client ?? "—",
+        Location: locationName,
+        "End Date": end
+      });
     });
+  }
+
+  endingRows.sort((a, b) => {
+    const parse = d => {
+      const [day, mmm, year] = d.split("-");
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      return new Date(year, months.indexOf(mmm), day);
+    };
+    return parse(a["End Date"]) - parse(b["End Date"]);
   });
-}
 
-// ✅ SORT: older → newer
-endingRows.sort((a, b) => {
-  const parse = d => {
-    const [day, mmm, year] = d.split("-");
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    return new Date(year, months.indexOf(mmm), day);
-  };
-
-  return parse(a["End Date"]) - parse(b["End Date"]);
-});
-
-if (endingRows.length) {
-  upcomingCarousel.appendChild(
-    createCard(
-      "Ending Campaigns (Next 3 Days)",
-      Object.fromEntries(endingRows.map((r, i) => [i, r])),
-      ["Client", "Location", "End Date"],
-      ["End Date"]
-    )
-  );
-} else {
-  const msg = document.createElement("div");
-  msg.textContent = "No Ending Campaigns";
-  msg.classList.add("no-data-message");
-  upcomingCarousel.appendChild(msg);
-}
+  if (endingRows.length) {
+    upcomingCarousel.appendChild(
+      createCard(
+        "Ending Campaigns (Next 3 Days)",
+        Object.fromEntries(endingRows.map((r, i) => [i, r])),
+        ["Client", "Location", "End Date"],
+        ["End Date"]
+      )
+    );
+  } else {
+    const msg = document.createElement("div");
+    msg.textContent = "No Ending Campaigns";
+    msg.classList.add("no-data-message");
+    upcomingCarousel.appendChild(msg);
+  }
 
   // ===============================
-  // Upcoming Campaigns Section
+  // UPCOMING CAMPAIGNS
   // ===============================
   const upcomingRows = [];
 
@@ -452,13 +479,11 @@ if (endingRows.length) {
     });
   }
 
-  
   if (upcomingRows.length > 0) {
-    const dataObj = Object.fromEntries(upcomingRows.map((r, i) => [i, r]));
     upcomingCarousel.appendChild(
       createCard(
         "Upcoming Campaigns",
-        dataObj,
+        Object.fromEntries(upcomingRows.map((r, i) => [i, r])),
         ["Client", "Location", "Circuit", "Start Date"],
         ["Start Date"]
       )
@@ -469,7 +494,6 @@ if (endingRows.length) {
     msg.classList.add("no-data-message");
     upcomingCarousel.appendChild(msg);
   }
-
 }
 
 
