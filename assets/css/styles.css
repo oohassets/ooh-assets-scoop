@@ -581,15 +581,10 @@ body.no-scroll {
 
 .carousel > :last-child:nth-child(odd) {
   grid-column: span 2;
-  justify-self: center;
+  justify-self: left;
   max-width: 600px;
 }
 
-@media (max-width: 768px) {
-  .carousel {
-    grid-template-columns: 1fr; /* stack */
-  }
-}
 
 .card {
   background: #ffffff;
