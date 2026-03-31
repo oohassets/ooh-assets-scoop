@@ -292,11 +292,11 @@ export async function loadCarousel() {
 
     if (name.includes("monoprix")) return 7;
 
-    if (name.includes("crystal walk") && name.includes("1")) return 9;
-    if (name.includes("crystal walk") && name.includes("2")) return 10;
+    if (name.includes("crystal walk") && name.includes("1")) return 8;
+    if (name.includes("crystal walk") && name.includes("2")) return 9;
 
-    if (name.includes("residential") && name.includes("1")) return 11;
-    if (name.includes("residential") && name.includes("2")) return 12;
+    if (name.includes("residential") && name.includes("1")) return 10;
+    if (name.includes("residential") && name.includes("2")) return 11;
 
     return 999;
   };
