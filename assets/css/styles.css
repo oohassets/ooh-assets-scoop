@@ -115,6 +115,7 @@
   .card {
     width: fit-content;
     max-width: 320px !important;
+    grid-template-columns: repeat(1, 1fr); /* ✅ 2 columns */
   }
 
   #carouselPublishToday .card {
