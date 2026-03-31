@@ -281,19 +281,17 @@ export async function loadCarousel() {
   const getOrder = (name) => {
     name = name.toLowerCase().replace(/_/g, " ");
 
-    // ===== TPI =====
     if (name.includes("underpass in")) return 1;
     if (name.includes("underpass out")) return 2;
 
-    if (name.includes("mupi") && name.includes("1")) return 3;
-    if (name.includes("mupi") && name.includes("2")) return 4;
+    if (name.includes("mupi") && name.includes("circuit 1")) return 3;
+    if (name.includes("mupi") && name.includes("circuit 2")) return 4;
 
     if (name.includes("udc tower")) return 5;
     if (name.includes("qanat quartier")) return 6;
 
     if (name.includes("monoprix")) return 7;
 
-    // ===== Gewan =====
     if (name.includes("crystal walk") && name.includes("1")) return 8;
     if (name.includes("crystal walk") && name.includes("2")) return 9;
 
