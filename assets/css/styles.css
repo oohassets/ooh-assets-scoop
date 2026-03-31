@@ -212,15 +212,23 @@
 body::before {
   content: "";
   position: fixed;
+  inset: 0;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url("https://oohassets.github.io/ooh-assets-scoop/images/thepearlisland.jpg");
+  background:
+    linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),  /* overlay */
+    url("https://oohassets.github.io/ooh-assets-scoop/images/thepearlisland.jpg");
+
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: -1; /* behind all content */
+
+  filter: blur(10px);              /* ✅ ADD THIS */
+  transform: scale(1.05);          /* ✅ Prevent blur edges cut */
+  
+  z-index: -1;
 }
 
 body {
