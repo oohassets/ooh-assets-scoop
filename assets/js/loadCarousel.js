@@ -292,11 +292,11 @@ export async function loadCarousel() {
 
     if (name.includes("monoprix")) return 7;
 
-    if (name.includes("crystal walk") && name.includes("1")) return 8;
-    if (name.includes("crystal walk") && name.includes("2")) return 9;
+    if (name.includes("crystal walk") && name.includes("1")) return 9;
+    if (name.includes("crystal walk") && name.includes("2")) return 10;
 
-    if (name.includes("residential") && name.includes("1")) return 10;
-    if (name.includes("residential") && name.includes("2")) return 11;
+    if (name.includes("residential") && name.includes("1")) return 11;
+    if (name.includes("residential") && name.includes("2")) return 12;
 
     return 999;
   };
@@ -326,60 +326,7 @@ export async function loadCarousel() {
   };
 
   // Apply sorting
-  // ===============================
-  // Dynamic grouping + sorting
-  // ===============================
-  const normalize = (name) =>
-    name.toLowerCase().replace(/^d_/, "").replace(/_/g, " ").trim();
-
-  const getGroupKey = (name) => {
-    name = normalize(name);
-
-    // remove pairing keywords
-    return name
-      .replace(/\b(in|out)\b/g, "")
-      .replace(/\b(circuit\s*\d+)\b/g, "")
-      .replace(/\b(\d+)\b/g, "")
-      .trim();
-  };
-
-  const getSubOrder = (name) => {
-    name = normalize(name);
-
-    if (name.includes("in")) return 1;
-    if (name.includes("out")) return 2;
-
-    const match = name.match(/(\d+)/);
-    if (match) return parseInt(match[1]);
-
-    return 0; // single items
-  };
-
-  // ===============================
-  // GROUP tables
-  // ===============================
-  const grouped = {};
-
-  digitalTables.forEach(table => {
-    const key = getGroupKey(table);
-
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(table);
-  });
-
-  // ===============================
-  // SORT groups + items
-  // ===============================
-  const orderedTables = Object.keys(grouped)
-    .sort((a, b) => a.localeCompare(b)) // group order (A-Z, can tweak)
-    .flatMap(group =>
-      grouped[group].sort((a, b) => getSubOrder(a) - getSubOrder(b))
-    );
-
-  // replace original
-  digitalTables.length = 0;
-  digitalTables.push(...orderedTables);
-
+  digitalTables.sort((a, b) => getOrder(a) - getOrder(b));
   staticTables.sort((a, b) => getStaticOrder(a) - getStaticOrder(b));
 
   // ===============================
