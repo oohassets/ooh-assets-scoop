@@ -317,7 +317,9 @@ export async function loadCarousel() {
   };
 
   const getStaticOrder = (name) => {
-    name = name.toLowerCase();
+    // Remove prefix & normalize
+    name = name.replace(/^s_/, "").replace(/_/g, " ").toLowerCase();
+
     // ===== Light Poles =====
     if (name.includes("light poles main entrance")) return 1;
     if (name.includes("light poles main boulevard")) return 2;
@@ -334,6 +336,7 @@ export async function loadCarousel() {
     // ===== Others =====
     if (name.includes("arcade porto arabia retail")) return 8;
     if (name.includes("senior medina centrale")) return 9;
+
     return 999;
   };
 
