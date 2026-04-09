@@ -346,8 +346,11 @@ export async function loadCarousel() {
   tpiCarousel.innerHTML = "";
   gewanCarousel.innerHTML = "";
 
-  tpiTables.forEach(t => renderCard(t, digitalCarousel));
-  gewanTables.forEach(t => renderCard(t, digitalCarousel));
+  // Render TPI in its own carousel
+  tpiTables.forEach(t => renderCard(t, tpiCarousel));
+
+  // Render Gewan in its own carousel
+  gewanTables.forEach(t => renderCard(t, gewanCarousel));
 
   // ===============================
   // STATIC
