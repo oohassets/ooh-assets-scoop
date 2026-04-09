@@ -265,7 +265,9 @@ export async function loadCarousel() {
     const rows = Array.isArray(data) ? data : Object.values(data);
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
-    const validRows = rows.filter(row => row && typeof row === "object");
+    const validRows = rows.filter(
+      row => row && typeof row === "object" && !Array.isArray(row)
+    );
 
     validRows.forEach(row => {
       columns.forEach(col => {
@@ -325,8 +327,6 @@ export async function loadCarousel() {
 
   tpiTables.forEach(t => renderCard(t, digitalCarousel));
   gewanTables.forEach(t => renderCard(t, digitalCarousel));
-
-  staticCarousel.innerHTML = "";
 
   // ===============================
   // STATIC
