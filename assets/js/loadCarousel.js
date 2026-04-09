@@ -46,7 +46,7 @@ function formatDateDDMMMYYYY(value) {
 }
 
 // ===============================
-// Convert JSON → HTML table with optional highlighting
+// Convert JSON → HTML table
 // ===============================
 function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   if (!dataObj || Object.keys(dataObj).length === 0) return "<p>No data</p>";
@@ -54,13 +54,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  let html = `
-    <table class="json-table">
-      <thead>
-        <tr>${columns.map(col => `<th>${col}</th>`).join("")}</tr>
-      </thead>
-      <tbody>
-  `;
+  let html = `<table class="json-table"><thead><tr>${columns.map(col => `<th>${col}</th>`).join("")}</tr></thead><tbody>`;
 
   for (const rowKey in dataObj) {
     const row = dataObj[rowKey] || {};
@@ -70,7 +64,6 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
       let cellValue = row[field] ?? "—";
       let className = "";
 
-      // Convert to Date for highlighting
       let match = cellValue.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
       let numericDate = null;
 
@@ -84,17 +77,12 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
         numericDate.setHours(0,0,0,0);
       }
 
-      // ===== Start Date highlight =====
-      if (field === "Start Date" && numericDate) {
-        if (numericDate.getTime() === today.getTime()) {
-          className = "date-today";
-        }
+      if (field === "Start Date" && numericDate && numericDate.getTime() === today.getTime()) {
+        className = "date-today";
       }
 
-      // ===== End Date highlight =====
-      if (highlightColumns.includes(field) && className === "" && numericDate) {
-        const diff = (numericDate - today) / (1000 * 60 * 60 * 24);
-
+      if (highlightColumns.includes(field) && !className && numericDate) {
+        const diff = (numericDate - today) / 86400000;
         if (diff === 0) className = "date-today";
         else if (diff === 1) className = "date-tomorrow";
         else if (diff > 1 && diff <= 7) className = "date-week";
@@ -112,8 +100,6 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
 }
 
 // ===============================
-// Create Card
-// ===============================
 function createCard(title, data, columns, highlightColumns = []) {
   const card = document.createElement("div");
   card.className = "card";
@@ -128,93 +114,6 @@ function createCard(title, data, columns, highlightColumns = []) {
 }
 
 // ===============================
-// TODAY Campaign Logs Section
-// ===============================
-function publishCampaignToday(allTables) {
-  const todayCarousel = document.getElementById("carouselPublishToday");
-  if (!todayCarousel) return;
-
-  todayCarousel.replaceChildren();
-
-  const logs = allTables["Campaign_Logs"];
-  if (!logs) {
-    showNoData(todayCarousel);
-    return;
-  }
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const rows = Array.isArray(logs) ? logs : Object.values(logs);
-
-  const publishedSet = new Map();
-  const removedSet = new Map();
-
-  rows.forEach(row => {
-    if (!row?.Date || !row?.Type) return;
-
-    const formattedLogDate = formatDateDDMMMYYYY(row.Date);
-    if (formattedLogDate === "—") return;
-
-    const [d, mmm, y] = formattedLogDate.split("-");
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const m = months.indexOf(mmm);
-
-    const logDate = new Date(y, m, d);
-    logDate.setHours(0, 0, 0, 0);
-
-    if (logDate.getTime() !== today.getTime()) return;
-
-    const client = row.Client ?? "—";
-    const location = row.Location ?? "—";
-    const key = `${client}|${location}`;
-
-    const record = { Client: client, Location: location };
-
-    if (row.Type === "Add") publishedSet.set(key, record);
-    if (row.Type === "Removed") removedSet.set(key, record);
-  });
-
-  let hasData = false;
-
-  // ===== ONE Published Card =====
-  if (publishedSet.size > 0) {
-    hasData = true;
-
-    const sortedPublished = [...publishedSet.values()]
-      .sort((a, b) => a.Client.localeCompare(b.Client));
-
-    const publishedCard = createCard(
-      "Campaign Published Today",
-      Object.fromEntries(sortedPublished.map((r, i) => [i, r])),
-      ["Client", "Location"]
-    );
-
-    publishedCard.classList.add("published-card");
-    todayCarousel.appendChild(publishedCard);
-  }
-
-  // ===== ONE Removed Card =====
-  if (removedSet.size > 0) {
-    hasData = true;
-
-    const sortedRemoved = [...removedSet.values()]
-      .sort((a, b) => a.Client.localeCompare(b.Client));
-
-    const removedCard = createCard(
-      "Campaign Removed Today",
-      Object.fromEntries(sortedRemoved.map((r, i) => [i, r])),
-      ["Client", "Location"]
-    );
-
-    removedCard.classList.add("removed-card");
-    todayCarousel.appendChild(removedCard);
-  }
-
-  if (!hasData) showNoData(todayCarousel);
-}
-
-// 🔁 Helper
 function showNoData(container) {
   const msg = document.createElement("div");
   msg.textContent = "No Campaign Published and Removed Today";
@@ -222,37 +121,30 @@ function showNoData(container) {
   container.appendChild(msg);
 }
 
-  // ===============================
-  // Check if date is ending within next 3 days
-  // Expects format: DD-MMM-YYYY
-  // ===============================
-  function isEndingWithin3Days(formattedDate) {
-    if (!formattedDate || formattedDate === "—") return false;
-
-    const match = formattedDate.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
-    if (!match) return false;
-
-    const d = parseInt(match[1], 10);
-    const mmm = match[2];
-    const y = parseInt(match[3], 10);
-
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const m = months.indexOf(mmm);
-    if (m === -1) return false;
-
-    const endDate = new Date(y, m, d);
-    endDate.setHours(0, 0, 0, 0);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const diff = (endDate - today) / 86400000;
-    return diff >= 0 && diff <= 3;
-  }
-
-
 // ===============================
-// Load Carousel
+function isEndingWithin3Days(formattedDate) {
+  if (!formattedDate || formattedDate === "—") return false;
+
+  const match = formattedDate.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+  if (!match) return false;
+
+  const d = parseInt(match[1]);
+  const mmm = match[2];
+  const y = parseInt(match[3]);
+
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const m = months.indexOf(mmm);
+
+  const endDate = new Date(y, m, d);
+  endDate.setHours(0,0,0,0);
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const diff = (endDate - today) / 86400000;
+  return diff >= 0 && diff <= 3;
+}
+
 // ===============================
 export async function loadCarousel() {
   const digitalCarousel = document.getElementById("carouselDigital");
@@ -261,32 +153,25 @@ export async function loadCarousel() {
 
   const allTables = await loadAllTables();
 
-  // Today Campaigns
   publishCampaignToday(allTables);
 
-  // ===============================
-  // Separate table names
-  // ===============================
   const digitalTables = [];
   const staticTables = [];
-
-  const tpiTables = [];
-  const gewanTables = [];
-
-  digitalTables.forEach(name => {
-    const cleanName = name.toLowerCase();
-
-    if (cleanName.includes("gewan")) {
-      gewanTables.push(name);
-    } else {
-      tpiTables.push(name);
-    }
-  });
 
   for (const tableName in allTables) {
     if (tableName.startsWith("d_")) digitalTables.push(tableName);
     else if (tableName.startsWith("s_")) staticTables.push(tableName);
   }
+
+  // ✅ FIXED POSITION (after digitalTables filled)
+  const tpiTables = [];
+  const gewanTables = [];
+
+  digitalTables.forEach(name => {
+    const cleanName = name.toLowerCase();
+    if (cleanName.includes("gewan")) gewanTables.push(name);
+    else tpiTables.push(name);
+  });
 
   const renderCard = (tableName, container) => {
     const data = allTables[tableName];
@@ -298,9 +183,7 @@ export async function loadCarousel() {
     const rows = Array.isArray(data) ? data : Object.values(data);
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
-    const validRows = rows.filter(
-      row => row && typeof row === "object" && !Array.isArray(row)
-    );
+    const validRows = rows.filter(row => row && typeof row === "object");
 
     validRows.forEach(row => {
       columns.forEach(col => {
@@ -310,14 +193,11 @@ export async function loadCarousel() {
       });
     });
 
-    if (validRows.length === 0) return;
+    if (!validRows.length) return;
 
     container.appendChild(
       createCard(
-        tableName
-          .replace(/^d_/, "")
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, c => c.toUpperCase()),
+        tableName.replace(/^d_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
         Object.fromEntries(validRows.map((r, i) => [i, r])),
         columns,
         highlightCols
@@ -325,88 +205,46 @@ export async function loadCarousel() {
     );
   };
 
-
-  // ===============================
-  // Custom Order Logic
-  // ===============================
   const getTPIOrder = (name) => {
-    name = name.toLowerCase().replace(/_/g, " ");
-
+    name = name.toLowerCase();
     if (name.includes("underpass in")) return 1;
     if (name.includes("underpass out")) return 2;
-
-    if (name.includes("mupi") && name.includes("circuit 1")) return 3;
-    if (name.includes("mupi") && name.includes("circuit 2")) return 4;
-
+    if (name.includes("circuit 1")) return 3;
+    if (name.includes("circuit 2")) return 4;
     if (name.includes("udc tower")) return 5;
     if (name.includes("qanat quartier")) return 6;
-
     if (name.includes("monoprix")) return 7;
-
     return 999;
   };
 
   const getGewanOrder = (name) => {
-    name = name.toLowerCase().replace(/_/g, " ");
-
+    name = name.toLowerCase();
     if (name.includes("crystal walk") && name.includes("1")) return 1;
     if (name.includes("crystal walk") && name.includes("2")) return 2;
-
     if (name.includes("residential") && name.includes("1")) return 3;
     if (name.includes("residential") && name.includes("2")) return 4;
-
     return 999;
   };
 
-    const getStaticOrder = (name) => {
-    name = name.toLowerCase().replace(/_/g, " ");
-
-    // ===== Light Poles =====
-    if (name.includes("light poles main entrance")) return 1;
-    if (name.includes("light poles main boulevard")) return 2;
-
-    if (name.includes("light poles porto arabia drive")) return 3;
-    if (name.includes("light poles medina centrale")) return 4;
-
-    if (name.includes("light poles porto arabia boardwalk")) return 5;
-    if (name.includes("light poles viva bahriya boardwalk")) return 6;
-
-    // ===== MUPI =====
-    if (name.includes("mupi medina centrale")) return 7;
-    if (name.includes("mupi porto arabia boardwalk")) return 8;
-
-    // ===== Others =====
-    if (name.includes("arcade porto arabia retail")) return 9;
-    if (name.includes("senior medina centrale")) return 10;
-
+  const getStaticOrder = (name) => {
+    name = name.toLowerCase();
+    if (name.includes("main entrance")) return 1;
+    if (name.includes("main boulevard")) return 2;
+    if (name.includes("porto arabia drive")) return 3;
+    if (name.includes("medina centrale")) return 4;
     return 999;
   };
 
-  // Apply sorting
   tpiTables.sort((a, b) => getTPIOrder(a) - getTPIOrder(b));
   gewanTables.sort((a, b) => getGewanOrder(a) - getGewanOrder(b));
   staticTables.sort((a, b) => getStaticOrder(a) - getStaticOrder(b));
 
-  // ===============================
-  // DIGITAL
-  // ===============================
   digitalCarousel.innerHTML = "";
 
-  // TPI FIRST
-  tpiTables.forEach(tableName => {
-    renderCard(tableName, digitalCarousel);
-  });
+  tpiTables.forEach(t => renderCard(t, digitalCarousel));
+  gewanTables.forEach(t => renderCard(t, digitalCarousel));
 
-  // GEWAN SECOND
-  gewanTables.forEach(tableName => {
-    renderCard(tableName, digitalCarousel);
-  });
-
-  const tpiTables = [];
-  const gewanTables = [];
-
-
-
+  staticCarousel.innerHTML = "";
 
   // ===============================
   // STATIC
