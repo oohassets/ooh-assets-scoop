@@ -291,7 +291,6 @@ export async function loadCarousel() {
   };
 
   const getTPIOrder = (name) => {
-    name = name.toLowerCase();
     name = name.toLowerCase().replace(/_/g, " ");
 
     if (name.includes("underpass in")) return 1;
