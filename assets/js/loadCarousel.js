@@ -145,6 +145,88 @@ function isEndingWithin3Days(formattedDate) {
   return diff >= 0 && diff <= 3;
 }
 
+  function publishCampaignToday(allTables) {
+    const todayCarousel = document.getElementById("carouselPublishToday");
+    if (!todayCarousel) return;
+
+    todayCarousel.replaceChildren();
+
+    const logs = allTables["Campaign_Logs"];
+    if (!logs) {
+      showNoData(todayCarousel);
+      return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const rows = Array.isArray(logs) ? logs : Object.values(logs);
+
+    const publishedSet = new Map();
+    const removedSet = new Map();
+
+    rows.forEach(row => {
+      if (!row?.Date || !row?.Type) return;
+
+      const formattedLogDate = formatDateDDMMMYYYY(row.Date);
+      if (formattedLogDate === "—") return;
+
+      const [d, mmm, y] = formattedLogDate.split("-");
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const m = months.indexOf(mmm);
+
+      const logDate = new Date(y, m, d);
+      logDate.setHours(0, 0, 0, 0);
+
+      if (logDate.getTime() !== today.getTime()) return;
+
+      const client = row.Client ?? "—";
+      const location = row.Location ?? "—";
+      const key = `${client}|${location}`;
+
+      const record = { Client: client, Location: location };
+
+      if (row.Type === "Add") publishedSet.set(key, record);
+      if (row.Type === "Removed") removedSet.set(key, record);
+    });
+
+    let hasData = false;
+
+    if (publishedSet.size > 0) {
+      hasData = true;
+
+      const sortedPublished = [...publishedSet.values()]
+        .sort((a, b) => a.Client.localeCompare(b.Client));
+
+      const publishedCard = createCard(
+        "Campaign Published Today",
+        Object.fromEntries(sortedPublished.map((r, i) => [i, r])),
+        ["Client", "Location"]
+      );
+
+      publishedCard.classList.add("published-card");
+      todayCarousel.appendChild(publishedCard);
+    }
+
+    if (removedSet.size > 0) {
+      hasData = true;
+
+      const sortedRemoved = [...removedSet.values()]
+        .sort((a, b) => a.Client.localeCompare(b.Client));
+
+      const removedCard = createCard(
+        "Campaign Removed Today",
+        Object.fromEntries(sortedRemoved.map((r, i) => [i, r])),
+        ["Client", "Location"]
+      );
+
+      removedCard.classList.add("removed-card");
+      todayCarousel.appendChild(removedCard);
+    }
+
+    if (!hasData) showNoData(todayCarousel);
+  }
+
 // ===============================
 export async function loadCarousel() {
   const digitalCarousel = document.getElementById("carouselDigital");
