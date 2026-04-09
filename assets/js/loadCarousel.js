@@ -270,15 +270,66 @@ export async function loadCarousel() {
   const digitalTables = [];
   const staticTables = [];
 
+  const tpiTables = [];
+  const gewanTables = [];
+
+  digitalTables.forEach(name => {
+    const cleanName = name.toLowerCase();
+
+    if (cleanName.includes("gewan")) {
+      gewanTables.push(name);
+    } else {
+      tpiTables.push(name);
+    }
+  });
+
   for (const tableName in allTables) {
     if (tableName.startsWith("d_")) digitalTables.push(tableName);
     else if (tableName.startsWith("s_")) staticTables.push(tableName);
   }
 
+  const renderCard = (tableName, container) => {
+    const data = allTables[tableName];
+    if (!data) return;
+
+    const columns = ["SN", "Client", "Start Date", "End Date"];
+    const highlightCols = ["End Date"];
+
+    const rows = Array.isArray(data) ? data : Object.values(data);
+    const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
+
+    const validRows = rows.filter(
+      row => row && typeof row === "object" && !Array.isArray(row)
+    );
+
+    validRows.forEach(row => {
+      columns.forEach(col => {
+        row[col] = dateCols.includes(col)
+          ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
+          : (row[col] ?? "—");
+      });
+    });
+
+    if (validRows.length === 0) return;
+
+    container.appendChild(
+      createCard(
+        tableName
+          .replace(/^d_/, "")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, c => c.toUpperCase()),
+        Object.fromEntries(validRows.map((r, i) => [i, r])),
+        columns,
+        highlightCols
+      )
+    );
+  };
+
+
   // ===============================
   // Custom Order Logic
   // ===============================
-  const getOrder = (name) => {
+  const getTPIOrder = (name) => {
     name = name.toLowerCase().replace(/_/g, " ");
 
     if (name.includes("underpass in")) return 1;
@@ -292,11 +343,17 @@ export async function loadCarousel() {
 
     if (name.includes("monoprix")) return 7;
 
-    if (name.includes("crystal walk") && name.includes("1")) return 8;
-    if (name.includes("crystal walk") && name.includes("2")) return 9;
+    return 999;
+  };
 
-    if (name.includes("residential") && name.includes("1")) return 10;
-    if (name.includes("residential") && name.includes("2")) return 11;
+  const getGewanOrder = (name) => {
+    name = name.toLowerCase().replace(/_/g, " ");
+
+    if (name.includes("crystal walk") && name.includes("1")) return 1;
+    if (name.includes("crystal walk") && name.includes("2")) return 2;
+
+    if (name.includes("residential") && name.includes("1")) return 3;
+    if (name.includes("residential") && name.includes("2")) return 4;
 
     return 999;
   };
@@ -326,7 +383,8 @@ export async function loadCarousel() {
   };
 
   // Apply sorting
-  digitalTables.sort((a, b) => getOrder(a) - getOrder(b));
+  tpiTables.sort((a, b) => getTPIOrder(a) - getTPIOrder(b));
+  gewanTables.sort((a, b) => getGewanOrder(a) - getGewanOrder(b));
   staticTables.sort((a, b) => getStaticOrder(a) - getStaticOrder(b));
 
   // ===============================
@@ -334,43 +392,21 @@ export async function loadCarousel() {
   // ===============================
   digitalCarousel.innerHTML = "";
 
-  digitalTables.forEach(tableName => {
-    const data = allTables[tableName];
-    if (!data) return;
-
-    const columns = ["SN", "Client", "Start Date", "End Date"];
-    const highlightCols = ["End Date"];
-
-    const rows = Array.isArray(data) ? data : Object.values(data);
-
-    const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
-
-    const validRows = rows.filter(
-      row => row && typeof row === "object" && !Array.isArray(row)
-    );
-
-    validRows.forEach(row => {
-      columns.forEach(col => {
-        row[col] = dateCols.includes(col)
-          ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
-          : (row[col] ?? "—");
-      });
-    });
-
-    if (validRows.length === 0) return;
-
-    digitalCarousel.appendChild(
-      createCard(
-        tableName
-          .replace(/^d_/, "")
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, c => c.toUpperCase()),
-        Object.fromEntries(validRows.map((r, i) => [i, r])),
-        columns,
-        highlightCols
-      )
-    );
+  // TPI FIRST
+  tpiTables.forEach(tableName => {
+    renderCard(tableName, digitalCarousel);
   });
+
+  // GEWAN SECOND
+  gewanTables.forEach(tableName => {
+    renderCard(tableName, digitalCarousel);
+  });
+
+  const tpiTables = [];
+  const gewanTables = [];
+
+
+
 
   // ===============================
   // STATIC
