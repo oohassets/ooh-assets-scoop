@@ -291,12 +291,17 @@ export async function loadCarousel() {
 
   const getTPIOrder = (name) => {
     name = name.toLowerCase();
+    name = name.toLowerCase().replace(/_/g, " ");
+
     if (name.includes("underpass in")) return 1;
     if (name.includes("underpass out")) return 2;
-    if (name.includes("circuit 1")) return 3;
-    if (name.includes("circuit 2")) return 4;
+
+    if (name.includes("mupi") && name.includes("circuit 1")) return 3;
+    if (name.includes("mupi") && name.includes("circuit 2")) return 4;
+
     if (name.includes("udc tower")) return 5;
     if (name.includes("qanat quartier")) return 6;
+
     if (name.includes("monoprix")) return 7;
     return 999;
   };
@@ -305,6 +310,7 @@ export async function loadCarousel() {
     name = name.toLowerCase();
     if (name.includes("crystal walk") && name.includes("1")) return 1;
     if (name.includes("crystal walk") && name.includes("2")) return 2;
+
     if (name.includes("residential") && name.includes("1")) return 3;
     if (name.includes("residential") && name.includes("2")) return 4;
     return 999;
@@ -312,10 +318,22 @@ export async function loadCarousel() {
 
   const getStaticOrder = (name) => {
     name = name.toLowerCase();
-    if (name.includes("main entrance")) return 1;
-    if (name.includes("main boulevard")) return 2;
-    if (name.includes("porto arabia drive")) return 3;
-    if (name.includes("medina centrale")) return 4;
+    // ===== Light Poles =====
+    if (name.includes("light poles main entrance")) return 1;
+    if (name.includes("light poles main boulevard")) return 2;
+
+    if (name.includes("light poles porto arabia drive")) return 3;
+    if (name.includes("light poles medina centrale")) return 4;
+
+    if (name.includes("light poles porto arabia boardwalk")) return 5;
+    if (name.includes("light poles viva bahriya boardwalk")) return 6;
+
+    // ===== MUPI =====
+    if (name.includes("mupi porto arabia boardwalk")) return 7;
+
+    // ===== Others =====
+    if (name.includes("arcade porto arabia retail")) return 8;
+    if (name.includes("senior medina centrale")) return 9;
     return 999;
   };
 
