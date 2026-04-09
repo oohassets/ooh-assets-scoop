@@ -307,7 +307,7 @@ export async function loadCarousel() {
   };
 
   const getGewanOrder = (name) => {
-    name = name.toLowerCase();
+    name = name.replace(/^d_/, "").replace(/_/g, " ").toLowerCase();
     if (name.includes("crystal walk") && name.includes("1")) return 1;
     if (name.includes("crystal walk") && name.includes("2")) return 2;
 
