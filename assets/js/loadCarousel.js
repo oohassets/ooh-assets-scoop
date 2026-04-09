@@ -229,7 +229,8 @@ function isEndingWithin3Days(formattedDate) {
 
 // ===============================
 export async function loadCarousel() {
-  const digitalCarousel = document.getElementById("carouselDigital");
+  const tpiCarousel = document.getElementById("carouselTPI");
+  const gewanCarousel = document.getElementById("carouselGewan");
   const staticCarousel  = document.getElementById("carouselStatic");
   const upcomingCarousel = document.getElementById("carouselUpcoming");
 
@@ -341,7 +342,9 @@ export async function loadCarousel() {
   gewanTables.sort((a, b) => getGewanOrder(a) - getGewanOrder(b));
   staticTables.sort((a, b) => getStaticOrder(a) - getStaticOrder(b));
 
-  digitalCarousel.innerHTML = "";
+  // Clear before rendering
+  tpiCarousel.innerHTML = "";
+  gewanCarousel.innerHTML = "";
 
   tpiTables.forEach(t => renderCard(t, digitalCarousel));
   gewanTables.forEach(t => renderCard(t, digitalCarousel));
