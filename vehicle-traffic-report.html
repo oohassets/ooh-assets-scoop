@@ -7,6 +7,7 @@
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <!-- Chart.js -->
@@ -14,6 +15,14 @@
 
 <!-- Icons -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<body style="display:none;">
+
+<script type="module">
+  import { requireAuth } from "./assets/js/authGuard.js";
+  requireAuth();
+</script>
+
 
 <style>
 
@@ -211,7 +220,7 @@ button:hover {
 <div class="top-bar">
   From <input type="date" class="date-modern" id="dateFrom" onchange="updateDaysCount()">
   To <input type="date" class="date-modern" id="dateTo" onchange="updateDaysCount()">
-  <button onclick="loadData()">Load</button>
+  <button id="loadBtn" onclick="loadData()" disabled>Load</button>
   <div id="daysCount">Days: -</div>
 </div>
 
@@ -234,13 +243,29 @@ button:hover {
 </div>
 
 <script>
-// Firebase
+
+/* ================= 🔥 FIREBASE ================= */
+
 const firebaseConfig = {
   apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
   databaseURL: "https://scoopassets-default-rtdb.firebaseio.com"
 };
+
 firebase.initializeApp(firebaseConfig);
-const dbRef = firebase.database().ref('vehiclecounts');
+
+const auth = firebase.auth();
+const dbRef = firebase.database().ref("vehiclecounts");
+
+/* ✅ SINGLE AUTH LISTENER */
+auth.onAuthStateChanged(user => {
+  if (user) {
+    console.log("Authenticated:", user.email);
+    document.getElementById("loadBtn").disabled = false;
+  } else {
+    window.location.href = "login.html";
+  }
+});
+
 
 const adsPerMinute = 6;
 const personPerCar = 2;
@@ -268,20 +293,39 @@ function animateKPI(progress, totals){
 
 // Days
 function updateDaysCount(){
+  const dateFrom = document.getElementById("dateFrom");
+  const dateTo = document.getElementById("dateTo");
+  const daysCount = document.getElementById("daysCount");
+
   const from = new Date(dateFrom.value);
   const to = new Date(dateTo.value);
-  if(isNaN(from)||isNaN(to)) return daysCount.innerText="Days: -";
-  const diff = Math.floor((to-from)/(1000*60*60*24))+1;
-  daysCount.innerText = "Days: "+diff;
+
+  if(isNaN(from) || isNaN(to)) {
+    daysCount.innerText = "Days: -";
+    return;
+  }
+
+  const diff = Math.floor((to - from) / (1000 * 60 * 60 * 24)) + 1;
+  daysCount.innerText = "Days: " + diff;
 }
 
 // Load
 async function loadData(){
+  const dateFrom = document.getElementById("dateFrom");
+  const dateTo = document.getElementById("dateTo");
+
   const from = new Date(dateFrom.value);
   const to = new Date(dateTo.value);
 
   const snap = await dbRef.once('value');
   const allData = snap.val();
+
+  console.log("Firebase raw data:", allData);
+
+  if (!allData) {
+    console.warn("No data found at vehiclecounts");
+    return;
+  }
 
   let tpi=[], gewan=[];
 

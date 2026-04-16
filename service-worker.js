@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v95';
+const CACHE_NAME = 'scoop-ooh-cache-v96';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -18,7 +18,7 @@ importScripts("https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"
 importScripts("https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-  apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
+  apiKey: "   ",
   authDomain: "scoopassets.firebaseapp.com",
   projectId: "scoopassets",
   storageBucket: "scoopassets.firebasestorage.app",
