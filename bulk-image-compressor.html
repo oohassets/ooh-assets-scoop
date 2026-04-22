@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bulk Image Compressor</title>
+<link rel="icon" href="images/scooplogo_black_192x192.png">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.gradient-background {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(250deg,#d70886,#57a7b0,#fa916e,#c3632a,#e482b1,#3cfdbd);
+  background-size: 400% 400%;
+  animation: gradient-animation 20s ease infinite;
+  z-index: -2;
+}
+
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  animation: float linear infinite;
+}
+
+@keyframes float {
+  from { transform: translateY(100vh); opacity: 0; }
+  10% { opacity: 1; }
+  to { transform: translateY(-10vh); opacity: 0; }
+}
+
+.container {
+  position: relative;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 700px;
+  text-align: center;
+  z-index: 1;
+}
+
+.container::before,
+.container::after { pointer-events: none; }
+
+.container::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 20px;
+  background: linear-gradient(120deg,#00c6ff,#ff00cc,#00ffcc);
+  filter: blur(20px);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+.container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(270deg,#00c6ff,#ff00cc,#00ffcc,#00c6ff);
+  background-size: 300% 300%;
+  animation: borderMove 6s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes borderMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.upload-btn, .download-all {
+  display: inline-block;
+  padding: 12px 25px;
+  border-radius: 30px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  margin: 8px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.upload-btn:hover,
+.download-all:hover {
+  box-shadow: 0 0 15px rgba(255,255,255,0.8);
+  transform: translateY(-2px);
+}
+
+.download-all {
+  background: #00c6ff;
+  display: none;
+  border: none;
+  color: #fff;
+}
+
+input[type="file"] { display: none; }
+
+.images {
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.image-item {
+  background: rgba(255,255,255,0.1);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  margin-top: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #00c6ff;
+}
+
+.image-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.download-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  background: #00c6ff;
+  border: none;
+  color: #fff;
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="gradient-background"></div>
+<div class="particles" id="particles"></div>
+
+<div class="container">
+  <h1>Bulk Image Compressor</h1>
+
+  <div>
+    <div class="upload-btn" id="uploadBtn">
+      Upload Images (<span id="count">0</span>)
+    </div>
+    <div class="download-all" id="downloadAll">
+      Download All
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" multiple accept="image/*">
+  <div class="images" id="imageList"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+// particles
+const pBox = document.getElementById('particles');
+for (let i = 0; i < 30; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.animationDuration = (5 + Math.random() * 10) + 's';
+  pBox.appendChild(p);
+}
+
+let compressed = [];
+let completed = 0;
+let total = 0;
+
+const uploadBtn = document.getElementById('uploadBtn');
+const downloadAllBtn = document.getElementById('downloadAll');
+const fileInput = document.getElementById('fileInput');
+const imageList = document.getElementById('imageList');
+const count = document.getElementById('count');
+
+uploadBtn.onclick = () => {
+  fileInput.value = '';
+  fileInput.click();
+};
+
+downloadAllBtn.onclick = async () => {
+
+  // ✅ CASE 1: 10 files or less → normal download
+  if (compressed.length <= 10) {
+    compressed.forEach(f => {
+      const a = document.createElement('a');
+      a.href = f.url;
+      a.download = f.name;
+      a.click();
+    });
+    return;
+  }
+
+  // ✅ CASE 2: More than 10 files → ZIP
+  const zip = new JSZip();
+  const folder = zip.folder("compressed-images");
+
+  for (const file of compressed) {
+    const response = await fetch(file.url);
+    const blob = await response.blob();
+    folder.file(file.name, blob);
+  }
+
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+  const zipUrl = URL.createObjectURL(zipBlob);
+
+  const a = document.createElement('a');
+  a.href = zipUrl;
+  a.download = "compressed-images.zip";
+  a.click();
+
+  URL.revokeObjectURL(zipUrl);
+};
+
+
+fileInput.onchange = e => {
+  imageList.innerHTML = '';
+  compressed = [];
+  completed = 0;
+  total = e.target.files.length;
+  count.textContent = total;
+  downloadAllBtn.style.display = 'none';
+
+  [...e.target.files].forEach((file, i) => createItem(file, i));
+};
+
+function createItem(file, i) {
+  const div = document.createElement('div');
+  div.className = 'image-item';
+  div.innerHTML = `
+    <strong>${file.name}</strong>
+    <div class="progress-bar">
+      <div class="progress-fill" id="p-${i}"></div>
+    </div>
+    <div class="image-actions">
+      <span id="s-${i}">Compressing…</span>
+      <button class="download-btn" id="d-${i}" disabled>Download</button>
+    </div>
+  `;
+  imageList.appendChild(div);
+  compress(file, i);
+}
+
+function update(i, v) {
+  document.getElementById(`p-${i}`).style.width = v + '%';
+}
+
+function compress(file, i) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+
+      let quality = 0.95;
+      const MAX = 1024 * 1024;
+
+      function loop() {
+        canvas.toBlob(blob => {
+          if (!blob) return;
+
+          if (blob.size <= MAX || quality <= 0.4) {
+            update(i, 100);
+
+            const name = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+            const url = URL.createObjectURL(blob);
+            compressed.push({ url, name });
+
+            completed++;
+            document.getElementById(`s-${i}`).textContent =
+              (blob.size / 1024).toFixed(0) + ' KB';
+
+            const btn = document.getElementById(`d-${i}`);
+            btn.disabled = false;
+            btn.onclick = () => {
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = name;
+              a.click();
+            };
+
+            if (completed === total) {
+              downloadAllBtn.style.display = 'inline-block';
+            }
+          } else {
+            quality -= 0.03;
+            update(i, quality * 100);
+            loop();
+          }
+        }, 'image/jpeg', quality);
+      }
+      loop();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
