@@ -281,9 +281,6 @@ iframe {
 
 <script>
 
-let currentMapKey = "assets-all";
-let currentMapUrl = maps["assets-all"];
-
 // MAP LIST
 const maps = {
     "assets-all": "https://www.google.com/maps/d/u/0/embed?mid=1O9QdapVXTxIAc27SDk8ELyLVISIOVB4&noprof=1&hl=en",
@@ -295,15 +292,17 @@ const maps = {
     "gewan-c2": "https://www.google.com/maps/d/u/0/embed?mid=1nPSY9CLK2ylFcBmWyf87oQrmQy7wF3A&noprof=1&hl=en"
 };
 
-// LOAD MAP FROM URL
+let currentMapKey = "assets-all";
+let currentMapUrl = maps["assets-all"]; // ✅ FIXED POSITION
 
+// COPY GOOGLE MAP LINK
 function copyGoogleMapLink() {
-
     navigator.clipboard.writeText(currentMapUrl).then(() => {
         alert("Google Map link copied!");
     });
 }
 
+// LOAD FROM URL
 function loadFromURL() {
 
     const params = new URLSearchParams(window.location.search);
@@ -314,20 +313,19 @@ function loadFromURL() {
     const vehicleFrame = document.getElementById("vehicleFrame");
     const contentInventoryFrame = document.getElementById("contentInventoryFrame");
 
-    // VEHICLE MODE
     if (page === "vehicle") {
         mapFrame.style.display = "none";
         vehicleFrame.style.display = "block";
-
         document.getElementById("vehicleTrafficLink").classList.add("active");
         return;
     }
 
-    // MAP MODE (default)
     vehicleFrame.style.display = "none";
     mapFrame.style.display = "block";
 
     if (maps[key]) {
+        currentMapKey = key;
+        currentMapUrl = maps[key];
         mapFrame.src = maps[key];
     }
 
@@ -338,11 +336,12 @@ function loadFromURL() {
 function setMap(key) {
 
     currentMapKey = key;
-    currentMapUrl = maps[key]; // 👈 store actual Google map URL
+    currentMapUrl = maps[key];
 
     const frame = document.getElementById("mapFrame");
     frame.style.display = "block";
     document.getElementById("vehicleFrame").style.display = "none";
+    document.getElementById("contentInventoryFrame").style.display = "none";
 
     frame.src = currentMapUrl;
 
@@ -354,109 +353,71 @@ function setMap(key) {
     setActive(key);
 }
 
-function copyMapLink() {
-
-    const url = new URL(window.location);
-
-    url.searchParams.set("map", currentMapKey);
-    url.searchParams.delete("page");
-
-    navigator.clipboard.writeText(url.toString()).then(() => {
-        alert("Map link copied!");
-    });
-}
-
-// ACTIVE STATE HANDLER
+// ACTIVE STATE
 function setActive(key) {
-
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
 
-    const matchMap = document.querySelector(`[data-map="${key}"]`);
-    if (matchMap) {
-        matchMap.classList.add("active");
-        const parent = matchMap.closest(".dropdown-parent")?.querySelector(".nav-link");
+    const match = document.querySelector(`[data-map="${key}"]`);
+    if (match) {
+        match.classList.add("active");
+        const parent = match.closest(".dropdown-parent")?.querySelector(".nav-link");
         if (parent) parent.classList.add("active");
     }
-
-    // Vehicle Traffic Report active detection removed (handled by URL)
 }
 
+// CONTENT INVENTORY
 function openContentInventory() {
 
-    // hide map
     document.getElementById("mapFrame").style.display = "none";
-
-    // show content inventory
+    document.getElementById("vehicleFrame").style.display = "none";
     document.getElementById("contentInventoryFrame").style.display = "block";
 
-    // active state
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("contentInventoryLink").classList.add("active");
 
-    // IMPORTANT: remove map param
     const url = new URL(window.location);
     url.searchParams.delete("map");
     url.searchParams.set("page", "content-inventory");
     window.history.pushState({}, "", url);
 }
 
+// VEHICLE REPORT
 function openVehicleReport() {
 
-    // hide map
     document.getElementById("mapFrame").style.display = "none";
-
-    // show vehicle
+    document.getElementById("contentInventoryFrame").style.display = "none";
     document.getElementById("vehicleFrame").style.display = "block";
 
-    // active state
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("vehicleTrafficLink").classList.add("active");
 
-    // IMPORTANT: remove map param
     const url = new URL(window.location);
     url.searchParams.delete("map");
     url.searchParams.set("page", "vehicle");
     window.history.pushState({}, "", url);
 }
 
-// URL-BASED ACTIVE STATE (for external page)
-function setActiveByURL() {
-    const url = window.location.href;
+// ------------------
+// ✅ MOBILE FIXES
+// ------------------
 
-    const vehicleLink = document.getElementById("vehicleTrafficLink");
-
-    if (url.includes("vehicle-traffic-report.html")) {
-        vehicleLink.classList.add("active");
-    }
-
-    const contentInventoryLink = document.getElementById("contentInventoryLink");
-
-    if (url.includes("index.html")) {
-        contentInventoryLink.classList.add("active");
-    } else {
-        contentInventoryLink.classList.remove("active");
-    }
-}
-
-// MOBILE MENU TOGGLE
 const hamburger = document.getElementById("hamburger");
 const navMenu = document.getElementById("navMenu");
 
+// TOGGLE MENU
 hamburger.addEventListener("click", () => {
     navMenu.classList.toggle("active");
 });
 
-// MOBILE DROPDOWN TOGGLE
+// DROPDOWN FIX
 document.querySelectorAll(".dropdown-parent > .nav-link").forEach(link => {
     link.addEventListener("click", function (e) {
 
-        // Only apply on mobile
         if (window.innerWidth <= 768) {
-            e.preventDefault(); // stop map switching on first click
+            e.preventDefault();
 
             const parent = this.parentElement;
 
-            // close others
             document.querySelectorAll(".dropdown-parent").forEach(item => {
                 if (item !== parent) item.classList.remove("open");
             });
@@ -466,6 +427,7 @@ document.querySelectorAll(".dropdown-parent > .nav-link").forEach(link => {
     });
 });
 
+// AUTO CLOSE MENU
 document.querySelectorAll(".nav-link, .dropdown a").forEach(item => {
     item.addEventListener("click", () => {
         if (window.innerWidth <= 768) {
@@ -476,7 +438,6 @@ document.querySelectorAll(".nav-link, .dropdown a").forEach(item => {
 
 // INIT
 loadFromURL();
-setActiveByURL();
 
 </script>
 </body>
