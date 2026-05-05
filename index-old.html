@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOOP OOH Assets</title>
+
+<script type="module">
+  import { requireAuth } from "./assets/js/authGuard.js";
+  requireAuth();
+</script>
+
+<link rel="stylesheet" href="./assets/css/styles.css">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="images/scooplogo_black_192x192.png">
+<link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_180x180.png">
+  
+<meta name="theme-color" content="#ffffff">
+<meta name="background-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SCOOP OOH">
+<meta name="application-name" content="SCOOP OOH">
+<meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+  
+</head>
+<body>
+
+<!-- Splash Screen -->
+<div id="splash-screen">
+  <div class="splash-content">
+
+    <img src="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_white.png" 
+      id="splash-logo" 
+      class="splash-logo" 
+      alt="Logo">
+
+    <h1 class="hero-title">
+      Manage OOH Assets Smarter
+    </h1>
+
+    <p class="hero-sub">
+      Track, monitor, and control your digital screens in one place
+    </p>
+
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container" style="display:none;">
+
+  <!-- Logo -->
+  <div class="title-container">
+    <img src="images/scooplogo_white.png" class="logo" alt="SCOOP Logo">
+  </div>
+
+<!-- TPI Carousel -->
+<div class="carousel-header">
+  <div class="carousel-title">Digital Circuits</div>
+</div>
+<div class="carousel-container">
+  <div class="carousel" id="carouselTPI"></div>
+</div>
+
+<!-- Gewan Carousel -->
+<div class="carousel-container">
+  <div class="carousel" id="carouselGewan"></div>
+</div>
+
+  <!-- STATIC CAROUSEL -->
+  <div class="carousel-header">
+    <div class="carousel-title">Static Circuits</div>
+  </div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselStatic"></div>
+  </div>
+
+  <!-- PUBLISHED TODAY -->
+  <div class="carousel-title">Campaign Activity</div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselPublishToday"></div>
+  </div>
+
+<!-- UPCOMING & ENDING CAMPAIGNS -->
+<div class="carousel-title">Ending & Upcoming Campaigns</div>
+<div class="carousel-container">
+  <div class="carousel" id="carouselUpcoming"></div>
+</div>
+
+  <!-- Asset category -->
+  <div class="asset-links" id="assetLinks"></div>
+
+  <!-- Map Wrapper -->
+  <div class="map-wrapper" id="mapWrapper">
+    <iframe id="mapIframe" src=""></iframe>
+    <div class="map-overlay hide-top-right">
+      <div class="top-right-widget">
+        <div id="weatherCity">Doha, Qatar</div>
+        <div id="weatherTemp">--°C</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Controls -->
+  <div class="controls">
+    <button id="fsBtn" class="btn">Full Screen</button>
+    <!-- <button id="viewScreensBtn" class="btn">View Screens</button> -->
+  </div>
+
+  <!-- Inventory -->
+  <div id="inventoryWrapper" class="inventory-wrapper">
+    <div class="inventory-header">
+      <button id="closeInventoryBtn" class="close-btn">✕ Close</button>
+    </div>
+    <iframe id="inventoryIframe" src="about:blank"></iframe>
+  </div>
+
+  <!-- Useful Links -->
+  <div class="useful-links">
+    <p class="ul-title">Useful Links</p>
+    <a href="https://scoop.qa/" target="_blank">Scoop Media and Communication</a><br>
+    <a href="https://scoop.qa/rate-card-2026/" target="_blank">Rate Card 2026</a><br>
+    <a href="https://heyzine.com/flip-book/5afe892e3e.html" target="_blank">The Pearl and Gewan Islands Insights</a><br>
+    <a href="https://oohassets.github.io/ooh-assets-scoop/asset-dimension-checker.html" target="_blank">Artwork Dimension Checker</a><br>
+    <a href="https://oohassets.github.io/ooh-assets-scoop/bulk-image-compressor.html" target="_blank">Bulk Image Compressor</a><br>
+    <a href="https://oohassets.github.io/ooh-assets-scoop/vehicle-traffic-report.html" target="_blank">Vehicle Traffic Report</a>
+  </div>
+
+  <!-- Logout -->
+  <div class="logout-link">
+    <a id="logoutText">Logout</a>
+  </div>
+
+</div>
+
+
+<!-- JS Modules -->
+<script type="module" src="./firebase/firebase.js"></script>
+
+<!-- UI helpers -->
+<script type="module" src="./assets/js/ui.js"></script>
+
+<!-- Feature modules -->
+<script type="module" src="./assets/js/map.js"></script>
+<script type="module" src="./assets/js/inventory.js"></script>
+<script type="module" src="./assets/js/loadCarousel.js"></script>
+<script type="module" src="./assets/js/expandContentInventory.js"></script>
+<script type="module" src="./assets/js/fullscreen.js"></script>
+<script type="module" src="./assets/js/weather.js"></script>
+<script type="module" src="./assets/js/viewscreens.js"></script>
+    
+<!-- Main logic last (depends on others) -->
+<script type="module" src="./assets/js/main.js"></script>
+
+<!-- PWA last -->
+<script type="module" src="./assets/js/pwa.js"></script>
+
+
+</body>
+</html>
