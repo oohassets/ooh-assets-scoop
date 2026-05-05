@@ -282,6 +282,7 @@ iframe {
 <script>
 
 let currentMapKey = "assets-all";
+let currentMapUrl = maps["assets-all"];
 
 // MAP LIST
 const maps = {
@@ -436,6 +437,42 @@ function setActiveByURL() {
         contentInventoryLink.classList.remove("active");
     }
 }
+
+// MOBILE MENU TOGGLE
+const hamburger = document.getElementById("hamburger");
+const navMenu = document.getElementById("navMenu");
+
+hamburger.addEventListener("click", () => {
+    navMenu.classList.toggle("active");
+});
+
+// MOBILE DROPDOWN TOGGLE
+document.querySelectorAll(".dropdown-parent > .nav-link").forEach(link => {
+    link.addEventListener("click", function (e) {
+
+        // Only apply on mobile
+        if (window.innerWidth <= 768) {
+            e.preventDefault(); // stop map switching on first click
+
+            const parent = this.parentElement;
+
+            // close others
+            document.querySelectorAll(".dropdown-parent").forEach(item => {
+                if (item !== parent) item.classList.remove("open");
+            });
+
+            parent.classList.toggle("open");
+        }
+    });
+});
+
+document.querySelectorAll(".nav-link, .dropdown a").forEach(item => {
+    item.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+            navMenu.classList.remove("active");
+        }
+    });
+});
 
 // INIT
 loadFromURL();
