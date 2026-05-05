@@ -227,6 +227,15 @@ iframe {
    Vehicle Traffic Report
 </a>
         </div>
+        
+        <!-- ✅ FIXED: Content Inventory -->
+        <div class="nav-item">
+            <a class="nav-link"
+               id="contentInventoryLink"
+               onclick="openContentInventory()">
+                Content Inventory
+            </a>
+        </div>
 
     </div>
 
@@ -251,7 +260,10 @@ iframe {
     <iframe id="vehicleFrame" style="display:none;"
         src="https://oohassets.github.io/ooh-assets-scoop/vehicle-traffic-report.html">
     </iframe>
-
+    <!-- CONTENT INVENTORY IFRAME -->
+    <iframe id="contentInventoryFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/index.html">
+    </iframe>                   
 </div>
 
 <script>
@@ -286,6 +298,7 @@ function loadFromURL() {
 
     const mapFrame = document.getElementById("mapFrame");
     const vehicleFrame = document.getElementById("vehicleFrame");
+    const contentInventoryFrame = document.getElementById("contentInventoryFrame");
 
     // VEHICLE MODE
     if (page === "vehicle") {
@@ -354,6 +367,25 @@ function setActive(key) {
     // Vehicle Traffic Report active detection removed (handled by URL)
 }
 
+function openContentInventory() {
+
+    // hide map
+    document.getElementById("mapFrame").style.display = "none";
+
+    // show content inventory
+    document.getElementById("contentInventoryFrame").style.display = "block";
+
+    // active state
+    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+    document.getElementById("contentInventoryLink").classList.add("active");
+
+    // IMPORTANT: remove map param
+    const url = new URL(window.location);
+    url.searchParams.delete("map");
+    url.searchParams.set("page", "content-inventory");
+    window.history.pushState({}, "", url);
+}
+
 function openVehicleReport() {
 
     // hide map
@@ -381,6 +413,14 @@ function setActiveByURL() {
 
     if (url.includes("vehicle-traffic-report.html")) {
         vehicleLink.classList.add("active");
+    }
+
+    const contentInventoryLink = document.getElementById("contentInventoryLink");
+
+    if (url.includes("index.html")) {
+        contentInventoryLink.classList.add("active");
+    } else {
+        contentInventoryLink.classList.remove("active");
     }
 }
 
