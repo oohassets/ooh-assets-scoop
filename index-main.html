@@ -7,12 +7,26 @@
 
 <script type="module">
   import { requireAuth } from "./assets/js/authGuard.js";
+  import { auth } from "./firebase/firebase.js";
+  import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
   requireAuth((user) => {
     const userNameEl = document.getElementById("userName");
 
     userNameEl.textContent =
-    user.displayName || user.email.split("@")[0];
+      user.displayName || user.email.split("@")[0];
+
+    // LOGOUT BUTTON
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        signOut(auth)
+          .then(() => {
+              window.location.href = "./login.html";
+          })
+          .catch((error) => {
+              console.error("Logout error:", error);
+              alert("Failed to logout");
+          });
+    });
   });
 </script>
 
@@ -148,6 +162,32 @@ border: none;
     transform: scale(1.05);
 }
 
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#logoutBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#logoutBtn img {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s ease;
+}
+
+#logoutBtn:hover img {
+    transform: scale(1.1);
+}
+
 @media (min-width: 769px) {
     .dropdown-parent:hover .dropdown { display: flex; }
 }
@@ -264,9 +304,12 @@ iframe {
 
     </div>
 
-        <div class="nav-right">
-        👤 <span id="userName"></span>
-        </div>
+    <div class="nav-right">
+        👤 <span id="userName">Loading...</span>
+        <button id="logoutBtn" title="Logout">
+            <img src="https://img.icons8.com/?size=100&id=2445&format=png&color=000000" alt="Logout">
+        </button>
+    </div>
 </nav>
 
 <div class="map-container">
