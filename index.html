@@ -363,32 +363,51 @@ function loadFromURL() {
 
     const params = new URLSearchParams(window.location.search);
     const page = params.get("page");
-    const key = params.get("map") || "assets-all";
+    const key = params.get("map");
 
     const mapFrame = document.getElementById("mapFrame");
     const vehicleFrame = document.getElementById("vehicleFrame");
+    const contentInventoryFrame = document.getElementById("contentInventoryFrame");
 
+    // 👉 VEHICLE PAGE
     if (page === "vehicle") {
+
         mapFrame.style.display = "none";
+        contentInventoryFrame.style.display = "none";
         vehicleFrame.style.display = "block";
 
-        toggleOverlay(false); // ❌ HIDE
+        toggleOverlay(false);
+
+        document.getElementById("vehicleTrafficLink").classList.add("active");
         return;
     }
 
-    // default map
-    mapFrame.style.display = "block";
-    vehicleFrame.style.display = "none";
+    // 👉 MAP PAGE (only if map param exists)
+    if (key && maps[key]) {
 
-    if (maps[key]) {
         currentMapKey = key;
         currentMapUrl = maps[key];
+
+        mapFrame.style.display = "block";
+        vehicleFrame.style.display = "none";
+        contentInventoryFrame.style.display = "none";
+
         mapFrame.src = maps[key];
+
+        toggleOverlay(true);
+        setActive(key);
+        return;
     }
 
-    toggleOverlay(true); // ✅ SHOW
+    // 👉 DEFAULT = CONTENT INVENTORY
+    mapFrame.style.display = "none";
+    vehicleFrame.style.display = "none";
+    contentInventoryFrame.style.display = "block";
 
-    setActive(key);
+    toggleOverlay(false);
+
+    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+    document.getElementById("contentInventoryLink").classList.add("active");
 }
 
 function toggleOverlay(show) {
@@ -438,14 +457,14 @@ function openContentInventory() {
     document.getElementById("vehicleFrame").style.display = "none";
     document.getElementById("contentInventoryFrame").style.display = "block";
 
-    toggleOverlay(false); // ❌ HIDE overlay
+    toggleOverlay(false);
 
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("contentInventoryLink").classList.add("active");
 
     const url = new URL(window.location);
     url.searchParams.delete("map");
-    url.searchParams.set("page", "content-inventory");
+    url.searchParams.delete("page"); // 👈 important
     window.history.pushState({}, "", url);
 }
 
