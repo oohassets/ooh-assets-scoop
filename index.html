@@ -323,7 +323,7 @@ iframe {
 </div>
 
     <!-- MAP IFRAME -->
-    <iframe id="mapFrame"></iframe>
+    <iframe id="mapFrame" style="display:none;"></iframe>
 
     <!-- VEHICLE TRAFFIC REPORT IFRAME -->
     <iframe id="vehicleFrame" style="display:none;"
@@ -358,6 +358,7 @@ function copyGoogleMapLink() {
     });
 }
 
+
 // LOAD FROM URL
 function loadFromURL() {
 
@@ -382,7 +383,7 @@ function loadFromURL() {
         return;
     }
 
-    // 👉 MAP PAGE (only if map param exists)
+    // 👉 MAP PAGE ONLY IF map EXISTS
     if (key && maps[key]) {
 
         currentMapKey = key;
@@ -399,7 +400,7 @@ function loadFromURL() {
         return;
     }
 
-    // 👉 DEFAULT = CONTENT INVENTORY
+    // 👉 DEFAULT = CONTENT INVENTORY (FORCE THIS)
     mapFrame.style.display = "none";
     vehicleFrame.style.display = "none";
     contentInventoryFrame.style.display = "block";
@@ -527,6 +528,10 @@ document.querySelectorAll(".nav-link, .dropdown a").forEach(item => {
 
 // INIT
 loadFromURL();
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadFromURL();
+});
 
 </script>
 </body>
