@@ -1,40 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SCOOP OOH Assets | Content Inventory</title>
-  <link rel="stylesheet" href="./assets/css/styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOOP OOH Assets</title>
+
+<script type="module">
+  import { requireAuth } from "./assets/js/authGuard.js";
+  requireAuth();
+</script>
+
+<link rel="stylesheet" href="./assets/css/styles.css">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="images/scooplogo_black_192x192.png">
+<link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_180x180.png">
+  
+<meta name="theme-color" content="#ffffff">
+<meta name="background-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SCOOP OOH">
+<meta name="application-name" content="SCOOP OOH">
+<meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+  
 </head>
 <body>
 
-<div id="content-inventory">
+<!-- MAIN CONTENT -->
+<div class="container" style="display:none;">
 
-  <!-- HEADER -->
-  <div class="page-header">
-    <h1>Inventory Content for Digital OOH Assets</h1>
-    <h2>The Pearl and Gewan Island</h2>
-
-    <!-- TABS -->
-    <div class="inventory-tabs">
-      <span class="tab active" data-target="digital">Digital</span>
-      <span class="tab" data-target="static">Static</span>
-    </div>
-  </div>
-
-  <!-- DIGITAL -->
-  <div id="digital-section">
-    <div id="carouselPublishToday" class="section full"></div>
-    <div id="carouselDigital" class="grid-2"></div>
-  </div>
-
-  <!-- STATIC -->
-  <div id="static-section" style="display:none">
-    <div id="carouselStatic" class="grid-2"></div>
-    <div id="carouselUpcoming" class="section full"></div>
-  </div>
-
+<!-- TPI Carousel -->
+<div class="carousel-header">
+  <div class="carousel-title">Digital Circuits</div>
+</div>
+<div class="carousel-container">
+  <div class="carousel" id="carouselTPI"></div>
 </div>
 
-<script type="module" src="content-inventory.js"></script>
+<!-- Gewan Carousel -->
+<div class="carousel-container">
+  <div class="carousel" id="carouselGewan"></div>
+</div>
+
+  <!-- STATIC CAROUSEL -->
+  <div class="carousel-header">
+    <div class="carousel-title">Static Circuits</div>
+  </div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselStatic"></div>
+  </div>
+
+  <!-- PUBLISHED TODAY -->
+  <div class="carousel-title">Campaign Activity</div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselPublishToday"></div>
+  </div>
+
+<!-- UPCOMING & ENDING CAMPAIGNS -->
+<div class="carousel-title">Ending & Upcoming Campaigns</div>
+<div class="carousel-container">
+  <div class="carousel" id="carouselUpcoming"></div>
+</div>
+
+<!-- JS Modules -->
+<script type="module" src="./firebase/firebase.js"></script>
+
+<!-- UI helpers -->
+<script type="module" src="./assets/js/ui.js"></script>
+
+<!-- Feature modules -->
+<script type="module" src="./assets/js/map.js"></script>
+<script type="module" src="./assets/js/inventory.js"></script>
+<script type="module" src="./assets/js/loadCarousel.js"></script>
+<script type="module" src="./assets/js/expandContentInventory.js"></script>
+<script type="module" src="./assets/js/fullscreen.js"></script>
+<script type="module" src="./assets/js/weather.js"></script>
+<script type="module" src="./assets/js/viewscreens.js"></script>
+    
+<!-- Main logic last (depends on others) -->
+<script type="module" src="./assets/js/main.js"></script>
+
+<!-- PWA last -->
+<script type="module" src="./assets/js/pwa.js"></script>
+
+
 </body>
 </html>
