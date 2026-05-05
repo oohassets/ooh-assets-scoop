@@ -198,12 +198,13 @@ iframe {
 
     <div class="nav-center" id="navMenu">
 
-        <div class="nav-item dropdown-parent">
-            <a class="nav-link active" data-section="inventory">Content Inventory</a>
-            <div class="dropdown">
-                <a>Digital</a>
-                <a>Static</a>
-            </div>
+        <!-- ✅ FIXED: Content Inventory -->
+        <div class="nav-item">
+            <a class="nav-link"
+               id="contentInventoryLink"
+               onclick="openContentInventory()">
+                Content Inventory
+            </a>
         </div>
 
         <div class="nav-item dropdown-parent">
@@ -221,21 +222,14 @@ iframe {
 
         <!-- ✅ FIXED: Vehicle Traffic Report -->
         <div class="nav-item">
-<a class="nav-link"
-   id="vehicleTrafficLink"
-   onclick="openVehicleReport()">
-   Vehicle Traffic Report
-</a>
+        <a class="nav-link"
+        id="vehicleTrafficLink"
+        onclick="openVehicleReport()">
+        Vehicle Traffic Report
+        </a>
         </div>
         
-        <!-- ✅ FIXED: Content Inventory -->
-        <div class="nav-item">
-            <a class="nav-link"
-               id="contentInventoryLink"
-               onclick="openContentInventory()">
-                Content Inventory
-            </a>
-        </div>
+
 
     </div>
 
