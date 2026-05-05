@@ -311,23 +311,26 @@ function loadFromURL() {
 
     const mapFrame = document.getElementById("mapFrame");
     const vehicleFrame = document.getElementById("vehicleFrame");
-    const contentInventoryFrame = document.getElementById("contentInventoryFrame");
 
     if (page === "vehicle") {
         mapFrame.style.display = "none";
         vehicleFrame.style.display = "block";
-        document.getElementById("vehicleTrafficLink").classList.add("active");
+
+        toggleOverlay(false); // ❌ HIDE
         return;
     }
 
-    vehicleFrame.style.display = "none";
+    // default map
     mapFrame.style.display = "block";
+    vehicleFrame.style.display = "none";
 
     if (maps[key]) {
         currentMapKey = key;
         currentMapUrl = maps[key];
         mapFrame.src = maps[key];
     }
+
+    toggleOverlay(true); // ✅ SHOW
 
     setActive(key);
 }
@@ -379,6 +382,8 @@ function openContentInventory() {
     document.getElementById("vehicleFrame").style.display = "none";
     document.getElementById("contentInventoryFrame").style.display = "block";
 
+    toggleOverlay(false); // ❌ HIDE overlay
+
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("contentInventoryLink").classList.add("active");
 
@@ -394,6 +399,8 @@ function openVehicleReport() {
     document.getElementById("mapFrame").style.display = "none";
     document.getElementById("contentInventoryFrame").style.display = "none";
     document.getElementById("vehicleFrame").style.display = "block";
+
+    toggleOverlay(false); // ❌ HIDE overlay
 
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("vehicleTrafficLink").classList.add("active");
