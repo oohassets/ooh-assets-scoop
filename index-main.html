@@ -332,6 +332,11 @@ function loadFromURL() {
     setActive(key);
 }
 
+function toggleOverlay(show) {
+    const overlay = document.querySelector(".map-overlay");
+    overlay.style.display = show ? "block" : "none";
+}
+
 // SET MAP
 function setMap(key) {
 
@@ -344,6 +349,8 @@ function setMap(key) {
     document.getElementById("contentInventoryFrame").style.display = "none";
 
     frame.src = currentMapUrl;
+
+    toggleOverlay(true); // ✅ SHOW overlay
 
     const url = new URL(window.location);
     url.searchParams.set("map", key);
