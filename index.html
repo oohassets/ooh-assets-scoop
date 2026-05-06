@@ -212,10 +212,6 @@ iframe {
     gap: 4px;                  /* ✅ spacing fix */
 }
 
-
-
-
-
 .bottom-item.open .dropdown {
     display: flex;
 }
@@ -261,7 +257,6 @@ iframe {
         height: calc(100vh - 130px);
     }
 
-
     .dropdown {
         position: fixed;
         bottom: 75px;
@@ -275,7 +270,6 @@ iframe {
         display: none;
         flex-direction: column;
         z-index: 9999;
-        animation: popUp 0.25s ease;
     }
 
     .bottom-item .dropdown {
@@ -296,22 +290,9 @@ iframe {
         z-index: 100000; /* ✅ ABOVE iframe */
     }
 
-
     .dropdown-parent.open .dropdown {
         display: flex;
     }
-
-    @keyframes popUp {
-        from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-    }
-
 }
 
 </style>
