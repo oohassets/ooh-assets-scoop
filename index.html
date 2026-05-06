@@ -38,12 +38,16 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
+iframe {
+    position: relative;
+    z-index: 1;
+}
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
 .navbar {
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 3000; /* FIX: higher than iframe */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -51,6 +55,7 @@
     height: 65px;
     background: #fff;
     border-bottom: 1px solid #ddd;
+    overflow: visible;
 }
 
 .logo { height: 50px; }
@@ -58,149 +63,91 @@
 .nav-center {
     display: flex;
     gap: 35px;
+    position: relative;
 }
 
-.nav-item { position: relative; }
+.nav-item {
+    position: relative;
+}
 
 .nav-link {
     text-decoration: none;
     color: #333;
     font-size: 14px;
-    position: relative;
     padding: 8px 0;
     cursor: pointer;
+    position: relative;
 }
 
-/* SLIDING BAR */
-.nav-link::after {
-    content: "";
+.nav-indicator {
     position: absolute;
-    bottom: -6px;
-    left: 0;
+    bottom: -8px;
     height: 3px;
-    width: 100%;
     background: orange;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
+    border-radius: 2px;
+    width: 0;
+    left: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav-link.active::after {
-    transform: scaleX(1);
-}
-
-/* DROPDOWN */
+/* ================= DROPDOWN ================= */
 .dropdown {
     position: absolute;
-    top: 120%;
+    top: 150%;
     left: 0;
     background: #fff;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     border-radius: 10px;
-    min-width: 280px;
+    min-width: 260px;
     padding: 8px;
     display: none;
     flex-direction: column;
+    z-index: 3000; /* FIX: above everything */
+}
+
+/* show dropdown */
+.dropdown-parent:hover .dropdown {
+    display: flex;
 }
 
 .dropdown a {
     padding: 10px 12px;
-    cursor: pointer;
     border-radius: 6px;
     text-decoration: none;
     color: #333;
     font-size: 13px;
 }
 
-.dropdown a:hover { background: #f3f3f3; }
-
-.map-container {
-    position: relative;
+.dropdown a:hover {
+    background: #f3f3f3;
 }
 
-.map-container {
-    position: relative;
-}
-
-/* overlay container */
-.map-overlay {
-  position:absolute; 
-  background:#4d6a79; 
-  opacity:1; 
-}
-
-.hide-top-right {
-  top:0;
-  right:0;
-  width:140px;
-  height:50px;
-  pointer-events:auto; 
-}
-
-/* button style matching iframe feel */
-.share-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-     position:absolute;
-  top:10px;
-  right:20px;
-  background:transparent;
-  padding:.25rem .5rem;
-border: none;
-}
-
-.share-btn img {
-    width:25px;
-    height: 25px;
-    display: block;
-    margin: auto;
-}
-
-.share-btn:hover {
-    transform: scale(1.05);
-}
-
+/* ================= RIGHT ================= */
 .nav-right {
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 14px;
 }
 
 #logoutBtn {
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 #logoutBtn img {
     width: 20px;
-    height: 20px;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s;
 }
 
 #logoutBtn:hover img {
     transform: scale(1.1);
 }
 
-@media (min-width: 769px) {
-    .dropdown-parent:hover .dropdown { display: flex; }
-}
-
-.nav-right { font-size: 14px; }
-
-.hamburger {
-    display: none;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-/* MAP */
+/* ================= MAP ================= */
 .map-container {
+    position: relative;
     height: calc(100vh - 65px);
 }
 
@@ -210,33 +157,136 @@ iframe {
     border: none;
 }
 
-/* MOBILE */
+/* ================= OVERLAY ================= */
+.map-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 140px;
+    height: 50px;
+    background: #4d6a79;
+    z-index: 1500;
+}
+
+.share-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.share-btn img {
+    width: 25px;
+}
+
+/* ================= BOTTOM NAV ================= */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 2000;
+    position: fixed;
+}
+
+.bottom-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+}
+
+.bottom-item img {
+    width: 22px;
+    margin-bottom: 3px;
+    opacity: 0.7;
+}
+
+.bottom-item.active {
+    color: orange;
+}
+
+.bottom-item.active img {
+    opacity: 1;
+}
+
+.bottom-indicator {
+    position: absolute;
+    top: 5px;
+    height: 3px;
+    width: 40px;
+    background: orange;
+    border-radius: 2px;
+    left: 0;
+    transform: translateX(0);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================= MOBILE ================= */
 @media (max-width: 768px) {
 
-    .hamburger { display: block; }
-
+    /* hide top menu */
     .nav-center {
-        position: absolute;
-        top: 65px;
-        left: 0;
-        width: 100%;
-        background: white;
-        flex-direction: column;
         display: none;
     }
 
-    .nav-center.active { display: flex; }
 
-    .nav-link { padding: 10px; display: block; }
+    /* show bottom nav */
+    .bottom-nav {
+        display: flex;
+    }
+
+    /* adjust height */
+    .map-container {
+        height: calc(100vh - 130px);
+    }
 
     .dropdown {
-        position: static;
+        position: fixed;   /* ✅ NOT absolute */
+        bottom: 75px;      /* sits above bottom nav */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 280px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
         display: none;
-        border: none;
+        flex-direction: column;
+        z-index: 9999;
+        animation: popUp 0.25s ease;
     }
 
-    .dropdown-parent.open .dropdown { display: flex; }
+    .dropdown-parent.open .dropdown {
+        display: flex;
+    }
+
+    @keyframes popUp {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+
 }
+
 </style>
 
 <!-- PWA -->
@@ -264,9 +314,9 @@ iframe {
 <nav class="navbar">
     <img src="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo.png" class="logo">
 
-    <div class="hamburger" id="hamburger">☰</div>
-
     <div class="nav-center" id="navMenu">
+
+        <div class="nav-indicator"></div>
 
         <!-- ✅ FIXED: Content Inventory -->
         <div class="nav-item">
@@ -278,7 +328,7 @@ iframe {
         </div>
 
         <div class="nav-item dropdown-parent">
-            <a class="nav-link" data-map="assets-all" onclick="setMap('assets-all')">Assets Map</a>
+            <a class="nav-link" data-map="assets-all" onclick="setMap('assets-all')">Assets Location</a>
             <div class="dropdown">
                 <a data-map="mupi-all" onclick="setMap('mupi-all')">TPI - Mupi All Circuit</a>
                 <a data-map="mupi-c1" onclick="setMap('mupi-c1')">TPI Mupi Circuit 1</a>
@@ -292,15 +342,13 @@ iframe {
 
         <!-- ✅ FIXED: Vehicle Traffic Report -->
         <div class="nav-item">
-        <a class="nav-link"
-        id="vehicleTrafficLink"
-        onclick="openVehicleReport()">
-        Vehicle Traffic Report
-        </a>
+            <a class="nav-link"
+                id="vehicleTrafficLink"
+                onclick="openVehicleReport()">
+                Vehicle Traffic
+            </a>
         </div>
         
-
-
     </div>
 
     <div class="nav-right">
@@ -335,7 +383,68 @@ iframe {
     </iframe>                   
 </div>
 
+<!-- MOBILE BOTTOM NAV -->
+<div class="bottom-nav">
+
+    <div class="bottom-indicator"></div>
+
+    <div class="bottom-item active" onclick="openContentInventory()">
+        <img src="https://img.icons8.com/?size=100&id=SXPwDLWAF9qA&format=png&color=000000">
+        <span>Content Inventory</span>
+    </div>
+
+    <div class="bottom-item" onclick="setMap('assets-all')">
+        <img src="https://img.icons8.com/?size=100&id=9HeolI8hVDid&format=png&color=000000">
+        <span>Assets Location</span>
+    </div>
+
+    <div class="bottom-item" onclick="openVehicleReport()">
+        <img src="https://img.icons8.com/?size=100&id=24913&format=png&color=000000">
+        <span>Vehicle Traffic</span>
+    </div>
+
+</div>
+
 <script>
+
+const indicator = document.querySelector(".nav-indicator");
+const navLinks = document.querySelectorAll(".nav-link");
+const navContainer = document.querySelector(".nav-center");
+
+function moveIndicator(el) {
+    const rect = el.getBoundingClientRect();
+    const parentRect = navContainer.getBoundingClientRect();
+
+    indicator.style.width = rect.width + "px";
+    indicator.style.left = (rect.left - parentRect.left) + "px";
+}
+
+navLinks.forEach(link => {
+    link.addEventListener("mouseenter", () => {
+        moveIndicator(link);
+    });
+});
+
+navContainer.addEventListener("mouseleave", () => {
+    const active = document.querySelector(".nav-link.active");
+    if (active) moveIndicator(active);
+});
+
+function moveBottomIndicator(index) {
+    const nav = document.querySelector(".bottom-nav");
+    const items = document.querySelectorAll(".bottom-item");
+    const indicator = document.querySelector(".bottom-indicator");
+
+    if (!nav || !items.length || !indicator) return;
+
+    const item = items[index];
+    const navRect = nav.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+
+    const center = itemRect.left - navRect.left + (itemRect.width / 2);
+
+    indicator.style.transform = `translateX(${center - 20}px)`; // 20 = half width
+}
 
 // MAP LIST
 const maps = {
@@ -380,6 +489,7 @@ function loadFromURL() {
         toggleOverlay(false);
 
         document.getElementById("vehicleTrafficLink").classList.add("active");
+        moveIndicator(document.getElementById("vehicleTrafficLink"));
         return;
     }
 
@@ -409,6 +519,7 @@ function loadFromURL() {
 
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("contentInventoryLink").classList.add("active");
+    moveIndicator(document.getElementById("contentInventoryLink"));
 }
 
 function toggleOverlay(show) {
@@ -437,6 +548,8 @@ function setMap(key) {
     window.history.pushState({}, "", url);
 
     setActive(key);
+
+    setBottomActive(1);
 }
 
 // ACTIVE STATE
@@ -444,10 +557,18 @@ function setActive(key) {
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
 
     const match = document.querySelector(`[data-map="${key}"]`);
+
     if (match) {
         match.classList.add("active");
+
         const parent = match.closest(".dropdown-parent")?.querySelector(".nav-link");
-        if (parent) parent.classList.add("active");
+
+        if (parent) {
+            parent.classList.add("active");
+            moveIndicator(parent);
+        } else {
+            moveIndicator(match);
+        }
     }
 }
 
@@ -467,6 +588,8 @@ function openContentInventory() {
     url.searchParams.delete("map");
     url.searchParams.delete("page"); // 👈 important
     window.history.pushState({}, "", url);
+
+    setBottomActive(0);
 }
 
 // VEHICLE REPORT
@@ -485,29 +608,26 @@ function openVehicleReport() {
     url.searchParams.delete("map");
     url.searchParams.set("page", "vehicle");
     window.history.pushState({}, "", url);
+
+    setBottomActive(2);
 }
 
 // ------------------
 // ✅ MOBILE FIXES
 // ------------------
 
-const hamburger = document.getElementById("hamburger");
-const navMenu = document.getElementById("navMenu");
-
-// TOGGLE MENU
-hamburger.addEventListener("click", () => {
-    navMenu.classList.toggle("active");
-});
 
 // DROPDOWN FIX
-document.querySelectorAll(".dropdown-parent > .nav-link").forEach(link => {
-    link.addEventListener("click", function (e) {
+document.querySelectorAll(".dropdown-parent").forEach(parent => {
+
+    const trigger = parent.querySelector(".nav-link");
+
+    trigger.addEventListener("click", function (e) {
 
         if (window.innerWidth <= 768) {
             e.preventDefault();
 
-            const parent = this.parentElement;
-
+            // close others
             document.querySelectorAll(".dropdown-parent").forEach(item => {
                 if (item !== parent) item.classList.remove("open");
             });
@@ -518,19 +638,79 @@ document.querySelectorAll(".dropdown-parent > .nav-link").forEach(link => {
 });
 
 // AUTO CLOSE MENU
-document.querySelectorAll(".nav-link, .dropdown a").forEach(item => {
+document.querySelectorAll(".dropdown a").forEach(item => {
     item.addEventListener("click", () => {
         if (window.innerWidth <= 768) {
-            navMenu.classList.remove("active");
+            document.querySelectorAll(".dropdown-parent").forEach(el => {
+                el.classList.remove("open");
+            });
         }
     });
 });
+
+function setBottomActive(index) {
+    const items = document.querySelectorAll(".bottom-item");
+
+    items.forEach(item => item.classList.remove("active"));
+    items[index]?.classList.add("active");
+
+    moveBottomIndicator(index); // ✅ ADD THIS
+}
+
 
 // INIT
 loadFromURL();
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    const indicator = document.querySelector(".nav-indicator");
+    const navLinks = document.querySelectorAll(".nav-link");
+    const navContainer = document.querySelector(".nav-center");
+
+    function moveIndicator(el) {
+        if (!el) return;
+
+        const rect = el.getBoundingClientRect();
+        const parentRect = navContainer.getBoundingClientRect();
+
+        indicator.style.width = rect.width + "px";
+        indicator.style.left = (rect.left - parentRect.left) + "px";
+    }
+
+    // hover
+    navLinks.forEach(link => {
+        link.addEventListener("mouseenter", () => moveIndicator(link));
+    });
+
+    // return to active
+    navContainer.addEventListener("mouseleave", () => {
+        const active = document.querySelector(".nav-link.active");
+        if (active) moveIndicator(active);
+    });
+
+    // expose globally (important)
+    window.moveIndicator = moveIndicator;
+
+});
+
+window.addEventListener("load", () => {
     loadFromURL();
+
+    setTimeout(() => {
+        const active = document.querySelector(".nav-link.active");
+        if (active) moveIndicator(active);
+    }, 100);
+});
+
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        const activeIndex = [...document.querySelectorAll(".bottom-item")]
+            .findIndex(el => el.classList.contains("active"));
+
+        if (activeIndex >= 0) {
+            moveBottomIndicator(activeIndex);
+        }
+    }, 100);
 });
 
 </script>
