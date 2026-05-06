@@ -257,23 +257,8 @@ iframe {
         height: calc(100vh - 130px);
     }
 
-    .dropdown {
-        position: fixed;
-        bottom: 75px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 280px;
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
-        display: none;
-        flex-direction: column;
-        z-index: 100000;
-    }
-
     .bottom-item .dropdown {
-        position: fixed; /* ✅ FIXED */
+        position: fixed;
         bottom: 90px;
         left: 50%;
         transform: translateX(-50%);
@@ -287,7 +272,11 @@ iframe {
         display: none;
         flex-direction: column;
 
-        z-index: 100000; /* ✅ ABOVE iframe */
+        z-index: 100000;
+    }
+
+    .bottom-item.open .dropdown {
+        display: flex;
     }
 
     .dropdown-parent.open .dropdown {
@@ -636,36 +625,38 @@ function openVehicleReport() {
 // ------------------
 
 
-// DROPDOWN FIX
+// DROPDOWN
 document.querySelectorAll(".bottom-item.dropdown-parent").forEach(item => {
     item.addEventListener("click", (e) => {
         e.stopPropagation();
 
-        document.querySelectorAll(".bottom-item.dropdown-parent")
-            .forEach(el => el !== item && el.classList.remove("open"));
+        const isOpen = item.classList.contains("open");
 
-        item.classList.toggle("open");
+        // close all first
+        document.querySelectorAll(".bottom-item.dropdown-parent")
+            .forEach(el => el.classList.remove("open"));
+
+        // toggle current
+        if (!isOpen) {
+            item.classList.add("open");
+        }
     });
 });
 
-document.addEventListener("click", (e) => {
-    const isDropdown = e.target.closest(".bottom-item.dropdown-parent");
-
-    if (!isDropdown) {
-        document.querySelectorAll(".bottom-item").forEach(el => {
-            el.classList.remove("open");
-        });
-    }
+// close when clicking outside
+document.addEventListener("click", () => {
+    document.querySelectorAll(".bottom-item.dropdown-parent")
+        .forEach(el => el.classList.remove("open"));
 });
 
-// AUTO CLOSE MENU
 document.querySelectorAll(".bottom-item .dropdown a").forEach(item => {
     item.addEventListener("click", () => {
+
         if (window.innerWidth <= 768) {
-            document.querySelectorAll(".dropdown-parent").forEach(el => {
-                el.classList.remove("open");
-            });
+            document.querySelectorAll(".bottom-item.dropdown-parent")
+                .forEach(el => el.classList.remove("open"));
         }
+
     });
 });
 
