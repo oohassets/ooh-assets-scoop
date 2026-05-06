@@ -194,29 +194,36 @@ iframe {
     justify-content: space-around;
     align-items: center;
     z-index: 2000;
-    position: fixed;
     padding-bottom: 15px;
+
+    overflow: visible; /* ✅ IMPORTANT */
 }
 
 .bottom-item {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;   /* ✅ FIX alignment */
     font-size: 11px;
     color: #666;
     cursor: pointer;
-    position: relative;
+    gap: 4px;                  /* ✅ spacing fix */
+}
+
+
+
+
+
+.bottom-item.open .dropdown {
+    display: flex;
 }
 
 .bottom-item img {
     width: 22px;
-    margin-bottom: 3px;
+    height: 22px;
     opacity: 0.7;
-}
-
-.bottom-item.active {
-    color: orange;
 }
 
 .bottom-item.active img {
@@ -254,9 +261,10 @@ iframe {
         height: calc(100vh - 130px);
     }
 
+
     .dropdown {
-        position: fixed;   /* ✅ NOT absolute */
-        bottom: 75px;      /* sits above bottom nav */
+        position: fixed;
+        bottom: 75px;
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
@@ -269,6 +277,25 @@ iframe {
         z-index: 9999;
         animation: popUp 0.25s ease;
     }
+
+    .bottom-item .dropdown {
+        position: fixed; /* ✅ FIXED */
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 240px;
+
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 -12px 30px rgba(0,0,0,0.2);
+        padding: 10px;
+
+        display: none;
+        flex-direction: column;
+
+        z-index: 100000; /* ✅ ABOVE iframe */
+    }
+
 
     .dropdown-parent.open .dropdown {
         display: flex;
@@ -284,7 +311,6 @@ iframe {
             transform: translateX(-50%) translateY(0);
         }
     }
-
 
 }
 
@@ -384,6 +410,8 @@ iframe {
     </iframe>                   
 </div>
 
+<div id="bottomDropdown" class="dropdown"></div>
+
 <!-- MOBILE BOTTOM NAV -->
 <div class="bottom-nav">
 
@@ -394,9 +422,18 @@ iframe {
         <span>Content Inventory</span>
     </div>
 
-    <div class="bottom-item" onclick="setMap('assets-all')">
-        <img src="https://img.icons8.com/?size=100&id=9HeolI8hVDid&format=png&color=000000">
-        <span>Assets Location</span>
+    <div class="bottom-item dropdown-parent" onclick="setMap('assets-all')">
+            <img src="https://img.icons8.com/?size=100&id=9HeolI8hVDid&format=png&color=000000">
+            <span>Assets Location</span>
+       
+        <div class="dropdown">
+            <a onclick="setMap('mupi-all')">TPI - Mupi All Circuit</a>
+            <a onclick="setMap('mupi-c1')">TPI Mupi Circuit 1</a>
+            <a onclick="setMap('mupi-c2')">TPI Mupi Circuit 2</a>
+            <a onclick="setMap('gewan-all')">Gewan All Circuit</a>
+            <a onclick="setMap('gewan-c1')">Gewan Circuit 1</a>
+            <a onclick="setMap('gewan-c2')">Gewan Circuit 2</a>
+        </div>
     </div>
 
     <div class="bottom-item" onclick="openVehicleReport()">
@@ -619,27 +656,29 @@ function openVehicleReport() {
 
 
 // DROPDOWN FIX
-document.querySelectorAll(".dropdown-parent").forEach(parent => {
+document.querySelectorAll(".bottom-item.dropdown-parent").forEach(item => {
+    item.addEventListener("click", (e) => {
+        e.stopPropagation();
 
-    const trigger = parent.querySelector(".nav-link");
+        document.querySelectorAll(".bottom-item.dropdown-parent")
+            .forEach(el => el !== item && el.classList.remove("open"));
 
-    trigger.addEventListener("click", function (e) {
-
-        if (window.innerWidth <= 768) {
-            e.preventDefault();
-
-            // close others
-            document.querySelectorAll(".dropdown-parent").forEach(item => {
-                if (item !== parent) item.classList.remove("open");
-            });
-
-            parent.classList.toggle("open");
-        }
+        item.classList.toggle("open");
     });
 });
 
+document.addEventListener("click", (e) => {
+    const isDropdown = e.target.closest(".bottom-item.dropdown-parent");
+
+    if (!isDropdown) {
+        document.querySelectorAll(".bottom-item").forEach(el => {
+            el.classList.remove("open");
+        });
+    }
+});
+
 // AUTO CLOSE MENU
-document.querySelectorAll(".dropdown a").forEach(item => {
+document.querySelectorAll(".bottom-item .dropdown a").forEach(item => {
     item.addEventListener("click", () => {
         if (window.innerWidth <= 768) {
             document.querySelectorAll(".dropdown-parent").forEach(el => {
