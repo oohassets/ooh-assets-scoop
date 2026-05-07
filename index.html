@@ -90,37 +90,258 @@ iframe {
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ================= DROPDOWN ================= */
-.dropdown {
-    position: absolute;
-    top: 150%;
-    left: 0;
-    background: #fff;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    border-radius: 10px;
-    min-width: 260px;
-    padding: 8px;
-    display: none;
-    flex-direction: column;
-    z-index: 3000; /* FIX: above everything */
+/* ================= MEGA MENU ================= */
+
+.dropdown-parent {
+    position: relative;
+    padding-bottom: 12px;
 }
 
-/* show dropdown */
-.dropdown-parent:hover .dropdown {
+/* HOVER BRIDGE */
+.dropdown-parent::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 100%;
+
+    width: 100%;
+    height: 20px;
+}
+
+/* MAIN MEGA MENU */
+.mega-dropdown {
+    position: absolute;
+
+    top: 100%;
+    margin-top: 8px;
+
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 820px;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+
+    padding: 24px;
+
+    display: none;
+
+    gap: 80px;
+
+    z-index: 999999;
+}
+
+/* SHOW MENU */
+.dropdown-parent:hover > .mega-dropdown {
     display: flex;
 }
 
-.dropdown a {
-    padding: 10px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #333;
-    font-size: 13px;
+/* COLUMNS */
+.mega-column {
+    flex: 1;
 }
 
-.dropdown a:hover {
-    background: #f3f3f3;
+/* COLUMN TITLE */
+.mega-title {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+
+    color: #383838;
+    cursor: pointer;
+
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+
+    border-bottom: 1px solid #eee;
 }
+
+/* MENU ITEM */
+.hover-item {
+    position: relative;
+}
+
+/* MAIN TITLE */
+.hover-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    color: #333232;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.hover-title:hover {
+    background: #f5f5f5;
+}
+
+/* SUBMENU */
+.hover-submenu {
+    position: absolute;
+
+    top: 0;
+    left: calc(100% + 20px);
+
+    min-width: 250px;
+
+    background: #fff;
+
+    border-radius: 14px;
+
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+
+    padding: 10px 0;
+
+    display: none;
+
+    flex-direction: column;
+
+    z-index: 9999999;
+}
+
+
+/* SHOW SUBMENU */
+.hover-item:hover .hover-submenu {
+    display: flex;
+}
+
+/* LINKS */
+.hover-submenu a {
+    padding: 12px 18px;
+
+    text-decoration: none;
+
+    color: #555;
+    font-size: 13px;
+
+    transition: 0.2s;
+
+    cursor: pointer;
+}
+
+.hover-submenu a:hover {
+    background: #f5f5f5;
+    color: #000;
+}
+
+/* ACTIVE */
+.hover-submenu a.active {
+    background: rgba(255,165,0,0.12);
+    color: orange;
+    font-weight: 600;
+}
+
+/* SUBMENU HOVER BRIDGE */
+.hover-item::after {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    right: -25px;
+
+    width: 30px;
+    height: 100%;
+}
+
+
+/* LEVEL 2 submenu */
+.hover-item > .hover-submenu {
+    position: absolute;
+    top: 0;
+    left: 100%; /* remove calc gap */
+
+    display: none;
+    flex-direction: column;
+
+    min-width: 240px;
+
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+
+    padding: 8px 0;
+}
+
+/* invisible bridge to prevent flicker */
+.hover-item > .hover-submenu::before {
+    content: "";
+    position: absolute;
+    left: -15px;
+    top: 0;
+    width: 15px;
+    height: 100%;
+}
+
+/* SHOW LEVEL 2 */
+.hover-item:hover > .hover-submenu {
+    display: flex;
+    flex-direction: column;
+}
+
+/* LEVEL 3 (deep submenu) */
+.hover-item.sub {
+    position: relative;
+    cursor: pointer;
+}
+
+/* make level 3 appear to the right of level 2 */
+.hover-item.sub > .hover-submenu.deep {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 10px);
+
+    display: none;
+    flex-direction: column;
+
+    min-width: 220px;
+    background: #fff;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    border-radius: 12px;
+
+    margin-top: 6px;
+    margin-left: 15px;
+}
+
+/* LEVEL 3 (dropdown inside level 2 instead of side box) */
+.hover-item.sub > .hover-submenu.deep {
+    position: static;   /* IMPORTANT: removes side positioning */
+    display: none;
+    flex-direction: column;
+
+    margin-top: 5px;
+    margin-left: 15px;  /* indentation for hierarchy */
+
+    min-width: unset;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+
+    transition: all 0.2s ease;
+}
+
+/* SHOW LEVEL 3 ON HOVER OF PARENT */
+.hover-item.sub:hover > .hover-submenu.deep {
+    display: flex;
+}
+
 
 /* ================= RIGHT ================= */
 .nav-right {
@@ -282,6 +503,142 @@ iframe {
     .dropdown-parent.open .dropdown {
         display: flex;
     }
+
+    .mega-dropdown {
+        position: fixed !important;
+
+        left: 50% !important;
+        bottom: 90px !important;
+        top: auto !important;
+
+        transform: translateX(-50%) !important;
+
+        width: 92% !important;
+        max-width: 360px !important;
+
+        max-height: 70vh;
+
+        overflow-y: auto;
+
+        background: #ffffff;
+
+        border-radius: 20px;
+
+        padding: 16px !important;
+
+        display: none;
+
+        flex-direction: column !important;
+        gap: 20px !important;
+
+        box-shadow: 0 -10px 35px rgba(0,0,0,0.22);
+
+        z-index: 999999 !important;
+    }
+
+    /* OPEN STATE */
+    .hover-item.open > .hover-submenu {
+        display: flex !important;
+    }
+
+    /* disable hover behavior on mobile */
+    .hover-item:hover .hover-submenu {
+        display: none !important;
+    }
+
+    /* SHOW */
+    .bottom-item.open .mega-dropdown {
+        display: flex !important;
+    }
+
+    /* STACK COLUMNS */
+    .mega-column {
+        width: 100%;
+    }
+
+    /* TITLES */
+    .mega-title {
+        font-size: 11px;
+        font-weight: 700;
+
+        color: #999;
+
+        letter-spacing: 1px;
+
+        margin-bottom: 12px;
+
+        border-bottom: 1px solid #eee;
+
+        padding-bottom: 8px;
+    }
+
+    /* PARENT ITEM */
+    .hover-item {
+        margin-bottom: 10px;
+    }
+
+    /* MAIN ITEM */
+    .hover-title {
+        padding: 14px;
+
+        background: #f7f7f7;
+
+        border-radius: 12px;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        color: #333;
+    }
+
+    /* MOBILE SUBMENU */
+    .hover-submenu {
+        display: none !important;
+        position: relative !important;
+
+        flex-direction: column;
+
+        left: 0 !important;
+        top: 0 !important;
+
+        background: transparent !important;
+        box-shadow: none !important;
+
+        padding: 6px 0 0 0 !important;
+        margin-top: 4px;
+    }
+
+    /* LINKS */
+    .hover-submenu a {
+        padding: 12px 14px;
+
+        border-radius: 10px;
+
+        text-decoration: none;
+
+        color: #555;
+
+        font-size: 13px;
+    }
+
+    /* HOVER */
+    .hover-submenu a:hover {
+        background: #f2f2f2;
+    }
+
+    .hover-item.sub > .hover-title {
+    background: #f7f7f7;
+    border-radius: 12px;
+}
+
+    /* prevent empty items from collapsing menu */
+    .hover-item.sub:has(.hover-title):not(:has(.hover-submenu)) {
+        pointer-events: auto;
+    }
 }
 
 </style>
@@ -325,15 +682,221 @@ iframe {
         </div>
 
         <div class="nav-item dropdown-parent">
-            <a class="nav-link" data-map="assets-all" onclick="setMap('assets-all')">Assets Location</a>
-            <div class="dropdown">
-                <a data-map="mupi-all" onclick="setMap('mupi-all')">TPI - Mupi All Circuit</a>
-                <a data-map="mupi-c1" onclick="setMap('mupi-c1')">TPI Mupi Circuit 1</a>
-                <a data-map="mupi-c2" onclick="setMap('mupi-c2')">TPI Mupi Circuit 2</a>
 
-                <a data-map="gewan-all" onclick="setMap('gewan-all')">Gewan Crystal Walk All Circuit</a>
-                <a data-map="gewan-c1" onclick="setMap('gewan-c1')">Gewan Circuit 1</a>
-                <a data-map="gewan-c2" onclick="setMap('gewan-c2')">Gewan Circuit 2</a>
+            <a class="nav-link"
+                data-map="assets-all"
+                onclick="setMap('assets-all')">
+                Assets Location
+            </a>
+
+            <div class="mega-dropdown">
+
+                <!-- DIGITAL COLUMN -->
+                <div class="mega-column">
+
+                    <div class="mega-title">
+                          <a onclick="setMap('digital-all')">
+                                Digital Assets
+                            </a>
+                    </div>
+
+                    <!-- UNDERPASS -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('underpass-all')">
+                                Underpass
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('underpass-entrance')">Underpass Entrance</a>
+                            <a onclick="setMap('underpass-exit')">Underpass Exit</a>
+
+                        </div>
+                    </div>
+
+                    <!-- MUPI -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('mupi-all')">
+                                Mupi
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('mupi-c1')">Mupi Circuit 1</a>
+                            <a onclick="setMap('mupi-c2')">Mupi Circuit 2</a>
+
+                        </div>
+                    </div>
+
+                    <!-- GEWAN -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('gewan-all')">
+                                Gewan Crystal Walk
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('gewan-c1')">Gewan Crystal Walk Circuit 1</a>
+                            <a onclick="setMap('gewan-c2')">Gewan Crystal Walk Circuit 2</a>
+                            <a onclick="setMap('gewan-c3')">Gewan Crystal Building</a>
+
+                        </div>
+                    </div>
+
+                    <!-- UDC Tower -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('udctower')">
+                                UDC Tower
+                            </a>
+                        </div>
+
+                        <div class="hover-title">
+                            <a onclick="setMap('monoprix')">
+                                Monoprix
+                            </a>
+                        </div>
+                        
+                        <div class="hover-title">
+                            <a onclick="setMap('qqscreen')">
+                                Qanat Quartier Screen
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- STATIC COLUMN -->
+                <div class="mega-column">
+
+                    <div class="mega-title">
+                          <a onclick="setMap('digital-all')">
+                                Static Assets
+                            </a>
+                    </div>
+
+                    <!-- LIGHT POLES -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('lightpoles-all')">
+                                Light Poles Main Circuits
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <!-- LEVEL 2 -->
+                        <div class="hover-submenu">
+
+                            <!-- MAIN ENTRANCE -->
+                            <div class="hover-item sub">
+
+                                <div class="hover-title">
+                                    <a onclick="setMap('lightpoles-me-all')">
+                                        Main Entrance
+                                    </a>
+                                    <span>›</span>
+                                </div>
+
+                                <!-- LEVEL 3 -->
+                                <div class="hover-submenu deep">
+
+                                    <a onclick="setMap('lightpoles-me-c1')">Main Entrance Circuit 1</a>
+                                    <a onclick="setMap('lightpoles-me-c2')">Main Entrance Circuit 2</a>
+                                    <a onclick="setMap('lightpoles-me-c3')">Main Entrance Circuit 3</a>
+
+                                </div>
+                            </div>
+
+                            <!-- MAIN BOULEVARD -->
+                            <div class="hover-item sub">
+
+                                <div class="hover-title">
+                                    <a onclick="setMap('lightpoles-mb-all')">
+                                        Main Boulevard
+                                    </a>
+                                    <span>›</span>
+                                </div>
+
+                                <!-- LEVEL 3 -->
+                                <div class="hover-submenu deep">
+
+                                    <a onclick="setMap('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
+                                    <a onclick="setMap('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
+                                    <a onclick="setMap('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
+
+                                </div>
+                            </div>
+
+                            <!-- MEDINA CENTRALE -->
+                            <div class="hover-item sub">
+
+                                <div class="hover-title">
+                                    <a onclick="setMap('lightpoles-mc')">
+                                        Medina Centrale
+                                    </a>
+                                    <span>›</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Light Poles Porto Arabia -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('lightpoles-pa-all')">
+                                Light Poles Porto Arabia
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('lightpoles-pa-c1')">Light Poles Porto Arabia Circuit 1</a>
+                            <a onclick="setMap('lightpoles-pa-c2')">Light Poles Porto Arabia Circuit 2</a>
+                            <a onclick="setMap('lightpoles-pa-c3')">Light Poles Porto Arabia Circuit 3</a>
+
+                        </div>
+                    </div>
+
+                    <!-- MUPI Boardwalk -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('mupi-pa')">
+                                Mupi Porto Arabia
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
+                            <a onclick="setMap('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
+                            <a onclick="setMap('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
+
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
 
@@ -382,34 +945,236 @@ iframe {
 
 <div id="bottomDropdown" class="dropdown"></div>
 
-<!-- MOBILE BOTTOM NAV -->
-<div class="bottom-nav">
+    <!-- MOBILE BOTTOM NAV -->
+    <div class="bottom-nav">
 
-    <div class="bottom-indicator"></div>
+        <div class="bottom-indicator"></div>
 
-    <div class="bottom-item active" onclick="openContentInventory()">
-        <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png" alt="Content Inventory">
-        <span>Content Inventory</span>
-    </div>
+            <div class="bottom-item active" onclick="openContentInventory()">
+                <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png" alt="Content Inventory">
+                <span>Content Inventory</span>
+            </div>
 
-    <div class="bottom-item dropdown-parent" onclick="setMap('assets-all')">
-            <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png" alt="Assets Location">
-            <span>Assets Location</span>
-       
-        <div class="dropdown">
-            <a onclick="setMap('mupi-all')">TPI - Mupi All Circuit</a>
-            <a onclick="setMap('mupi-c1')">TPI Mupi Circuit 1</a>
-            <a onclick="setMap('mupi-c2')">TPI Mupi Circuit 2</a>
-            <a onclick="setMap('gewan-all')">Gewan All Circuit</a>
-            <a onclick="setMap('gewan-c1')">Gewan Circuit 1</a>
-            <a onclick="setMap('gewan-c2')">Gewan Circuit 2</a>
+            <div class="bottom-item dropdown-parent" onclick="setMap('assets-all')">            
+                <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png" alt="Assets Location">
+                <span>Assets Location</span>
+        
+            <div class="mega-dropdown">
+
+                <!-- DIGITAL COLUMN -->
+                <div class="mega-column">
+
+                    <div class="mega-title">
+                        <a onclick="setMap('digital-all')">
+                            Digital Assets
+                        </a>
+                    </div>
+
+                    <!-- UNDERPASS -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('underpass-all')">
+                                 Underpass
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('underpass-entrance')">Underpass Entrance</a>
+                            <a onclick="setMap('underpass-exit')">Underpass Exit</a>
+
+                        </div>
+
+                    </div>
+
+                    <!-- MUPI -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('mupi-all')">
+                                Mupi
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('mupi-c1')">Mupi Circuit 1</a>
+                            <a onclick="setMap('mupi-c2')">Mupi Circuit 2</a>
+
+                        </div>
+                    </div>
+
+                    <!-- GEWAN -->
+                    <div class="hover-item">
+
+                        <div class="hover-title">
+                            <a onclick="setMap('gewan-all')">
+                                Gewan Crystal Walk
+                            </a>
+                            <span>›</span>
+                        </div>
+
+                        <div class="hover-submenu">
+
+                            <a onclick="setMap('gewan-c1')">Gewan Crystal Walk Circuit 1</a>
+                            <a onclick="setMap('gewan-c2')">Gewan Crystal Walk Circuit 2</a>
+                            <a onclick="setMap('gewan-c3')">Gewan Crystal Building</a>
+
+                        </div>
+                    </div>
+
+                        <!-- UDC Tower -->
+                        <div class="hover-item">
+
+                            <div class="hover-title">
+                                <a onclick="setMap('udctower')">
+                                    UDC Tower
+                                </a>
+                            </div>
+
+                            <div class="hover-title">
+                                <a onclick="setMap('monoprix')">
+                                    Monoprix
+                                </a>
+                            </div>
+                            
+                            <div class="hover-title">
+                                <a onclick="setMap('qqscreen')">
+                                    Qanat Quartier Screen
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- STATIC COLUMN -->
+                    <div class="mega-column">
+
+                        <div class="mega-title">
+                            <a onclick="setMap('digital-all')">
+                                    Static Assets
+                                </a>
+                        </div>
+
+                        <!-- LIGHT POLES -->
+                        <div class="hover-item">
+
+                            <div class="hover-title">
+                                <a onclick="setMap('lightpoles-all')">
+                                    Light Poles Main Circuits
+                                </a>
+                                <span>›</span>
+                            </div>
+
+                            <!-- LEVEL 2 -->
+                            <div class="hover-submenu">
+
+                                <!-- MAIN ENTRANCE -->
+                                <div class="hover-item sub">
+
+                                    <div class="hover-title">
+                                        <a onclick="setMap('lightpoles-me-all')">
+                                            Main Entrance
+                                        </a>
+                                        <span>›</span>
+                                    </div>
+
+                                    <!-- LEVEL 3 -->
+                                    <div class="hover-submenu deep">
+
+                                        <a onclick="setMap('lightpoles-me-c1')">Main Entrance Circuit 1</a>
+                                        <a onclick="setMap('lightpoles-me-c2')">Main Entrance Circuit 2</a>
+                                        <a onclick="setMap('lightpoles-me-c3')">Main Entrance Circuit 3</a>
+
+                                    </div>
+                                </div>
+
+                                <!-- MAIN BOULEVARD -->
+                                <div class="hover-item sub">
+
+                                    <div class="hover-title">
+                                        <a onclick="setMap('lightpoles-mb-all')">
+                                            Main Boulevard
+                                        </a>
+                                        <span>›</span>
+                                    </div>
+
+                                    <!-- LEVEL 3 -->
+                                    <div class="hover-submenu deep">
+
+                                        <a onclick="setMap('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
+                                        <a onclick="setMap('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
+                                        <a onclick="setMap('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
+
+                                    </div>
+                                </div>
+
+                                <!-- MEDINA CENTRALE -->
+                                <div class="hover-item sub">
+
+                                    <div class="hover-title">
+                                        <a onclick="setMap('lightpoles-mc')">
+                                            Medina Centrale
+                                        </a>
+                                        <span>›</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Light Poles Porto Arabia -->
+                        <div class="hover-item">
+
+                            <div class="hover-title">
+                                <a onclick="setMap('lightpoles-pa-all')">
+                                    Light Poles Porto Arabia
+                                </a>
+                                <span>›</span>
+                            </div>
+
+                            <div class="hover-submenu">
+
+                                <a onclick="setMap('lightpoles-pa-c1')">Light Poles Porto Arabia Circuit 1</a>
+                                <a onclick="setMap('lightpoles-pa-c2')">Light Poles Porto Arabia Circuit 2</a>
+                                <a onclick="setMap('lightpoles-pa-c3')">Light Poles Porto Arabia Circuit 3</a>
+
+                            </div>
+                        </div>
+
+                        <!-- MUPI Boardwalk -->
+                        <div class="hover-item">
+
+                            <div class="hover-title">
+                                <a onclick="setMap('mupi-pa')">
+                                    Mupi Porto Arabia
+                                </a>
+                                <span>›</span>
+                            </div>
+
+                            <div class="hover-submenu">
+
+                                <a onclick="setMap('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
+                                <a onclick="setMap('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
+                                <a onclick="setMap('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        <div class="bottom-item" onclick="openVehicleReport()">
+            <img src="https://img.icons8.com/ios/50/people-in-car.png" alt="Vehicle Traffic">
+            <span>Vehicle Traffic</span>
         </div>
-    </div>
-
-    <div class="bottom-item" onclick="openVehicleReport()">
-        <img src="https://img.icons8.com/ios/50/people-in-car.png" alt="Vehicle Traffic">
-        <span>Vehicle Traffic</span>
-    </div>
 
 </div>
 
@@ -457,6 +1222,10 @@ function moveBottomIndicator(index) {
 // MAP LIST
 const maps = {
     "assets-all": "https://www.google.com/maps/d/u/0/embed?mid=1O9QdapVXTxIAc27SDk8ELyLVISIOVB4&noprof=1&hl=en",
+
+    "digital-all": "https://www.google.com/maps/d/u/0/embed?mid=1t_EhNntR3I06WqkHaqzRDvYjHrXCdbM&noprof=1&hl=en",
+
+
     "mupi-all": "https://www.google.com/maps/d/u/0/embed?mid=1vOMNPiS5Y-HrRRHCR1KcJhUcXn9xwEw&noprof=1&hl=en",
     "mupi-c1": "https://www.google.com/maps/d/u/0/embed?mid=1BrVkhO1Lg0HRAKHpGeH74zEDztPX-pE&noprof=1&hl=en",
     "mupi-c2": "https://www.google.com/maps/d/u/0/embed?mid=1MajcJPKIVulbFbP5yotE1NxGdhElf_k&noprof=1&hl=en",
@@ -657,6 +1426,25 @@ document.querySelectorAll(".bottom-item .dropdown a").forEach(item => {
                 .forEach(el => el.classList.remove("open"));
         }
 
+    });
+});
+
+document.querySelectorAll(".hover-title").forEach(title => {
+    title.addEventListener("click", (e) => {
+
+        const item = title.closest(".hover-item");
+        if (!item) return;
+
+        // prevent accidental double trigger
+        e.stopPropagation();
+
+        // close others (prevents chaos)
+        document.querySelectorAll(".hover-item.open").forEach(el => {
+            if (el !== item) el.classList.remove("open");
+        });
+
+        // toggle current
+        item.classList.toggle("open");
     });
 });
 
