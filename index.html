@@ -161,8 +161,8 @@ iframe {
     left: calc(100% + 20px);
     min-width: 250px;
     background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+
+
     padding: 10px 0;
     display: none;
     flex-direction: column;
@@ -209,9 +209,7 @@ iframe {
     display: none;
     flex-direction: column;
     min-width: 240px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    background: #fff;   
     padding: 8px 0;
 }
 
@@ -222,6 +220,7 @@ iframe {
     top: 0;
     width: 15px;
     height: 100%;
+    border-radius: 0;
 }
 
 .hover-item:hover > .hover-submenu {
@@ -384,7 +383,7 @@ iframe {
         height: 60px;
     }
 
-    .logo { height: 40px; }
+    .logo { height: 45px; }
 
     .nav-right {
         font-size: 12px;
@@ -422,7 +421,7 @@ iframe {
     /* Each item fills the 56px tap zone */
     .bottom-item {
         flex: 1;
-        height: 56px;
+        height: 55px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -475,15 +474,7 @@ iframe {
         transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* ── MOBILE MEGA MENU ── */
-
-    .dropdown-parent:hover > .mega-dropdown,
-    .hover-item:hover .hover-submenu,
-    .hover-item:hover > .hover-submenu,
-    .hover-item.sub:hover > .hover-submenu.deep {
-        display: none !important;
-        visibility: hidden !important;
-    }
+    /* ── MOBILE MEGA MENU ── */  
 
     .mega-dropdown {
         /* Layout */
@@ -533,10 +524,10 @@ iframe {
     .mega-column { width: 100%; }
 
     .mega-title {
-        font-size: 10px;
+        font-size: 12px;
         letter-spacing: 1px;
         text-transform: uppercase;
-        color: #999;
+        color: #777676;
         margin-bottom: 10px;
         padding-bottom: 8px;
         border-bottom: 1px solid rgba(0,0,0,0.06);
@@ -547,19 +538,18 @@ iframe {
         color: inherit;
     }
 
-    .hover-item { margin-bottom: 6px; }
+    .hover-item { margin-bottom: 1px; }
 
     .hover-title {
         display: flex;
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        padding: 12px 14px;
+        padding: 12px 10px;
         background-color: #f9f9f9;
-
-        border-radius: 14px;
+        border-radius: 10px;
         color: #333;
-        font-size: 12px;
+        font-size: 13px;
         cursor: pointer;
         transition: background 0.2s;
     }
@@ -568,20 +558,13 @@ iframe {
         text-decoration: none;
         color: inherit;
         flex: 1;
+        padding: 2px 1px;
     }
 
     .hover-title > span {
-        font-size: 16px;
-        color: #bbb;
+        font-size: 12px;  
         display: inline-block;
-        transition: transform 0.22s ease, color 0.22s ease;
         flex-shrink: 0;
-    }
-
-    .hover-item.open > .hover-title { background: #efefef; }
-    .hover-item.open > .hover-title > span {
-        transform: rotate(90deg);
-        color: orange;
     }
 
     /* Submenus — same visibility trick as mega menu */
@@ -591,32 +574,26 @@ iframe {
         position: relative !important;
         left: 0 !important;
         top: 0 !important;
-        margin-top: 6px;
+        margin-top: 6x;
         padding: 6px !important;
-        background: #fafafa !important;
+        background: #ffffff !important;
         border-radius: 14px;
         box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05) !important;
-        min-width: unset !important;
-        /* Hidden */
-        visibility: hidden;
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
-        transition: opacity 0.2s ease, max-height 0.2s ease, visibility 0s linear 0.2s;
+        min-width: unset !important;      
     }
 
     .hover-item.open > .hover-submenu {
         visibility: visible !important;
         opacity: 1 !important;
         max-height: 500px !important;
-        transition: opacity 0.2s ease, max-height 0.25s ease, visibility 0s linear 0s !important;
+        background-color: white !important;              
     }
 
     .hover-item.sub.open > .hover-submenu.deep {
         visibility: visible !important;
         opacity: 1 !important;
         max-height: 500px !important;
-        transition: opacity 0.2s ease, max-height 0.25s ease, visibility 0s linear 0s !important;
+        transition: opacity 0.2s !important;
     }
 
     .hover-submenu a {
@@ -624,13 +601,12 @@ iframe {
         border-radius: 10px;
         text-decoration: none;
         color: #555;
-        font-size: 13px;
+        font-size: 12px;
         display: block;
     }
 
     .hover-submenu a:active { opacity: 0.6; }
 
-    .hover-item.sub > .hover-title { background: #eeeeee; }
 
     .hover-submenu.deep {
         margin-left: 12px;
@@ -860,7 +836,7 @@ iframe {
                         <a onclick="setMapAndClose('underpass')">Underpass</a>
                         <span>›</span>
                     </div>
-                    <div class="hover-submenu">
+                    <div class="hover-submenu deep">
                         <a onclick="setMapAndClose('underpass-entrance')">Underpass Entrance</a>
                         <a onclick="setMapAndClose('underpass-exit')">Underpass Exit</a>
                     </div>
@@ -871,7 +847,7 @@ iframe {
                         <a onclick="setMapAndClose('mupi')">Mupi</a>
                         <span>›</span>
                     </div>
-                    <div class="hover-submenu">
+                    <div class="hover-submenu deep">
                         <a onclick="setMapAndClose('mupi-c1')">Mupi Circuit 1</a>
                         <a onclick="setMapAndClose('mupi-c2')">Mupi Circuit 2</a>
                     </div>
@@ -882,7 +858,7 @@ iframe {
                         <a onclick="setMapAndClose('gewan')">Gewan Crystal Walk</a>
                         <span>›</span>
                     </div>
-                    <div class="hover-submenu">
+                    <div class="hover-submenu deep">
                         <a onclick="setMapAndClose('gewan-c1')">Gewan Crystal Walk Circuit 1</a>
                         <a onclick="setMapAndClose('gewan-c2')">Gewan Crystal Walk Circuit 2</a>
                         <a onclick="setMapAndClose('gewan-c3')">Gewan Crystal Building</a>
@@ -905,31 +881,30 @@ iframe {
                     <div class="hover-title">
                         <a onclick="setMapAndClose('lightpoles-me-mb')">Light Poles Main Circuits</a>
                         <span>›</span>
+                    </div>                    
+                        
+                    <div class="hover-title ">
+                        <a onclick="setMapAndClose('lightpoles-me')">Main Entrance</a>
+                        <span>›</span>
                     </div>
-                    <div class="hover-submenu">
-                        <div class="hover-item sub">
-                            <div class="hover-title">
-                                <a onclick="setMapAndClose('lightpoles-me')">Main Entrance</a>
-                                <span>›</span>
-                            </div>
-                            <div class="hover-submenu deep">
-                                <a onclick="setMapAndClose('lightpoles-me-c1')">Main Entrance Circuit 1</a>
-                                <a onclick="setMapAndClose('lightpoles-me-c2')">Main Entrance Circuit 2</a>
-                                <a onclick="setMapAndClose('lightpoles-me-c3')">Main Entrance Circuit 3</a>
-                            </div>
-                        </div>
-                        <div class="hover-item sub">
-                            <div class="hover-title">
-                                <a onclick="setMapAndClose('lightpoles-mb')">Main Boulevard</a>
-                                <span>›</span>
-                            </div>
-                            <div class="hover-submenu deep">
-                                <a onclick="setMapAndClose('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
-                                <a onclick="setMapAndClose('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
-                                <a onclick="setMapAndClose('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
-                            </div>
-                        </div>
+
+                    <div class="hover-submenu deep">
+                        <a onclick="setMapAndClose('lightpoles-me-c1')">Main Entrance Circuit 1</a>
+                        <a onclick="setMapAndClose('lightpoles-me-c2')">Main Entrance Circuit 2</a>
+                        <a onclick="setMapAndClose('lightpoles-me-c3')">Main Entrance Circuit 3</a>
+                    </div>                        
+                        
+                    <div class="hover-title ">
+                        <a onclick="setMapAndClose('lightpoles-mb')">Main Boulevard</a>
+                        <span>›</span>
                     </div>
+
+                    <div class="hover-submenu deep">
+                        <a onclick="setMapAndClose('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
+                        <a onclick="setMapAndClose('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
+                        <a onclick="setMapAndClose('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
+                    </div>
+                                            
                 </div>
 
                 <div class="hover-item">
@@ -943,7 +918,7 @@ iframe {
                         <a onclick="setMapAndClose('lightpoles-pa')">Light Poles Porto Arabia</a>
                         <span>›</span>
                     </div>
-                    <div class="hover-submenu">
+                    <div class="hover-submenu deep">
                         <a onclick="setMapAndClose('lightpoles-pa-c1')">Light Poles Porto Arabia Circuit 1</a>
                         <a onclick="setMapAndClose('lightpoles-pa-c2')">Light Poles Porto Arabia Circuit 2</a>
                         <a onclick="setMapAndClose('lightpoles-pa-c3')">Light Poles Porto Arabia Circuit 3</a>
@@ -956,7 +931,7 @@ iframe {
                         <a onclick="setMapAndClose('mupi-pa')">Mupi Porto Arabia</a>
                         <span>›</span>
                     </div>
-                    <div class="hover-submenu">
+                    <div class="hover-submenu deep">
                         <a onclick="setMapAndClose('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
                         <a onclick="setMapAndClose('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
                         <a onclick="setMapAndClose('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
