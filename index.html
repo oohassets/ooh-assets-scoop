@@ -663,7 +663,7 @@ iframe {
         </div>
 
         <div class="nav-item dropdown-parent">
-            <a class="nav-link" data-map="assets-all" onclick="setMap('assets')">
+            <a class="nav-link" data-map="assets" onclick="setMap('assets')">
                 Assets Location
             </a>
 
@@ -773,6 +773,7 @@ iframe {
                             <a onclick="setMap('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
                             <a onclick="setMap('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
                             <a onclick="setMap('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
+                            <a onclick="setMap('mupi-pa-low')">Mupi Porto Arabia Low Visibility</a>
                         </div>
                     </div>
                 </div>
@@ -802,12 +803,15 @@ iframe {
     </div>
 
     <iframe id="mapFrame" style="display:none;"></iframe>
+
     <iframe id="vehicleFrame" style="display:none;"
         src="https://oohassets.github.io/ooh-assets-scoop/vehicle-traffic-report.html">
     </iframe>
+
     <iframe id="contentInventoryFrame" style="display:none;"
         src="https://oohassets.github.io/ooh-assets-scoop/content-inventory.html">
     </iframe>
+
 </div>
 
 <div id="bottomDropdown" class="dropdown"></div>
@@ -935,6 +939,7 @@ iframe {
                         <a onclick="setMapAndClose('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
                         <a onclick="setMapAndClose('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
                         <a onclick="setMapAndClose('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
+                        <a onclick="setMapAndClose('mupi-pa-low')">Mupi Porto Arabia Low Visibility</a>
                     </div>
                 </div>
             </div>
@@ -988,7 +993,14 @@ const maps = {
     "lightpoles-pa-c1":     "https://www.google.com/maps/d/u/0/embed?mid=1VnQurtB2nj6Wn5Kusx4-iv7Ty1iMQZM&noprof=1&hl=en",
     "lightpoles-pa-c2":     "https://www.google.com/maps/d/u/0/embed?mid=17gxQvvE533Haw5NZ664MG_fftFcu1Yw&noprof=1&hl=en",
     "lightpoles-pa-c3":     "https://www.google.com/maps/d/u/0/embed?mid=148DGkNNWesU5NXgRjdLF_SN2vMFZ0YM&noprof=1&hl=en",
-    "lightpoles-pa-c4":     "https://www.google.com/maps/d/u/0/embed?mid=1nu4ao35FX9BxwqQJy5UFZodZD2CaRQ4&noprof=1&hl=en"
+    "lightpoles-pa-c4":     "https://www.google.com/maps/d/u/0/embed?mid=1nu4ao35FX9BxwqQJy5UFZodZD2CaRQ4&noprof=1&hl=en",
+
+    "mupi-pa":              "https://www.google.com/maps/d/u/0/embed?mid=1FfdQf0DTJHPt7B4u1MwHcXGkTKeY7Wo&noprof=1&hl=en",
+    "mupi-pa-c1":           "https://www.google.com/maps/d/u/0/embed?mid=1i1_Q16qBXVmpyIoSoxy5tuYTjjrGuh4&noprof=1&hl=en",
+    "mupi-pa-c2":           "https://www.google.com/maps/d/u/0/embed?mid=1ImXsQCd1FN0PMP_QiYdOq5Kk3D5fUgE&noprof=1&hl=en",
+    "mupi-pa-c3":           "https://www.google.com/maps/d/u/0/embed?mid=1Bn9qg0voB7acWefrsldjCh4nFcd-Alw&noprof=1&hl=en",
+    "mupi-pa-low":           "https://www.google.com/maps/d/u/0/embed?mid=1JhqYIESVivHiJO-PLFciKR-9HWLSqqc&noprof=1&hl=en"
+
 };
 
 let currentMapKey = "assets";
