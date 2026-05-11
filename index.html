@@ -785,6 +785,36 @@ iframe {
                 Vehicle Traffic
             </a>
         </div>
+
+        <div class="nav-item dropdown-parent">
+            <a class="nav-link">
+                Services
+            </a>
+
+            <div class="mega-dropdown">
+                <div class="mega-column">
+
+                    <div class="mega-title">Services</div>
+
+                    <div class="hover-item">
+                        <div class="hover-title">
+                            <a onclick="openAssetDimensionChecker()">
+                                Asset Dimension Checker
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="hover-item">
+                        <div class="hover-title">
+                            <a onclick="openImageCompressor()">
+                                Bulk Image Compressor
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div class="nav-right">
@@ -810,6 +840,14 @@ iframe {
 
     <iframe id="contentInventoryFrame" style="display:none;"
         src="https://oohassets.github.io/ooh-assets-scoop/content-inventory.html">
+    </iframe>
+
+    <iframe id="assetDimensionCheckerFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/asset-dimension-checker.html">
+    </iframe>
+
+    <iframe id="imageCompressorFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/bulk-image-compressor.html">
     </iframe>
 
 </div>
@@ -950,6 +988,34 @@ iframe {
         <img src="https://img.icons8.com/ios/50/people-in-car.png" alt="Vehicle Traffic">
         <span>Vehicle Traffic</span>
     </div>
+
+    <div class="bottom-item" id="btnServices">
+        <img src="https://img.icons8.com/material-sharp/24/circled-menu.png" alt="Services">
+        <span>Services</span>
+
+        <div class="mega-dropdown">
+            <div class="mega-column">
+
+                <div class="hover-item">
+                    <div class="hover-title">
+                        <a onclick="openAssetDimensionChecker()">
+                            Asset Dimension Checker
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hover-item">
+                    <div class="hover-title">
+                        <a onclick="openImageCompressor()">
+                            Bulk Image Compressor
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -1049,188 +1115,234 @@ function moveIndicator(el) {
 }
 
 // =============================================
-// VIEW SWITCHING
+// HELPERS
+// =============================================
+function showOnlyFrame(frameId) {
+    const frames = [
+        "mapFrame",
+        "vehicleFrame",
+        "contentInventoryFrame",
+        "assetDimensionCheckerFrame",
+        "imageCompressorFrame"
+    ];
+
+    frames.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
+    });
+
+    const active = document.getElementById(frameId);
+    if (active) active.style.display = "block";
+}
+
+function setURL(params = {}) {
+    const url = new URL(window.location);
+
+    Object.keys(params).forEach(key => {
+        if (params[key] === null) url.searchParams.delete(key);
+        else url.searchParams.set(key, params[key]);
+    });
+
+    window.history.pushState({}, "", url);
+}
+
+// =============================================
+// MAP CONTROL
 // =============================================
 function setMap(key) {
     if (!maps[key]) return;
+
     currentMapKey = key;
     currentMapUrl = maps[key];
 
-    document.getElementById("mapFrame").style.display = "block";
-    document.getElementById("vehicleFrame").style.display = "none";
-    document.getElementById("contentInventoryFrame").style.display = "none";
-    document.getElementById("mapFrame").src = currentMapUrl;
+    showOnlyFrame("mapFrame");
+
+    const mapFrame = document.getElementById("mapFrame");
+    mapFrame.src = currentMapUrl;
 
     toggleOverlay(true);
 
-    const url = new URL(window.location);
-    url.searchParams.set("map", key);
-    url.searchParams.delete("page");
-    window.history.pushState({}, "", url);
+    setURL({ map: key, page: null });
 
-    setActive(key);
-    // Only move bottom indicator to Assets Location (index 1),
-    // but don't call setBottomActive which strips .open class
-    const items = document.querySelectorAll(".bottom-item");
-    items.forEach(item => item.classList.remove("active"));
-    items[1]?.classList.add("active");
-    moveBottomIndicator(1);
+    setActiveNav(key);
+    setBottomActive(1);
 }
 
-// FIX 5: Combined setMap + close menu for mobile links
 function setMapAndClose(key) {
     closeAllMobileMenus();
     setMap(key);
 }
 
-function setActive(key) {
+// =============================================
+// NAV ACTIVE STATE
+// =============================================
+function setActiveNav(key) {
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+
     const match = document.querySelector(`[data-map="${key}"]`);
     if (match) {
         match.classList.add("active");
+
         const parent = match.closest(".dropdown-parent")?.querySelector(".nav-link");
-        if (parent) {
-            parent.classList.add("active");
-            moveIndicator(parent);
-        } else {
-            moveIndicator(match);
-        }
+        moveIndicator(parent || match);
     }
 }
 
+// =============================================
+// CONTENT SWITCHING
+// =============================================
 function openContentInventory() {
-    document.getElementById("mapFrame").style.display = "none";
-    document.getElementById("vehicleFrame").style.display = "none";
-    document.getElementById("contentInventoryFrame").style.display = "block";
+    showOnlyFrame("contentInventoryFrame");
     toggleOverlay(false);
+
+    setURL({ map: null, page: null });
+
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
-    const link = document.getElementById("contentInventoryLink");
-    link.classList.add("active");
-    moveIndicator(link);
-    const url = new URL(window.location);
-    url.searchParams.delete("map");
-    url.searchParams.delete("page");
-    window.history.pushState({}, "", url);
+    document.getElementById("contentInventoryLink").classList.add("active");
+
+    moveIndicator(document.getElementById("contentInventoryLink"));
     setBottomActive(0);
 }
 
 function openVehicleReport() {
-    document.getElementById("mapFrame").style.display = "none";
-    document.getElementById("contentInventoryFrame").style.display = "none";
-    document.getElementById("vehicleFrame").style.display = "block";
+    showOnlyFrame("vehicleFrame");
     toggleOverlay(false);
+
+    setURL({ map: null, page: "vehicle" });
+
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
-    const link = document.getElementById("vehicleTrafficLink");
-    link.classList.add("active");
-    moveIndicator(link);
-    const url = new URL(window.location);
-    url.searchParams.delete("map");
-    url.searchParams.set("page", "vehicle");
-    window.history.pushState({}, "", url);
+    document.getElementById("vehicleTrafficLink").classList.add("active");
+
+    moveIndicator(document.getElementById("vehicleTrafficLink"));
     setBottomActive(2);
 }
 
+function openAssetDimensionChecker() {
+    showOnlyFrame("assetDimensionCheckerFrame");
+    toggleOverlay(false);
+
+    setURL({ map: null, page: "asset-checker" });
+    setBottomActive(3);
+}
+
+function openImageCompressor() {
+    showOnlyFrame("imageCompressorFrame");
+    toggleOverlay(false);
+
+    setURL({ map: null, page: "image-compressor" });
+    setBottomActive(3);
+}
+
+// =============================================
+// URL LOAD
+// =============================================
 function loadFromURL() {
     const params = new URLSearchParams(window.location.search);
     const page = params.get("page");
-    const key = params.get("map");
+    const map = params.get("map");
 
-    if (page === "vehicle") {
-        openVehicleReport();
-        return;
-    }
-    if (key && maps[key]) {
-        setMap(key);
-        return;
-    }
+    if (page === "vehicle") return openVehicleReport();
+    if (map && maps[map]) return setMap(map);
+
     openContentInventory();
 }
 
 // =============================================
-// MOBILE MENU — completely rewritten, no hover, no bubbling race
+// MOBILE MENU CONTROL
 // =============================================
 function closeAllMobileMenus() {
     document.querySelectorAll(".bottom-item.open, .hover-item.open")
         .forEach(el => el.classList.remove("open"));
 }
 
+// IMPORTANT: Assets menu toggle FIXED
+function toggleAssetsMenu(e) {
+    if (window.innerWidth > 768) return;
+
+    // prevent submenu click interference
+    if (e.target.closest("a")) return;
+
+    e.preventDefault();
+
+    const btn = document.getElementById("btnAssetsLocation");
+    const isOpen = btn.classList.contains("open");
+
+    closeAllMobileMenus();
+
+    if (!isOpen) {
+        btn.classList.add("open");
+        setBottomActive(1);
+
+        // load default map once only
+        if (!currentMapUrl) setMap("assets");
+    }
+}
+
+// =============================================
+// INIT
+// =============================================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ── Desktop nav indicator hover ──
+    // -----------------------------
+    // Desktop indicator
+    // -----------------------------
     const navLinks = document.querySelectorAll(".nav-link");
     const navContainer = document.querySelector(".nav-center");
 
     navLinks.forEach(link => {
         link.addEventListener("mouseenter", () => moveIndicator(link));
     });
+
     navContainer.addEventListener("mouseleave", () => {
         const active = document.querySelector(".nav-link.active");
         if (active) moveIndicator(active);
     });
-    window.moveIndicator = moveIndicator;
 
-    // ── Mobile: bottom nav buttons ──
-    document.getElementById("btnContentInventory").addEventListener("click", () => {
-        closeAllMobileMenus();
-        openContentInventory();
-    });
+    // -----------------------------
+    // Bottom nav clicks
+    // -----------------------------
+    document.getElementById("btnContentInventory")
+        .addEventListener("click", () => {
+            closeAllMobileMenus();
+            openContentInventory();
+        });
 
-    document.getElementById("btnVehicleTraffic").addEventListener("click", () => {
-        closeAllMobileMenus();
-        openVehicleReport();
-    });
+    document.getElementById("btnVehicleTraffic")
+        .addEventListener("click", () => {
+            closeAllMobileMenus();
+            openVehicleReport();
+        });
 
-    // ── Mobile: Assets Location toggle (mega menu trigger) ──
-    // FIX 6: Use touchend instead of click on mobile to avoid ghost-click flicker.
-    //         preventDefault stops the subsequent click event from firing.
+    document.getElementById("btnServices")
+        .addEventListener("click", () => {
+            closeAllMobileMenus();
+            document.getElementById("btnServices").classList.add("open");
+            setBottomActive(3);
+        });
+
+    // -----------------------------
+    // 🔥 FIXED Assets Mobile Menu
+    // -----------------------------
     const assetsBtn = document.getElementById("btnAssetsLocation");
+    assetsBtn.addEventListener("click", toggleAssetsMenu);
 
-    const openAssetsMenu = (e) => {
-        // Only run on mobile
-        if (window.innerWidth > 768) return;
-
-        // If the tap landed directly on a submenu <a> tag, let setMapAndClose handle it
-        if (e.target.tagName === "A") return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        const isOpen = assetsBtn.classList.contains("open");
-        closeAllMobileMenus();
-
-        if (!isOpen) {
-            assetsBtn.classList.add("open");
-            setBottomActive(1);
-            // Load the all-assets map whenever the menu opens
-            setMap("assets");
-        }
-    };
-
-    // touchend for mobile (fast, no 300ms delay, no ghost click)
-    assetsBtn.addEventListener("touchend", openAssetsMenu, { passive: false });
-    // click fallback for non-touch (e.g. emulated mobile in DevTools)
-    assetsBtn.addEventListener("click", openAssetsMenu);
-
-    // ── Mobile: hover-title accordion (submenus inside mega menu) ──
-    // FIX 7: Single delegated listener on document for all .hover-title taps
+    // -----------------------------
+    // Submenu accordion
+    // -----------------------------
     document.addEventListener("touchend", (e) => {
         if (window.innerWidth > 768) return;
 
         const title = e.target.closest(".hover-title");
         if (!title) return;
-
-        // If tapping the <a> link inside hover-title → let setMapAndClose() handle it
         if (e.target.closest("a")) return;
 
         e.preventDefault();
-        e.stopPropagation();
 
         const item = title.closest(".hover-item");
         if (!item) return;
 
         const wasOpen = item.classList.contains("open");
 
-        // Close siblings at the same level
         const siblings = item.parentElement.querySelectorAll(":scope > .hover-item");
         siblings.forEach(s => s.classList.remove("open"));
 
@@ -1238,43 +1350,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }, { passive: false });
 
-    // ── FIX 8: Close mega menu when tapping outside ──
-    // Use touchstart (fires before elements move) for reliable outside-tap detection
+    // -----------------------------
+    // Close outside tap FIXED
+    // -----------------------------
     document.addEventListener("touchstart", (e) => {
         if (window.innerWidth > 768) return;
 
         const openMenu = document.querySelector(".bottom-item.open");
         if (!openMenu) return;
 
-        // If touch started inside the open menu or its trigger, do nothing
-        if (openMenu.contains(e.target)) return;
-
-        closeAllMobileMenus();
-    }, { passive: true });
-
-    // Fallback click-outside for DevTools mobile emulation
-    document.addEventListener("click", (e) => {
-        if (window.innerWidth > 768) return;
-
-        const openMenu = document.querySelector(".bottom-item.open");
-        if (!openMenu) return;
         if (openMenu.contains(e.target)) return;
 
         closeAllMobileMenus();
     });
 
-    // ── Load initial view from URL ──
+    document.addEventListener("click", (e) => {
+        if (window.innerWidth > 768) return;
+
+        const openMenu = document.querySelector(".bottom-item.open");
+        if (!openMenu) return;
+
+        if (openMenu.contains(e.target)) return;
+
+        closeAllMobileMenus();
+    });
+
+    // -----------------------------
+    // Load initial view
+    // -----------------------------
     loadFromURL();
 
     setTimeout(() => {
+        refreshBottomIndicator();
+
         const active = document.querySelector(".nav-link.active");
         if (active) moveIndicator(active);
-
-        const activeIndex = [...document.querySelectorAll(".bottom-item")]
-            .findIndex(el => el.classList.contains("active"));
-        if (activeIndex >= 0) moveBottomIndicator(activeIndex);
-    }, 100);
+    }, 150);
 });
+
+
 </script>
 </body>
 </html>
