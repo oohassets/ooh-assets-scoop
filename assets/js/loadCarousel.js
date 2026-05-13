@@ -105,47 +105,47 @@ function createCard(title, data, columns, highlightColumns = []) {
   card.className = "card";
 
   card.innerHTML = `
-    <h2>${title}</h2>
+  <h2>${title}</h2>
     <div class="table-container">
       ${jsonToTableAuto(data, columns, highlightColumns)}
     </div>
-  `;
-  return card;
+    `;
+    return card;
 }
 
 // ===============================
 function showNoData(container) {
-  const msg = document.createElement("div");
-  msg.textContent = "No Campaign Published and Removed Today";
-  msg.classList.add("no-data-message");
-  container.appendChild(msg);
+    const msg = document.createElement("div");
+    msg.textContent = "No Campaign Published and Removed Today";
+    msg.classList.add("no-data-message");
+    container.appendChild(msg);
 }
 
 // ===============================
 function isEndingWithin3Days(formattedDate) {
-  if (!formattedDate || formattedDate === "—") return false;
+    if (!formattedDate || formattedDate === "—") return false;
 
-  const match = formattedDate.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
-  if (!match) return false;
+    const match = formattedDate.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+    if (!match) return false;
 
-  const d = parseInt(match[1]);
-  const mmm = match[2];
-  const y = parseInt(match[3]);
+    const d = parseInt(match[1]);
+    const mmm = match[2];
+    const y = parseInt(match[3]);
 
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const m = months.indexOf(mmm);
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const m = months.indexOf(mmm);
 
-  const endDate = new Date(y, m, d);
-  endDate.setHours(0,0,0,0);
+    const endDate = new Date(y, m, d);
+    endDate.setHours(0,0,0,0);
 
-  const today = new Date();
-  today.setHours(0,0,0,0);
+    const today = new Date();
+    today.setHours(0,0,0,0);
 
-  const diff = (endDate - today) / 86400000;
-  return diff >= 0 && diff <= 3;
+    const diff = (endDate - today) / 86400000;
+    return diff >= 0 && diff <= 3;
 }
 
-  function publishCampaignToday(allTables) {
+function publishCampaignToday(allTables) {
     const todayCarousel = document.getElementById("carouselPublishToday");
     if (!todayCarousel) return;
 
@@ -225,7 +225,7 @@ function isEndingWithin3Days(formattedDate) {
     }
 
     if (!hasData) showNoData(todayCarousel);
-  }
+}
 
 // ===============================
 export async function loadCarousel() {

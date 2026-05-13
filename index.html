@@ -281,7 +281,7 @@ iframe {
 }
 
 /* ================= OVERLAY ================= */
-.map-overlay {
+.map-overlay{
     position: absolute;
     top: 0;
     right: 0;
@@ -291,7 +291,16 @@ iframe {
     z-index: 1500;
 }
 
-.share-btn {
+.info-btn{
+    position: absolute;
+    top: 20px;
+    right: 70px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.share-btn{
     position: absolute;
     top: 20px;
     right: 20px;
@@ -300,8 +309,91 @@ iframe {
     cursor: pointer;
 }
 
-.share-btn img {
+.share-btn img,
+.info-btn img{
     width: 25px;
+
+}
+
+/* ============================================= */
+/* INFO CARD */
+/* ============================================= */
+.info-card{
+    position:absolute;
+    top:75px;
+    right:20px;
+    width:280px;
+    background:#ffffff;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.18);
+    overflow:hidden;
+    z-index:999;
+    display:none;
+    animation:fadeIn 0.25s ease;
+}
+
+/* ============================================= */
+/* CARD HEADER */
+/* ============================================= */
+.info-header{
+    padding:14px 18px;
+    background:#4d6a79;
+    color:#ffffff;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.close-info{
+    cursor:pointer;
+    font-size:14px;
+    opacity:0.8;
+}
+
+.close-info:hover{
+    opacity:1;
+}
+
+/* ============================================= */
+/* TABLE */
+/* ============================================= */
+.info-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.info-table tr{
+    border-bottom:1px solid #eeeeee;
+}
+
+.info-table th{
+    width:40%;
+    padding:14px 16px;
+    text-align:left;
+    font-size:12px;
+    color:#6b7280;
+    background:#f9fafb;
+}
+
+.info-table td{
+    padding:14px 16px;
+    font-size:12px;
+    color:#111827;
+}
+
+/* ============================================= */
+/* ANIMATION */
+/* ============================================= */
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(-8px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
 }
 
 /* ================= BOTTOM NAV ================= */
@@ -623,11 +715,17 @@ iframe {
         border-radius: 999px;
     }
 
+    .info-card{
+        width:calc(100vw - 40px);
+        right:20px;
+    }
+
     @keyframes mobileMenuIn {
         from { opacity: 0; transform: translateX(-50%) translateY(16px); }
         to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 }
+
 </style>
 
 <link rel="manifest" href="manifest.json">
@@ -846,9 +944,50 @@ iframe {
 
 <div class="map-container">
     <div class="map-overlay hide-top-right">
+
+        <!-- INFO BUTTON -->
+        <button class="info-btn" onclick="toggleInfoCard()" title="View Asset Details">
+            <img src="https://img.icons8.com/softteal-line/ffffff/info.png" alt="Info">
+        </button>
+
         <button class="share-btn" onclick="copyGoogleMapLink()" title="Copy Map Link">
             <img src="https://img.icons8.com/?size=100&id=98959&format=png&color=ffffff" alt="Share">
         </button>
+
+    </div>
+
+    <!-- ============================================= -->
+    <!-- INFO CARD -->
+    <!-- ============================================= -->
+    <div id="infoCard" class="info-card">
+
+        <div class="info-header">
+            Asset Rate Card
+            <span class="close-info" onclick="toggleInfoCard()">✕</span>
+        </div>
+
+        <table class="info-table">
+            <tr>
+                <th>Screens per Circuit</th>
+                <td id="infoScreens">0</td>
+            </tr>
+
+            <tr>
+                <th>Rate</th>
+                <td id="infoRate">QAR</td>
+            </tr>
+
+            <tr>
+                <th>Duration</th>
+                <td id="infoDuration">Weeks</td>
+            </tr>
+
+            <tr>
+                <th>Dimension WxH</th>
+                <td id="infoDimension">px</td>
+            </tr>
+        </table>
+
     </div>
 
     <iframe id="mapFrame" style="display:none;"></iframe>
@@ -1190,6 +1329,8 @@ function setMap(key) {
     currentMapKey = key;
     currentMapUrl = maps[key];
 
+    updateInfoCard(key);
+
     showOnlyFrame("mapFrame");
 
     const mapFrame = document.getElementById("mapFrame");
@@ -1312,6 +1453,84 @@ function toggleAssetsMenu(e) {
         if (!currentMapUrl) setMap("assets");
     }
 }
+
+// =============================================
+// INFO CARD TOGGLE
+// =============================================
+function toggleInfoCard() {
+
+    const card = document.getElementById("infoCard");
+
+    if (card.style.display === "block") {
+        card.style.display = "none";
+    } else {
+        card.style.display = "block";
+    }
+}
+
+// =============================================
+// MAP DETAILS DATA
+// =============================================
+const mapDetails = {
+
+    underpass: {
+        screens: "1",
+        rate: "65,000 QAR",
+        duration: "2 Weeks",
+        dimension: "6240 × 420 px"
+    },
+
+    mupi: {
+        screens: "12",
+        rate: "40,000 QAR",
+        duration: "2 Weeks",
+        dimension: "256 × 384 px"
+    },
+
+    gewan: {
+        screens: "12",
+        rate: "45,000 QAR",
+        duration: "2 Weeks",
+        dimension: "512 × 640 px"
+    }
+
+};
+
+// =============================================
+// UPDATE INFO CARD
+// =============================================
+function updateInfoCard(mapKey) {
+
+    const details = mapDetails[mapKey];
+
+    if (!details) return;
+
+    document.getElementById("infoScreens").innerText = details.screens;
+    document.getElementById("infoRate").innerText = details.rate;
+    document.getElementById("infoDuration").innerText = details.duration;
+    document.getElementById("infoDimension").innerText = details.dimension;
+}
+
+// =============================================
+// CLOSE INFO CARD WHEN CLICK OUTSIDE
+// =============================================
+document.addEventListener("click", (e) => {
+
+    const card = document.getElementById("infoCard");
+    const infoBtn = document.querySelector(".info-btn");
+
+    if (!card || card.style.display !== "block") return;
+
+    // ignore clicks inside card
+    if (card.contains(e.target)) return;
+
+    // ignore info button click
+    if (infoBtn.contains(e.target)) return;
+
+    // close card
+    card.style.display = "none";
+
+});
 
 // =============================================
 // INIT
