@@ -477,8 +477,10 @@ export async function loadCarousel() {
       upcomingRows.push({
         Client: row.Client ?? "—",
         Location: row.Location ?? "—",
-        Circuit: row.Circuit ?? "—",
-        "Start Date": formatDateDDMMMYYYY(row["Start Date"])
+        "Start Date": formatDateDDMMMYYYY(row["Start Date"]),
+        "End Date": formatDateDDMMMYYYY(row["End Date"]) ?? "—",
+        Status: row.Status ?? "—",  
+        Person: row.Person ?? "—" 
       });
     });
   }
@@ -488,7 +490,7 @@ export async function loadCarousel() {
       createCard(
         "Upcoming Campaigns",
         Object.fromEntries(upcomingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "Circuit", "Start Date"],
+        ["Client", "Location", "Start Date", "End Date", "Status", "Person"],
         ["Start Date"]
       )
     );
