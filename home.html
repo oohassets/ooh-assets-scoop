@@ -490,22 +490,21 @@ HEADER
 /* =======================================
 HEADER BORDER BOTTOM COLORS
 ======================================= */
-.campaign-card-header.published-header{
-    border-bottom:2px solid #16a34a;
+.campaign-card-header.published-header {
+    border-bottom:1px solid #16a34a;
 }
 
-.campaign-card-header.removed-header{
-    border-bottom:2px solid #ef4444;
+.campaign-card-header.removed-header {
+    border-bottom:1px solid #ef4444;
 }
 
-.campaign-card-header.upcoming-header{
-    border-bottom:2px solid #f59e0b;
+.campaign-card-header.upcoming-header {
+    border-bottom:1px solid #f59e0b;
 }
 
-.campaign-card-header.ending-header{
-    border-bottom:2px solid #0ea5e9;}
-
-
+.campaign-card-header.ending-header {
+    border-bottom:1px solid #0ea5e9;
+}
 
 
 /* =======================================
@@ -581,6 +580,12 @@ MOBILE
     font-size:12px;
 }
 
+.booking-calendar thead {
+    position: sticky;
+    top: 0;
+    z-index: 11;
+}
+
 .booking-calendar th,
 .booking-calendar td{
     border:1px solid #dcdcdc;
@@ -592,27 +597,37 @@ MOBILE
 
 .booking-calendar .circuit-cell{
     width:220px;
-    font-weight:700;
+    font-weight:400;
     font-size:14px;
     background:#f8f8f8;
     vertical-align:middle;
+    position: sticky;
+    left:0;
+    z-index:10;
 }
 
 .booking-calendar .slot-cell{
     width:90px;
-    font-weight:600;
+    font-weight:400;
     background:#fafafa;
+     position:sticky;
+    left:220px;
+    z-index:10;
+
 }
 
 .booking-calendar .date-head{
     min-width:55px;
-    background:#ffffff;
+    background:black;
     font-size:11px;
-    font-weight:700;
+    font-weight:500;
+    color: white;
+
 }
 
 .booking-calendar .today{
     background:#ffe95b;
+    color: black;
 }
 
 .booking-calendar .booking-bar{
@@ -620,7 +635,7 @@ MOBILE
     top:2px;
     left:0;
     height:30px;
-    border-radius:0;
+    border-radius:6px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -629,25 +644,12 @@ MOBILE
     font-size:12px;
     z-index:5;
     white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+
 }
 
-.booking-approved{
-    background:#8BC34A;
-}
 
-.booking-pending{
-    background:#03A9F4;
-}
-
-.booking-removed{
-    background:#F44336;
-    color:#fff;
-}
-
-.booking-published{
-    background:#4CAF50;
-    color:#fff;
-}
 
 @media(max-width:768px){
 
@@ -705,25 +707,10 @@ MOBILE
 .calendar-scroll {
     overflow: auto;
     height: calc(100% - 80px);
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
-
-
-.live-bar{
-    background:#16a34a;
-}
-
-.signed-bar{
-    background:#ef4444;
-}
-
-.quotation-bar{
-    background:#f59e0b;
-}
-
-.completed-bar{
-    background:#0ea5e9;
-}
 
 
 
@@ -2587,14 +2574,17 @@ if (openCalendarBtn) {
     openCalendarBtn.addEventListener("click", async () => {
         calendarModal.classList.add("active");
 
+        // ✅ SET DEFAULT MONTH TO CURRENT MONTH
+        const calendarMonth = document.getElementById("calendarMonth");
+        if (calendarMonth && !calendarMonth.value) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, "0");
+            calendarMonth.value = `${year}-${month}`;
+        }
+
         const bookings = await loadCampaignBookings();
         renderBookingCalendar(bookings);
-    });
-}
-
-if (closeCalendarBtn) {
-    closeCalendarBtn.addEventListener("click", () => {
-        calendarModal.classList.remove("active");
     });
 }
 
@@ -2636,7 +2626,6 @@ function formatDateShort(date) {
 }
 
 
-
 function renderBookingBars(bookings, allDates) {
 
     if (!bookings || !bookings.length) return;
@@ -2667,7 +2656,9 @@ function renderBookingBars(bookings, allDates) {
             (booking.Status || "").toLowerCase();
 
         // ✅ FIND ROW (BY CIRCUIT)
-        const rows = document.querySelectorAll("#bookingCalendar tr");
+        start.setHours(0,0,0,0);
+        end.setHours(0,0,0,0);
+        const rows = document.querySelectorAll("#bookingCalendar tbody tr");
 
         rows.forEach(row => {
 
@@ -2677,11 +2668,18 @@ function renderBookingBars(bookings, allDates) {
 
             const circuitName = circuitCell.textContent.trim();
 
-            if (!asset.includes(circuitName)) return;
+            // ✅ FIX: Case-insensitive partial match  
+            const assetLower = asset.toLowerCase();
+            const circuitLower = circuitName.toLowerCase();
 
-            const cells = row.querySelectorAll("td");
+            if (!assetLower.includes(circuitLower) && !circuitLower.includes(assetLower)) return;
 
-            cells.forEach(td => {
+            const cells = Array.from(row.querySelectorAll("td:not(.circuit-cell):not(.slot-cell)"));
+
+            // ✅ FIND CELLS IN DATE RANGE
+            const cellsInRange = [];
+
+            cells.forEach((td, idx) => {
 
                 if (!td.dataset.date) return;
 
@@ -2689,30 +2687,38 @@ function renderBookingBars(bookings, allDates) {
                 cellDate.setHours(0,0,0,0);
 
                 if (cellDate >= start && cellDate <= end) {
-
-                    // ✅ CREATE BAR
-                    const bar = document.createElement("div");
-
-                    bar.className = "booking-bar";
-
-                    // ✅ STATUS COLORS (uses your CSS)
-                    if (status.includes("live")) {
-                        bar.classList.add("booking-published");
-                    } else if (status.includes("signed")) {
-                        bar.classList.add("booking-approved");
-                    } else if (status.includes("quotation")) {
-                        bar.classList.add("booking-pending");
-                    } else if (status.includes("removed")) {
-                        bar.classList.add("booking-removed");
-                    } else {
-                        bar.classList.add("booking-pending");
-                    }
-
-                    bar.textContent = client;
-
-                    td.appendChild(bar);
+                    cellsInRange.push({ td, idx });
                 }
             });
+
+            // ✅ CREATE BAR
+            if (cellsInRange.length === 0) return;
+
+            // ✅ GET FIRST CELL AND CALCULATE SPAN
+            const firstTd = cellsInRange[0].td;
+            const spanCount = cellsInRange.length;
+            const cellWidth = firstTd.offsetWidth || 55;
+            const borderWidth = 1;
+            const totalWidth = (cellWidth * spanCount) + (borderWidth * (spanCount - 1));
+
+            // ✅ CREATE BAR (only in first cell)
+            const bar = document.createElement("div");
+            bar.className = "booking-bar";
+            bar.style.width = `${totalWidth}px`;
+
+            // ✅ STATUS COLORS (uses your CSS)
+            if (status.includes("live")) {
+                bar.classList.add("live");
+            } else if (status.includes("signed")) {
+                bar.classList.add("signed");
+            } else if (status.includes("quotation")) {
+                bar.classList.add("quotation");
+            } else if (status.includes("completed")) {
+                bar.classList.add("completed");
+            }
+
+            bar.textContent = client;
+            firstTd.appendChild(bar);
         });
     });
 }
@@ -2838,17 +2844,25 @@ async function renderBookingCalendar(
     }
 
     // =====================================
-    // DATE RANGE
+    // DATE RANGE (FULL MONTH)
     // =====================================
-    const startDate =
-        new Date();
+    let startDate;
+    let endDate;
 
-    const endDate =
-        new Date();
-
-    endDate.setDate(
-        endDate.getDate() + 30
-    );
+    // ✅ GET MONTH FROM INPUT
+    const calendarMonth = document.getElementById("calendarMonth");
+    if (calendarMonth && calendarMonth.value) {
+        const [year, month] = calendarMonth.value.split("-");
+        startDate = new Date(year, parseInt(month) - 1, 1);
+        endDate = new Date(year, parseInt(month), 0);
+    } else {
+        // ✅ DEFAULT: CURRENT MONTH
+        startDate = new Date();
+        startDate.setDate(1);
+        endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + 1);
+        endDate.setDate(0);
+    }
 
     const allDates =
         getDateRange(
@@ -2882,8 +2896,11 @@ async function renderBookingCalendar(
         const th =
             document.createElement("th");
 
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
         const isToday =
-            new Date().toDateString()
+            today.toDateString()
             ===
             date.toDateString();
 
@@ -3010,7 +3027,7 @@ async function loadCampaignBookings() {
     try {
 
         const snapshot = await get(
-            ref(rtdb, "campaignbooking")
+            ref(rtdb, "Campaigns_Booking")
         );
 
         if (!snapshot.exists()) {
