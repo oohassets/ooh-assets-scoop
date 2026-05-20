@@ -334,8 +334,7 @@ export async function loadCarousel() {
     if (name.includes("mupi porto arabia boardwalk")) return 7;
 
     // ===== Others =====
-    if (name.includes("arcade porto arabia retail")) return 8;
-    if (name.includes("senior medina centrale")) return 9;
+    if (name.includes("senior medina centrale")) return 8;
 
     return 999;
   };
