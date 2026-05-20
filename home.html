@@ -893,7 +893,7 @@ MOBILE
                         type="search"
                         id="campaignSearch"
                         class="search-input"
-                        placeholder="Search Client, Asset, Person..."
+                        placeholder="Search Client, Brand, Asset, Person..."
                         autocomplete="off"
                         spellcheck="false"
                     >
@@ -1262,9 +1262,11 @@ function getUpcomingCampaigns(allTables) {
                 }
             }
 
-            campaigns.push({
-
+                campaigns.push({
+                
                 client: row.Client || "—",
+
+                brand: row['Brand Campaign'] || '—',
 
                 asset: row.Location || "—",
 
@@ -1340,7 +1342,15 @@ function renderCampaignBooking(campaigns) {
 
         <tr>
 
-            <td>${row.client}</td>
+            <td>
+                <div style="font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 4px;">
+                    ${row.client}
+                </div>
+
+                <div> 
+                    ${row.brand}
+                </div>
+            </td>
 
             <td>${row.asset}</td>
 
@@ -1389,6 +1399,7 @@ function filterCampaigns() {
 
         const searchableText = `
             ${campaign.client}
+            ${campaign.brand}
             ${campaign.asset}
             ${campaign.person}
             ${campaign.status}
@@ -1626,7 +1637,7 @@ async function initCampaignDashboard() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align:center;">
+                <td colspan="8" style="text-align:center;">
                     Loading campaigns...
                 </td>
             </tr>
