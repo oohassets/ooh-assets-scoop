@@ -181,10 +181,11 @@ function publishCampaignToday(allTables) {
       if (logDate.getTime() !== today.getTime()) return;
 
       const client = row.Client ?? "—";
+      const brand = row["Brand Campaign"] ?? "—";
       const location = row.Location ?? "—";
       const key = `${client}|${location}`;
 
-      const record = { Client: client, Location: location };
+      const record = { Client: client, Location: location, Brand: brand };
 
       if (row.Type === "Add") publishedSet.set(key, record);
       if (row.Type === "Removed") removedSet.set(key, record);
@@ -217,7 +218,7 @@ function publishCampaignToday(allTables) {
       const removedCard = createCard(
         "Campaign Removed Today",
         Object.fromEntries(sortedRemoved.map((r, i) => [i, r])),
-        ["Client", "Location"]
+        ["Client","Brand", "Location"]
       );
 
       removedCard.classList.add("removed-card");

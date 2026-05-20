@@ -1902,7 +1902,7 @@ function renderCampaignUpdates(
         );
 
         // =======================================
-        // LAST 7 DAYS ONLY
+        // LAST 3 DAYS ONLY
         // =======================================
         if (diffDays < -3 || diffDays > 0) {
 
@@ -1969,9 +1969,9 @@ function renderCampaignUpdates(
 
                 className: "cancelled",
 
-                client: client,
+                client: client || "—",
 
-                asset: location,
+                asset: location || "—",
 
                 sortDate: logDate
 
