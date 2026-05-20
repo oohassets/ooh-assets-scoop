@@ -1829,17 +1829,19 @@ function parseDate(value) {
     );
 }
 
+
 // =======================================
 // RENDER CAMPAIGN UPDATES
 // =======================================
-// campaigns      = current campaigns
-// campaignLogs   = Campaign_Logs database
+// Published      = Campaign_Logs with Type = add
+// Removed        = Campaign_Logs with Type = removed
+// Upcoming       = Campaigns_Booking with Start Date within next 3 days
+// Ending Soon    = Any campaign with End Date within next 3 days (from all tables)
 // =======================================
 function renderCampaignUpdates(
     campaigns,
-    allTables = []
-) {
-
+    allTables = []) 
+{
     const container = document.getElementById(
         "campaignUpdatesContainer"
     );
@@ -1947,7 +1949,7 @@ function renderCampaignUpdates(
 
                 className: "active",
 
-                client: client,
+                brand: client,
 
                 asset: location,
 
@@ -1969,7 +1971,7 @@ function renderCampaignUpdates(
 
                 className: "cancelled",
 
-                client: client || "—",
+                brand: client || "—",
 
                 asset: location || "—",
 
@@ -1982,92 +1984,30 @@ function renderCampaignUpdates(
     });
 
     // =======================================
-    // CURRENT CAMPAIGNS
-    // UPCOMING + ENDING
+    // UPCOMING CAMPAIGNS
     // =======================================
     campaigns.forEach(campaign => {
 
-        const startDate = parseDate(
-            campaign.rawStartDate
-        );
+        const startDate = parseDate(campaign.rawStartDate);
 
-        const endDate = parseDate(
-            campaign.rawEndDate
-        );
-
-        if (!startDate || !endDate) return;
+        if (!startDate) return;
 
         startDate.setHours(0,0,0,0);
-        endDate.setHours(0,0,0,0);
 
-        const startDiff =
-            (startDate - today) / 86400000;
+        const startDiff = Math.floor(
+            (startDate - today) / 86400000
+        );
 
-        const endDiff =
-            (endDate - today) / 86400000;
-
-        // =======================================
-        // ENDING CAMPAIGN
-        // =======================================
-        if (endDiff === 0) {
-
-            groupedUpdates.ending.push({
-
-                label: "Today",
-
-                className: "completed",
-
-                brand: campaign.brand,
-
-                asset: campaign.asset,
-
-                sortDate: endDate
-
-            });
-
-        }
-
-        else if (
-            endDiff > 0 &&
-            endDiff <= 3
-        ) {
-
-            groupedUpdates.ending.push({
-
-                label:
-                    `In ${endDiff} Day${endDiff > 1 ? "s" : ""}`,
-
-                className: "completed",
-
-                brand: campaign.brand,
-
-                asset: campaign.asset,
-
-                sortDate: endDate
-
-            });
-
-        }
-
-
-    
-        // =======================================
-        // UPCOMING CAMPAIGN
-        // =======================================
-        if (
-            startDiff > 0 &&
-            startDiff <= 3
-        ) {
+        // ✅ UPCOMING ONLY
+        if (startDiff > 0 && startDiff <= 3) {
 
             groupedUpdates.upcoming.push({
 
-                label: formatShortDate(
-                    campaign.rawStartDate
-                ),
+                label: formatShortDate(campaign.rawStartDate),
 
                 className: "signed",
 
-                brand: campaign.brand,
+                brand: campaign.brand || campaign.client,
 
                 asset: campaign.asset,
 
@@ -2078,6 +2018,61 @@ function renderCampaignUpdates(
         }
 
     });
+
+    // =======================================
+    // ENDING CAMPAIGNS (FROM d_ / s_ TABLES) with 3 days left
+    // =======================================
+    for (const tableName in allTables) {
+
+        if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+
+        const formattedName = tableName
+            .replace(/^d_|^s_/, "")
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, c => c.toUpperCase());
+
+        const rows = Object.values(allTables[tableName]);
+
+        rows.forEach(r => {
+
+            if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
+
+            const parsedEnd = parseDate(r["End Date"]);
+            if (!parsedEnd) return;
+
+            parsedEnd.setHours(0,0,0,0);
+
+            const diff = Math.floor((parsedEnd - today) / 86400000);
+
+            if (diff < 0 || diff > 3) return;
+
+            let locationName = formattedName;
+
+            if (tableName.startsWith("s_") && r["Circuit"]) {
+                locationName = `${formattedName} ${r["Circuit"]}`;
+            }
+
+            groupedUpdates.ending.push({
+
+                label:
+                    diff === 0
+                        ? "Today"
+                        : `In ${diff} Day${diff > 1 ? "s" : ""}`,
+
+                className: "completed",
+
+                brand: r.Client || "—",
+
+                asset: locationName,
+
+                sortDate: parsedEnd
+
+            });
+
+        });
+
+    }
+
 
     // =======================================
     // SORT GROUPS
@@ -2136,11 +2131,11 @@ function renderCampaignUpdates(
                                 <div>
 
                                     <h4>
-                                        ${update.brand}
+                                        ${update.brand || update.client || "—"}
                                     </h4>
 
                                     <p>
-                                        ${update.asset}
+                                        ${update.asset || "—"}
                                     </p>
 
                                 </div>
@@ -2220,11 +2215,6 @@ function formatCompactNumber(value) {
     }).format(value);
 
 }
-
-
-
-
-
 
 // =======================================
 // PARSE VEHICLE DATE
