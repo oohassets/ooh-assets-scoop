@@ -347,6 +347,10 @@ textarea {
     border-radius: 999px;
     font-size: 12px;
     font-weight: 700;
+    white-space: nowrap !important;
+    display: inline-flex; 
+    align-items: center;
+    min-width: max-content;
 }
 
 .quotation {
@@ -573,12 +577,26 @@ MOBILE
 /* CALENDAR */
 /* ===================================== */
 .booking-calendar{
+    table-layout: auto;
+    min-width: max-content;
     width:100%;
     border-collapse:collapse;
     table-layout:fixed;
     font-family:Inter,sans-serif;
     font-size:12px;
+    
+    table-layout: auto;
+    border-collapse: collapse;
+
 }
+
+
+/* ✅ FORCE EACH DATE COLUMN WIDTH */
+.booking-calendar th:not(.circuit-cell):not(.slot-cell),
+.booking-calendar td:not(.circuit-cell):not(.slot-cell) {
+    min-width: 40px;
+}
+
 
 .booking-calendar thead {
     position: sticky;
@@ -586,7 +604,21 @@ MOBILE
     z-index: 11;
 }
 
-.booking-calendar th,
+.booking-calendar th{
+    border:1px solid #dcdcdc;
+    height:34px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    position: sticky;
+    top: 0;
+    z-index: 50; 
+}
+
+.booking-calendar thead th {
+    z-index: 40;
+}
+
 .booking-calendar td{
     border:1px solid #dcdcdc;
     height:34px;
@@ -594,6 +626,22 @@ MOBILE
     position:relative;
     overflow:hidden;
 }
+
+
+.circuit-cell {
+    position: sticky;
+    left: 0;
+    z-index: 60;
+    background: #f8f8f8;
+}
+
+.slot-cell {
+    position: sticky;
+    left: 220px;
+    z-index: 55;
+    background: #fafafa;
+}
+
 
 .booking-calendar .circuit-cell{
     width:220px;
@@ -603,17 +651,16 @@ MOBILE
     vertical-align:middle;
     position: sticky;
     left:0;
-    z-index:10;
+    z-index:30;
 }
 
 .booking-calendar .slot-cell{
     width:90px;
     font-weight:400;
     background:#fafafa;
-     position:sticky;
+    position:sticky;
     left:220px;
-    z-index:10;
-
+    z-index:25;
 }
 
 .booking-calendar .date-head{
@@ -649,6 +696,34 @@ MOBILE
 
 }
 
+.booking-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;    
+    font-size: 11px;
+    padding: 0 6px;
+    border-radius: 6px;
+    opacity: 0.95;
+    line-height: 1.2;
+}
+
+
+.booking-bar.live {
+    background:#22c55e;
+}
+
+.booking-bar.signed {
+    background:#f87171;
+}
+
+.booking-bar.quotation {
+    background:#facc15;
+}
+
+.booking-bar.completed {
+    background:#3b82f6;
+}
 
 
 @media(max-width:768px){
@@ -698,21 +773,47 @@ MOBILE
 .calendar-wrapper {
     background: white;
     width: 95%;
-    height: 90%;
     border-radius: 24px;
     padding: 20px;
-    overflow: hidden;
+    overflow: hidden;    
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+
 }
 
 .calendar-scroll {
     overflow: auto;
-    height: calc(100% - 80px);
-    overflow-x: auto;
-    overflow-y: auto;
+    height: 100%;
+    flex: 1;    
+    overflow: auto;
 }
 
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
 
+.calendar-header div:last-child {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
+.calendar-header input[type="date"] {
+    width: 150px;
+    min-width: 140px;
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 10px;    
+    background: #fff;
+    border: 1px solid #e5e7eb;
+
+}
 
 
 @media(max-width: 1100px) {
@@ -758,6 +859,8 @@ MOBILE
         align-items: flex-start;
     }
 }
+
+
 </style>
 </head>
 <body>
@@ -1083,10 +1186,10 @@ CALENDAR MODAL
 
             <div style="display:flex;gap:12px;align-items:center">
 
-                <input
-                    type="month"
-                    id="calendarMonth"
-                >
+
+                <input type="date" id="calendarFrom">
+                <input type="date" id="calendarTo">
+
 
                 <button
                     class="btn btn-light"
@@ -2571,17 +2674,47 @@ const calendarModal = document.getElementById("calendarModal");
 const openCalendarBtn = document.getElementById("openCalendarBtn");
 const closeCalendarBtn = document.getElementById("closeCalendarBtn");
 
+const fromInputEl = document.getElementById("calendarFrom");
+const toInputEl   = document.getElementById("calendarTo");
+
+
+if (closeCalendarBtn) {
+    closeCalendarBtn.addEventListener("click", () => {
+        calendarModal.classList.remove("active");
+    });
+}
+
+
+if (fromInputEl && toInputEl) {
+
+    fromInputEl.addEventListener("change", reloadCalendar);
+    toInputEl.addEventListener("change", reloadCalendar);
+
+}
+
+async function reloadCalendar() {
+    const bookings = await loadCampaignBookings();
+    renderBookingCalendar(bookings);
+}
+
+
 if (openCalendarBtn) {
     openCalendarBtn.addEventListener("click", async () => {
         calendarModal.classList.add("active");
 
         // ✅ SET DEFAULT MONTH TO CURRENT MONTH
-        const calendarMonth = document.getElementById("calendarMonth");
-        if (calendarMonth && !calendarMonth.value) {
+        const fromInput = document.getElementById("calendarFrom");
+        const toInput   = document.getElementById("calendarTo");
+
+        if (fromInput && toInput && !fromInput.value) {
+
             const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, "0");
-            calendarMonth.value = `${year}-${month}`;
+
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay  = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            fromInput.value = firstDay.toISOString().split("T")[0];
+            toInput.value   = lastDay.toISOString().split("T")[0];
         }
 
         const bookings = await loadCampaignBookings();
@@ -2593,19 +2726,28 @@ calendarModal.addEventListener("click", (event) => {
     if (event.target === calendarModal) {
         calendarModal.classList.remove("active");
     }
+
+    async function reloadCalendar() {
+        const bookings = await loadCampaignBookings();
+        renderBookingCalendar(bookings);
+    }
+
 });
 
 // =======================================
 // MONTH CHANGE
 // =======================================
-const calendarMonth = document.getElementById("calendarMonth");
 
-if (calendarMonth) {
-    calendarMonth.addEventListener("change", async () => {
-        const bookings = await loadCampaignBookings();
-        renderBookingCalendar(bookings);
-    });
-}
+const fromInput = document.getElementById("calendarFrom");
+const toInput   = document.getElementById("calendarTo");
+
+let startDate = fromInput?.value
+    ? new Date(fromInput.value)
+    : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+let endDate = toInput?.value
+    ? new Date(toInput.value)
+    : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
 
 function getDateRange(start, end) {
@@ -2619,7 +2761,6 @@ function getDateRange(start, end) {
 
     return dates;
 }
-
 
 
 function formatDateShort(date) {
@@ -2659,28 +2800,37 @@ function renderBookingBars(bookings, allDates) {
         // ✅ FIND ROW (BY CIRCUIT)
         start.setHours(0,0,0,0);
         end.setHours(0,0,0,0);
+
+        const slotValue = booking.Slot || booking.slot || 1;
+
         const rows = document.querySelectorAll("#bookingCalendar tbody tr");
 
         rows.forEach(row => {
 
             const circuitCell = row.querySelector(".circuit-cell");
+            const slotCell = row.querySelector(".slot-cell");
 
-            if (!circuitCell) return;
+            if (!circuitCell || !slotCell) return;
 
             const circuitName = circuitCell.textContent.trim();
+            const slotText = slotCell.textContent.trim(); // "Slot 1"
 
-            // ✅ FIX: Case-insensitive partial match  
-            const assetLower = asset.toLowerCase();
-            const circuitLower = circuitName.toLowerCase();
+            // ✅ MATCH CIRCUIT
+            if (!asset.toLowerCase().includes(circuitName.toLowerCase())) return;
 
-            if (!assetLower.includes(circuitLower) && !circuitLower.includes(assetLower)) return;
+            // ✅ MATCH SLOT            
+            const slotNumber = parseInt(slotText.replace("Slot ", ""), 10);
 
-            const cells = Array.from(row.querySelectorAll("td:not(.circuit-cell):not(.slot-cell)"));
+            if (slotNumber !== Number(slotValue)) return;
 
-            // ✅ FIND CELLS IN DATE RANGE
+
+            const cells = Array.from(
+                row.querySelectorAll("td:not(.circuit-cell):not(.slot-cell)")
+            );
+
             const cellsInRange = [];
 
-            cells.forEach((td, idx) => {
+            cells.forEach(td => {
 
                 if (!td.dataset.date) return;
 
@@ -2688,39 +2838,67 @@ function renderBookingBars(bookings, allDates) {
                 cellDate.setHours(0,0,0,0);
 
                 if (cellDate >= start && cellDate <= end) {
-                    cellsInRange.push({ td, idx });
+                    cellsInRange.push(td);
                 }
+
             });
 
-            // ✅ CREATE BAR
-            if (cellsInRange.length === 0) return;
+            if (!cellsInRange.length) return;
 
-            // ✅ GET FIRST CELL AND CALCULATE SPAN
-            const firstTd = cellsInRange[0].td;
-            const spanCount = cellsInRange.length;
-            const cellWidth = firstTd.offsetWidth || 55;
-            const borderWidth = 1;
-            const totalWidth = (cellWidth * spanCount) + (borderWidth * (spanCount - 1));
+            const firstTd = cellsInRange[0];
 
-            // ✅ CREATE BAR (only in first cell)
+            // ✅ create bar
             const bar = document.createElement("div");
             bar.className = "booking-bar";
-            bar.style.width = `${totalWidth}px`;
 
-            // ✅ STATUS COLORS (uses your CSS)
-            if (status.includes("live")) {
-                bar.classList.add("live");
-            } else if (status.includes("signed")) {
-                bar.classList.add("signed");
-            } else if (status.includes("quotation")) {
-                bar.classList.add("quotation");
-            } else if (status.includes("completed")) {
-                bar.classList.add("completed");
+            // ✅ duration in days
+            const spanCount = cellsInRange.length;
+
+            // ✅ CRITICAL: make parent cell span across columns
+            firstTd.colSpan = spanCount;
+
+            // ✅ remove extra cells
+            for (let i = 1; i < spanCount; i++) {
+                cellsInRange[i].remove();
             }
 
-            bar.textContent = client;
+            // ✅ styling
+            bar.style.width = "100%";
+
+            const brand =
+                booking["Brand Campaign"] ||
+                booking.brand ||
+                "";
+
+            const person =
+                booking.Person ||
+                booking.person ||
+                "";
+
+            let label = client;
+
+            if (brand) {
+                label += ` | ${brand}`;
+            }
+
+            if (person) {
+                label += ` - ${person}`;
+            }
+
+            bar.textContent = label;
+
+
+            // ✅ status colors
+            if (status.includes("live")) bar.classList.add("live");
+            else if (status.includes("signed")) bar.classList.add("signed");
+            else if (status.includes("quotation")) bar.classList.add("quotation");
+            else if (status.includes("completed")) bar.classList.add("completed");
+
+            // ✅ attach
             firstTd.appendChild(bar);
+
         });
+
     });
 }
 
@@ -2762,30 +2940,14 @@ async function loadCircuitSlots() {
         // =====================================
         // BUILD CIRCUITS
         // =====================================
+
+
         const circuitSlots = rows
-            .filter(row =>
-                row &&
-                row.Circuits
-            )
+            .filter(row => row && row.Circuits)
             .map(row => ({
-
-                name:
-                    row.Circuits
-                    .toString()
-                    .trim(),
-
-                slots:
-                    parseInt(
-                        row.Slot || 1,
-                        10
-                    )
-
-            }))
-            .sort((a, b) =>
-                a.name.localeCompare(
-                    b.name
-                )
-            );
+                name: row.Circuits.toString().trim(),
+                slots: parseInt(row.Slot || 1, 10)
+            }));
 
         console.log(
             "circuitSlots:",
@@ -2847,23 +3009,17 @@ async function renderBookingCalendar(
     // =====================================
     // DATE RANGE (FULL MONTH)
     // =====================================
-    let startDate;
-    let endDate;
+    const fromInput = document.getElementById("calendarFrom");
+    const toInput   = document.getElementById("calendarTo");
 
-    // ✅ GET MONTH FROM INPUT
-    const calendarMonth = document.getElementById("calendarMonth");
-    if (calendarMonth && calendarMonth.value) {
-        const [year, month] = calendarMonth.value.split("-");
-        startDate = new Date(year, parseInt(month) - 1, 1);
-        endDate = new Date(year, parseInt(month), 0);
-    } else {
-        // ✅ DEFAULT: CURRENT MONTH
-        startDate = new Date();
-        startDate.setDate(1);
-        endDate = new Date(startDate);
-        endDate.setMonth(endDate.getMonth() + 1);
-        endDate.setDate(0);
-    }
+    let startDate = fromInput?.value
+        ? new Date(fromInput.value)
+        : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    let endDate = toInput?.value
+        ? new Date(toInput.value)
+        : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
 
     const allDates =
         getDateRange(
@@ -2928,83 +3084,44 @@ async function renderBookingCalendar(
     // =====================================
     // BODY
     // =====================================
+    const tbody = document.createElement("tbody");
+
     circuitSlots.forEach(circuit => {
 
-        for (
-            let slot = 1;
-            slot <= circuit.slots;
-            slot++
-        ) {
+        for (let slot = 1; slot <= circuit.slots; slot++) {
 
-            const tr =
-                document.createElement(
-                    "tr"
-                );
+            const tr = document.createElement("tr");
 
-            // =====================================
             // CIRCUIT CELL
-            // =====================================
             if (slot === 1) {
-
-                const tdCircuit =
-                    document.createElement(
-                        "td"
-                    );
-
-                tdCircuit.className =
-                    "circuit-cell";
-
-                tdCircuit.rowSpan =
-                    circuit.slots;
-
-                tdCircuit.innerHTML =
-                    circuit.name;
-
-                tr.appendChild(
-                    tdCircuit
-                );
-
+                const tdCircuit = document.createElement("td");
+                tdCircuit.className = "circuit-cell";
+                tdCircuit.rowSpan = circuit.slots;
+                tdCircuit.textContent = circuit.name;
+                tr.appendChild(tdCircuit);
             }
 
-            // =====================================
             // SLOT CELL
-            // =====================================
-            const slotTd =
-                document.createElement(
-                    "td"
-                );
-
-            slotTd.className =
-                "slot-cell";
-
-            slotTd.innerHTML =
-                `Slot ${slot}`;
-
+            const slotTd = document.createElement("td");
+            slotTd.className = "slot-cell";
+            slotTd.textContent = `Slot ${slot}`;
             tr.appendChild(slotTd);
 
-            // =====================================
             // DATE CELLS
-            // =====================================
             allDates.forEach(date => {
-
-                const td =
-                    document.createElement(
-                        "td"
-                    );
-
-                td.dataset.date =
-                    date.toISOString()
-                    .split("T")[0];
-
+                const td = document.createElement("td");
+                td.dataset.date = date.toISOString().split("T")[0];
                 tr.appendChild(td);
-
             });
 
-            table.appendChild(tr);
-
+            tbody.appendChild(tr);
         }
-
     });
+
+    table.appendChild(tbody);
+    ``
+
+    table.appendChild(tbody);
 
     // =====================================
     // RENDER BOOKINGS
@@ -3071,8 +3188,6 @@ async function initializeCalendar() {
 }
 
 
-
-
 // =======================================
 // DOM READY
 // =======================================
@@ -3085,4 +3200,4 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 </body>
-</html>
+</html> 
