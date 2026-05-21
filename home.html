@@ -386,6 +386,16 @@ textarea {
     gap: 24px;
 }
 
+.campaign-date-label{
+    font-size:12px;
+    font-weight:600;
+    color:#64748b;
+    white-space:nowrap;
+    background:none !important;
+    padding:0 !important;
+    border-radius:0 !important;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -640,10 +650,10 @@ MOBILE
 
 .booking-calendar td{
     border:1px solid #dcdcdc;
-    height:34px;
     text-align:center;
+    height:40px;
     position:relative;
-    overflow:hidden;
+    overflow:visible;
 }
 
 
@@ -718,21 +728,22 @@ MOBILE
 
 .booking-calendar .booking-bar{
     position:absolute;
-    top:2px;
+    top:4px;
     left:0;
     height:30px;
     border-radius:6px;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-weight:700;
+    font-weight:600;
     color:#000;
-    font-size:12px;
-    z-index:5;
+    font-size:11px;
+    z-index:20;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-
+    padding:0 10px;
+    box-sizing:border-box;
 }
 
 .booking-bar {
@@ -1413,7 +1424,7 @@ function getUpcomingCampaigns(allTables) {
 
                 brand: row['Brand Campaign'] || '—',
 
-                asset: row.Location || "—",
+                asset: row.Circuits || "—",
 
                 date: `
                     ${formatShortDate(rawStartDate)}
@@ -2295,7 +2306,7 @@ function renderCampaignUpdates(
 
                                 </div>
 
-                                <span class="status ${update.className}">
+                                <span class="campaign-date-label">
                                     ${update.label}
                                 </span>
 
@@ -2754,7 +2765,7 @@ if (openCalendarBtn) {
     openCalendarBtn.addEventListener("click", async () => {
         calendarModal.classList.add("active");
 
-        // ✅ SET DEFAULT MONTH TO CURRENT MONTH
+        // SET DEFAULT MONTH TO CURRENT MONTH
         const fromInput = document.getElementById("calendarFrom");
         const toInput   = document.getElementById("calendarTo");
 
@@ -2820,9 +2831,13 @@ function formatDateShort(date) {
 }
 
 
-function renderBookingBars(bookings, allDates) {
+function renderBookingBars(bookings) {
 
     if (!bookings || !bookings.length) return;
+
+    const rows = document.querySelectorAll(
+        "#bookingCalendar tbody tr"
+    );
 
     bookings.forEach(booking => {
 
@@ -2836,110 +2851,154 @@ function renderBookingBars(bookings, allDates) {
 
         if (!start || !end) return;
 
-        const client =
-            booking.Client ||
-            booking.client ||
-            "Booking";
-
-        const asset =
-            booking.Location ||
-            booking.asset ||
-            "";
-
-        const status =
-            (booking.Status || "").toLowerCase();
-
-        // ✅ FIND ROW (BY CIRCUIT)
         start.setHours(0,0,0,0);
         end.setHours(0,0,0,0);
 
-        const slotValue = booking.Slot || booking.slot || 1;
+        const asset =
+            booking.Circuits ||
+            booking.Circuit ||
+            booking.Location ||
+            "";
 
-        const rows = document.querySelectorAll("#bookingCalendar tbody tr");
+        const slotValue =
+            Number(booking.Slot || booking.slot || 1);
+
+        const client =
+            booking.Client ||
+            "Booking";
+
+        const brand =
+            booking["Brand Campaign"] || "";
+
+        const person =
+            booking.Person || "";
+
+        const status =
+            (booking.Status || "")
+            .toLowerCase();
 
         rows.forEach(row => {
 
-            const circuitCell = row.querySelector(".circuit-cell");
-            const slotCell = row.querySelector(".slot-cell");
+            const slotCell =
+                row.querySelector(".slot-cell");
 
-            if (!circuitCell || !slotCell) return;
+            if (!slotCell) return;
 
-            const circuitName = circuitCell.textContent.trim();
-            const slotText = slotCell.textContent.trim(); // "Slot 1"
+            // =====================================
+            // FIND CIRCUIT
+            // =====================================
+            let rowCircuit = "";
 
-            // ✅ MATCH CIRCUIT            
-            const normalize = (str) =>
-                str.toLowerCase().replace(/\s+/g, " ").trim();
+            const directCircuit =
+                row.querySelector(".circuit-cell");
 
-            const assetName = normalize(asset);
-            const circuitNameNormalized = normalize(circuitName);
+            if (directCircuit) {
 
-            // ✅ Match BOTH WAYS (important fix)
+                rowCircuit =
+                    directCircuit.textContent.trim();
+
+            } else {
+
+                let previousRow =
+                    row.previousElementSibling;
+
+                while (previousRow && !rowCircuit) {
+
+                    const previousCircuit =
+                        previousRow.querySelector(
+                            ".circuit-cell"
+                        );
+
+                    if (previousCircuit) {
+
+                        rowCircuit =
+                            previousCircuit.textContent.trim();
+
+                        break;
+                    }
+
+                    previousRow =
+                        previousRow.previousElementSibling;
+                }
+            }
+
+            const normalize = str =>
+                (str || "")
+                .toLowerCase()
+                .replace(/[_-]/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            const rowCircuitNormalized =
+                normalize(rowCircuit);
+
+            const assetNormalized =
+                normalize(asset);
+
+            const isMatch =
+                rowCircuitNormalized === assetNormalized
+                ||
+                rowCircuitNormalized.includes(assetNormalized)
+                ||
+                assetNormalized.includes(rowCircuitNormalized);
+
+            if (!isMatch) return;
+
+            // =====================================
+            // SLOT MATCH
+            // =====================================
+            const rowSlot = parseInt(
+                slotCell.textContent.replace("Slot ", ""),
+                10
+            );
+
+            if (rowSlot !== slotValue) {
+                return;
+            }
+
+            // =====================================
+            // DATE CELLS
+            // =====================================
+            const cells = Array.from(
+                row.querySelectorAll(
+                    'td[data-date]'
+                )
+            );
+
+            const startIndex =
+                cells.findIndex(td =>
+                    td.dataset.date ===
+                    start.toISOString().split("T")[0]
+                );
+
+            const endIndex =
+                cells.findIndex(td =>
+                    td.dataset.date ===
+                    end.toISOString().split("T")[0]
+                );
+
             if (
-                assetName !== circuitNameNormalized &&
-                !assetName.includes(circuitNameNormalized) &&
-                !circuitNameNormalized.includes(assetName)
+                startIndex === -1 ||
+                endIndex === -1
             ) {
                 return;
             }
 
+            const firstCell =
+                cells[startIndex];
 
-            // ✅ MATCH SLOT            
-            const slotNumber = parseInt(slotText.replace("Slot ", ""), 10);
+            const totalDays =
+                (endIndex - startIndex) + 1;
 
-            if (slotValue && slotNumber !== Number(slotValue)) return;
+            const bar =
+                document.createElement("div");
 
-
-            const cells = Array.from(
-                row.querySelectorAll("td:not(.circuit-cell):not(.slot-cell)")
-            );
-
-            const cellsInRange = [];
-
-            cells.forEach(td => {
-
-                if (!td.dataset.date) return;
-
-                const cellDate = new Date(td.dataset.date);
-                cellDate.setHours(0,0,0,0);
-
-                if (cellDate >= start && cellDate <= end) {
-                    cellsInRange.push(td);
-                }
-
-            });
-
-            if (!cellsInRange.length) return;
-
-            const firstTd = cellsInRange[0];
-
-            // ✅ create bar
-            const bar = document.createElement("div");
             bar.className = "booking-bar";
 
-            // ✅ duration in days
-            const spanCount = cellsInRange.length;
+            bar.style.width =
+                `calc(${totalDays * 100}% + ${(totalDays - 1)}px)`;
 
-            // ✅ CRITICAL: make parent cell span across columns
-            firstTd.colSpan = spanCount;
-
-            // ✅ remove extra cells
-            for (let i = 1; i < spanCount; i++) {
-                cellsInRange[i].remove();
-            }
-
-            // ✅ styling
-            bar.style.width = "100%";
-
-            const brand =
-                booking["Brand Campaign"] ||
-                booking.brand ||
-                "";
-
-            const person =
-                booking.Person ||
-                booking.person ||
-                "";
+            bar.style.left = "0";
 
             let label = client;
 
@@ -2953,19 +3012,27 @@ function renderBookingBars(bookings, allDates) {
 
             bar.textContent = label;
 
+            if (status.includes("live")) {
+                bar.classList.add("live");
+            }
+            else if (status.includes("signed")) {
+                bar.classList.add("signed");
+            }
+            else if (status.includes("quotation")) {
+                bar.classList.add("quotation");
+            }
+            else if (status.includes("completed")) {
+                bar.classList.add("completed");
+            }
 
-            // ✅ status colors
-            if (status.includes("live")) bar.classList.add("live");
-            else if (status.includes("signed")) bar.classList.add("signed");
-            else if (status.includes("quotation")) bar.classList.add("quotation");
-            else if (status.includes("completed")) bar.classList.add("completed");
+            firstCell.style.position = "relative";
 
-            // ✅ attach
-            firstTd.appendChild(bar);
+            firstCell.appendChild(bar);
 
         });
 
     });
+
 }
 
 
@@ -3176,9 +3243,6 @@ async function renderBookingCalendar(
     });
 
     table.appendChild(tbody);
-    ``
-
-    table.appendChild(tbody);
 
     // =====================================
     // RENDER BOOKINGS
@@ -3239,7 +3303,7 @@ async function initializeCalendar() {
         await loadCampaignBookings();
 
     renderBookingCalendar(
-        bookings
+        bookings,
     );
 
 }
