@@ -342,6 +342,12 @@ textarea {
     border-radius: 0 18px 18px 0;
 }
 
+.date-cell {
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+
 .status {
     padding: 8px 14px;
     border-radius: 999px;
@@ -1492,7 +1498,7 @@ function renderCampaignBooking(campaigns) {
 
             <td>${row.asset}</td>
 
-            <td>${row.date}</td>
+            <td class="date-cell">${row.date}</td>
 
             <td>
                 <span class="status ${getStatusClass(row.status)}">
