@@ -611,7 +611,6 @@ MOBILE
 
 
 .booking-calendar thead {
-    position: sticky;
     top: 0;
     z-index: 11;
 }
@@ -622,14 +621,17 @@ MOBILE
     text-align:center;
     position:relative;
     overflow:hidden;
-    position: sticky;
-    top: 0;
     z-index: 50; 
 }
 
 .booking-calendar thead th {
-    z-index: 40;
+    position: sticky;
+    top: 0;
+    z-index: 300;
+    background: black;
+    color: white;
 }
+
 
 .booking-calendar td{
     border:1px solid #dcdcdc;
@@ -650,30 +652,50 @@ MOBILE
 .slot-cell {
     position: sticky;
     left: 220px;
-    z-index: 55;
+    z-index: 60;
     background: #fafafa;
 }
 
+/* ✅ Circuit column */
+.booking-calendar .circuit-cell {
+    
+    width: 220px;
+    min-width: 220px;
 
-.booking-calendar .circuit-cell{
-    width:220px;
-    font-weight:400;
-    font-size:14px;
-    background:#f8f8f8;
-    vertical-align:middle;
     position: sticky;
-    left:0;
-    z-index:30;
+    left: 0;
+    z-index: 200;
+    background: #f8f8f8;
 }
 
-.booking-calendar .slot-cell{
-    width:90px;
-    font-weight:400;
-    background:#fafafa;
-    position:sticky;
-    left:220px;
-    z-index:25;
+/* ✅ Slot column */
+.booking-calendar .slot-cell {
+    
+    width: 90px;
+    min-width: 90px;
+
+    position: sticky;
+    left: 220px;
+    z-index: 190;
+    background: #fafafa;
 }
+
+/* Circuit header cell */
+.booking-calendar thead th.circuit-cell {
+    z-index: 400;
+    left: 0;
+    background: black;
+    color: white;
+
+}
+
+.booking-calendar thead th.slot-cell {
+    z-index: 390;
+    left: 220px;
+    background: black;
+    color: white;
+}
+
 
 .booking-calendar .date-head{
     min-width:55px;
@@ -799,6 +821,7 @@ MOBILE
     height: 100%;
     flex: 1;    
     overflow: auto;
+    position: relative;
 }
 
 .calendar-header {
@@ -2837,13 +2860,27 @@ function renderBookingBars(bookings, allDates) {
             const circuitName = circuitCell.textContent.trim();
             const slotText = slotCell.textContent.trim(); // "Slot 1"
 
-            // ✅ MATCH CIRCUIT
-            if (!asset.toLowerCase().includes(circuitName.toLowerCase())) return;
+            // ✅ MATCH CIRCUIT            
+            const normalize = (str) =>
+                str.toLowerCase().replace(/\s+/g, " ").trim();
+
+            const assetName = normalize(asset);
+            const circuitNameNormalized = normalize(circuitName);
+
+            // ✅ Match BOTH WAYS (important fix)
+            if (
+                assetName !== circuitNameNormalized &&
+                !assetName.includes(circuitNameNormalized) &&
+                !circuitNameNormalized.includes(assetName)
+            ) {
+                return;
+            }
+
 
             // ✅ MATCH SLOT            
             const slotNumber = parseInt(slotText.replace("Slot ", ""), 10);
 
-            if (slotNumber !== Number(slotValue)) return;
+            if (slotValue && slotNumber !== Number(slotValue)) return;
 
 
             const cells = Array.from(
@@ -3057,51 +3094,42 @@ async function renderBookingCalendar(
     // =====================================
     // HEADER
     // =====================================
-    const header =
-        document.createElement("tr");
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
 
-    header.innerHTML = `
-        <th class="circuit-cell">
-            Circuit
-        </th>
-
-        <th class="slot-cell">
-            Slot
-        </th>
+    headerRow.innerHTML = `
+        <th class="circuit-cell">Circuit</th>
+        <th class="slot-cell">Slot</th>
     `;
 
     allDates.forEach(date => {
 
-        const th =
-            document.createElement("th");
+        const th = document.createElement("th");
 
         const today = new Date();
         today.setHours(0,0,0,0);
 
         const isToday =
-            today.toDateString()
-            ===
-            date.toDateString();
+            today.toDateString() === date.toDateString();
 
-        th.className =
-            `date-head ${
-                isToday ? "today" : ""
-            }`;
+        th.className = `
+            date-head
+            ${isToday ? "today" : ""}
+        `;
 
         th.innerHTML = `
-            ${date.toLocaleDateString(
-                "en",
-                { weekday:"short" }
-            )}
+            ${date.toLocaleDateString("en", { weekday: "short" })}
             <br>
             ${formatDateShort(date)}
         `;
 
-        header.appendChild(th);
+        headerRow.appendChild(th);
 
     });
 
-    table.appendChild(header);
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
 
     // =====================================
     // BODY
