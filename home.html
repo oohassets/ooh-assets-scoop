@@ -515,16 +515,28 @@ HEADER BORDER BOTTOM COLORS
 BODY
 ======================================= */
 .campaign-card-body{
-    max-height:0;
-    overflow:hidden;
-    transition:max-height .3s ease;
-    padding:0 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+    padding: 0 16px;
 }
 
 .campaign-card-body.expanded{
-    max-height:700px;
-    padding-bottom:16px;
+    max-height: 360px; 
+    overflow-y: auto;
+    padding-bottom: 10px;
 }
+
+
+.campaign-card-body.expanded::-webkit-scrollbar {
+    width: 6px;
+}
+
+.campaign-card-body.expanded::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
 
 /* =======================================
 UPDATE ITEM
@@ -955,9 +967,9 @@ MOBILE
     <section class="stats">
 
         <div class="stat-card">
-            <p>Active Campaigns</p>
+            <p>Paid Campaigns</p>
             <h3 id="activeCampaignsCount">0</h3>
-            <p>Live Campaigns</p>
+            <p>Currently Running</p>
         </div>
 
         <div class="stat-card">
@@ -2176,15 +2188,25 @@ function renderCampaignUpdates(
 
     }
 
-
     // =======================================
-    // SORT GROUPS
+    // SORT GROUPS (DATE → BRAND)
     // =======================================
     Object.values(groupedUpdates).forEach(group => {
 
-        group.sort((a, b) =>
-            b.sortDate - a.sortDate
-        );
+        group.sort((a, b) => {
+
+            // ✅ 1. Sort by DATE (latest first)
+            if (b.sortDate - a.sortDate !== 0) {
+                return b.sortDate - a.sortDate;
+            }
+
+            // ✅ 2. Sort by BRAND (A → Z)
+            const brandA = (a.brand || "").toLowerCase();
+            const brandB = (b.brand || "").toLowerCase();
+
+            return brandA.localeCompare(brandB);
+
+        });
 
     });
 
