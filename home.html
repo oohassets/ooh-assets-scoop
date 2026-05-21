@@ -2756,8 +2756,12 @@ if (fromInputEl && toInputEl) {
 }
 
 async function reloadCalendar() {
-    const bookings = await loadCampaignBookings();
+
+    const bookings =
+        await loadCampaignBookings();
+
     renderBookingCalendar(bookings);
+
 }
 
 
@@ -2780,19 +2784,19 @@ if (openCalendarBtn) {
             toInput.value   = lastDay.toISOString().split("T")[0];
         }
 
-        const bookings = await loadCampaignBookings();
+        const bookings =
+            await loadCampaignBookings();
+
         renderBookingCalendar(bookings);
     });
 }
 
 calendarModal.addEventListener("click", (event) => {
-    if (event.target === calendarModal) {
-        calendarModal.classList.remove("active");
-    }
 
-    async function reloadCalendar() {
-        const bookings = await loadCampaignBookings();
-        renderBookingCalendar(bookings);
+    if (event.target === calendarModal) {
+
+        calendarModal.classList.remove("active");
+
     }
 
 });
@@ -2834,6 +2838,23 @@ function formatDateShort(date) {
 function renderBookingBars(bookings) {
 
     if (!bookings || !bookings.length) return;
+
+    const fromInput =
+    document.getElementById("calendarFrom");
+
+    const toInput =
+        document.getElementById("calendarTo");
+
+    const startDate = fromInput?.value
+        ? new Date(fromInput.value)
+        : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    const endDate = toInput?.value
+        ? new Date(toInput.value)
+        : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
+    startDate.setHours(0,0,0,0);
+    endDate.setHours(0,0,0,0);
 
     const rows = document.querySelectorAll(
         "#bookingCalendar tbody tr"
@@ -2965,18 +2986,33 @@ function renderBookingBars(bookings) {
                 )
             );
 
-            const startIndex =
+            let startIndex =
                 cells.findIndex(td =>
                     td.dataset.date ===
                     start.toISOString().split("T")[0]
                 );
 
-            const endIndex =
+            let endIndex =
                 cells.findIndex(td =>
                     td.dataset.date ===
                     end.toISOString().split("T")[0]
                 );
 
+            // =====================================
+            // HANDLE OUTSIDE RANGE
+            // =====================================
+
+            // campaign started before visible range
+            if (startIndex === -1 && start < startDate) {
+                startIndex = 0;
+            }
+
+            // campaign ends after visible range
+            if (endIndex === -1 && end > endDate) {
+                endIndex = cells.length - 1;
+            }
+
+            // completely outside visible range
             if (
                 startIndex === -1 ||
                 endIndex === -1
@@ -3192,7 +3228,7 @@ async function renderBookingCalendar(
         `;
 
         th.innerHTML = `
-            ${date.toLocaleDateString("en", { weekday: "short" })}
+            ${date.toLocaleDateString("en", { month: "short" })}
             <br>
             ${formatDateShort(date)}
         `;
@@ -3316,7 +3352,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initCampaignDashboard();
 
+    initializeCalendar();
+
 });
+
+
 
 </script>
 
