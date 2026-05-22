@@ -772,7 +772,7 @@ MOBILE
 }
 
 .booking-bar.completed {
-    background:#3b82f6;
+    background:#0496ff;
 }
 
 
@@ -2154,7 +2154,7 @@ function renderCampaignUpdates(
             (startDate - today) / 86400000
         );
 
-        // ✅ UPCOMING ONLY
+        // UPCOMING ONLY
         if (startDiff > 0 && startDiff <= 3) {
 
             groupedUpdates.upcoming.push({
@@ -2236,12 +2236,12 @@ function renderCampaignUpdates(
 
         group.sort((a, b) => {
 
-            // ✅ 1. Sort by DATE (latest first)
+            // Sort by DATE (latest first)
             if (b.sortDate - a.sortDate !== 0) {
                 return b.sortDate - a.sortDate;
             }
 
-            // ✅ 2. Sort by BRAND (A → Z)
+            // Sort by BRAND (A → Z)
             const brandA = (a.brand || "").toLowerCase();
             const brandB = (b.brand || "").toLowerCase();
 
@@ -2416,7 +2416,6 @@ function parseVehicleDate(value) {
             return isoDate;
 
         }
-
     }
 
     // =======================================
@@ -2514,7 +2513,7 @@ function updateMonthlyVisitors(allTables) {
             parsedDate.getMonth() + 1
         ).padStart(2, "0")}`;
 
-        // ✅ FIX: Safe parsing (allows 0)
+        // Safe parsing (allows 0)
         const cleanedTotal = String(rawTotal ?? "")
             .replace(/,/g, "")
             .replace(/[^\d.-]/g, "")
@@ -2546,19 +2545,19 @@ function updateMonthlyVisitors(allTables) {
         return;
     }
 
-    // ✅ FIX: Use ONLY CURRENT YEAR if needed
+    // Use ONLY CURRENT YEAR if needed
     const currentYear = new Date().getFullYear();
 
     const yearMonths = sortedMonths.filter(m =>
         m.startsWith(currentYear.toString())
     );
 
-    // ✅ FALLBACK if no current year data
+    // FALLBACK if no current year data
     if (yearMonths.length > 0) {
         sortedMonths = yearMonths;
     }
 
-    // ✅ FIX: ALWAYS USE LATEST (NO FILTER > 0)
+    // ALWAYS USE LATEST (NO FILTER > 0)
     const latestMonth = sortedMonths[sortedMonths.length - 1];
     const previousMonth = sortedMonths[sortedMonths.length - 2];
 
@@ -3348,11 +3347,11 @@ async function initializeCalendar() {
 // =======================================
 // DOM READY
 // =======================================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-    initCampaignDashboard();
+    await initCampaignDashboard();
 
-    initializeCalendar();
+    await initializeCalendar();
 
 });
 
