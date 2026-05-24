@@ -2593,28 +2593,6 @@ function renderTrendChart(campaigns){
 
                 datasets:[
 
-                    // LIVE
-                    {
-                        label:"Live",
-
-                        data:liveData,
-
-                        borderColor:"#22c55e",
-
-                        backgroundColor:
-                            "rgba(34,197,94,0.12)",
-
-                        tension:0.45,
-
-                        fill:true,
-
-                        pointRadius:4,
-
-                        pointHoverRadius:6,
-
-                        borderWidth:3
-                    },
-
                     // BOOKED
                     {
                         label:"Booked",
@@ -2634,8 +2612,31 @@ function renderTrendChart(campaigns){
 
                         pointHoverRadius:6,
 
-                        borderWidth:3
+                        borderWidth:2
                     },
+
+                    // LIVE
+                    {
+                        label:"Live",
+
+                        data:liveData,
+
+                        borderColor:"#22c55e",
+
+                        backgroundColor:
+                            "rgba(34,197,94,0.12)",
+
+                        tension:0.45,
+
+                        fill:true,
+
+                        pointRadius:4,
+
+                        pointHoverRadius:6,
+
+                        borderWidth:2
+                    },
+
 
                     // COMPLETED
                     {
@@ -2656,7 +2657,7 @@ function renderTrendChart(campaigns){
 
                         pointHoverRadius:6,
 
-                        borderWidth:3
+                        borderWidth:2
                     }
 
                 ]
@@ -3811,6 +3812,7 @@ calendarModal.addEventListener("click", (event) => {
     }
 
 });
+
 function parseISODateLocal(dateString) {
     if (!dateString) return null;
     const parts = dateString.split("-").map(v => parseInt(v, 10));
@@ -3822,7 +3824,6 @@ function parseISODateLocal(dateString) {
     }
     return null;
 }
-
 
 // =======================================
 // MONTH CHANGE
