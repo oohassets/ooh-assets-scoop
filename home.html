@@ -296,6 +296,29 @@ body {
     flex-wrap: wrap;
 }
 
+
+.gradient-text {
+    background: linear-gradient(
+        90deg,
+        #ff5e00,
+        #ff7a00,
+        #ffb347,
+        #ff7a00
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 4s linear infinite;
+    font-weight: 800;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+
 input,
 select,
 textarea {
@@ -616,18 +639,26 @@ MODERN TOOLBAR
     flex-wrap:nowrap;
 }
 
+.toolbar-icon{
+    width:20px;
+    height:20px;
+    object-fit:contain;
+    opacity:0.65;
+    flex-shrink:0;
+}
+
 /* SEARCH */
 .modern-search-box{
     flex:1;
     min-width:0;
-    border: 1px solid #e2e8f0;
+    border:1px solid #e2e8f0;
     border-radius:16px;
-    background:#fff;
+    background:#f8fafc;
     display:flex;
     align-items:center;
-    padding-left: 20px;
-    gap:18px;
     transition:.25s ease;
+    padding:0 15px;
+
 }
 
 .modern-search-box:hover{
@@ -639,21 +670,14 @@ MODERN TOOLBAR
     box-shadow:0 0 0 5px rgba(59,130,246,0.10);
 }
 
-.modern-search-box svg{
-    width:20px;
-    height:20px;
-    color:#94a3b8;
-    flex-shrink:0;
-}
-
 .modern-search-box input{
     flex:1;
     border:none;
     outline:none;
     background:transparent;
     color:#0f172a;
-   
 }
+
 
 .modern-search-box input::placeholder{
     color:#94a3b8;
@@ -664,26 +688,18 @@ MODERN TOOLBAR
 .modern-filter-box{
     flex-shrink:0;
     min-width:80px;
-    border: 1px solid #e2e8f0;
+    border:1px solid #e2e8f0;
     border-radius:16px;
-    background:#fff;
+    background:#f8fafc;
     display:flex;
     align-items:center;
-    gap:10px;
-    padding:0 24px;
+    gap:12px;
+    padding:0 15px;
     transition:.25s ease;
-
 }
 
 .modern-filter-box:hover{
     border-color:#cbd5e1;
-}
-
-.modern-filter-box svg{
-    width:28px;
-    height:28px;
-    color:#64748b;
-    flex-shrink:0;
 }
 
 .modern-filter-box select{
@@ -691,38 +707,41 @@ MODERN TOOLBAR
     outline:none;
     background:transparent;
     width:100%;
-
-    color:#475569;
+    color:#868f9c;
     cursor:pointer;
-    appearance:none;
 }
 
-/* CUSTOM RANGE */
-.campaign-custom-range{
+.date-range-box{
+    position:relative;
+    gap:10px;
+}
+
+.date-range-display{
     display:none;
-    align-items:center;
-    gap:14px;
-    margin-top:18px;
-}
-
-.campaign-custom-range.active{
-    display:flex;
-}
-
-.campaign-custom-range input{
-    height:56px;
-    border:2px solid #dbe3ef;
-    border-radius:16px;
-    padding:0 18px;
-
-    background:#fff;
-    color:#0f172a;
-}
-
-.campaign-custom-range span{
-
+    font-size:13px;
     color:#64748b;
+    white-space:nowrap;
+    cursor:pointer;
+    padding-left:4px;
+    border-left:1px solid #e2e8f0;
 }
+
+/* SHOW ONLY CUSTOM */
+.date-range-box.custom-active
+.date-range-display{
+    display:block;
+}
+
+/* HIDDEN INPUTS */
+.hidden-date-input{
+    position:absolute;
+    opacity:0;
+    width:0;
+    height:0;
+    pointer-events:none;
+}
+
+
 
 /* ======================================
 RESPONSIVE
@@ -747,10 +766,14 @@ RESPONSIVE
         align-items:stretch;
     }
 
-    .modern-search-box,
-    .modern-filter-box{
+    .modern-search-box{
         width:100%;
         min-width:100%;
+    }
+
+    .modern-filter-box{
+        width: 250px;
+        max-width:400px;
     }
 
 }
@@ -1117,7 +1140,9 @@ MOBILE
                 <div class="badge">Scoop Media Planning Dashboard</div>
 
                 <h2>
-                    Plan, schedule, and manage OOH campaigns in one platform.
+                    Plan, schedule, and manage 
+                    <span class="gradient-text">OOH campaigns</span> 
+                    in one platform.
                 </h2>
 
                 <p>
@@ -1206,165 +1231,121 @@ MOBILE
             <!-- ======================================
             CAMPAIGN HEADER
             ====================================== -->
-            <div class="campaign-booking-header">
+            <div class="campaign-toolbar-modern">
 
-                <!-- TITLE -->
-                <div class="campaign-booking-title">
-                    <h3>Campaign Booking</h3>
-                    <p>
-                        Manage and monitor campaign schedules.
-                    </p>
-                </div>
+                <!-- SEARCH -->
+                <div class="modern-search-box">
 
-                <!-- FILTER BAR -->
-                <div class="campaign-toolbar-modern">
+                    <img
+                        src="https://img.icons8.com/ios/20/64748b/search--v1.png"
+                        alt="Search"
+                        class="toolbar-icon"
+                    >
 
-                    <!-- SEARCH -->
-                    <div class="modern-search-box">
-
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <circle
-                                cx="11"
-                                cy="11"
-                                r="7"
-                                stroke="currentColor"
-                                stroke-width="2"
-                            />
-                            <path
-                                d="M20 20L17 17"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                            />
-                        </svg>
-
-                        <input
-                            type="text"
-                            id="campaignSearch"
-                            placeholder="Search campaign, client, brand, asset..."
-                        />
-
-                    </div>
-
-                    <!-- DATE FILTER -->
-                    <div class="modern-filter-box">
-
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <rect
-                                x="3"
-                                y="5"
-                                width="18"
-                                height="16"
-                                rx="2"
-                                stroke="currentColor"
-                                stroke-width="2"
-                            />
-                            <path
-                                d="M16 3V7"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                            />
-                            <path
-                                d="M8 3V7"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                            />
-                            <path
-                                d="M3 10H21"
-                                stroke="currentColor"
-                                stroke-width="2"
-                            />
-                        </svg>
-
-                        <select id="campaignDateFilter">
-
-                            <option value="current">
-                                This Month
-                            </option>
-
-                            <option value="last">
-                                Last Month
-                            </option>
-
-                            <option value="next">
-                                Next Month
-                            </option>
-
-                            <option value="year">
-                                All Year
-                            </option>
-
-                            <option value="custom">
-                                Custom Range
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <!-- STATUS -->
-                    <div class="modern-filter-box">
-
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <path
-                                d="M4 5H20L13 13V20L11 21V13L4 5Z"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
-
-                        <select id="campaignStatusFilter">
-
-                            <option value="">
-                                All
-                            </option>
-
-                            <option value="Live">
-                                Live
-                            </option>
-
-                            <option value="BO Signed">
-                                BO Signed
-                            </option>
-
-                            <option value="Quotation">
-                                Quotation
-                            </option>
-
-                            <option value="Completed">
-                                Completed
-                            </option>
-
-                            <option value="Cancelled">
-                                Cancelled
-                            </option>
-
-                        </select>
-
-                    </div>
+                    <input
+                        type="text"
+                        id="campaignSearch"
+                        placeholder="Search campaign, client, brand, asset..."
+                    />
 
                 </div>
 
-                <!-- CUSTOM RANGE -->
+                <!-- DATE FILTER -->
                 <div
-                    class="campaign-custom-range"
-                    id="campaignCustomRange"
+                    class="modern-filter-box date-range-box"
+                    id="dateRangeBox"
                 >
 
+                    <img
+                        src="https://img.icons8.com/ios/50/64748b/calendar--v1.png"
+                        alt="Date"
+                        class="toolbar-icon"
+                    >
+
+                    <!-- FILTER TYPE -->
+                    <select id="campaignDateFilter">
+
+                        <option value="current">
+                            This Month
+                        </option>
+
+                        <option value="last">
+                            Last Month
+                        </option>
+
+                        <option value="next">
+                            Next Month
+                        </option>
+
+                        <option value="year">
+                            All Year
+                        </option>
+
+                        <option value="custom">
+                            Custom Range
+                        </option>
+
+                    </select>
+
+                    <!-- CUSTOM RANGE -->
+                    <div
+                        class="date-range-display"
+                        id="dateRangeDisplay"
+                    >
+                        Select Range
+                    </div>
+
+                    <!-- HIDDEN DATE INPUTS -->
                     <input
                         type="date"
                         id="campaignFromDate"
-                    />
-
-                    <span>to</span>
+                        class="hidden-date-input"
+                    >
 
                     <input
                         type="date"
                         id="campaignToDate"
-                    />
+                        class="hidden-date-input"
+                    >
+
+                </div>
+
+                <!-- STATUS -->
+                <div class="modern-filter-box">
+
+                    <img
+                        src="https://img.icons8.com/ios/20/64748b/horizontal-settings-mixer--v1.png"
+                        alt="Filter"
+                        class="toolbar-icon"
+                    >
+
+                    <select id="campaignStatusFilter">
+
+                        <option value="">
+                            All
+                        </option>
+
+                        <option value="Live">
+                            Live
+                        </option>
+
+                        <option value="BO Signed">
+                            BO Signed
+                        </option>
+
+                        <option value="Quotation">
+                            Quotation
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
+                        <option value="Cancelled">
+                            Cancelled
+                        </option>
+
+                    </select>
 
                 </div>
 
@@ -1831,59 +1812,7 @@ function renderCampaignBooking(campaigns) {
 }
 
 
-// =======================================
-// FILTER CAMPAIGNS
-// =======================================
-function filterCampaigns() {
 
-    const searchInput = document
-        .getElementById("campaignSearch");
-
-    const statusFilter = document
-        .getElementById("campaignStatusFilter");
-
-    if (!searchInput || !statusFilter) return;
-
-    const searchValue = searchInput.value
-        .toLowerCase()
-        .trim();
-
-    const statusValue = statusFilter.value
-        .toLowerCase()
-        .trim();
-
-    // =======================================
-    // FILTER DATA
-    // =======================================
-    const filtered = allCampaigns.filter(campaign => {
-
-        const searchableText = `
-            ${campaign.client}
-            ${campaign.brand}
-            ${campaign.asset}
-            ${campaign.person}
-            ${campaign.status}
-        `
-        .toLowerCase();
-
-        const matchesSearch =
-            searchableText.includes(searchValue);
-
-        const campaignStatus = campaign.status
-            .toLowerCase()
-            .trim();
-
-        const matchesStatus =
-            statusValue === "all"
-            || campaignStatus.includes(statusValue);
-
-        return matchesSearch && matchesStatus;
-
-    });
-
-    renderCampaignBooking(filtered);
-
-}
 
 
 // =======================================
@@ -1895,56 +1824,36 @@ function initializeCampaignFilters() {
 
     const statusFilter = document.getElementById("campaignStatusFilter");
 
+    const dateFilter = document.getElementById("campaignDateFilter");
+
     if (searchInput) {
-
-        // =======================================
-        // LIVE SEARCH
-        // =======================================
-        searchInput.addEventListener("input", filterCampaigns);
-
-        // =======================================
-        // ENTER KEY
-        // =======================================
-        searchInput.addEventListener("keydown", (event) => {
-
-            if (event.key === "Enter") {
-
-                event.preventDefault();
-
-                filterCampaigns();
-
-            }
-
-        });
-
-        // =======================================
-        // ESC TO CLEAR
-        // =======================================
-        searchInput.addEventListener("keydown", (event) => {
-
-            if (event.key === "Escape") {
-
-                searchInput.value = "";
-
-                filterCampaigns();
-
-            }
-
-        });
-
+        searchInput.addEventListener("input", applyCampaignFilters);
     }
 
-    // =======================================
-    // STATUS FILTER
-    // =======================================
     if (statusFilter) {
-
-        statusFilter.addEventListener(
-            "change",
-            filterCampaigns
-        );
-
+        statusFilter.addEventListener("change", applyCampaignFilters);
     }
+
+    if (dateFilter) {
+        dateFilter.addEventListener("change", applyCampaignFilters);
+    }
+
+    const fromDateInput = document.getElementById("campaignFromDate");
+    const toDateInput = document.getElementById("campaignToDate");
+    if (fromDateInput) {
+        fromDateInput.addEventListener("change", () => {
+            toDateInput.min = fromDateInput.value;
+            toDateInput.showPicker();
+        });
+    }
+    
+    if (toDateInput) {
+        toDateInput.addEventListener("change", () => {
+            updateDateRangeLabel();
+            applyCampaignFilters();
+        });
+    }
+
 
 }
 
@@ -1954,37 +1863,161 @@ function initializeCampaignFilters() {
 const campaignSearch =
     document.getElementById("campaignSearch");
 
-const campaignDateFilter =
-    document.getElementById("campaignDateFilter");
-
 const campaignStatusFilter =
     document.getElementById("campaignStatusFilter");
 
-const campaignCustomRange =
-    document.getElementById("campaignCustomRange");
+// ======================================
+// DATE FILTERS
+// ======================================
+const campaignDateFilter =
+    document.getElementById(
+        "campaignDateFilter"
+    );
+
+const dateRangeBox =
+    document.getElementById(
+        "dateRangeBox"
+    );
+
+const dateRangeDisplay =
+    document.getElementById(
+        "dateRangeDisplay"
+    );
 
 const campaignFromDate =
-    document.getElementById("campaignFromDate");
+    document.getElementById(
+        "campaignFromDate"
+    );
 
 const campaignToDate =
-    document.getElementById("campaignToDate");
+    document.getElementById(
+        "campaignToDate"
+    );
 
-// SHOW CUSTOM RANGE
-campaignDateFilter?.addEventListener("change", () => {
+// ======================================
+// FORMAT DATE
+// ======================================
+function formatToolbarDate(value){
 
-    if (campaignDateFilter.value === "custom") {
+    if(!value) return "";
 
-        campaignCustomRange.classList.add("active");
+    const date = new Date(value);
 
-    } else {
+    const day = String(
+        date.getDate()
+    ).padStart(2,"0");
 
-        campaignCustomRange.classList.remove("active");
+    const month =
+        date.toLocaleString(
+            "en",
+            { month:"short" }
+        );
+
+    return `${day} ${month}`;
+}
+
+// ======================================
+// UPDATE LABEL
+// ======================================
+function updateDateRangeLabel(){
+
+    if(
+        campaignFromDate.value &&
+        campaignToDate.value
+    ){
+
+        dateRangeDisplay.textContent =
+            `${formatToolbarDate(campaignFromDate.value)} - ${formatToolbarDate(campaignToDate.value)}`;
 
     }
 
-    applyCampaignFilters();
+    else{
 
-});
+        dateRangeDisplay.textContent =
+            "Select Range";
+
+    }
+
+}
+
+// ======================================
+// DATE FILTER CHANGE
+// ======================================
+campaignDateFilter?.addEventListener(
+    "change",
+    () => {
+
+        const filter =
+            campaignDateFilter.value;
+
+        // SHOW RANGE ONLY CUSTOM
+        if(filter === "custom"){
+
+            dateRangeBox.classList.add(
+                "custom-active"
+            );
+
+            setTimeout(() => {
+
+                campaignFromDate.showPicker();
+
+            }, 100);
+
+        }
+
+        else{
+
+            dateRangeBox.classList.remove(
+                "custom-active"
+            );
+
+        }
+
+        applyCampaignFilters();
+
+    }
+);
+
+// ======================================
+// CLICK RANGE DISPLAY
+// ======================================
+dateRangeDisplay?.addEventListener(
+    "click",
+    () => {
+
+        campaignFromDate.showPicker();
+
+    }
+);
+
+// ======================================
+// FROM DATE
+// ======================================
+campaignFromDate?.addEventListener(
+    "change",
+    () => {
+
+        campaignToDate.min =
+            campaignFromDate.value;
+
+        campaignToDate.showPicker();
+
+    }
+);
+
+// ======================================
+// TO DATE
+// ======================================
+campaignToDate?.addEventListener(
+    "change",
+    () => {
+
+        updateDateRangeLabel();
+
+        applyCampaignFilters();
+
+    }
+);
 
 // SEARCH
 campaignSearch?.addEventListener(
@@ -1998,54 +2031,46 @@ campaignStatusFilter?.addEventListener(
     applyCampaignFilters
 );
 
-// CUSTOM DATES
-campaignFromDate?.addEventListener(
-    "change",
-    applyCampaignFilters
-);
 
-campaignToDate?.addEventListener(
-    "change",
-    applyCampaignFilters
-);
 
 // APPLY FILTERS
-function applyCampaignFilters() {
+function applyCampaignFilters(){
 
-    let filtered = [...allCampaigns];
-
-    // SEARCH
     const search =
         campaignSearch.value
-        .toLowerCase()
-        .trim();
+        .toLowerCase();
 
-    if (search) {
+    const status =
+        campaignStatusFilter.value;
+
+    let filtered =
+        [...allCampaigns];
+
+    // ======================================
+    // SEARCH FILTER
+    // ======================================
+    if(search){
 
         filtered = filtered.filter(campaign => {
 
-            return Object.values(campaign)
-                .join(" ")
-                .toLowerCase()
-                .includes(search);
+            return [
+                campaign.client,
+                campaign.brand,
+                campaign.asset,
+                campaign.location,
+                campaign.status
+            ]
+            .join(" ")
+            .toLowerCase()
+            .includes(search);
 
         });
 
     }
 
-    // STATUS
-    const status =
-        campaignStatusFilter.value;
-
-    if (status) {
-
-        filtered = filtered.filter(campaign =>
-            (campaign.Status || "") === status
-        );
-
-    }
-
-    // DATE FILTER
+    // ======================================
+    // DATE FILTER FIRST
+    // ======================================
     const filter =
         campaignDateFilter.value;
 
@@ -2054,7 +2079,8 @@ function applyCampaignFilters() {
     let start;
     let end;
 
-    if (filter === "current") {
+    // CURRENT
+    if(filter === "current"){
 
         start = new Date(
             now.getFullYear(),
@@ -2070,7 +2096,8 @@ function applyCampaignFilters() {
 
     }
 
-    else if (filter === "last") {
+    // LAST
+    else if(filter === "last"){
 
         start = new Date(
             now.getFullYear(),
@@ -2086,7 +2113,8 @@ function applyCampaignFilters() {
 
     }
 
-    else if (filter === "next") {
+    // NEXT
+    else if(filter === "next"){
 
         start = new Date(
             now.getFullYear(),
@@ -2102,7 +2130,8 @@ function applyCampaignFilters() {
 
     }
 
-    else if (filter === "year") {
+    // YEAR
+    else if(filter === "year"){
 
         start = new Date(
             now.getFullYear(),
@@ -2118,12 +2147,13 @@ function applyCampaignFilters() {
 
     }
 
-    else if (filter === "custom") {
+    // CUSTOM
+    else if(filter === "custom"){
 
-        if (
+        if(
             campaignFromDate.value &&
             campaignToDate.value
-        ) {
+        ){
 
             start = new Date(
                 campaignFromDate.value
@@ -2137,16 +2167,19 @@ function applyCampaignFilters() {
 
     }
 
-    if (start && end) {
+    // APPLY DATE FILTER
+    if(start && end){
 
         filtered = filtered.filter(campaign => {
 
             const campaignStart =
-                parseVehicleDate(
-                    campaign["Start Date"]
+                parseDate(
+                    campaign.rawStartDate
                 );
 
-            if (!campaignStart) return false;
+            if(!campaignStart){
+                return false;
+            }
 
             return (
                 campaignStart >= start &&
@@ -2157,6 +2190,28 @@ function applyCampaignFilters() {
 
     }
 
+    // ======================================
+    // STATUS FILTER AFTER DATE
+    // ======================================
+    if(status){
+
+        filtered = filtered.filter(campaign => {
+
+            return (
+                (campaign.status || "")
+                .toLowerCase()
+                .trim()
+                ===
+                status.toLowerCase().trim()
+            );
+
+        });
+
+    }
+
+    // ======================================
+    // RENDER
+    // ======================================
     renderCampaignBooking(filtered);
 
 }
