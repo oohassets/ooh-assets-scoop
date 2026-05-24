@@ -3410,6 +3410,17 @@ function parseVehicleDate(value) {
     // =======================================
     if (value.includes("-")) {
 
+        const parts = value.split("-").map(v => parseInt(v.trim(), 10));
+        if (parts.length === 3) {
+            const [year, month, day] = parts;
+            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                const localDate = new Date(year, month - 1, day);
+                if (!isNaN(localDate)) {
+                    return localDate;
+                }
+            }
+        }
+
         const isoDate = new Date(value);
 
         if (!isNaN(isoDate)) {
@@ -3800,6 +3811,18 @@ calendarModal.addEventListener("click", (event) => {
     }
 
 });
+function parseISODateLocal(dateString) {
+    if (!dateString) return null;
+    const parts = dateString.split("-").map(v => parseInt(v, 10));
+    if (parts.length === 3) {
+        const [year, month, day] = parts;
+        if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+            return new Date(year, month - 1, day);
+        }
+    }
+    return null;
+}
+
 
 // =======================================
 // MONTH CHANGE
@@ -3808,12 +3831,10 @@ calendarModal.addEventListener("click", (event) => {
 const fromInput = document.getElementById("calendarFrom");
 const toInput   = document.getElementById("calendarTo");
 
-let startDate = fromInput?.value
-    ? new Date(fromInput.value)
+let startDate = fromInput?.value ? parseISODateLocal(fromInput.value)
     : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-let endDate = toInput?.value
-    ? new Date(toInput.value)
+let endDate = toInput?.value ? parseISODateLocal(toInput.value)
     : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
 
@@ -3845,12 +3866,10 @@ function renderBookingBars(bookings) {
     const toInput =
         document.getElementById("calendarTo");
 
-    const startDate = fromInput?.value
-        ? new Date(fromInput.value)
+    const startDate = fromInput?.value ? parseISODateLocal(fromInput.value)
         : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-    const endDate = toInput?.value
-        ? new Date(toInput.value)
+    const endDate = toInput?.value ? parseISODateLocal(toInput.value)
         : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
     startDate.setHours(0,0,0,0);
@@ -4181,12 +4200,10 @@ async function renderBookingCalendar(
     const fromInput = document.getElementById("calendarFrom");
     const toInput   = document.getElementById("calendarTo");
 
-    let startDate = fromInput?.value
-        ? new Date(fromInput.value)
+    let startDate = fromInput?.value ? parseISODateLocal(fromInput.value)
         : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-    let endDate = toInput?.value
-        ? new Date(toInput.value)
+    let endDate = toInput?.value ? parseISODateLocal(toInput.value)
         : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
 
