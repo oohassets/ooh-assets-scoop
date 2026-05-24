@@ -589,6 +589,172 @@ EMPTY STATE
     color:#9ca3af;
 }
 
+/* ======================================
+CAMPAIGN BOOKING HEADER
+====================================== */
+.campaign-booking-header{
+    font-size:28px;
+
+}
+
+.campaign-booking-header p {
+    font-size: 14px;
+    color: #64748b;
+    margin-top: 6px;
+}
+
+
+
+/* ======================================
+MODERN TOOLBAR
+====================================== */
+.campaign-toolbar-modern{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-top: 20px;
+    flex-wrap:nowrap;
+}
+
+/* SEARCH */
+.modern-search-box{
+    flex:1;
+    min-width:0;
+    border: 1px solid #e2e8f0;
+    border-radius:16px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    padding-left: 20px;
+    gap:18px;
+    transition:.25s ease;
+}
+
+.modern-search-box:hover{
+    border-color:#cbd5e1;
+}
+
+.modern-search-box:focus-within{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 5px rgba(59,130,246,0.10);
+}
+
+.modern-search-box svg{
+    width:20px;
+    height:20px;
+    color:#94a3b8;
+    flex-shrink:0;
+}
+
+.modern-search-box input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:#0f172a;
+   
+}
+
+.modern-search-box input::placeholder{
+    color:#94a3b8;
+
+}
+
+/* FILTERS */
+.modern-filter-box{
+    flex-shrink:0;
+    min-width:80px;
+    border: 1px solid #e2e8f0;
+    border-radius:16px;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 24px;
+    transition:.25s ease;
+
+}
+
+.modern-filter-box:hover{
+    border-color:#cbd5e1;
+}
+
+.modern-filter-box svg{
+    width:28px;
+    height:28px;
+    color:#64748b;
+    flex-shrink:0;
+}
+
+.modern-filter-box select{
+    border:none;
+    outline:none;
+    background:transparent;
+    width:100%;
+
+    color:#475569;
+    cursor:pointer;
+    appearance:none;
+}
+
+/* CUSTOM RANGE */
+.campaign-custom-range{
+    display:none;
+    align-items:center;
+    gap:14px;
+    margin-top:18px;
+}
+
+.campaign-custom-range.active{
+    display:flex;
+}
+
+.campaign-custom-range input{
+    height:56px;
+    border:2px solid #dbe3ef;
+    border-radius:16px;
+    padding:0 18px;
+
+    background:#fff;
+    color:#0f172a;
+}
+
+.campaign-custom-range span{
+
+    color:#64748b;
+}
+
+/* ======================================
+RESPONSIVE
+====================================== */
+@media(max-width:1200px){
+
+    .campaign-toolbar-modern{
+        flex-wrap:wrap;
+    }
+
+    .modern-search-box{
+        width:100%;
+        flex:unset;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .campaign-toolbar-modern{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .modern-search-box,
+    .modern-filter-box{
+        width:100%;
+        min-width:100%;
+    }
+
+}
+
 /* =======================================
 MOBILE
 ======================================= */
@@ -1037,30 +1203,168 @@ MOBILE
 
         <div class="card">
 
-            <div class="card-header">
-                <div>
+            <!-- ======================================
+            CAMPAIGN HEADER
+            ====================================== -->
+            <div class="campaign-booking-header">
+
+                <!-- TITLE -->
+                <div class="campaign-booking-title">
                     <h3>Campaign Booking</h3>
-                    <p>Manage and monitor campaign schedules.</p>
+                    <p>
+                        Manage and monitor campaign schedules.
+                    </p>
                 </div>
 
-                <div class="controls">
+                <!-- FILTER BAR -->
+                <div class="campaign-toolbar-modern">
+
+                    <!-- SEARCH -->
+                    <div class="modern-search-box">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <circle
+                                cx="11"
+                                cy="11"
+                                r="7"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            />
+                            <path
+                                d="M20 20L17 17"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            />
+                        </svg>
+
+                        <input
+                            type="text"
+                            id="campaignSearch"
+                            placeholder="Search campaign, client, brand, asset..."
+                        />
+
+                    </div>
+
+                    <!-- DATE FILTER -->
+                    <div class="modern-filter-box">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <rect
+                                x="3"
+                                y="5"
+                                width="18"
+                                height="16"
+                                rx="2"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            />
+                            <path
+                                d="M16 3V7"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            />
+                            <path
+                                d="M8 3V7"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                            />
+                            <path
+                                d="M3 10H21"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            />
+                        </svg>
+
+                        <select id="campaignDateFilter">
+
+                            <option value="current">
+                                This Month
+                            </option>
+
+                            <option value="last">
+                                Last Month
+                            </option>
+
+                            <option value="next">
+                                Next Month
+                            </option>
+
+                            <option value="year">
+                                All Year
+                            </option>
+
+                            <option value="custom">
+                                Custom Range
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="modern-filter-box">
+
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M4 5H20L13 13V20L11 21V13L4 5Z"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+
+                        <select id="campaignStatusFilter">
+
+                            <option value="">
+                                All
+                            </option>
+
+                            <option value="Live">
+                                Live
+                            </option>
+
+                            <option value="BO Signed">
+                                BO Signed
+                            </option>
+
+                            <option value="Quotation">
+                                Quotation
+                            </option>
+
+                            <option value="Completed">
+                                Completed
+                            </option>
+
+                            <option value="Cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <!-- CUSTOM RANGE -->
+                <div
+                    class="campaign-custom-range"
+                    id="campaignCustomRange"
+                >
 
                     <input
-                        type="search"
-                        id="campaignSearch"
-                        class="search-input"
-                        placeholder="Search Client, Brand, Asset, Person..."
-                        autocomplete="off"
-                        spellcheck="false"
-                    >
+                        type="date"
+                        id="campaignFromDate"
+                    />
 
-                    <select id="campaignStatusFilter">
-                        <option value="all">All Status</option>
-                        <option value="live">Live</option>
-                        <option value="bo signed">BO Signed</option>
-                        <option value="quotation">Quotation Sent</option>
-                        <option value="completed">Completed</option>
-                    </select>
+                    <span>to</span>
+
+                    <input
+                        type="date"
+                        id="campaignToDate"
+                    />
 
                 </div>
 
@@ -1074,7 +1378,7 @@ MOBILE
                             <th>Asset</th>
                             <th>Date</th>
                             <th>Status</th>
-			    <th>Person</th>
+			                <th>Person</th>
 
                         </tr>
                     </thead>
@@ -1644,6 +1948,219 @@ function initializeCampaignFilters() {
 
 }
 
+// ======================================
+// CAMPAIGN FILTERS
+// ======================================
+const campaignSearch =
+    document.getElementById("campaignSearch");
+
+const campaignDateFilter =
+    document.getElementById("campaignDateFilter");
+
+const campaignStatusFilter =
+    document.getElementById("campaignStatusFilter");
+
+const campaignCustomRange =
+    document.getElementById("campaignCustomRange");
+
+const campaignFromDate =
+    document.getElementById("campaignFromDate");
+
+const campaignToDate =
+    document.getElementById("campaignToDate");
+
+// SHOW CUSTOM RANGE
+campaignDateFilter?.addEventListener("change", () => {
+
+    if (campaignDateFilter.value === "custom") {
+
+        campaignCustomRange.classList.add("active");
+
+    } else {
+
+        campaignCustomRange.classList.remove("active");
+
+    }
+
+    applyCampaignFilters();
+
+});
+
+// SEARCH
+campaignSearch?.addEventListener(
+    "input",
+    applyCampaignFilters
+);
+
+// STATUS
+campaignStatusFilter?.addEventListener(
+    "change",
+    applyCampaignFilters
+);
+
+// CUSTOM DATES
+campaignFromDate?.addEventListener(
+    "change",
+    applyCampaignFilters
+);
+
+campaignToDate?.addEventListener(
+    "change",
+    applyCampaignFilters
+);
+
+// APPLY FILTERS
+function applyCampaignFilters() {
+
+    let filtered = [...allCampaigns];
+
+    // SEARCH
+    const search =
+        campaignSearch.value
+        .toLowerCase()
+        .trim();
+
+    if (search) {
+
+        filtered = filtered.filter(campaign => {
+
+            return Object.values(campaign)
+                .join(" ")
+                .toLowerCase()
+                .includes(search);
+
+        });
+
+    }
+
+    // STATUS
+    const status =
+        campaignStatusFilter.value;
+
+    if (status) {
+
+        filtered = filtered.filter(campaign =>
+            (campaign.Status || "") === status
+        );
+
+    }
+
+    // DATE FILTER
+    const filter =
+        campaignDateFilter.value;
+
+    const now = new Date();
+
+    let start;
+    let end;
+
+    if (filter === "current") {
+
+        start = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1
+        );
+
+        end = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0
+        );
+
+    }
+
+    else if (filter === "last") {
+
+        start = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            1
+        );
+
+        end = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            0
+        );
+
+    }
+
+    else if (filter === "next") {
+
+        start = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            1
+        );
+
+        end = new Date(
+            now.getFullYear(),
+            now.getMonth() + 2,
+            0
+        );
+
+    }
+
+    else if (filter === "year") {
+
+        start = new Date(
+            now.getFullYear(),
+            0,
+            1
+        );
+
+        end = new Date(
+            now.getFullYear(),
+            11,
+            31
+        );
+
+    }
+
+    else if (filter === "custom") {
+
+        if (
+            campaignFromDate.value &&
+            campaignToDate.value
+        ) {
+
+            start = new Date(
+                campaignFromDate.value
+            );
+
+            end = new Date(
+                campaignToDate.value
+            );
+
+        }
+
+    }
+
+    if (start && end) {
+
+        filtered = filtered.filter(campaign => {
+
+            const campaignStart =
+                parseVehicleDate(
+                    campaign["Start Date"]
+                );
+
+            if (!campaignStart) return false;
+
+            return (
+                campaignStart >= start &&
+                campaignStart <= end
+            );
+
+        });
+
+    }
+
+    renderCampaignBooking(filtered);
+
+}
+
 
 // =======================================
 // UPDATE DASHBOARD STATS
@@ -1812,6 +2329,12 @@ async function initCampaignDashboard() {
 
     // INIT FILTERS
     initializeCampaignFilters();
+
+    // DEFAULT TO CURRENT MONTH
+    campaignDateFilter.value = "current";
+
+    // 
+    applyCampaignFilters();
 
     // STATS
     updateDashboardStats(allCampaigns, allTables);
