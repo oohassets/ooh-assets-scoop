@@ -3792,8 +3792,8 @@ if (openCalendarBtn) {
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             const lastDay  = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-            fromInput.value = firstDay.toISOString().split("T")[0];
-            toInput.value   = lastDay.toISOString().split("T")[0];
+            fromInput.value = toLocalISOString(firstDay);
+            toInput.value   = toLocalISOString(lastDay);
         }
 
         const bookings =
@@ -3823,6 +3823,14 @@ function parseISODateLocal(dateString) {
         }
     }
     return null;
+}
+
+function toLocalISOString(date) {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 // =======================================
@@ -4009,13 +4017,13 @@ function renderBookingBars(bookings) {
             let startIndex =
                 cells.findIndex(td =>
                     td.dataset.date ===
-                    start.toISOString().split("T")[0]
+                    toLocalISOString(start)
                 );
 
             let endIndex =
                 cells.findIndex(td =>
                     td.dataset.date ===
-                    end.toISOString().split("T")[0]
+                    toLocalISOString(end)
                 );
 
             // =====================================
@@ -4288,7 +4296,7 @@ async function renderBookingCalendar(
             // DATE CELLS
             allDates.forEach(date => {
                 const td = document.createElement("td");
-                td.dataset.date = date.toISOString().split("T")[0];
+                td.dataset.date = toLocalISOString(date);
                 tr.appendChild(td);
             });
 
