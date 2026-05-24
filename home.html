@@ -37,6 +37,9 @@ setBookingPerson(loggedUser);
   });
 </script>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <style>
 * {
     margin: 0;
@@ -790,6 +793,82 @@ MOBILE
 }
 
 
+/* ======================================
+ANALYTICS
+====================================== */
+.campaign-analytics-grid{
+    margin-top:32px;
+}
+
+.analytics-card{
+    position:relative;
+    overflow:hidden;
+    background:white;
+    border:1px solid #e2e8f0;
+    border-radius:28px;
+    padding:24px;
+    width:100%;
+}
+
+.analytics-card::before{
+    content:"";
+    position:absolute;
+    top:-100px;
+    right:-100px;
+    width:240px;
+    height:240px;
+    border-radius:50%;
+    filter:blur(10px);
+}
+
+.analytics-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:24px;
+    position:relative;
+    z-index:2;
+}
+
+.analytics-top h3{
+    font-size:22px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.analytics-top p{
+    margin-top:6px;
+    color:#64748b;
+    font-size:13px;
+}
+
+.analytics-pill{
+    background:#ecfeff;
+    color:#0891b2;
+    padding:10px 14px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+
+.chart-container{
+    position:relative;
+    width:100%;
+    height:420px;
+}
+
+@media(max-width:1100px){
+
+    .campaign-analytics-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+
 /* ===================================== */
 /* CALENDAR */
 /* ===================================== */
@@ -1104,6 +1183,8 @@ MOBILE
 
 
 </style>
+
+
 </head>
 <body>
 
@@ -1228,10 +1309,19 @@ MOBILE
 
         <div class="card">
 
+            <div class="card-header">
+
+                <div>
+                    <h3>Campaign Booking</h3>
+                    <p>Manage and monitor campaign schedules.</p>
+                </div>
+            </div>
+
             <!-- ======================================
             CAMPAIGN HEADER
             ====================================== -->
             <div class="campaign-toolbar-modern">
+
 
                 <!-- SEARCH -->
                 <div class="modern-search-box">
@@ -1364,12 +1454,16 @@ MOBILE
                         </tr>
                     </thead>
 
-		<tbody id="campaignBookingBody"></tbody>
+		            <tbody id="campaignBookingBody"></tbody>
 
                 </table>
             </div>
 
+
+
         </div>
+
+        
 
         <div class="sidebar">
 
@@ -1467,7 +1561,7 @@ MOBILE
 
                 </div>
 
-            </div>
+            </div>            
 
             <div class="card">
 
@@ -1486,6 +1580,34 @@ MOBILE
         </div>
 
     </section>
+
+    <!-- ======================================
+    CAMPAIGN TREND CHART
+    ====================================== -->
+    <div class="campaign-analytics-grid">
+
+        <div class="analytics-card">
+
+            <div class="analytics-top">
+
+                <div>
+                    <h3>Campaign Trends</h3>
+
+                    <p>
+                        Monthly campaign activity
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="campaignTrendChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
 
     <footer class="footer card">
         <div class="footer-content">
@@ -2214,6 +2336,16 @@ function applyCampaignFilters(){
     // ======================================
     renderCampaignBooking(filtered);
 
+    // KEEP CAMPAIGN UPDATES WORKING
+    if(window.allTables){
+
+        renderCampaignUpdates(
+            filtered,
+            window.allTables
+        );
+
+    }
+
 }
 
 
@@ -2355,6 +2487,287 @@ function updateDashboardStats(campaigns, allTables) {
 
 
 // =======================================
+// TREND CHART INSTANCE
+// =======================================
+let campaignTrendChart = null;
+
+
+// =======================================
+// RENDER ANALYTICS
+// =======================================
+function renderCampaignAnalytics(campaigns){
+
+    renderTrendChart(campaigns);
+
+}
+
+
+// =======================================
+// LINE TREND CHART
+// =======================================
+function renderTrendChart(campaigns){
+
+    const canvas =
+        document.getElementById(
+            "campaignTrendChart"
+        );
+
+    if(!canvas) return;
+
+    // DESTROY OLD
+    if(campaignTrendChart){
+
+        campaignTrendChart.destroy();
+
+    }
+
+    // MONTHS
+    const liveData = new Array(12).fill(0);
+
+    const bookedData = new Array(12).fill(0);
+
+    const completedData = new Array(12).fill(0);
+
+    campaigns.forEach(campaign => {
+
+        const date =
+            parseDate(
+                campaign.rawStartDate
+            );
+
+        if(!date) return;
+
+        const monthIndex =
+            date.getMonth();
+
+        const status =
+            (campaign.status || "")
+            .toLowerCase();
+
+        // LIVE
+        if(
+            status.includes("live")
+        ){
+
+            liveData[monthIndex]++;
+
+        }
+
+        // BOOKED / SIGNED
+        else if(
+            status.includes("signed") ||
+            status.includes("booked")
+        ){
+
+            bookedData[monthIndex]++;
+
+        }
+
+        // COMPLETED
+        else if(
+            status.includes("completed")
+        ){
+
+            completedData[monthIndex]++;
+
+        }
+
+    });
+
+    const ctx =
+        canvas.getContext("2d");
+
+    campaignTrendChart =
+        new Chart(ctx, {
+
+            type:"line",
+
+            data:{
+
+                labels:MONTHS,
+
+                datasets:[
+
+                    // LIVE
+                    {
+                        label:"Live",
+
+                        data:liveData,
+
+                        borderColor:"#22c55e",
+
+                        backgroundColor:
+                            "rgba(34,197,94,0.12)",
+
+                        tension:0.45,
+
+                        fill:true,
+
+                        pointRadius:4,
+
+                        pointHoverRadius:6,
+
+                        borderWidth:3
+                    },
+
+                    // BOOKED
+                    {
+                        label:"Booked",
+
+                        data:bookedData,
+
+                        borderColor:"#f87171",
+
+                        backgroundColor:
+                            "rgba(248,113,113,0.10)",
+
+                        tension:0.45,
+
+                        fill:true,
+
+                        pointRadius:4,
+
+                        pointHoverRadius:6,
+
+                        borderWidth:3
+                    },
+
+                    // COMPLETED
+                    {
+                        label:"Completed",
+
+                        data:completedData,
+
+                        borderColor:"#3b82f6",
+
+                        backgroundColor:
+                            "rgba(59,130,246,0.10)",
+
+                        tension:0.45,
+
+                        fill:true,
+
+                        pointRadius:4,
+
+                        pointHoverRadius:6,
+
+                        borderWidth:3
+                    }
+
+                ]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                interaction:{
+                    intersect:false,
+                    mode:"index"
+                },
+
+                plugins:{
+
+                    legend:{
+
+                        position:"top",
+
+                        align:"end",
+
+                        labels:{
+                            usePointStyle:true,
+                            pointStyle:"circle",
+                            padding:22,
+
+                            font:{
+                                family:"Inter",
+                                size:12,
+                                weight:"600"
+                            },
+
+                            color:"#334155"
+                        }
+
+                    },
+
+                    tooltip:{
+
+                        backgroundColor:"#0f172a",
+
+                        padding:14,
+
+                        cornerRadius:16,
+
+                        titleFont:{
+                            family:"Inter",
+                            size:13,
+                            weight:"700"
+                        },
+
+                        bodyFont:{
+                            family:"Inter",
+                            size:12
+                        }
+
+                    }
+
+                },
+
+                scales:{
+
+                    x:{
+
+                        grid:{
+                            display:false
+                        },
+
+                        ticks:{
+                            color:"#64748b",
+
+                            font:{
+                                family:"Inter",
+                                weight:"600"
+                            }
+                        }
+
+                    },
+
+                    y:{
+
+                        beginAtZero:true,
+
+                        ticks:{
+                            precision:0,
+                            color:"#94a3b8"
+                        },
+
+                        grid:{
+                            color:
+                                "rgba(148,163,184,0.10)"
+                        }
+
+                    }
+
+                },
+
+                animation:{
+
+                    duration:1400,
+
+                    easing:"easeOutQuart"
+
+                }
+
+            }
+
+        });
+
+}
+
+// =======================================
 // INITIALIZE
 // =======================================
 async function initCampaignDashboard() {
@@ -2374,6 +2787,8 @@ async function initCampaignDashboard() {
 
     const allTables = await loadAllTables();
 
+    window.allTables = allTables;
+
     const campaigns = getUpcomingCampaigns(allTables);
 
     // GLOBAL STORE
@@ -2381,6 +2796,9 @@ async function initCampaignDashboard() {
 
     // INITIAL RENDER
     renderCampaignBooking(allCampaigns);
+
+    // ANALYTICS    
+    renderCampaignAnalytics(allCampaigns);
 
     // INIT FILTERS
     initializeCampaignFilters();
