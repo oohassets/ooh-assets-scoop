@@ -340,38 +340,110 @@ textarea {
     font-family: inherit;
 }
 
-.table-wrap {
-    overflow-x: auto;
-    margin-top: 24px;
+/* =======================================
+CAMPAIGN BOOKING TABLE
+======================================= */
+.table-wrap{
+    margin-top:24px;
+
+    width:100%;
+    max-width:100%;
+
+    overflow-x:auto;
+    overflow-y:auto;
+
+    max-height:1300px;
+
+    border-radius:20px;
 }
 
-.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 14px;
-    min-width: 750px;
+/* =======================================
+SCROLLBAR
+======================================= */
+.table-wrap::-webkit-scrollbar{
+    height:10px;
+    width:10px;
+
 }
 
-.table th {
-    text-align: center;
-    color: #64748b;
-    font-size: 13px;
-    padding-bottom: 10px;
+.table-wrap::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
+    border-radius:999px;
 }
 
-.table td {
-    background: #f8fafc;
-    padding: 18px;
-    font-size: 14px;
+.table-wrap::-webkit-scrollbar-track{
+    background:#f1f5f9;
 }
 
-.table td:first-child {
-    border-radius: 18px 0 0 18px;
-    font-weight: 700;
+/* =======================================
+TABLE
+======================================= */
+.table{
+    width:100%;
+    min-width:750px;
+    height:100%;
+
+    border-collapse:separate;
+    border-spacing:0 14px;
 }
 
-.table td:last-child {
-    border-radius: 0 18px 18px 0;
+/* =======================================
+TABLE HEADER
+======================================= */
+.table th{
+    text-align:center;
+    color:#64748b;
+    font-size:13px;
+    padding-bottom:10px;
+    white-space:nowrap;
+    position:sticky;
+    top:0;
+    margin-bottom:14px;
+    background:white;
+
+}
+
+/* =======================================
+TABLE CELLS
+======================================= */
+.table td{
+    background:#f8fafc;
+    padding:18px;
+    font-size:14px;
+
+
+}
+
+/* =======================================
+FIRST + LAST RADIUS
+======================================= */
+.table td:first-child{
+    border-radius:18px 0 0 18px;
+    font-weight:700;
+}
+
+.table td:last-child{
+    border-radius:0 18px 18px 0;
+}
+
+/* =======================================
+RESPONSIVE
+======================================= */
+@media(max-width:768px){
+
+    .table{
+        min-width:800px;
+    }
+
+    .table-wrap{
+        max-height:700px;
+    }
+
+    .table th,
+    .table td{
+        padding:14px;
+    }
+
 }
 
 .date-cell {
