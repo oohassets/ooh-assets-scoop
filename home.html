@@ -1259,6 +1259,245 @@ ANALYTICS
     }
 }
 
+/* =======================================
+BOOKING MODAL
+======================================= */
+
+.booking-modal{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(15,23,42,.22);
+    backdrop-filter:blur(12px);
+    z-index:99999;
+    padding:20px;
+}
+
+.booking-modal.active{
+    display:flex;
+}
+
+.booking-dialog{
+
+    width:100%;
+    max-width:560px;
+
+    background:white;
+
+    border-radius:34px;
+
+    padding:30px;
+
+    position:relative;
+
+    box-shadow:
+        0 30px 80px rgba(15,23,42,.15),
+        0 10px 30px rgba(15,23,42,.08);
+
+    animation:modalPop .25s ease;
+}
+
+@keyframes modalPop{
+
+    from{
+        opacity:0;
+        transform:translateY(15px) scale(.96);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+.booking-close{
+
+    position:absolute;
+    right:24px;
+    top:24px;
+
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+
+    border:1px solid #e2e8f0;
+
+    background:white;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    color:#0f172a;
+}
+
+.booking-close:hover{
+    background:#f8fafc;
+}
+
+.booking-header h2{
+    font-size:34px;
+    font-weight:800;
+    color:#0f172a;
+}
+
+.booking-header p{
+    margin-top:8px;
+    color:#64748b;
+    font-size:15px;
+}
+
+.booking-form{
+    margin-top:30px;
+}
+
+.field{
+    margin-bottom:18px;
+}
+
+.field label{
+
+    display:block;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#64748b;
+
+    margin-bottom:10px;
+}
+
+.field input,
+.field select{
+
+    width:100%;
+
+    height:50px;
+
+    border-radius:16px;
+
+    border:1px solid #dbe3ec;
+
+    background:#fff;
+
+    padding:0 18px;
+
+    font-size:15px;
+
+    transition:.2s;
+}
+
+.field input:focus,
+.field select:focus{
+
+    border-color:#8b5cf6;
+
+    box-shadow:
+        0 0 0 5px rgba(139,92,246,.12);
+}
+
+.booking-grid{
+
+    display:flex;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:16px;
+}
+
+.booking-user{
+
+    height:58px;
+
+    border:1px solid #dbe3ec;
+
+    border-radius:999px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 18px;
+
+    margin-top:10px;
+}
+
+.booking-user span{
+    color:#64748b;
+    font-size:14px;
+}
+
+.booking-user strong{
+    font-size:14px;
+    color:#0f172a;
+}
+
+.booking-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    margin-top:28px;
+}
+
+.btn-cancel{
+
+    height:48px;
+
+    padding:0 22px;
+
+    border-radius:999px;
+
+    background:white;
+
+    border:1px solid #dbe3ec;
+
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.btn-save{
+
+    height:48px;
+
+    padding:0 22px;
+
+    border:none;
+
+    border-radius:999px;
+
+    font-weight:700;
+
+    color:white;
+
+    cursor:pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6366f1,
+            #a855f7
+        );
+
+    box-shadow:
+        0 12px 25px rgba(139,92,246,.35);
+}
+
+.btn-save:hover{
+
+    transform:translateY(-2px);
+}
+
 
 </style>
 
@@ -1278,15 +1517,11 @@ ANALYTICS
 
             <div class="logo-text">
                 <h1>Scoop Media and Communication Co.</h1>
-                <p>OOH Advertising Platform</p>
+                <p>Planning Dashboard</p>
             </div>
 
         </div>
 
-        <div class="header-buttons">
-            <button class="btn btn-light">Export Report</button>
-            <button class="btn btn-dark">+ New Booking</button>
-        </div>
     </div>
 </header>
 
@@ -1296,8 +1531,7 @@ ANALYTICS
         <div class="hero-grid">
 
             <div>
-                <div class="badge">Scoop Media Planning Dashboard</div>
-
+       
                 <h2>
                     Plan, schedule, and manage 
                     <span class="gradient-text">OOH campaigns</span> 
@@ -1310,7 +1544,7 @@ ANALYTICS
                 </p>
 
                 <div class="hero-buttons">
-                    <button class="btn btn-light">Create Campaign</button>
+                    <button class="btn btn-light" id="openBookingModalBtn">Create Booking</button>
                     <button class="btn btn-dark" id="openCalendarBtn">View Calendar</button>
                 </div>
             </div>
@@ -1523,11 +1757,11 @@ ANALYTICS
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Client</th>
-                            <th>Asset</th>
-                            <th>Date</th>
-                            <th>Status</th>
-			                <th>Person</th>
+                            <th>CLIENT / BRAND</th>
+                            <th>ASSET</th>
+                            <th>DATES</th>
+                            <th>STATUS</th>
+			                <th>PERSON</th>
 
                         </tr>
                     </thead>
@@ -1539,107 +1773,9 @@ ANALYTICS
 
 
 
-        </div>
+        </div>        
 
-        
-
-        <div class="sidebar">
-
-            <div class="card">
-
-                <div>
-                    <h3>Quick Booking</h3>
-
-                    <p style="margin-top:6px;color:#64748b;font-size:14px">
-                        Reserve OOH inventory instantly.
-                    </p>
-                </div>
-
-                <div class="form-stack">
-
-                    <!-- CLIENT -->
-                    <input
-                        type="text"
-                        id="bookingClient"
-                        placeholder="Client Name"
-                    >
-
-                    <!-- ASSET -->
-                    <select id="bookingAsset">
-
-                        <option value="">
-                            Select Asset
-                        </option>
-
-                    </select>
-
-                    <!-- DATES -->
-                    <div class="form-grid">
-
-                        <input
-                            type="date"
-                            id="bookingStartDate"
-                        >
-
-                        <input
-                            type="date"
-                            id="bookingEndDate"
-                        >
-
-                    </div>
-
-                    <!-- TOTAL DAYS -->
-                    <input
-                        type="text"
-                        id="bookingTotalDays"
-                        placeholder="Total Days"
-                        readonly
-                    >
-
-                    <!-- STATUS -->
-                    <select id="bookingStatus">
-
-                        <option value="">
-                            Select Status
-                        </option>
-
-                        <option value="Quotation Sent">
-                            Quotation Sent
-                        </option>
-
-                        <option value="BO Signed">
-                            BO Signed
-                        </option>
-
-                        <option value="Live">
-                            Live
-                        </option>
-
-                        <option value="Completed">
-                            Completed
-                        </option>
-
-                    </select>
-
-                    <!-- PERSON -->
-                    <input
-                        type="text"
-                        id="bookingPerson"
-                        placeholder="Person"
-                        readonly
-                    >
-
-                    <!-- BUTTON -->
-                    <button
-                        class="btn btn-dark"
-                        id="confirmBookingBtn"
-                    >
-                        Add Booking
-                    </button>
-
-                </div>
-
-            </div>            
+        <div class="sidebar">         
 
             <div class="card">
 
@@ -1686,24 +1822,7 @@ ANALYTICS
         </div>
 
     </div>
-
-    <footer class="footer card">
-        <div class="footer-content">
-            <div>
-                <h3>Campaign Booking Planner SaaS</h3>
-                <p style="margin-top:6px;color:#64748b;font-size:14px">
-                    Modern OOH inventory booking and scheduling system.
-                </p>
-            </div>
-
-            <div class="footer-buttons">
-                <button class="btn btn-light">Manage Assets</button>
-                <button class="btn btn-light">Booking Calendar</button>
-                <button class="btn btn-dark">Dashboard Settings</button>
-            </div>
-        </div>
-    </footer>
-
+    
 </div>
 
 <!-- =======================================
@@ -1745,6 +1864,138 @@ CALENDAR MODAL
         </div>
 
 
+
+    </div>
+
+</div>
+
+
+<!-- =======================================
+BOOKING MODAL
+======================================= -->
+<div class="booking-modal" id="bookingModal">
+
+    <div class="booking-dialog">
+
+        <button
+            class="booking-close"
+            id="closeBookingModalBtn"
+        >
+            ✕
+        </button>
+
+        <div class="booking-header">
+
+            <h2>New Campaign Booking</h2>
+
+            <p>
+                Add a new booking to the schedule.
+            </p>
+
+        </div>
+
+        <div class="booking-form">
+
+            <!-- CLIENT -->
+            <div class="field">
+                <label>Client</label>
+
+                <input
+                    type="text"
+                    id="bookingClient"
+                    placeholder="Scoop"
+                >
+            </div>
+
+            <!-- BRAND -->
+            <div class="field">
+                <label>Brand Campaign</label>
+
+                <input
+                    type="text"
+                    id="bookingBrand"
+                    placeholder="Stand Out Stay Seen"
+                >
+            </div>
+
+            <!-- ASSET -->
+            <div class="field">
+                <label>Asset / Circuit</label>
+
+                <select id="bookingAsset">
+                    <option>
+                        Select Asset
+                    </option>
+                </select>
+            </div>
+
+            <!-- DATES -->
+            <div class="booking-grid">
+
+                <div class="field">
+                    <label>Start Date</label>
+
+                    <input
+                        type="date"
+                        id="bookingStartDate"
+                    >
+                </div>
+
+                <div class="field">
+                    <label>End Date</label>
+
+                    <input
+                        type="date"
+                        id="bookingEndDate"
+                    >
+                </div>
+
+                <!-- TOTAL DAYS -->
+                <div class="field">
+                    <label>Total Days</label>
+                    <input
+                        type="text"
+                        id="bookingTotalDays"
+                        placeholder="Total Days"
+                        readonly
+                    >
+                </div>
+
+            </div>
+
+
+
+            <!-- USER -->
+            <div class="booking-user">
+
+                <span>Booked by</span>
+
+                <strong id="bookingPersonLabel">
+                    Booked by
+                </strong>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="booking-footer">
+
+                <button
+                    class="btn-cancel"
+                    id="cancelBookingBtn"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    class="btn-save"
+                    id="confirmBookingBtn"
+                >
+                    Save Booking
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -4428,6 +4679,38 @@ async function loadCampaignBookings() {
     }
 
 }
+
+// =======================================
+// BOOKING MODAL
+// =======================================
+const bookingModal =
+    document.getElementById("bookingModal");
+
+document
+.getElementById("openBookingModalBtn")
+.addEventListener("click", () => {
+
+    bookingModal.classList.add("active");
+
+});
+
+document
+.getElementById("closeBookingModalBtn")
+.addEventListener("click", () => {
+
+    bookingModal.classList.remove("active");
+
+});
+
+document
+.getElementById("cancelBookingBtn")
+.addEventListener("click", () => {
+
+    bookingModal.classList.remove("active");
+
+});
+
+
 
 // =====================================
 // INITIALIZE
