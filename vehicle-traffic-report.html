@@ -266,6 +266,22 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+function parseMDY(dateStr) {
+  if (!dateStr) return null;
+
+  const [month, day, year] = dateStr.split('/').map(Number);
+
+  return new Date(year, month - 1, day);
+}
+
+function parsePickerDate(dateStr) {
+  if (!dateStr) return null;
+
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  return new Date(year, month - 1, day);
+}
+
 
 const adsPerMinute = 6;
 const personPerCar = 2;
@@ -297,8 +313,8 @@ function updateDaysCount(){
   const dateTo = document.getElementById("dateTo");
   const daysCount = document.getElementById("daysCount");
 
-  const from = new Date(dateFrom.value);
-  const to = new Date(dateTo.value);
+  const from = parsePickerDate(dateFrom.value);
+  const to = parsePickerDate(dateTo.value);
 
   if(isNaN(from) || isNaN(to)) {
     daysCount.innerText = "Days: -";
@@ -314,8 +330,11 @@ async function loadData(){
   const dateFrom = document.getElementById("dateFrom");
   const dateTo = document.getElementById("dateTo");
 
-  const from = new Date(dateFrom.value);
-  const to = new Date(dateTo.value);
+  const from = parsePickerDate(dateFrom.value);
+  const to = parsePickerDate(dateTo.value);
+
+  from.setHours(0,0,0,0);
+  to.setHours(23,59,59,999);
 
   const snap = await dbRef.once('value');
   const allData = snap.val();
@@ -331,14 +350,33 @@ async function loadData(){
 
   for(let key in allData){
     let d = allData[key];
-    let date = new Date(d.ContentDate || d["Content.Date"]);
-    if(isNaN(date)||date<from||date>to) continue;
+    let date = parseMDY(
+      d.ContentDate || d["Content.Date"]
+    );
+
+    if (!date) continue;
+
+    date.setHours(12,0,0,0); // avoid timezone edge cases
+
+    if (date < from || date > to) continue;
 
     if(d.Name && d.Name.toUpperCase().includes("TPI")) tpi.push(d);
     if(d.Name && d.Name.toUpperCase().includes("GEWAN")) gewan.push(d);
   }
 
   shouldAnimateKPI = true;
+
+  console.log(
+    "GEWAN records:",
+    gewan.length,
+    gewan.map(x => x.ContentDate)
+  );
+
+  console.log(
+    "TPI records:",
+    tpi.length,
+    tpi.map(x => x.ContentDate)
+  );
 
   renderCards(tpi, gewan);
   renderChart(tpi, gewan);
@@ -357,8 +395,21 @@ function renderCards(tpiData, gewanData){
       return;
     }
 
-    let days = data.length;
+    const from = parsePickerDate(
+      document.getElementById("dateFrom").value
+    );
+
+    const to = parsePickerDate(
+      document.getElementById("dateTo").value
+    );
+
+    const days =
+      Math.floor((to - from) / (1000 * 60 * 60 * 24)) + 1;
+      
+    console.log(loc.name, "days =", days);
+
     let total = data.reduce((s,x)=>s+Number(x.ContentTotal||0),0);
+    
     let avg = Math.round(total/days);
 
     let persons = total * personPerCar;

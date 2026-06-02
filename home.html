@@ -23,18 +23,19 @@
     userNameEl.textContent =
         loggedUser;
 
-// SET PERSON
-setBookingPerson(loggedUser);
+    // SET PERSON
+    setBookingPerson(loggedUser);
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-        signOut(auth)
-          .then(() => { window.location.href = "./login.html"; })
-          .catch((error) => {
-              console.error("Logout error:", error);
-              alert("Failed to logout");
-          });
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            signOut(auth)
+            .then(() => { window.location.href = "./login.html"; })
+            .catch((error) => {
+                console.error("Logout error:", error);
+                alert("Failed to logout");
+            });
+        });
     });
-  });
+
 </script>
 
 <!-- Chart.js -->
@@ -2003,2533 +2004,2164 @@ BOOKING MODAL
 
 <script type="module">
 
-// =======================================
-// FIREBASE IMPORTS
-// =======================================
-import { rtdb } from "./firebase/firebase.js";
+    // =======================================
+    // FIREBASE IMPORTS
+    // =======================================
+    import { rtdb } from "./firebase/firebase.js";
 
-import {
-    ref,
-    get
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-
-
-// =======================================
-// CONSTANTS
-// =======================================
-const MONTHS = [
-    "Jan","Feb","Mar","Apr","May","Jun",
-    "Jul","Aug","Sep","Oct","Nov","Dec"
-];
+    import {
+        ref,
+        get
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 
-// =======================================
-// LOAD DATABASE
-// =======================================
-async function loadAllTables() {
+    // =======================================
+    // CONSTANTS
+    // =======================================
+    const MONTHS = [
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+    ];
 
-    try {
 
-        const snapshot = await get(ref(rtdb, "/"));
+    // =======================================
+    // LOAD DATABASE
+    // =======================================
+    async function loadAllTables() {
 
-        return snapshot.exists()
-            ? snapshot.val()
-            : {};
+        try {
 
-    } catch (error) {
+            const snapshot = await get(ref(rtdb, "/"));
 
-        console.error("❌ Firebase Load Error:", error);
+            return snapshot.exists()
+                ? snapshot.val()
+                : {};
 
-        return {};
-    }
-}
+        } catch (error) {
 
-// =======================================
-// FORMAT DATE
-// 05/14/2026 → 14 May
-// =======================================
-function formatShortDate(value) {
+            console.error("❌ Firebase Load Error:", error);
 
-    if (!value || typeof value !== "string") {
-        return "—";
+            return {};
+        }
     }
 
-    const parts = value
-        .trim()
-        .split("/")
-        .map(v => v.trim());
+    // =======================================
+    // FORMAT DATE
+    // 05/14/2026 → 14 May
+    // =======================================
+    function formatShortDate(value) {
 
-    if (parts.length < 2) {
-        return "—";
-    }
-
-    const month = parseInt(parts[0], 10);
-    const day = parseInt(parts[1], 10);
-
-    if (
-        Number.isNaN(month) ||
-        Number.isNaN(day) ||
-        month < 1 ||
-        month > 12
-    ) {
-        return "—";
-    }
-
-    return `${day} ${MONTHS[month - 1]}`;
-}
-
-
-// =======================================
-// GET STATUS CLASS
-// =======================================
-function getStatusClass(status = "") {
-
-    status = status.toString().toLowerCase();
-
-    if (status.includes("publish")) return "publish";
-    if (status.includes("removed")) return "removed";
-    if (status.includes("live")) return "live";
-    if (status.includes("signed")) return "signed";
-    if (status.includes("quotation")) return "quotation";
-    if (status.includes("completed")) return "completed";
-
-    return "pending";
-
-}
-
-
-// =======================================
-// GET UPCOMING CAMPAIGNS
-// =======================================
-function getUpcomingCampaigns(allTables) {
-
-    const campaigns = [];
-
-    Object.entries(allTables).forEach(([tableName, tableData]) => {
-
-        if (!tableName.startsWith("Campaigns_Booking")) {
-            return;
+        if (!value || typeof value !== "string") {
+            return "—";
         }
 
-        if (!tableData) {
-            return;
+        const parts = value
+            .trim()
+            .split("/")
+            .map(v => v.trim());
+
+        if (parts.length < 2) {
+            return "—";
         }
 
-        const rows = Array.isArray(tableData)
-            ? tableData
-            : Object.values(tableData);
+        const month = parseInt(parts[0], 10);
+        const day = parseInt(parts[1], 10);
 
-        rows.forEach(row => {
+        if (
+            Number.isNaN(month) ||
+            Number.isNaN(day) ||
+            month < 1 ||
+            month > 12
+        ) {
+            return "—";
+        }
 
-            if (!row || typeof row !== "object") {
+        return `${day} ${MONTHS[month - 1]}`;
+    }
+
+
+    // =======================================
+    // GET STATUS CLASS
+    // =======================================
+    function getStatusClass(status = "") {
+
+        status = status.toString().toLowerCase();
+
+        if (status.includes("publish")) return "publish";
+        if (status.includes("removed")) return "removed";
+        if (status.includes("live")) return "live";
+        if (status.includes("signed")) return "signed";
+        if (status.includes("quotation")) return "quotation";
+        if (status.includes("completed")) return "completed";
+
+        return "pending";
+
+    }
+
+
+    // =======================================
+    // GET UPCOMING CAMPAIGNS
+    // =======================================
+    function getUpcomingCampaigns(allTables) {
+
+        const campaigns = [];
+
+        Object.entries(allTables).forEach(([tableName, tableData]) => {
+
+            if (!tableName.startsWith("Campaigns_Booking")) {
                 return;
             }
 
-            // =======================================
-            // RAW DATES
-            // =======================================
-            const rawStartDate = row["Start Date"] || "";
-            const rawEndDate = row["End Date"] || "";
-
-            // =======================================
-            // DATE OBJECT FOR SORTING
-            // =======================================
-            let sortDate = new Date(9999, 0, 1);
-
-            if (rawStartDate) {
-
-                const parts = rawStartDate
-                    .split("/")
-                    .map(v => parseInt(v.trim(), 10));
-
-                if (parts.length >= 2) {
-
-                    const [month, day, year] = parts;
-
-                    sortDate = new Date(
-                        year || new Date().getFullYear(),
-                        month - 1,
-                        day
-                    );
-                }
+            if (!tableData) {
+                return;
             }
 
-                campaigns.push({
-                
-                client: row.Client || "—",
+            const rows = Array.isArray(tableData)
+                ? tableData
+                : Object.values(tableData);
 
-                brand: row['Brand Campaign'] || '—',
+            rows.forEach(row => {
 
-                asset: row.Circuits || "—",
+                if (!row || typeof row !== "object") {
+                    return;
+                }
 
-                date: `
-                    ${formatShortDate(rawStartDate)}
-                    -
-                    ${formatShortDate(rawEndDate)}
-                `,
+                // =======================================
+                // RAW DATES
+                // =======================================
+                const rawStartDate = row["Start Date"] || "";
+                const rawEndDate = row["End Date"] || "";
 
-                status: row.Status || "Quotation",
+                // =======================================
+                // DATE OBJECT FOR SORTING
+                // =======================================
+                let sortDate = new Date(9999, 0, 1);
 
-                person: row.Person || "—",
+                if (rawStartDate) {
 
-                rawStartDate,
+                    const parts = rawStartDate
+                        .split("/")
+                        .map(v => parseInt(v.trim(), 10));
 
-                rawEndDate,
+                    if (parts.length >= 2) {
 
-                sortDate
+                        const [month, day, year] = parts;
+
+                        sortDate = new Date(
+                            year || new Date().getFullYear(),
+                            month - 1,
+                            day
+                        );
+                    }
+                }
+
+                    campaigns.push({
+                    
+                    client: row.Client || "—",
+
+                    brand: row['Brand Campaign'] || '—',
+
+                    asset: row.Circuits || "—",
+
+                    date: `
+                        ${formatShortDate(rawStartDate)}
+                        -
+                        ${formatShortDate(rawEndDate)}
+                    `,
+
+                    status: row.Status || "Quotation",
+
+                    person: row.Person || "—",
+
+                    rawStartDate,
+
+                    rawEndDate,
+
+                    sortDate
+
+                });
 
             });
 
         });
 
-    });
+        // =======================================
+        // SORT OLDEST → NEWEST
+        // =======================================
+        return campaigns.sort((a, b) => {
+
+            return a.sortDate - b.sortDate;
+
+        });
+
+    }
+
 
     // =======================================
-    // SORT OLDEST → NEWEST
+    // RENDER CAMPAIGN TABLE
     // =======================================
-    return campaigns.sort((a, b) => {
+    let allCampaigns = [];
 
-        return a.sortDate - b.sortDate;
-
-    });
-
-}
-
-
-// =======================================
-// RENDER CAMPAIGN TABLE
-// =======================================
-let allCampaigns = [];
-
-
-// =======================================
-// RENDER CAMPAIGN TABLE
-// =======================================
-function renderCampaignBooking(campaigns) {
-
-    const tbody = document.getElementById("campaignBookingBody");
-
-    if (!tbody) return;
 
     // =======================================
-    // NO DATA
+    // RENDER CAMPAIGN TABLE
     // =======================================
-    if (!campaigns.length) {
+    function renderCampaignBooking(campaigns) {
 
-        tbody.innerHTML = `
+        const tbody = document.getElementById("campaignBookingBody");
+
+        if (!tbody) return;
+
+        // =======================================
+        // NO DATA
+        // =======================================
+        if (!campaigns.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;">
+                        No Campaigns Found
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        // =======================================
+        // RENDER ROWS
+        // =======================================
+        tbody.innerHTML = campaigns.map(row => `
+
             <tr>
-                <td colspan="5" style="text-align:center;">
-                    No Campaigns Found
+
+                <td>
+                    <div style="font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 4px;">
+                        ${row.client}
+                    </div>
+
+                    <div> 
+                        ${row.brand}
+                    </div>
                 </td>
+
+                <td>${row.asset}</td>
+
+                <td class="date-cell">${row.date}</td>
+
+                <td>
+                    <span class="status ${getStatusClass(row.status)}">
+                        ${row.status}
+                    </span>
+                </td>
+
+                <td>${row.person}</td>
+
             </tr>
-        `;
 
-        return;
+        `).join("");
+
     }
+
+
+
+
 
     // =======================================
-    // RENDER ROWS
+    // INITIALIZE FILTER EVENTS
     // =======================================
-    tbody.innerHTML = campaigns.map(row => `
+    function initializeCampaignFilters() {
 
-        <tr>
+        const searchInput = document.getElementById("campaignSearch");
 
-            <td>
-                <div style="font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 4px;">
-                    ${row.client}
-                </div>
+        const statusFilter = document.getElementById("campaignStatusFilter");
 
-                <div> 
-                    ${row.brand}
-                </div>
-            </td>
+        const dateFilter = document.getElementById("campaignDateFilter");
 
-            <td>${row.asset}</td>
-
-            <td class="date-cell">${row.date}</td>
-
-            <td>
-                <span class="status ${getStatusClass(row.status)}">
-                    ${row.status}
-                </span>
-            </td>
-
-            <td>${row.person}</td>
-
-        </tr>
-
-    `).join("");
-
-}
-
-
-
-
-
-// =======================================
-// INITIALIZE FILTER EVENTS
-// =======================================
-function initializeCampaignFilters() {
-
-    const searchInput = document.getElementById("campaignSearch");
-
-    const statusFilter = document.getElementById("campaignStatusFilter");
-
-    const dateFilter = document.getElementById("campaignDateFilter");
-
-    if (searchInput) {
-        searchInput.addEventListener("input", applyCampaignFilters);
-    }
-
-    if (statusFilter) {
-        statusFilter.addEventListener("change", applyCampaignFilters);
-    }
-
-    if (dateFilter) {
-        dateFilter.addEventListener("change", applyCampaignFilters);
-    }
-
-    const fromDateInput = document.getElementById("campaignFromDate");
-    const toDateInput = document.getElementById("campaignToDate");
-    if (fromDateInput) {
-        fromDateInput.addEventListener("change", () => {
-            toDateInput.min = fromDateInput.value;
-            toDateInput.showPicker();
-        });
-    }
-    
-    if (toDateInput) {
-        toDateInput.addEventListener("change", () => {
-            updateDateRangeLabel();
-            applyCampaignFilters();
-        });
-    }
-
-
-}
-
-// ======================================
-// CAMPAIGN FILTERS
-// ======================================
-const campaignSearch =
-    document.getElementById("campaignSearch");
-
-const campaignStatusFilter =
-    document.getElementById("campaignStatusFilter");
-
-// ======================================
-// DATE FILTERS
-// ======================================
-const campaignDateFilter =
-    document.getElementById(
-        "campaignDateFilter"
-    );
-
-const dateRangeBox =
-    document.getElementById(
-        "dateRangeBox"
-    );
-
-const dateRangeDisplay =
-    document.getElementById(
-        "dateRangeDisplay"
-    );
-
-const campaignFromDate =
-    document.getElementById(
-        "campaignFromDate"
-    );
-
-const campaignToDate =
-    document.getElementById(
-        "campaignToDate"
-    );
-
-// ======================================
-// FORMAT DATE
-// ======================================
-function formatToolbarDate(value){
-
-    if(!value) return "";
-
-    const date = new Date(value);
-
-    const day = String(
-        date.getDate()
-    ).padStart(2,"0");
-
-    const month =
-        date.toLocaleString(
-            "en",
-            { month:"short" }
-        );
-
-    return `${day} ${month}`;
-}
-
-// ======================================
-// UPDATE LABEL
-// ======================================
-function updateDateRangeLabel(){
-
-    if(
-        campaignFromDate.value &&
-        campaignToDate.value
-    ){
-
-        dateRangeDisplay.textContent =
-            `${formatToolbarDate(campaignFromDate.value)} - ${formatToolbarDate(campaignToDate.value)}`;
-
-    }
-
-    else{
-
-        dateRangeDisplay.textContent =
-            "Select Range";
-
-    }
-
-}
-
-// ======================================
-// DATE FILTER CHANGE
-// ======================================
-campaignDateFilter?.addEventListener(
-    "change",
-    () => {
-
-        const filter =
-            campaignDateFilter.value;
-
-        // SHOW RANGE ONLY CUSTOM
-        if(filter === "custom"){
-
-            dateRangeBox.classList.add(
-                "custom-active"
-            );
-
-            setTimeout(() => {
-
-                campaignFromDate.showPicker();
-
-            }, 100);
-
+        if (searchInput) {
+            searchInput.addEventListener("input", applyCampaignFilters);
         }
 
-        else{
-
-            dateRangeBox.classList.remove(
-                "custom-active"
-            );
-
+        if (statusFilter) {
+            statusFilter.addEventListener("change", applyCampaignFilters);
         }
 
-        applyCampaignFilters();
+        if (dateFilter) {
+            dateFilter.addEventListener("change", applyCampaignFilters);
+        }
 
-    }
-);
+        const fromDateInput = document.getElementById("campaignFromDate");
+        const toDateInput = document.getElementById("campaignToDate");
+        if (fromDateInput) {
+            fromDateInput.addEventListener("change", () => {
+                toDateInput.min = fromDateInput.value;
+                toDateInput.showPicker();
+            });
+        }
+        
+        if (toDateInput) {
+            toDateInput.addEventListener("change", () => {
+                updateDateRangeLabel();
+                applyCampaignFilters();
+            });
+        }
 
-// ======================================
-// CLICK RANGE DISPLAY
-// ======================================
-dateRangeDisplay?.addEventListener(
-    "click",
-    () => {
-
-        campaignFromDate.showPicker();
-
-    }
-);
-
-// ======================================
-// FROM DATE
-// ======================================
-campaignFromDate?.addEventListener(
-    "change",
-    () => {
-
-        campaignToDate.min =
-            campaignFromDate.value;
-
-        campaignToDate.showPicker();
-
-    }
-);
-
-// ======================================
-// TO DATE
-// ======================================
-campaignToDate?.addEventListener(
-    "change",
-    () => {
-
-        updateDateRangeLabel();
-
-        applyCampaignFilters();
-
-    }
-);
-
-// SEARCH
-campaignSearch?.addEventListener(
-    "input",
-    applyCampaignFilters
-);
-
-// STATUS
-campaignStatusFilter?.addEventListener(
-    "change",
-    applyCampaignFilters
-);
-
-
-
-// APPLY FILTERS
-function applyCampaignFilters(){
-
-    const search =
-        campaignSearch.value
-        .toLowerCase();
-
-    const status =
-        campaignStatusFilter.value;
-
-    let filtered =
-        [...allCampaigns];
-
-    // ======================================
-    // SEARCH FILTER
-    // ======================================
-    if(search){
-
-        filtered = filtered.filter(campaign => {
-
-            return [
-                campaign.client,
-                campaign.brand,
-                campaign.asset,
-                campaign.location,
-                campaign.status
-            ]
-            .join(" ")
-            .toLowerCase()
-            .includes(search);
-
-        });
 
     }
 
     // ======================================
-    // DATE FILTER FIRST
+    // CAMPAIGN FILTERS
     // ======================================
-    const filter =
-        campaignDateFilter.value;
+    const campaignSearch =
+        document.getElementById("campaignSearch");
 
-    const now = new Date();
+    const campaignStatusFilter =
+        document.getElementById("campaignStatusFilter");
 
-    let start;
-    let end;
-
-    // CURRENT
-    if(filter === "current"){
-
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            1
+    // ======================================
+    // DATE FILTERS
+    // ======================================
+    const campaignDateFilter =
+        document.getElementById(
+            "campaignDateFilter"
         );
 
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth() + 1,
-            0
+    const dateRangeBox =
+        document.getElementById(
+            "dateRangeBox"
         );
 
+    const dateRangeDisplay =
+        document.getElementById(
+            "dateRangeDisplay"
+        );
+
+    const campaignFromDate =
+        document.getElementById(
+            "campaignFromDate"
+        );
+
+    const campaignToDate =
+        document.getElementById(
+            "campaignToDate"
+        );
+
+    // ======================================
+    // FORMAT DATE
+    // ======================================
+    function formatToolbarDate(value){
+
+        if(!value) return "";
+
+        const date = new Date(value);
+
+        const day = String(
+            date.getDate()
+        ).padStart(2,"0");
+
+        const month =
+            date.toLocaleString(
+                "en",
+                { month:"short" }
+            );
+
+        return `${day} ${month}`;
     }
 
-    // LAST
-    else if(filter === "last"){
-
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth() - 1,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            0
-        );
-
-    }
-
-    // NEXT
-    else if(filter === "next"){
-
-        start = new Date(
-            now.getFullYear(),
-            now.getMonth() + 1,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            now.getMonth() + 2,
-            0
-        );
-
-    }
-
-    // YEAR
-    else if(filter === "year"){
-
-        start = new Date(
-            now.getFullYear(),
-            0,
-            1
-        );
-
-        end = new Date(
-            now.getFullYear(),
-            11,
-            31
-        );
-
-    }
-
-    // CUSTOM
-    else if(filter === "custom"){
+    // ======================================
+    // UPDATE LABEL
+    // ======================================
+    function updateDateRangeLabel(){
 
         if(
             campaignFromDate.value &&
             campaignToDate.value
         ){
 
+            dateRangeDisplay.textContent =
+                `${formatToolbarDate(campaignFromDate.value)} - ${formatToolbarDate(campaignToDate.value)}`;
+
+        }
+
+        else{
+
+            dateRangeDisplay.textContent =
+                "Select Range";
+
+        }
+
+    }
+
+    // ======================================
+    // DATE FILTER CHANGE
+    // ======================================
+    campaignDateFilter?.addEventListener(
+        "change",
+        () => {
+
+            const filter =
+                campaignDateFilter.value;
+
+            // SHOW RANGE ONLY CUSTOM
+            if(filter === "custom"){
+
+                dateRangeBox.classList.add(
+                    "custom-active"
+                );
+
+                setTimeout(() => {
+
+                    campaignFromDate.showPicker();
+
+                }, 100);
+
+            }
+
+            else{
+
+                dateRangeBox.classList.remove(
+                    "custom-active"
+                );
+
+            }
+
+            applyCampaignFilters();
+
+        }
+    );
+
+    // ======================================
+    // CLICK RANGE DISPLAY
+    // ======================================
+    dateRangeDisplay?.addEventListener(
+        "click",
+        () => {
+
+            campaignFromDate.showPicker();
+
+        }
+    );
+
+    // ======================================
+    // FROM DATE
+    // ======================================
+    campaignFromDate?.addEventListener(
+        "change",
+        () => {
+
+            campaignToDate.min =
+                campaignFromDate.value;
+
+            campaignToDate.showPicker();
+
+        }
+    );
+
+    // ======================================
+    // TO DATE
+    // ======================================
+    campaignToDate?.addEventListener(
+        "change",
+        () => {
+
+            updateDateRangeLabel();
+
+            applyCampaignFilters();
+
+        }
+    );
+
+    // SEARCH
+    campaignSearch?.addEventListener(
+        "input",
+        applyCampaignFilters
+    );
+
+    // STATUS
+    campaignStatusFilter?.addEventListener(
+        "change",
+        applyCampaignFilters
+    );
+
+
+
+    // APPLY FILTERS
+    function applyCampaignFilters(){
+
+        const search =
+            campaignSearch.value
+            .toLowerCase();
+
+        const status =
+            campaignStatusFilter.value;
+
+        let filtered =
+            [...allCampaigns];
+
+        // ======================================
+        // SEARCH FILTER
+        // ======================================
+        if(search){
+
+            filtered = filtered.filter(campaign => {
+
+                return [
+                    campaign.client,
+                    campaign.brand,
+                    campaign.asset,
+                    campaign.location,
+                    campaign.status
+                ]
+                .join(" ")
+                .toLowerCase()
+                .includes(search);
+
+            });
+
+        }
+
+        // ======================================
+        // DATE FILTER FIRST
+        // ======================================
+        const filter =
+            campaignDateFilter.value;
+
+        const now = new Date();
+
+        let start;
+        let end;
+
+        // CURRENT
+        if(filter === "current"){
+
             start = new Date(
-                campaignFromDate.value
+                now.getFullYear(),
+                now.getMonth(),
+                1
             );
 
             end = new Date(
-                campaignToDate.value
+                now.getFullYear(),
+                now.getMonth() + 1,
+                0
             );
 
         }
 
-    }
+        // LAST
+        else if(filter === "last"){
 
-    // APPLY DATE FILTER
-    if(start && end){
+            start = new Date(
+                now.getFullYear(),
+                now.getMonth() - 1,
+                1
+            );
 
-        filtered = filtered.filter(campaign => {
+            end = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                0
+            );
 
-            const campaignStart =
-                parseDate(
-                    campaign.rawStartDate
+        }
+
+        // NEXT
+        else if(filter === "next"){
+
+            start = new Date(
+                now.getFullYear(),
+                now.getMonth() + 1,
+                1
+            );
+
+            end = new Date(
+                now.getFullYear(),
+                now.getMonth() + 2,
+                0
+            );
+
+        }
+
+        // YEAR
+        else if(filter === "year"){
+
+            start = new Date(
+                now.getFullYear(),
+                0,
+                1
+            );
+
+            end = new Date(
+                now.getFullYear(),
+                11,
+                31
+            );
+
+        }
+
+        // CUSTOM
+        else if(filter === "custom"){
+
+            if(
+                campaignFromDate.value &&
+                campaignToDate.value
+            ){
+
+                start = new Date(
+                    campaignFromDate.value
                 );
 
-            if(!campaignStart){
-                return false;
+                end = new Date(
+                    campaignToDate.value
+                );
+
             }
 
-            return (
-                campaignStart >= start &&
-                campaignStart <= end
+        }
+
+        // APPLY DATE FILTER
+        if(start && end){
+
+            filtered = filtered.filter(campaign => {
+
+                const campaignStart =
+                    parseDate(
+                        campaign.rawStartDate
+                    );
+
+                if(!campaignStart){
+                    return false;
+                }
+
+                return (
+                    campaignStart >= start &&
+                    campaignStart <= end
+                );
+
+            });
+
+        }
+
+        // ======================================
+        // STATUS FILTER AFTER DATE
+        // ======================================
+        if(status){
+
+            filtered = filtered.filter(campaign => {
+
+                return (
+                    (campaign.status || "")
+                    .toLowerCase()
+                    .trim()
+                    ===
+                    status.toLowerCase().trim()
+                );
+
+            });
+
+        }
+
+        // ======================================
+        // RENDER
+        // ======================================
+        renderCampaignBooking(filtered);
+
+        // KEEP CAMPAIGN UPDATES WORKING
+        if(window.allTables){
+
+            renderCampaignUpdates(
+                filtered,
+                window.allTables
             );
 
-        });
+        }
 
     }
 
-    // ======================================
-    // STATUS FILTER AFTER DATE
-    // ======================================
-    if(status){
-
-        filtered = filtered.filter(campaign => {
-
-            return (
-                (campaign.status || "")
-                .toLowerCase()
-                .trim()
-                ===
-                status.toLowerCase().trim()
-            );
-
-        });
-
-    }
-
-    // ======================================
-    // RENDER
-    // ======================================
-    renderCampaignBooking(filtered);
-
-    // KEEP CAMPAIGN UPDATES WORKING
-    if(window.allTables){
-
-        renderCampaignUpdates(
-            filtered,
-            window.allTables
-        );
-
-    }
-
-}
-
-
-// =======================================
-// UPDATE DASHBOARD STATS
-// =======================================
-function updateDashboardStats(campaigns, allTables) {
 
     // =======================================
-    // ELEMENTS
+    // UPDATE DASHBOARD STATS
     // =======================================
-    const bookedEl = document.getElementById("bookedAssetsCount");
-
-    const activeEl = document.getElementById("activeCampaignsCount");
-
-    const pendingEl = document.getElementById("pendingApprovalsCount");
-
-    const freeEl = document.getElementById("freeCampaignsCount");
-
-
-    // =======================================
-    // COUNTERS
-    // =======================================
-    let bookedCount = 0;
-
-    let activeCount = 0;
-
-    let pendingCount = 0;
-
-    let freeCount = 0;
-
-
-    // =======================================
-    // UPCOMING CAMPAIGN STATS
-    // =======================================
-    campaigns.forEach(campaign => {
-
-        const status = (campaign.status || "")
-            .toLowerCase()
-            .trim();
+    function updateDashboardStats(campaigns, allTables) {
 
         // =======================================
-        // BOOKED
+        // ELEMENTS
         // =======================================
-        if (
-            status === "bo signed" ||
-            status === "signed"
-        ) {
-            bookedCount++;
-        }
+        const bookedEl = document.getElementById("bookedAssetsCount");
 
-        // =======================================
-        // ACTIVE
-        // =======================================
-        if (status.includes("live")) {
-            activeCount++;
-        }
+        const activeEl = document.getElementById("activeCampaignsCount");
+
+        const pendingEl = document.getElementById("pendingApprovalsCount");
+
+        const freeEl = document.getElementById("freeCampaignsCount");
+
 
         // =======================================
-        // PENDING
+        // COUNTERS
         // =======================================
-        if (status.includes("quotation")) {
-            pendingCount++;
-        }
+        let bookedCount = 0;
 
-    });
+        let activeCount = 0;
 
+        let pendingCount = 0;
 
-    // =======================================
-    // FREE / FILLER COUNT
-    // FROM DIGITAL + STATIC TABLES
-    // =======================================
-    Object.entries(allTables).forEach(([tableName, tableData]) => {
+        let freeCount = 0;
+
 
         // =======================================
-        // CHECK ONLY DIGITAL + STATIC
+        // UPCOMING CAMPAIGN STATS
         // =======================================
-        if (
-            !tableName.startsWith("d_") &&
-            !tableName.startsWith("s_")
-        ) {
-            return;
-        }
+        campaigns.forEach(campaign => {
 
-        if (!tableData) {
-            return;
-        }
-
-        const rows = Array.isArray(tableData)
-            ? tableData
-            : Object.values(tableData);
-
-        rows.forEach(row => {
-
-            if (!row || typeof row !== "object") {
-                return;
-            }
-
-            const boValue = (row.BO || "")
-                .toString()
+            const status = (campaign.status || "")
                 .toLowerCase()
                 .trim();
 
             // =======================================
-            // COUNT FREE / FILLER
+            // BOOKED
             // =======================================
             if (
-                boValue.includes("free") ||
-                boValue.includes("filler")
+                status === "bo signed" ||
+                status === "signed"
             ) {
-                freeCount++;
+                bookedCount++;
+            }
+
+            // =======================================
+            // ACTIVE
+            // =======================================
+            if (status.includes("live")) {
+                activeCount++;
+            }
+
+            // =======================================
+            // PENDING
+            // =======================================
+            if (status.includes("quotation")) {
+                pendingCount++;
             }
 
         });
 
-    });
+
+        // =======================================
+        // FREE / FILLER COUNT
+        // FROM DIGITAL + STATIC TABLES
+        // =======================================
+        Object.entries(allTables).forEach(([tableName, tableData]) => {
+
+            // =======================================
+            // CHECK ONLY DIGITAL + STATIC
+            // =======================================
+            if (
+                !tableName.startsWith("d_") &&
+                !tableName.startsWith("s_")
+            ) {
+                return;
+            }
+
+            if (!tableData) {
+                return;
+            }
+
+            const rows = Array.isArray(tableData)
+                ? tableData
+                : Object.values(tableData);
+
+            rows.forEach(row => {
+
+                if (!row || typeof row !== "object") {
+                    return;
+                }
+
+                const boValue = (row.BO || "")
+                    .toString()
+                    .toLowerCase()
+                    .trim();
+
+                // =======================================
+                // COUNT FREE / FILLER
+                // =======================================
+                if (
+                    boValue.includes("free") ||
+                    boValue.includes("filler")
+                ) {
+                    freeCount++;
+                }
+
+            });
+
+        });
+
+
+        // =======================================
+        // UPDATE UI
+        // =======================================
+        if (bookedEl) {
+            bookedEl.textContent = bookedCount;
+        }
+
+        if (activeEl) {
+            activeEl.textContent = activeCount;
+        }
+
+        if (pendingEl) {
+            pendingEl.textContent = pendingCount;
+        }
+
+        if (freeEl) {
+            freeEl.textContent = freeCount;
+        }
+
+    }
 
 
     // =======================================
-    // UPDATE UI
+    // TREND CHART INSTANCE
     // =======================================
-    if (bookedEl) {
-        bookedEl.textContent = bookedCount;
-    }
-
-    if (activeEl) {
-        activeEl.textContent = activeCount;
-    }
-
-    if (pendingEl) {
-        pendingEl.textContent = pendingCount;
-    }
-
-    if (freeEl) {
-        freeEl.textContent = freeCount;
-    }
-
-}
+    let campaignTrendChart = null;
 
 
-// =======================================
-// TREND CHART INSTANCE
-// =======================================
-let campaignTrendChart = null;
+    // =======================================
+    // RENDER ANALYTICS
+    // =======================================
+    function renderCampaignAnalytics(campaigns){
 
-
-// =======================================
-// RENDER ANALYTICS
-// =======================================
-function renderCampaignAnalytics(campaigns){
-
-    renderTrendChart(campaigns);
-
-}
-
-
-// =======================================
-// LINE TREND CHART
-// =======================================
-function renderTrendChart(campaigns){
-
-    const canvas =
-        document.getElementById(
-            "campaignTrendChart"
-        );
-
-    if(!canvas) return;
-
-    // DESTROY OLD
-    if(campaignTrendChart){
-
-        campaignTrendChart.destroy();
+        renderTrendChart(campaigns);
 
     }
 
-    // MONTHS
-    const liveData = new Array(12).fill(0);
 
-    const bookedData = new Array(12).fill(0);
+    // =======================================
+    // LINE TREND CHART
+    // =======================================
+    function renderTrendChart(campaigns){
 
-    const completedData = new Array(12).fill(0);
-
-    campaigns.forEach(campaign => {
-
-        const date =
-            parseDate(
-                campaign.rawStartDate
+        const canvas =
+            document.getElementById(
+                "campaignTrendChart"
             );
 
-        if(!date) return;
+        if(!canvas) return;
 
-        const monthIndex =
-            date.getMonth();
+        // DESTROY OLD
+        if(campaignTrendChart){
 
-        const status =
-            (campaign.status || "")
-            .toLowerCase();
-
-        // LIVE
-        if(
-            status.includes("live")
-        ){
-
-            liveData[monthIndex]++;
+            campaignTrendChart.destroy();
 
         }
 
-        // BOOKED / SIGNED
-        else if(
-            status.includes("signed") ||
-            status.includes("booked")
-        ){
+        // MONTHS
+        const liveData = new Array(12).fill(0);
 
-            bookedData[monthIndex]++;
+        const bookedData = new Array(12).fill(0);
 
-        }
+        const completedData = new Array(12).fill(0);
 
-        // COMPLETED
-        else if(
-            status.includes("completed")
-        ){
+        campaigns.forEach(campaign => {
 
-            completedData[monthIndex]++;
+            const date =
+                parseDate(
+                    campaign.rawStartDate
+                );
 
-        }
+            if(!date) return;
 
-    });
+            const monthIndex =
+                date.getMonth();
 
-    const ctx =
-        canvas.getContext("2d");
+            const status =
+                (campaign.status || "")
+                .toLowerCase();
 
-    campaignTrendChart =
-        new Chart(ctx, {
+            // LIVE
+            if(
+                status.includes("live")
+            ){
 
-            type:"line",
+                liveData[monthIndex]++;
 
-            data:{
+            }
 
-                labels:MONTHS,
+            // BOOKED / SIGNED
+            else if(
+                status.includes("signed") ||
+                status.includes("booked")
+            ){
 
-                datasets:[
+                bookedData[monthIndex]++;
 
-                    // BOOKED
-                    {
-                        label:"Booked",
+            }
 
-                        data:bookedData,
+            // COMPLETED
+            else if(
+                status.includes("completed")
+            ){
 
-                        borderColor:"#f87171",
+                completedData[monthIndex]++;
 
-                        backgroundColor:
-                            "rgba(248,113,113,0.10)",
+            }
 
-                        tension:0.45,
+        });
 
-                        fill:true,
+        const ctx =
+            canvas.getContext("2d");
 
-                        pointRadius:4,
+        campaignTrendChart =
+            new Chart(ctx, {
 
-                        pointHoverRadius:6,
+                type:"line",
 
-                        borderWidth:2
-                    },
+                data:{
 
-                    // LIVE
-                    {
-                        label:"Live",
+                    labels:MONTHS,
 
-                        data:liveData,
+                    datasets:[
 
-                        borderColor:"#22c55e",
+                        // BOOKED
+                        {
+                            label:"Booked",
 
-                        backgroundColor:
-                            "rgba(34,197,94,0.12)",
+                            data:bookedData,
 
-                        tension:0.45,
+                            borderColor:"#f87171",
 
-                        fill:true,
+                            backgroundColor:
+                                "rgba(248,113,113,0.10)",
 
-                        pointRadius:4,
+                            tension:0.45,
 
-                        pointHoverRadius:6,
+                            fill:true,
 
-                        borderWidth:2
-                    },
+                            pointRadius:4,
+
+                            pointHoverRadius:6,
+
+                            borderWidth:2
+                        },
+
+                        // LIVE
+                        {
+                            label:"Live",
+
+                            data:liveData,
+
+                            borderColor:"#22c55e",
+
+                            backgroundColor:
+                                "rgba(34,197,94,0.12)",
+
+                            tension:0.45,
+
+                            fill:true,
+
+                            pointRadius:4,
+
+                            pointHoverRadius:6,
+
+                            borderWidth:2
+                        },
 
 
-                    // COMPLETED
-                    {
-                        label:"Completed",
+                        // COMPLETED
+                        {
+                            label:"Completed",
 
-                        data:completedData,
+                            data:completedData,
 
-                        borderColor:"#3b82f6",
+                            borderColor:"#3b82f6",
 
-                        backgroundColor:
-                            "rgba(59,130,246,0.10)",
+                            backgroundColor:
+                                "rgba(59,130,246,0.10)",
 
-                        tension:0.45,
+                            tension:0.45,
 
-                        fill:true,
+                            fill:true,
 
-                        pointRadius:4,
+                            pointRadius:4,
 
-                        pointHoverRadius:6,
+                            pointHoverRadius:6,
 
-                        borderWidth:2
-                    }
+                            borderWidth:2
+                        }
 
-                ]
+                    ]
 
-            },
-
-            options:{
-
-                responsive:true,
-
-                maintainAspectRatio:false,
-
-                interaction:{
-                    intersect:false,
-                    mode:"index"
                 },
 
-                plugins:{
+                options:{
 
-                    legend:{
+                    responsive:true,
 
-                        position:"top",
+                    maintainAspectRatio:false,
 
-                        align:"end",
+                    interaction:{
+                        intersect:false,
+                        mode:"index"
+                    },
 
-                        labels:{
-                            usePointStyle:true,
-                            pointStyle:"circle",
-                            padding:22,
+                    plugins:{
 
-                            font:{
+                        legend:{
+
+                            position:"top",
+
+                            align:"end",
+
+                            labels:{
+                                usePointStyle:true,
+                                pointStyle:"circle",
+                                padding:22,
+
+                                font:{
+                                    family:"Inter",
+                                    size:12,
+                                    weight:"600"
+                                },
+
+                                color:"#334155"
+                            }
+
+                        },
+
+                        tooltip:{
+
+                            backgroundColor:"#0f172a",
+
+                            padding:14,
+
+                            cornerRadius:16,
+
+                            titleFont:{
                                 family:"Inter",
-                                size:12,
-                                weight:"600"
+                                size:13,
+                                weight:"700"
                             },
 
-                            color:"#334155"
-                        }
-
-                    },
-
-                    tooltip:{
-
-                        backgroundColor:"#0f172a",
-
-                        padding:14,
-
-                        cornerRadius:16,
-
-                        titleFont:{
-                            family:"Inter",
-                            size:13,
-                            weight:"700"
-                        },
-
-                        bodyFont:{
-                            family:"Inter",
-                            size:12
-                        }
-
-                    }
-
-                },
-
-                scales:{
-
-                    x:{
-
-                        grid:{
-                            display:false
-                        },
-
-                        ticks:{
-                            color:"#64748b",
-
-                            font:{
+                            bodyFont:{
                                 family:"Inter",
-                                weight:"600"
+                                size:12
                             }
+
                         }
 
                     },
 
-                    y:{
+                    scales:{
 
-                        beginAtZero:true,
+                        x:{
 
-                        ticks:{
-                            precision:0,
-                            color:"#94a3b8"
+                            grid:{
+                                display:false
+                            },
+
+                            ticks:{
+                                color:"#64748b",
+
+                                font:{
+                                    family:"Inter",
+                                    weight:"600"
+                                }
+                            }
+
                         },
 
-                        grid:{
-                            color:
-                                "rgba(148,163,184,0.10)"
+                        y:{
+
+                            beginAtZero:true,
+
+                            ticks:{
+                                precision:0,
+                                color:"#94a3b8"
+                            },
+
+                            grid:{
+                                color:
+                                    "rgba(148,163,184,0.10)"
+                            }
+
                         }
 
+                    },
+
+                    animation:{
+
+                        duration:1400,
+
+                        easing:"easeOutQuart"
+
                     }
-
-                },
-
-                animation:{
-
-                    duration:1400,
-
-                    easing:"easeOutQuart"
 
                 }
 
-            }
+            });
 
-        });
+    }
 
-}
+    // =======================================
+    // INITIALIZE
+    // =======================================
+    async function initCampaignDashboard() {
 
-// =======================================
-// INITIALIZE
-// =======================================
-async function initCampaignDashboard() {
+        const tbody = document.getElementById("campaignBookingBody");
 
-    const tbody = document.getElementById("campaignBookingBody");
+        if (tbody) {
 
-    if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align:center;">
+                        Loading campaigns...
+                    </td>
+                </tr>
+            `;
+        }
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align:center;">
-                    Loading campaigns...
-                </td>
-            </tr>
+        const allTables = await loadAllTables();
+
+        window.allTables = allTables;
+
+        const campaigns = getUpcomingCampaigns(allTables);
+
+        // GLOBAL STORE
+        allCampaigns = campaigns;
+
+        // INITIAL RENDER
+        renderCampaignBooking(allCampaigns);
+
+        // ANALYTICS    
+        renderCampaignAnalytics(allCampaigns);
+
+        // INIT FILTERS
+        initializeCampaignFilters();
+
+        // DEFAULT TO CURRENT MONTH
+        campaignDateFilter.value = "current";
+
+        // 
+        applyCampaignFilters();
+
+        // STATS
+        updateDashboardStats(allCampaigns, allTables);
+
+        // ASSET DROPDOWN
+        populateAssetDropdown(allTables);
+
+        // BOOKING DATE CALCULATOR
+        initializeBookingDateCalculator();
+
+        // CAMPAIGN UPDATES
+        renderCampaignUpdates(allCampaigns,allTables);
+
+        // ASSET OCCUPANCY
+        updateAssetOccupancy(allTables);
+
+        // MONTHLY VISITORS
+        updateMonthlyVisitors(allTables);
+        
+    }
+
+    // =======================================
+    // POPULATE ASSET DROPDOWN
+    // =======================================
+    function populateAssetDropdown(allTables) {
+
+        const assetSelect =
+            document.getElementById("bookingAsset");
+
+        if (!assetSelect) return;
+
+        const assetsTable =
+            allTables["oohassets"];
+
+        if (!assetsTable) return;
+
+        const rows = Array.isArray(assetsTable)
+            ? assetsTable
+            : Object.values(assetsTable);
+
+        // UNIQUE CIRCUITS
+        const circuits = [
+            ...new Set(
+                rows
+                    .map(row => row.Circuits)
+                    .filter(Boolean)
+            )
+        ];
+
+        // SORT
+        circuits.sort();
+
+        // RENDER OPTIONS
+        assetSelect.innerHTML = `
+
+            <option value="">
+                Select Asset
+            </option>
+
+            ${circuits.map(circuit => `
+
+                <option value="${circuit}">
+                    ${circuit}
+                </option>
+
+            `).join("")}
+
         `;
     }
 
-    const allTables = await loadAllTables();
 
-    window.allTables = allTables;
+    // =======================================
+    // TOTAL DAYS CALCULATOR
+    // =======================================
+    function initializeBookingDateCalculator() {
 
-    const campaigns = getUpcomingCampaigns(allTables);
+        const startInput =
+            document.getElementById("bookingStartDate");
 
-    // GLOBAL STORE
-    allCampaigns = campaigns;
+        const endInput =
+            document.getElementById("bookingEndDate");
 
-    // INITIAL RENDER
-    renderCampaignBooking(allCampaigns);
-
-    // ANALYTICS    
-    renderCampaignAnalytics(allCampaigns);
-
-    // INIT FILTERS
-    initializeCampaignFilters();
-
-    // DEFAULT TO CURRENT MONTH
-    campaignDateFilter.value = "current";
-
-    // 
-    applyCampaignFilters();
-
-    // STATS
-    updateDashboardStats(allCampaigns, allTables);
-
-    // ASSET DROPDOWN
-    populateAssetDropdown(allTables);
-
-    // BOOKING DATE CALCULATOR
-    initializeBookingDateCalculator();
-
-    // CAMPAIGN UPDATES
-    renderCampaignUpdates(allCampaigns,allTables);
-
-    // ASSET OCCUPANCY
-    updateAssetOccupancy(allTables);
-
-    // MONTHLY VISITORS
-    updateMonthlyVisitors(allTables);
-    
-}
-
-// =======================================
-// POPULATE ASSET DROPDOWN
-// =======================================
-function populateAssetDropdown(allTables) {
-
-    const assetSelect =
-        document.getElementById("bookingAsset");
-
-    if (!assetSelect) return;
-
-    const assetsTable =
-        allTables["oohassets"];
-
-    if (!assetsTable) return;
-
-    const rows = Array.isArray(assetsTable)
-        ? assetsTable
-        : Object.values(assetsTable);
-
-    // UNIQUE CIRCUITS
-    const circuits = [
-        ...new Set(
-            rows
-                .map(row => row.Circuits)
-                .filter(Boolean)
-        )
-    ];
-
-    // SORT
-    circuits.sort();
-
-    // RENDER OPTIONS
-    assetSelect.innerHTML = `
-
-        <option value="">
-            Select Asset
-        </option>
-
-        ${circuits.map(circuit => `
-
-            <option value="${circuit}">
-                ${circuit}
-            </option>
-
-        `).join("")}
-
-    `;
-}
-
-
-// =======================================
-// TOTAL DAYS CALCULATOR
-// =======================================
-function initializeBookingDateCalculator() {
-
-    const startInput =
-        document.getElementById("bookingStartDate");
-
-    const endInput =
-        document.getElementById("bookingEndDate");
-
-    const totalDaysInput =
-        document.getElementById("bookingTotalDays");
-
-    if (
-        !startInput ||
-        !endInput ||
-        !totalDaysInput
-    ) {
-        return;
-    }
-
-    function calculateDays() {
+        const totalDaysInput =
+            document.getElementById("bookingTotalDays");
 
         if (
-            !startInput.value ||
-            !endInput.value
+            !startInput ||
+            !endInput ||
+            !totalDaysInput
         ) {
-
-            totalDaysInput.value = "";
-
             return;
         }
 
-        const start =
-            new Date(startInput.value);
+        function calculateDays() {
 
-        const end =
-            new Date(endInput.value);
+            if (
+                !startInput.value ||
+                !endInput.value
+            ) {
 
-        const diff =
-            Math.floor(
-                (end - start) / 86400000
-            ) + 1;
+                totalDaysInput.value = "";
 
-        totalDaysInput.value =
-            diff > 0
-            ? `${diff} Day${diff > 1 ? "s" : ""}`
-            : "Invalid Dates";
-    }
+                return;
+            }
 
-    startInput.addEventListener(
-        "change",
-        calculateDays
-    );
+            const start =
+                new Date(startInput.value);
 
-    endInput.addEventListener(
-        "change",
-        calculateDays
-    );
+            const end =
+                new Date(endInput.value);
 
-}
+            const diff =
+                Math.floor(
+                    (end - start) / 86400000
+                ) + 1;
 
+            totalDaysInput.value =
+                diff > 0
+                ? `${diff} Day${diff > 1 ? "s" : ""}`
+                : "Invalid Dates";
+        }
 
-// =======================================
-// SET LOGGED USER
-// =======================================
-function setBookingPerson(userName) {
-
-    const personInput =
-        document.getElementById("bookingPerson");
-
-    if (!personInput) return;
-
-    personInput.value = userName || "";
-
-}
-
-
-// =======================================
-// PARSE DATE
-// MM/DD/YYYY
-// =======================================
-function parseDate(value) {
-
-    if (!value) return null;
-
-    const parts = value
-        .split("/")
-        .map(v => parseInt(v.trim(), 10));
-
-    if (parts.length < 2) return null;
-
-    const [month, day, year] = parts;
-
-    return new Date(
-        year || new Date().getFullYear(),
-        month - 1,
-        day
-    );
-}
-
-
-// =======================================
-// RENDER CAMPAIGN UPDATES
-// =======================================
-// Published      = Campaign_Logs with Type = add
-// Removed        = Campaign_Logs with Type = removed
-// Upcoming       = Campaigns_Booking with Start Date within next 3 days
-// Ending Soon    = Any campaign with End Date within next 3 days (from all tables)
-// =======================================
-function renderCampaignUpdates(
-    campaigns,
-    allTables = []) 
-{
-    const container = document.getElementById(
-        "campaignUpdatesContainer"
-    );
-
-    if (!container) return;
-
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    // =======================================
-    // GROUPS
-    // =======================================
-    const groupedUpdates = {
-        published: [],
-        removed: [],
-        upcoming: [],
-        ending: []
-    };
-
-    // =======================================
-    // CAMPAIGN LOGS
-    // PUBLISHED + REMOVED
-    // =======================================
-    const logs =
-        allTables?.Campaign_Logs ||
-        allTables?.campaign_logs ||
-        {};
-
-    // =======================================
-    // CAMPAIGN LOGS
-    // =======================================
-    Object.values(logs).forEach(log => {
-
-        const logDateRaw =
-            log.Date || log.date;
-
-        const logType =
-            (log.Type || log.type || "")
-            .toString()
-            .trim()
-            .toLowerCase();
-
-        const client =
-            log.Client || log.client || "-";
-
-        const location =
-            log.Location || log.location || "-";
-
-        if (!logDateRaw || !logType) return;
-
-        const logDate =
-            parseDate(logDateRaw);
-
-        if (!logDate) return;
-
-        logDate.setHours(0,0,0,0);
-
-        const diffDays = Math.floor(
-            (logDate - today) / 86400000
+        startInput.addEventListener(
+            "change",
+            calculateDays
         );
 
+        endInput.addEventListener(
+            "change",
+            calculateDays
+        );
+
+    }
+
+
+    // =======================================
+    // SET LOGGED USER
+    // =======================================
+    function setBookingPerson(userName) {
+
+        const personInput =
+            document.getElementById("bookingPerson");
+
+        if (!personInput) return;
+
+        personInput.value = userName || "";
+
+    }
+
+
+    // =======================================
+    // PARSE DATE
+    // MM/DD/YYYY
+    // =======================================
+    function parseDate(value) {
+
+        if (!value) return null;
+
+        const parts = value
+            .split("/")
+            .map(v => parseInt(v.trim(), 10));
+
+        if (parts.length < 2) return null;
+
+        const [month, day, year] = parts;
+
+        return new Date(
+            year || new Date().getFullYear(),
+            month - 1,
+            day
+        );
+    }
+
+
+    // =======================================
+    // RENDER CAMPAIGN UPDATES
+    // =======================================
+    // Published      = Campaign_Logs with Type = add
+    // Removed        = Campaign_Logs with Type = removed
+    // Upcoming       = Campaigns_Booking with Start Date within next 3 days
+    // Ending Soon    = Any campaign with End Date within next 3 days (from all tables)
+    // =======================================
+    function renderCampaignUpdates(
+        campaigns,
+        allTables = []) 
+    {
+        const container = document.getElementById(
+            "campaignUpdatesContainer"
+        );
+
+        if (!container) return;
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
         // =======================================
-        // LAST 3 DAYS ONLY
+        // GROUPS
         // =======================================
-        if (diffDays < -3 || diffDays > 0) {
-
-            return;
-
-        }
+        const groupedUpdates = {
+            published: [],
+            removed: [],
+            upcoming: [],
+            ending: []
+        };
 
         // =======================================
-        // DATE LABEL
+        // CAMPAIGN LOGS
+        // PUBLISHED + REMOVED
         // =======================================
-        let dateLabel = "";
+        const logs =
+            allTables?.Campaign_Logs ||
+            allTables?.campaign_logs ||
+            {};
 
-        if (diffDays === 0) {
+        // =======================================
+        // CAMPAIGN LOGS
+        // =======================================
+        Object.values(logs).forEach(log => {
 
-            dateLabel = "Today";
+            const logDateRaw =
+                log.Date || log.date;
 
-        }
+            const logType =
+                (log.Type || log.type || "")
+                .toString()
+                .trim()
+                .toLowerCase();
 
-        else if (diffDays === -1) {
+            const client =
+                log.Client || log.client || "-";
 
-            dateLabel = "Yesterday";
+            const location =
+                log.Location || log.location || "-";
 
-        }
+            if (!logDateRaw || !logType) return;
 
-        else {
+            const logDate =
+                parseDate(logDateRaw);
 
-            dateLabel = formatShortDate(
-                logDateRaw
+            if (!logDate) return;
+
+            logDate.setHours(0,0,0,0);
+
+            const diffDays = Math.floor(
+                (logDate - today) / 86400000
             );
 
-        }
+            // =======================================
+            // LAST 3 DAYS ONLY
+            // =======================================
+            if (diffDays < -3 || diffDays > 0) {
 
-        // =======================================
-        // PUBLISHED
-        // TYPE = add
-        // =======================================
-        if (logType === "add") {
+                return;
 
-            groupedUpdates.published.push({
-
-                label: dateLabel,
-
-                className: "active",
-
-                brand: client,
-
-                asset: location,
-
-                sortDate: logDate
-
-            });
-
-        }
-
-        // =======================================
-        // REMOVED
-        // TYPE = removed
-        // =======================================
-        if (logType === "removed") {
-
-            groupedUpdates.removed.push({
-
-                label: dateLabel,
-
-                className: "cancelled",
-
-                brand: client || "—",
-
-                asset: location || "—",
-
-                sortDate: logDate
-
-            });
-
-        }
-
-    });
-
-    // =======================================
-    // UPCOMING CAMPAIGNS
-    // =======================================
-    campaigns.forEach(campaign => {
-
-        const startDate = parseDate(campaign.rawStartDate);
-
-        if (!startDate) return;
-
-        startDate.setHours(0,0,0,0);
-
-        const startDiff = Math.floor(
-            (startDate - today) / 86400000
-        );
-
-        // UPCOMING ONLY
-        if (startDiff > 0 && startDiff <= 3) {
-
-            groupedUpdates.upcoming.push({
-
-                label: formatShortDate(campaign.rawStartDate),
-
-                className: "signed",
-
-                brand: campaign.brand || campaign.client,
-
-                asset: campaign.asset,
-
-                sortDate: startDate
-
-            });
-
-        }
-
-    });
-
-    // =======================================
-    // ENDING CAMPAIGNS (FROM d_ / s_ TABLES) with 3 days left
-    // =======================================
-    for (const tableName in allTables) {
-
-        if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
-
-        const formattedName = tableName
-            .replace(/^d_|^s_/, "")
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, c => c.toUpperCase());
-
-        const rows = Object.values(allTables[tableName]);
-
-        rows.forEach(r => {
-
-            if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
-
-            const parsedEnd = parseDate(r["End Date"]);
-            if (!parsedEnd) return;
-
-            parsedEnd.setHours(0,0,0,0);
-
-            const diff = Math.floor((parsedEnd - today) / 86400000);
-
-            if (diff < 0 || diff > 3) return;
-
-            let locationName = formattedName;
-
-            if (tableName.startsWith("s_") && r["Circuit"]) {
-                locationName = `${formattedName} ${r["Circuit"]}`;
             }
 
-            groupedUpdates.ending.push({
+            // =======================================
+            // DATE LABEL
+            // =======================================
+            let dateLabel = "";
 
-                label:
-                    diff === 0
-                        ? "Today"
-                        : `In ${diff} Day${diff > 1 ? "s" : ""}`,
+            if (diffDays === 0) {
 
-                className: "completed",
+                dateLabel = "Today";
 
-                brand: r.Client || "—",
+            }
 
-                asset: locationName,
+            else if (diffDays === -1) {
 
-                sortDate: parsedEnd
+                dateLabel = "Yesterday";
+
+            }
+
+            else {
+
+                dateLabel = formatShortDate(
+                    logDateRaw
+                );
+
+            }
+
+            // =======================================
+            // PUBLISHED
+            // TYPE = add
+            // =======================================
+            if (logType === "add") {
+
+                groupedUpdates.published.push({
+
+                    label: dateLabel,
+
+                    className: "active",
+
+                    brand: client,
+
+                    asset: location,
+
+                    sortDate: logDate
+
+                });
+
+            }
+
+            // =======================================
+            // REMOVED
+            // TYPE = removed
+            // =======================================
+            if (logType === "removed") {
+
+                groupedUpdates.removed.push({
+
+                    label: dateLabel,
+
+                    className: "cancelled",
+
+                    brand: client || "—",
+
+                    asset: location || "—",
+
+                    sortDate: logDate
+
+                });
+
+            }
+
+        });
+
+        // =======================================
+        // UPCOMING CAMPAIGNS
+        // =======================================
+        campaigns.forEach(campaign => {
+
+            const startDate = parseDate(campaign.rawStartDate);
+
+            if (!startDate) return;
+
+            startDate.setHours(0,0,0,0);
+
+            const startDiff = Math.floor(
+                (startDate - today) / 86400000
+            );
+
+            // UPCOMING ONLY
+            if (startDiff > 0 && startDiff <= 3) {
+
+                groupedUpdates.upcoming.push({
+
+                    label: formatShortDate(campaign.rawStartDate),
+
+                    className: "signed",
+
+                    brand: campaign.brand || campaign.client,
+
+                    asset: campaign.asset,
+
+                    sortDate: startDate
+
+                });
+
+            }
+
+        });
+
+        // =======================================
+        // ENDING CAMPAIGNS (FROM d_ / s_ TABLES) with 3 days left
+        // =======================================
+        for (const tableName in allTables) {
+
+            if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) continue;
+
+            const formattedName = tableName
+                .replace(/^d_|^s_/, "")
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, c => c.toUpperCase());
+
+            const rows = Object.values(allTables[tableName]);
+
+            rows.forEach(r => {
+
+                if (!r || !r["End Date"] || r["End Date"] === "-" || r["End Date"] === "—") return;
+
+                const parsedEnd = parseDate(r["End Date"]);
+                if (!parsedEnd) return;
+
+                parsedEnd.setHours(0,0,0,0);
+
+                const diff = Math.floor((parsedEnd - today) / 86400000);
+
+                if (diff < 0 || diff > 3) return;
+
+                let locationName = formattedName;
+
+                if (tableName.startsWith("s_") && r["Circuit"]) {
+                    locationName = `${formattedName} ${r["Circuit"]}`;
+                }
+
+                groupedUpdates.ending.push({
+
+                    label:
+                        diff === 0
+                            ? "Today"
+                            : `In ${diff} Day${diff > 1 ? "s" : ""}`,
+
+                    className: "completed",
+
+                    brand: r.Client || "—",
+
+                    asset: locationName,
+
+                    sortDate: parsedEnd
+
+                });
+
+            });
+
+        }
+
+        // =======================================
+        // SORT GROUPS (DATE → BRAND)
+        // =======================================
+        Object.values(groupedUpdates).forEach(group => {
+
+            group.sort((a, b) => {
+
+                // Sort by DATE (latest first)
+                if (b.sortDate - a.sortDate !== 0) {
+                    return b.sortDate - a.sortDate;
+                }
+
+                // Sort by BRAND (A → Z)
+                const brandA = (a.brand || "").toLowerCase();
+                const brandB = (b.brand || "").toLowerCase();
+
+                return brandA.localeCompare(brandB);
 
             });
 
         });
 
-    }
+        // =======================================
+        // CREATE CARD
+        // =======================================
+        function createCard(id, title, updates) {
 
-    // =======================================
-    // SORT GROUPS (DATE → BRAND)
-    // =======================================
-    Object.values(groupedUpdates).forEach(group => {
+            const hasUpdates =
+                updates.length > 0;
 
-        group.sort((a, b) => {
+            return `
 
-            // Sort by DATE (latest first)
-            if (b.sortDate - a.sortDate !== 0) {
-                return b.sortDate - a.sortDate;
-            }
+                <div class="campaign-card">
 
-            // Sort by BRAND (A → Z)
-            const brandA = (a.brand || "").toLowerCase();
-            const brandB = (b.brand || "").toLowerCase();
+                    <div class="campaign-card-header ${id}-header">
 
-            return brandA.localeCompare(brandB);
+                        <div>
 
-        });
+                            <div class="campaign-card-title">
+                                ${title}
+                            </div>
 
-    });
+                            <div class="campaign-card-count">
 
-    // =======================================
-    // CREATE CARD
-    // =======================================
-    function createCard(id, title, updates) {
+                                ${
+                                    hasUpdates
+                                        ? `${updates.length} Campaign${updates.length > 1 ? "s" : ""}`
+                                        : "No updates"
+                                }
 
-        const hasUpdates =
-            updates.length > 0;
-
-        return `
-
-            <div class="campaign-card">
-
-                <div class="campaign-card-header ${id}-header">
-
-                    <div>
-
-                        <div class="campaign-card-title">
-                            ${title}
-                        </div>
-
-                        <div class="campaign-card-count">
-
-                            ${
-                                hasUpdates
-                                    ? `${updates.length} Campaign${updates.length > 1 ? "s" : ""}`
-                                    : "No updates"
-                            }
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="campaign-card-body ${hasUpdates ? "expanded" : ""}">
 
-                <div class="campaign-card-body ${hasUpdates ? "expanded" : ""}">
+                        ${
+                            hasUpdates
 
-                    ${
-                        hasUpdates
+                            ? updates.map(update => `
 
-                        ? updates.map(update => `
+                                <div class="campaign-update-item">
 
-                            <div class="campaign-update-item">
+                                    <div>
 
-                                <div>
+                                        <h4>
+                                            ${update.brand || update.client || "—"}
+                                        </h4>
 
-                                    <h4>
-                                        ${update.brand || update.client || "—"}
-                                    </h4>
+                                        <p>
+                                            ${update.asset || "—"}
+                                        </p>
 
-                                    <p>
-                                        ${update.asset || "—"}
-                                    </p>
+                                    </div>
+
+                                    <span class="campaign-date-label">
+                                        ${update.label}
+                                    </span>
 
                                 </div>
 
-                                <span class="campaign-date-label">
-                                    ${update.label}
-                                </span>
+                            `).join("")
 
-                            </div>
+                            : `
 
-                        `).join("")
+                                <div class="campaign-empty">
+                                    No updates available
+                                </div>
 
-                        : `
+                            `
+                        }
 
-                            <div class="campaign-empty">
-                                No updates available
-                            </div>
-
-                        `
-                    }
+                    </div>
 
                 </div>
+
+            `;
+        }
+
+        // =======================================
+        // RENDER
+        // =======================================
+        container.innerHTML = `
+
+            <div class="campaign-cards-grid">
+
+                ${createCard(
+                    "published",
+                    "Published",
+                    groupedUpdates.published
+                )}
+
+                ${createCard(
+                    "removed",
+                    "Removed",
+                    groupedUpdates.removed
+                )}
+
+                ${createCard(
+                    "upcoming",
+                    "Upcoming Campaign",
+                    groupedUpdates.upcoming
+                )}
+
+                ${createCard(
+                    "ending",
+                    "Ending Campaign",
+                    groupedUpdates.ending
+                )}
 
             </div>
 
         `;
     }
 
-    // =======================================
-    // RENDER
-    // =======================================
-    container.innerHTML = `
-
-        <div class="campaign-cards-grid">
-
-            ${createCard(
-                "published",
-                "Published",
-                groupedUpdates.published
-            )}
-
-            ${createCard(
-                "removed",
-                "Removed",
-                groupedUpdates.removed
-            )}
-
-            ${createCard(
-                "upcoming",
-                "Upcoming Campaign",
-                groupedUpdates.upcoming
-            )}
-
-            ${createCard(
-                "ending",
-                "Ending Campaign",
-                groupedUpdates.ending
-            )}
-
-        </div>
-
-    `;
-}
-
-
-// =======================================
-// FORMAT LARGE NUMBER
-// =======================================
-function formatCompactNumber(value) {
-
-    return new Intl.NumberFormat("en", {
-
-        notation: "compact",
-
-        maximumFractionDigits: 1
-
-    }).format(value);
-
-}
-
-// =======================================
-// PARSE VEHICLE DATE
-// FORMAT: MM/DD/YYYY
-// =======================================
-function parseVehicleDate(value) {
-
-    if (!value) return null;
 
     // =======================================
-    // DATE OBJECT
+    // FORMAT LARGE NUMBER
     // =======================================
-    if (value instanceof Date) {
+    function formatCompactNumber(value) {
 
-        return value;
+        return new Intl.NumberFormat("en", {
+
+            notation: "compact",
+
+            maximumFractionDigits: 1
+
+        }).format(value);
 
     }
 
     // =======================================
-    // STRING
+    // PARSE VEHICLE DATE
+    // FORMAT: MM/DD/YYYY
     // =======================================
-    value = value.toString().trim();
+    function parseVehicleDate(value) {
 
-    // =======================================
-    // YYYY-MM-DD
-    // =======================================
-    if (value.includes("-")) {
+        if (!value) return null;
 
-        const parts = value.split("-").map(v => parseInt(v.trim(), 10));
-        if (parts.length === 3) {
-            const [year, month, day] = parts;
-            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-                const localDate = new Date(year, month - 1, day);
-                if (!isNaN(localDate)) {
-                    return localDate;
+        // =======================================
+        // DATE OBJECT
+        // =======================================
+        if (value instanceof Date) {
+
+            return value;
+
+        }
+
+        // =======================================
+        // STRING
+        // =======================================
+        value = value.toString().trim();
+
+        // =======================================
+        // YYYY-MM-DD
+        // =======================================
+        if (value.includes("-")) {
+
+            const parts = value.split("-").map(v => parseInt(v.trim(), 10));
+            if (parts.length === 3) {
+                const [year, month, day] = parts;
+                if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                    const localDate = new Date(year, month - 1, day);
+                    if (!isNaN(localDate)) {
+                        return localDate;
+                    }
                 }
             }
+
+            const isoDate = new Date(value);
+
+            if (!isNaN(isoDate)) {
+
+                return isoDate;
+
+            }
         }
 
-        const isoDate = new Date(value);
+        // =======================================
+        // MM/DD/YYYY
+        // =======================================
+        if (value.includes("/")) {
 
-        if (!isNaN(isoDate)) {
+            const parts = value
+                .split("/")
+                .map(v => parseInt(v.trim(), 10));
 
-            return isoDate;
+            if (parts.length >= 3) {
 
-        }
-    }
+                const [month, day, year] = parts;
 
-    // =======================================
-    // MM/DD/YYYY
-    // =======================================
-    if (value.includes("/")) {
+                if (
+                    !isNaN(month) &&
+                    !isNaN(day) &&
+                    !isNaN(year)
+                ) {
 
-        const parts = value
-            .split("/")
-            .map(v => parseInt(v.trim(), 10));
+                    return new Date(
+                        year,
+                        month - 1,
+                        day
+                    );
 
-        if (parts.length >= 3) {
-
-            const [month, day, year] = parts;
-
-            if (
-                !isNaN(month) &&
-                !isNaN(day) &&
-                !isNaN(year)
-            ) {
-
-                return new Date(
-                    year,
-                    month - 1,
-                    day
-                );
+                }
 
             }
 
         }
 
+        // =======================================
+        // FALLBACK
+        // =======================================
+        const fallback = new Date(value);
+
+        return isNaN(fallback)
+            ? null
+            : fallback;
+
     }
 
     // =======================================
-    // FALLBACK
+    // UPDATE MONTHLY VISITORS
     // =======================================
-    const fallback = new Date(value);
+    function updateMonthlyVisitors(allTables) {
 
-    return isNaN(fallback)
-        ? null
-        : fallback;
+        const countEl = document.getElementById("monthlyVisitorsCount");
+        const growthEl = document.getElementById("monthlyVisitorsGrowth");
 
-}
+        if (!countEl || !growthEl) return;
 
-// =======================================
-// UPDATE MONTHLY VISITORS
-// =======================================
-function updateMonthlyVisitors(allTables) {
+        // =======================================
+        // FIND TABLE (CASE SAFE)
+        // =======================================
+        const vehicleTable =
+            allTables["vehiclecounts"] ||
+            allTables["VehicleCounts"] ||
+            Object.entries(allTables).find(([k]) =>
+                k.toLowerCase().trim() === "vehiclecounts"
+            )?.[1];
 
-    const countEl = document.getElementById("monthlyVisitorsCount");
-    const growthEl = document.getElementById("monthlyVisitorsGrowth");
-
-    if (!countEl || !growthEl) return;
-
-    // =======================================
-    // FIND TABLE (CASE SAFE)
-    // =======================================
-    const vehicleTable =
-        allTables["vehiclecounts"] ||
-        allTables["VehicleCounts"] ||
-        Object.entries(allTables).find(([k]) =>
-            k.toLowerCase().trim() === "vehiclecounts"
-        )?.[1];
-
-    if (!vehicleTable) {
-        countEl.textContent = "0";
-        growthEl.textContent = "No vehicle data found";
-        return;
-    }
-
-    const rows = Array.isArray(vehicleTable)
-        ? vehicleTable
-        : Object.values(vehicleTable);
-
-    const monthlyTotals = {};
-
-    rows.forEach(row => {
-
-        if (!row) return;
-
-        const rawDate =
-            row.ContentDate ||
-            row.Date ||
-            "";
-
-        const rawTotal =
-            row.ContentTotal ??
-            row.Total ??
-            0;
-
-        const parsedDate = parseVehicleDate(rawDate);
-        if (!parsedDate) return;
-
-        const monthKey = `${parsedDate.getFullYear()}-${String(
-            parsedDate.getMonth() + 1
-        ).padStart(2, "0")}`;
-
-        // Safe parsing (allows 0)
-        const cleanedTotal = String(rawTotal ?? "")
-            .replace(/,/g, "")
-            .replace(/[^\d.-]/g, "")
-            .trim();
-
-        const total =
-            cleanedTotal === ""
-            ? 0
-            : parseFloat(cleanedTotal);
-
-        if (isNaN(total)) return;
-
-        if (!monthlyTotals[monthKey]) {
-            monthlyTotals[monthKey] = 0;
+        if (!vehicleTable) {
+            countEl.textContent = "0";
+            growthEl.textContent = "No vehicle data found";
+            return;
         }
 
-        monthlyTotals[monthKey] += total;
-    });
+        const rows = Array.isArray(vehicleTable)
+            ? vehicleTable
+            : Object.values(vehicleTable);
 
-    // =======================================
-    // SORT MONTHS (IMPORTANT)
-    // =======================================
-    let sortedMonths = Object.keys(monthlyTotals)
-        .sort((a, b) => new Date(a + "-01") - new Date(b + "-01"));
+        const monthlyTotals = {};
 
-    if (sortedMonths.length === 0) {
-        countEl.textContent = "0";
-        growthEl.textContent = "No data";
-        return;
+        rows.forEach(row => {
+
+            if (!row) return;
+
+            const rawDate =
+                row.ContentDate ||
+                row.Date ||
+                "";
+
+            const rawTotal =
+                row.ContentTotal ??
+                row.Total ??
+                0;
+
+            const parsedDate = parseVehicleDate(rawDate);
+            if (!parsedDate) return;
+
+            const monthKey = `${parsedDate.getFullYear()}-${String(
+                parsedDate.getMonth() + 1
+            ).padStart(2, "0")}`;
+
+            // Safe parsing (allows 0)
+            const cleanedTotal = String(rawTotal ?? "")
+                .replace(/,/g, "")
+                .replace(/[^\d.-]/g, "")
+                .trim();
+
+            const total =
+                cleanedTotal === ""
+                ? 0
+                : parseFloat(cleanedTotal);
+
+            if (isNaN(total)) return;
+
+            if (!monthlyTotals[monthKey]) {
+                monthlyTotals[monthKey] = 0;
+            }
+
+            monthlyTotals[monthKey] += total;
+        });
+
+        // =======================================
+        // SORT MONTHS (IMPORTANT)
+        // =======================================
+        let sortedMonths = Object.keys(monthlyTotals)
+            .sort((a, b) => new Date(a + "-01") - new Date(b + "-01"));
+
+        if (sortedMonths.length === 0) {
+            countEl.textContent = "0";
+            growthEl.textContent = "No data";
+            return;
+        }
+
+        // Use ONLY CURRENT YEAR if needed
+        const currentYear = new Date().getFullYear();
+
+        const yearMonths = sortedMonths.filter(m =>
+            m.startsWith(currentYear.toString())
+        );
+
+        // FALLBACK if no current year data
+        if (yearMonths.length > 0) {
+            sortedMonths = yearMonths;
+        }
+
+        // ALWAYS USE LATEST (NO FILTER > 0)
+        const latestMonth = sortedMonths[sortedMonths.length - 1];
+        const previousMonth = sortedMonths[sortedMonths.length - 2];
+
+        const latestTotal = monthlyTotals[latestMonth] || 0;
+        const previousTotal = monthlyTotals[previousMonth] || 0;
+
+        // =======================================
+        // UPDATE NUMBER
+        // =======================================
+        countEl.textContent = formatCompactNumber(latestTotal);
+
+        // =======================================
+        // GROWTH
+        // =======================================
+        let growth = 0;
+
+        if (previousTotal > 0) {
+            growth = ((latestTotal - previousTotal) / previousTotal) * 100;
+        }
+
+        const growthRounded = Math.round(growth);
+
+        const monthNames = [
+            "January","February","March","April","May","June",
+            "July","August","September","October","November","December"
+        ];
+
+        const latestMonthName =
+            monthNames[Number(latestMonth.split("-")[1]) - 1];
+
+        const previousMonthName =
+            previousMonth
+            ? monthNames[Number(previousMonth.split("-")[1]) - 1]
+            : "";
+
+        // =======================================
+        // FINAL TEXT
+        // =======================================
+        growthEl.textContent = previousMonth
+            ? (
+                growthRounded >= 0
+                ? `+${growthRounded}% from ${previousMonthName} to ${latestMonthName}`
+                : `${growthRounded}% from ${previousMonthName} to ${latestMonthName}`
+            )
+            : `${latestMonthName} Data`;
+
+        // ✅ DEBUG (keep this)
+        console.log("✅ Monthly Totals:", monthlyTotals);
+        console.log("✅ Sorted Months:", sortedMonths);
     }
 
-    // Use ONLY CURRENT YEAR if needed
-    const currentYear = new Date().getFullYear();
-
-    const yearMonths = sortedMonths.filter(m =>
-        m.startsWith(currentYear.toString())
-    );
-
-    // FALLBACK if no current year data
-    if (yearMonths.length > 0) {
-        sortedMonths = yearMonths;
-    }
-
-    // ALWAYS USE LATEST (NO FILTER > 0)
-    const latestMonth = sortedMonths[sortedMonths.length - 1];
-    const previousMonth = sortedMonths[sortedMonths.length - 2];
-
-    const latestTotal = monthlyTotals[latestMonth] || 0;
-    const previousTotal = monthlyTotals[previousMonth] || 0;
-
     // =======================================
-    // UPDATE NUMBER
+    // UPDATE ASSET OCCUPANCY
+    // DATABASE: oohassets
     // =======================================
-    countEl.textContent = formatCompactNumber(latestTotal);
+    function updateAssetOccupancy(allTables) {
 
-    // =======================================
-    // GROWTH
-    // =======================================
-    let growth = 0;
+        const percentEl = document.getElementById(
+            "assetOccupancyPercent"
+        );
 
-    if (previousTotal > 0) {
-        growth = ((latestTotal - previousTotal) / previousTotal) * 100;
-    }
+        const textEl = document.getElementById(
+            "assetOccupancyText"
+        );
 
-    const growthRounded = Math.round(growth);
+        const progressBar = document.getElementById(
+            "assetOccupancyBar"
+        );
 
-    const monthNames = [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-    ];
-
-    const latestMonthName =
-        monthNames[Number(latestMonth.split("-")[1]) - 1];
-
-    const previousMonthName =
-        previousMonth
-        ? monthNames[Number(previousMonth.split("-")[1]) - 1]
-        : "";
-
-    // =======================================
-    // FINAL TEXT
-    // =======================================
-    growthEl.textContent = previousMonth
-        ? (
-            growthRounded >= 0
-            ? `+${growthRounded}% from ${previousMonthName} to ${latestMonthName}`
-            : `${growthRounded}% from ${previousMonthName} to ${latestMonthName}`
-        )
-        : `${latestMonthName} Data`;
-
-    // ✅ DEBUG (keep this)
-    console.log("✅ Monthly Totals:", monthlyTotals);
-    console.log("✅ Sorted Months:", sortedMonths);
-}
-
-// =======================================
-// UPDATE ASSET OCCUPANCY
-// DATABASE: oohassets
-// =======================================
-function updateAssetOccupancy(allTables) {
-
-    const percentEl = document.getElementById(
-        "assetOccupancyPercent"
-    );
-
-    const textEl = document.getElementById(
-        "assetOccupancyText"
-    );
-
-    const progressBar = document.getElementById(
-        "assetOccupancyBar"
-    );
-
-    if (!percentEl || !textEl || !progressBar) {
-        return;
-    }
-
-    // =======================================
-    // DATABASE TABLE
-    // =======================================
-    const assetsTable = allTables["oohassets"];
-
-    if (!assetsTable) {
-
-        percentEl.textContent = "0%";
-
-        textEl.textContent = "No asset data found";
-
-        progressBar.style.width = "0%";
-
-        return;
-    }
-
-    // =======================================
-    // ROWS
-    // =======================================
-    const rows = Array.isArray(assetsTable)
-        ? assetsTable
-        : Object.values(assetsTable);
-
-    let totalSlots = 0;
-
-    let bookedSlots = 0;
-
-    let availableSlots = 0;
-
-    // =======================================
-    // LOOP ROWS
-    // =======================================
-    rows.forEach(row => {
-
-        if (!row || typeof row !== "object") {
+        if (!percentEl || !textEl || !progressBar) {
             return;
         }
 
         // =======================================
-        // CLEAN KEYS
+        // DATABASE TABLE
         // =======================================
-        const cleanedRow = {};
+        const assetsTable = allTables["oohassets"];
 
-        Object.keys(row).forEach(key => {
+        if (!assetsTable) {
 
-            cleanedRow[key.trim()] = row[key];
+            percentEl.textContent = "0%";
+
+            textEl.textContent = "No asset data found";
+
+            progressBar.style.width = "0%";
+
+            return;
+        }
+
+        // =======================================
+        // ROWS
+        // =======================================
+        const rows = Array.isArray(assetsTable)
+            ? assetsTable
+            : Object.values(assetsTable);
+
+        let totalSlots = 0;
+
+        let bookedSlots = 0;
+
+        let availableSlots = 0;
+
+        // =======================================
+        // LOOP ROWS
+        // =======================================
+        rows.forEach(row => {
+
+            if (!row || typeof row !== "object") {
+                return;
+            }
+
+            // =======================================
+            // CLEAN KEYS
+            // =======================================
+            const cleanedRow = {};
+
+            Object.keys(row).forEach(key => {
+
+                cleanedRow[key.trim()] = row[key];
+
+            });
+
+            // =======================================
+            // GET VALUES
+            // =======================================
+            const slot =
+                Number(cleanedRow["Slot"]) || 0;
+
+            const booked =
+                Number(cleanedRow["Booked Slot"]) || 0;
+
+            const available =
+                Number(cleanedRow["Available Slot"]) || 0;
+
+            totalSlots += slot;
+
+            bookedSlots += booked;
+
+            availableSlots += available;
 
         });
 
         // =======================================
-        // GET VALUES
+        // OCCUPANCY %
         // =======================================
-        const slot =
-            Number(cleanedRow["Slot"]) || 0;
+        const occupancy = totalSlots > 0
+            ? Math.round((bookedSlots / totalSlots) * 100)
+            : 0;
 
-        const booked =
-            Number(cleanedRow["Booked Slot"]) || 0;
+        // =======================================
+        // UPDATE UI
+        // =======================================
+        percentEl.textContent = `${occupancy}%`;
 
-        const available =
-            Number(cleanedRow["Available Slot"]) || 0;
+        textEl.textContent =
+            `${bookedSlots} / ${totalSlots} Asset Slots Occupied`;
 
-        totalSlots += slot;
+        progressBar.style.width = `${occupancy}%`;
 
-        bookedSlots += booked;
+        // =======================================
+        // DEBUG
+        // =======================================
+        console.log({
+            totalSlots,
+            bookedSlots,
+            availableSlots,
+            occupancy
+        });
 
-        availableSlots += available;
-
-    });
-
-    // =======================================
-    // OCCUPANCY %
-    // =======================================
-    const occupancy = totalSlots > 0
-        ? Math.round((bookedSlots / totalSlots) * 100)
-        : 0;
-
-    // =======================================
-    // UPDATE UI
-    // =======================================
-    percentEl.textContent = `${occupancy}%`;
-
-    textEl.textContent =
-        `${bookedSlots} / ${totalSlots} Asset Slots Occupied`;
-
-    progressBar.style.width = `${occupancy}%`;
+    }
 
     // =======================================
-    // DEBUG
+    // OPEN / CLOSE CALENDAR
     // =======================================
-    console.log({
-        totalSlots,
-        bookedSlots,
-        availableSlots,
-        occupancy
-    });
+    const calendarModal = document.getElementById("calendarModal");
+    const openCalendarBtn = document.getElementById("openCalendarBtn");
+    const closeCalendarBtn = document.getElementById("closeCalendarBtn");
 
-}
-
-// =======================================
-// OPEN / CLOSE CALENDAR
-// =======================================
-const calendarModal = document.getElementById("calendarModal");
-const openCalendarBtn = document.getElementById("openCalendarBtn");
-const closeCalendarBtn = document.getElementById("closeCalendarBtn");
-
-const fromInputEl = document.getElementById("calendarFrom");
-const toInputEl   = document.getElementById("calendarTo");
+    const fromInputEl = document.getElementById("calendarFrom");
+    const toInputEl   = document.getElementById("calendarTo");
 
 
-if (closeCalendarBtn) {
-    closeCalendarBtn.addEventListener("click", () => {
-        calendarModal.classList.remove("active");
-    });
-}
+    if (closeCalendarBtn) {
+        closeCalendarBtn.addEventListener("click", () => {
+            calendarModal.classList.remove("active");
+        });
+    }
 
 
-if (fromInputEl && toInputEl) {
+    if (fromInputEl && toInputEl) {
 
-    fromInputEl.addEventListener("change", reloadCalendar);
-    toInputEl.addEventListener("change", reloadCalendar);
+        fromInputEl.addEventListener("change", reloadCalendar);
+        toInputEl.addEventListener("change", reloadCalendar);
 
-}
+    }
 
-async function reloadCalendar() {
-
-    const bookings =
-        await loadCampaignBookings();
-
-    renderBookingCalendar(bookings);
-
-}
-
-
-if (openCalendarBtn) {
-    openCalendarBtn.addEventListener("click", async () => {
-        calendarModal.classList.add("active");
-
-        // SET DEFAULT MONTH TO CURRENT MONTH
-        const fromInput = document.getElementById("calendarFrom");
-        const toInput   = document.getElementById("calendarTo");
-
-        if (fromInput && toInput && !fromInput.value) {
-
-            const today = new Date();
-
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            const lastDay  = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-            fromInput.value = toLocalISOString(firstDay);
-            toInput.value   = toLocalISOString(lastDay);
-        }
+    async function reloadCalendar() {
 
         const bookings =
             await loadCampaignBookings();
 
         renderBookingCalendar(bookings);
-    });
-}
-
-calendarModal.addEventListener("click", (event) => {
-
-    if (event.target === calendarModal) {
-
-        calendarModal.classList.remove("active");
 
     }
 
-});
 
-function parseISODateLocal(dateString) {
-    if (!dateString) return null;
-    const parts = dateString.split("-").map(v => parseInt(v, 10));
-    if (parts.length === 3) {
-        const [year, month, day] = parts;
-        if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-            return new Date(year, month - 1, day);
-        }
-    }
-    return null;
-}
+    if (openCalendarBtn) {
+        openCalendarBtn.addEventListener("click", async () => {
+            calendarModal.classList.add("active");
 
-function toLocalISOString(date) {
-    if (!date) return null;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
+            // SET DEFAULT MONTH TO CURRENT MONTH
+            const fromInput = document.getElementById("calendarFrom");
+            const toInput   = document.getElementById("calendarTo");
 
-// =======================================
-// MONTH CHANGE
-// =======================================
+            if (fromInput && toInput && !fromInput.value) {
 
-const fromInput = document.getElementById("calendarFrom");
-const toInput   = document.getElementById("calendarTo");
+                const today = new Date();
 
-let startDate = fromInput?.value ? parseISODateLocal(fromInput.value)
-    : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay  = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-let endDate = toInput?.value ? parseISODateLocal(toInput.value)
-    : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-
-
-function getDateRange(start, end) {
-    const dates = [];
-    const current = new Date(start);
-
-    while (current <= end) {
-        dates.push(new Date(current));
-        current.setDate(current.getDate() + 1);
-    }
-
-    return dates;
-}
-
-
-function formatDateShort(date) {
-    return date.getDate();
-}
-
-
-function renderBookingBars(bookings) {
-
-    if (!bookings || !bookings.length) return;
-
-    const fromInput =
-    document.getElementById("calendarFrom");
-
-    const toInput =
-        document.getElementById("calendarTo");
-
-    const startDate = fromInput?.value ? parseISODateLocal(fromInput.value)
-        : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-
-    const endDate = toInput?.value ? parseISODateLocal(toInput.value)
-        : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-
-    startDate.setHours(0,0,0,0);
-    endDate.setHours(0,0,0,0);
-
-    const rows = document.querySelectorAll(
-        "#bookingCalendar tbody tr"
-    );
-
-    bookings.forEach(booking => {
-
-        const start = parseVehicleDate(
-            booking["Start Date"] || booking.startDate
-        );
-
-        const end = parseVehicleDate(
-            booking["End Date"] || booking.endDate
-        );
-
-        if (!start || !end) return;
-
-        start.setHours(0,0,0,0);
-        end.setHours(0,0,0,0);
-
-        const asset =
-            booking.Circuits ||
-            booking.Circuit ||
-            booking.Location ||
-            "";
-
-        const slotValue =
-            Number(booking.Slot || booking.slot || 1);
-
-        const client =
-            booking.Client ||
-            "Booking";
-
-        const brand =
-            booking["Brand Campaign"] || "";
-
-        const person =
-            booking.Person || "";
-
-        const status =
-            (booking.Status || "")
-            .toLowerCase();
-
-        rows.forEach(row => {
-
-            const slotCell =
-                row.querySelector(".slot-cell");
-
-            if (!slotCell) return;
-
-            // =====================================
-            // FIND CIRCUIT
-            // =====================================
-            let rowCircuit = "";
-
-            const directCircuit =
-                row.querySelector(".circuit-cell");
-
-            if (directCircuit) {
-
-                rowCircuit =
-                    directCircuit.textContent.trim();
-
-            } else {
-
-                let previousRow =
-                    row.previousElementSibling;
-
-                while (previousRow && !rowCircuit) {
-
-                    const previousCircuit =
-                        previousRow.querySelector(
-                            ".circuit-cell"
-                        );
-
-                    if (previousCircuit) {
-
-                        rowCircuit =
-                            previousCircuit.textContent.trim();
-
-                        break;
-                    }
-
-                    previousRow =
-                        previousRow.previousElementSibling;
-                }
+                fromInput.value = toLocalISOString(firstDay);
+                toInput.value   = toLocalISOString(lastDay);
             }
 
-            const normalize = str =>
-                (str || "")
-                .toLowerCase()
-                .replace(/[_-]/g, " ")
-                .replace(/\s+/g, " ")
-                .trim();
+            const bookings =
+                await loadCampaignBookings();
 
-            const rowCircuitNormalized =
-                normalize(rowCircuit);
-
-            const assetNormalized =
-                normalize(asset);
-
-            const isMatch =
-                rowCircuitNormalized === assetNormalized
-                ||
-                rowCircuitNormalized.includes(assetNormalized)
-                ||
-                assetNormalized.includes(rowCircuitNormalized);
-
-            if (!isMatch) return;
-
-            // =====================================
-            // SLOT MATCH
-            // =====================================
-            const rowSlot = parseInt(
-                slotCell.textContent.replace("Slot ", ""),
-                10
-            );
-
-            if (rowSlot !== slotValue) {
-                return;
-            }
-
-            // =====================================
-            // DATE CELLS
-            // =====================================
-            const cells = Array.from(
-                row.querySelectorAll(
-                    'td[data-date]'
-                )
-            );
-
-            let startIndex =
-                cells.findIndex(td =>
-                    td.dataset.date ===
-                    toLocalISOString(start)
-                );
-
-            let endIndex =
-                cells.findIndex(td =>
-                    td.dataset.date ===
-                    toLocalISOString(end)
-                );
-
-            // =====================================
-            // HANDLE OUTSIDE RANGE
-            // =====================================
-
-            // campaign started before visible range
-            if (startIndex === -1 && start < startDate) {
-                startIndex = 0;
-            }
-
-            // campaign ends after visible range
-            if (endIndex === -1 && end > endDate) {
-                endIndex = cells.length - 1;
-            }
-
-            // completely outside visible range
-            if (
-                startIndex === -1 ||
-                endIndex === -1
-            ) {
-                return;
-            }
-
-            const firstCell =
-                cells[startIndex];
-
-            const totalDays =
-                (endIndex - startIndex) + 1;
-
-            const bar =
-                document.createElement("div");
-
-            bar.className = "booking-bar";
-
-            bar.style.width =
-                `calc(${totalDays * 100}% + ${(totalDays - 1)}px)`;
-
-            bar.style.left = "0";
-
-            let label = client;
-
-            if (brand) {
-                label += ` | ${brand}`;
-            }
-
-            if (person) {
-                label += ` - ${person}`;
-            }
-
-            bar.textContent = label;
-
-            if (status.includes("live")) {
-                bar.classList.add("live");
-            }
-            else if (status.includes("signed")) {
-                bar.classList.add("signed");
-            }
-            else if (status.includes("quotation")) {
-                bar.classList.add("quotation");
-            }
-            else if (status.includes("completed")) {
-                bar.classList.add("completed");
-            }
-
-            firstCell.style.position = "relative";
-
-            firstCell.appendChild(bar);
-
+            renderBookingCalendar(bookings);
         });
+    }
 
-    });
+    calendarModal.addEventListener("click", (event) => {
 
-}
+        if (event.target === calendarModal) {
 
-
-// =====================================
-// LOAD CIRCUITS FROM FIREBASE
-// TABLE: oohassets
-// =====================================
-async function loadCircuitSlots() {
-
-    try {
-
-        // =====================================
-        // FIREBASE PATH
-        // =====================================
-        const snapshot = await get(
-            ref(rtdb, "oohassets")
-        );
-
-        if (!snapshot.exists()) {
-
-            console.log(
-                "No oohassets found"
-            );
-
-            return [];
+            calendarModal.classList.remove("active");
 
         }
 
-        const data = snapshot.val();
+    });
 
-        // =====================================
-        // CONVERT TO ARRAY
-        // =====================================
-        const rows = Array.isArray(data)
-            ? data
-            : Object.values(data);
-
-        // =====================================
-        // BUILD CIRCUITS
-        // =====================================
-
-
-        const circuitSlots = rows
-            .filter(row => row && row.Circuits)
-            .map(row => ({
-                name: row.Circuits.toString().trim(),
-                slots: parseInt(row.Slot || 1, 10)
-            }));
-
-        console.log(
-            "circuitSlots:",
-            circuitSlots
-        );
-
-        return circuitSlots;
-
-    } catch (error) {
-
-        console.error(
-            "Error loading circuits:",
-            error
-        );
-
-        return [];
-
+    function parseISODateLocal(dateString) {
+        if (!dateString) return null;
+        const parts = dateString.split("-").map(v => parseInt(v, 10));
+        if (parts.length === 3) {
+            const [year, month, day] = parts;
+            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                return new Date(year, month - 1, day);
+            }
+        }
+        return null;
     }
 
-}
-
-// =====================================
-// RENDER CALENDAR
-// =====================================
-async function renderBookingCalendar(
-    bookings
-) {
-
-    const table =
-        document.getElementById(
-            "bookingCalendar"
-        );
-
-    if (!table) return;
-
-    // =====================================
-    // LOAD CIRCUITS
-    // =====================================
-    const circuitSlots =
-        await loadCircuitSlots();
-
-    if (!circuitSlots.length) {
-
-        table.innerHTML = `
-            <tr>
-                <td style="
-                    padding:20px;
-                    text-align:center;
-                ">
-                    No circuits found
-                </td>
-            </tr>
-        `;
-
-        return;
-
+    function toLocalISOString(date) {
+        if (!date) return null;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
-    // =====================================
-    // DATE RANGE (FULL MONTH)
-    // =====================================
+    // =======================================
+    // MONTH CHANGE
+    // =======================================
+
     const fromInput = document.getElementById("calendarFrom");
     const toInput   = document.getElementById("calendarTo");
 
@@ -4540,203 +4172,572 @@ async function renderBookingCalendar(
         : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
 
-    const allDates =
-        getDateRange(
-            startDate,
-            endDate
+    function getDateRange(start, end) {
+        const dates = [];
+        const current = new Date(start);
+
+        while (current <= end) {
+            dates.push(new Date(current));
+            current.setDate(current.getDate() + 1);
+        }
+
+        return dates;
+    }
+
+
+    function formatDateShort(date) {
+        return date.getDate();
+    }
+
+
+    function renderBookingBars(bookings) {
+
+        if (!bookings || !bookings.length) return;
+
+        const fromInput =
+        document.getElementById("calendarFrom");
+
+        const toInput =
+            document.getElementById("calendarTo");
+
+        const startDate = fromInput?.value ? parseISODateLocal(fromInput.value)
+            : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+        const endDate = toInput?.value ? parseISODateLocal(toInput.value)
+            : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
+        startDate.setHours(0,0,0,0);
+        endDate.setHours(0,0,0,0);
+
+        const rows = document.querySelectorAll(
+            "#bookingCalendar tbody tr"
         );
 
-    // =====================================
-    // CLEAR TABLE
-    // =====================================
-    table.innerHTML = "";
+        bookings.forEach(booking => {
 
-    // =====================================
-    // HEADER
-    // =====================================
-    const thead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
+            const start = parseVehicleDate(
+                booking["Start Date"] || booking.startDate
+            );
 
-    headerRow.innerHTML = `
-        <th class="circuit-cell">Circuit</th>
-        <th class="slot-cell">Slot</th>
-    `;
+            const end = parseVehicleDate(
+                booking["End Date"] || booking.endDate
+            );
 
-    allDates.forEach(date => {
+            if (!start || !end) return;
 
-        const th = document.createElement("th");
+            start.setHours(0,0,0,0);
+            end.setHours(0,0,0,0);
 
-        const today = new Date();
-        today.setHours(0,0,0,0);
+            const asset =
+                booking.Circuits ||
+                booking.Circuit ||
+                booking.Location ||
+                "";
 
-        const isToday =
-            today.toDateString() === date.toDateString();
+            const slotValue =
+                Number(booking.Slot || booking.slot || 1);
 
-        th.className = `
-            date-head
-            ${isToday ? "today" : ""}
-        `;
+            const client =
+                booking.Client ||
+                "Booking";
 
-        th.innerHTML = `
-            ${date.toLocaleDateString("en", { month: "short" })}
-            <br>
-            ${formatDateShort(date)}
-        `;
+            const brand =
+                booking["Brand Campaign"] || "";
 
-        headerRow.appendChild(th);
+            const person =
+                booking.Person || "";
 
-    });
+            const status =
+                (booking.Status || "")
+                .toLowerCase();
 
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+            rows.forEach(row => {
 
+                const slotCell =
+                    row.querySelector(".slot-cell");
 
-    // =====================================
-    // BODY
-    // =====================================
-    const tbody = document.createElement("tbody");
+                if (!slotCell) return;
 
-    circuitSlots.forEach(circuit => {
+                // =====================================
+                // FIND CIRCUIT
+                // =====================================
+                let rowCircuit = "";
 
-        for (let slot = 1; slot <= circuit.slots; slot++) {
+                const directCircuit =
+                    row.querySelector(".circuit-cell");
 
-            const tr = document.createElement("tr");
+                if (directCircuit) {
 
-            // CIRCUIT CELL
-            if (slot === 1) {
-                const tdCircuit = document.createElement("td");
-                tdCircuit.className = "circuit-cell";
-                tdCircuit.rowSpan = circuit.slots;
-                tdCircuit.textContent = circuit.name;
-                tr.appendChild(tdCircuit);
-            }
+                    rowCircuit =
+                        directCircuit.textContent.trim();
 
-            // SLOT CELL
-            const slotTd = document.createElement("td");
-            slotTd.className = "slot-cell";
-            slotTd.textContent = `Slot ${slot}`;
-            tr.appendChild(slotTd);
+                } else {
 
-            // DATE CELLS
-            allDates.forEach(date => {
-                const td = document.createElement("td");
-                td.dataset.date = toLocalISOString(date);
-                tr.appendChild(td);
+                    let previousRow =
+                        row.previousElementSibling;
+
+                    while (previousRow && !rowCircuit) {
+
+                        const previousCircuit =
+                            previousRow.querySelector(
+                                ".circuit-cell"
+                            );
+
+                        if (previousCircuit) {
+
+                            rowCircuit =
+                                previousCircuit.textContent.trim();
+
+                            break;
+                        }
+
+                        previousRow =
+                            previousRow.previousElementSibling;
+                    }
+                }
+
+                const normalize = str =>
+                    (str || "")
+                    .toLowerCase()
+                    .replace(/[_-]/g, " ")
+                    .replace(/\s+/g, " ")
+                    .trim();
+
+                const rowCircuitNormalized =
+                    normalize(rowCircuit);
+
+                const assetNormalized =
+                    normalize(asset);
+
+                const isMatch =
+                    rowCircuitNormalized === assetNormalized
+                    ||
+                    rowCircuitNormalized.includes(assetNormalized)
+                    ||
+                    assetNormalized.includes(rowCircuitNormalized);
+
+                if (!isMatch) return;
+
+                // =====================================
+                // SLOT MATCH
+                // =====================================
+                const rowSlot = parseInt(
+                    slotCell.textContent.replace("Slot ", ""),
+                    10
+                );
+
+                if (rowSlot !== slotValue) {
+                    return;
+                }
+
+                // =====================================
+                // DATE CELLS
+                // =====================================
+                const cells = Array.from(
+                    row.querySelectorAll(
+                        'td[data-date]'
+                    )
+                );
+
+                let startIndex =
+                    cells.findIndex(td =>
+                        td.dataset.date ===
+                        toLocalISOString(start)
+                    );
+
+                let endIndex =
+                    cells.findIndex(td =>
+                        td.dataset.date ===
+                        toLocalISOString(end)
+                    );
+
+                // =====================================
+                // HANDLE OUTSIDE RANGE
+                // =====================================
+
+                // campaign started before visible range
+                if (startIndex === -1 && start < startDate) {
+                    startIndex = 0;
+                }
+
+                // campaign ends after visible range
+                if (endIndex === -1 && end > endDate) {
+                    endIndex = cells.length - 1;
+                }
+
+                // completely outside visible range
+                if (
+                    startIndex === -1 ||
+                    endIndex === -1
+                ) {
+                    return;
+                }
+
+                const firstCell =
+                    cells[startIndex];
+
+                const totalDays =
+                    (endIndex - startIndex) + 1;
+
+                const bar =
+                    document.createElement("div");
+
+                bar.className = "booking-bar";
+
+                bar.style.width =
+                    `calc(${totalDays * 100}% + ${(totalDays - 1)}px)`;
+
+                bar.style.left = "0";
+
+                let label = client;
+
+                if (brand) {
+                    label += ` | ${brand}`;
+                }
+
+                if (person) {
+                    label += ` - ${person}`;
+                }
+
+                bar.textContent = label;
+
+                if (status.includes("live")) {
+                    bar.classList.add("live");
+                }
+                else if (status.includes("signed")) {
+                    bar.classList.add("signed");
+                }
+                else if (status.includes("quotation")) {
+                    bar.classList.add("quotation");
+                }
+                else if (status.includes("completed")) {
+                    bar.classList.add("completed");
+                }
+
+                firstCell.style.position = "relative";
+
+                firstCell.appendChild(bar);
+
             });
 
-            tbody.appendChild(tr);
-        }
-    });
+        });
 
-    table.appendChild(tbody);
+    }
+
 
     // =====================================
-    // RENDER BOOKINGS
+    // LOAD CIRCUITS FROM FIREBASE
+    // TABLE: oohassets
     // =====================================
-    requestAnimationFrame(() => {
+    async function loadCircuitSlots() {
 
-        renderBookingBars(
-            bookings,
-            allDates
-        );
+        try {
 
-    });
+            // =====================================
+            // FIREBASE PATH
+            // =====================================
+            const snapshot = await get(
+                ref(rtdb, "oohassets")
+            );
 
-}
+            if (!snapshot.exists()) {
 
-// =====================================
-// LOAD BOOKINGS FROM FIREBASE
-// =====================================
-async function loadCampaignBookings() {
+                console.log(
+                    "No oohassets found"
+                );
 
-    try {
+                return [];
 
-        const snapshot = await get(
-            ref(rtdb, "Campaigns_Booking")
-        );
+            }
 
-        if (!snapshot.exists()) {
+            const data = snapshot.val();
+
+            // =====================================
+            // CONVERT TO ARRAY
+            // =====================================
+            const rows = Array.isArray(data)
+                ? data
+                : Object.values(data);
+
+            // =====================================
+            // BUILD CIRCUITS
+            // =====================================
+
+
+            const circuitSlots = rows
+                .filter(row => row && row.Circuits)
+                .map(row => ({
+                    name: row.Circuits.toString().trim(),
+                    slots: parseInt(row.Slot || 1, 10)
+                }));
+
+            console.log(
+                "circuitSlots:",
+                circuitSlots
+            );
+
+            return circuitSlots;
+
+        } catch (error) {
+
+            console.error(
+                "Error loading circuits:",
+                error
+            );
 
             return [];
 
         }
 
-        const data = snapshot.val();
+    }
 
-        return Array.isArray(data)
-            ? data
-            : Object.values(data);
+    // =====================================
+    // RENDER CALENDAR
+    // =====================================
+    async function renderBookingCalendar(
+        bookings
+    ) {
 
-    } catch (error) {
+        const table =
+            document.getElementById(
+                "bookingCalendar"
+            );
 
-        console.error(
-            "Booking load error:",
-            error
-        );
+        if (!table) return;
 
-        return [];
+        // =====================================
+        // LOAD CIRCUITS
+        // =====================================
+        const circuitSlots =
+            await loadCircuitSlots();
+
+        if (!circuitSlots.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td style="
+                        padding:20px;
+                        text-align:center;
+                    ">
+                        No circuits found
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+        // =====================================
+        // DATE RANGE (FULL MONTH)
+        // =====================================
+        const fromInput = document.getElementById("calendarFrom");
+        const toInput   = document.getElementById("calendarTo");
+
+        let startDate = fromInput?.value ? parseISODateLocal(fromInput.value)
+            : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+        let endDate = toInput?.value ? parseISODateLocal(toInput.value)
+            : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+
+
+        const allDates =
+            getDateRange(
+                startDate,
+                endDate
+            );
+
+        // =====================================
+        // CLEAR TABLE
+        // =====================================
+        table.innerHTML = "";
+
+        // =====================================
+        // HEADER
+        // =====================================
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+
+        headerRow.innerHTML = `
+            <th class="circuit-cell">Circuit</th>
+            <th class="slot-cell">Slot</th>
+        `;
+
+        allDates.forEach(date => {
+
+            const th = document.createElement("th");
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            const isToday =
+                today.toDateString() === date.toDateString();
+
+            th.className = `
+                date-head
+                ${isToday ? "today" : ""}
+            `;
+
+            th.innerHTML = `
+                ${date.toLocaleDateString("en", { month: "short" })}
+                <br>
+                ${formatDateShort(date)}
+            `;
+
+            headerRow.appendChild(th);
+
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+
+        // =====================================
+        // BODY
+        // =====================================
+        const tbody = document.createElement("tbody");
+
+        circuitSlots.forEach(circuit => {
+
+            for (let slot = 1; slot <= circuit.slots; slot++) {
+
+                const tr = document.createElement("tr");
+
+                // CIRCUIT CELL
+                if (slot === 1) {
+                    const tdCircuit = document.createElement("td");
+                    tdCircuit.className = "circuit-cell";
+                    tdCircuit.rowSpan = circuit.slots;
+                    tdCircuit.textContent = circuit.name;
+                    tr.appendChild(tdCircuit);
+                }
+
+                // SLOT CELL
+                const slotTd = document.createElement("td");
+                slotTd.className = "slot-cell";
+                slotTd.textContent = `Slot ${slot}`;
+                tr.appendChild(slotTd);
+
+                // DATE CELLS
+                allDates.forEach(date => {
+                    const td = document.createElement("td");
+                    td.dataset.date = toLocalISOString(date);
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            }
+        });
+
+        table.appendChild(tbody);
+
+        // =====================================
+        // RENDER BOOKINGS
+        // =====================================
+        requestAnimationFrame(() => {
+
+            renderBookingBars(
+                bookings,
+                allDates
+            );
+
+        });
 
     }
 
-}
+    // =====================================
+    // LOAD BOOKINGS FROM FIREBASE
+    // =====================================
+    async function loadCampaignBookings() {
 
-// =======================================
-// BOOKING MODAL
-// =======================================
-const bookingModal =
-    document.getElementById("bookingModal");
+        try {
 
-document
-.getElementById("openBookingModalBtn")
-.addEventListener("click", () => {
+            const snapshot = await get(
+                ref(rtdb, "Campaigns_Booking")
+            );
 
-    bookingModal.classList.add("active");
+            if (!snapshot.exists()) {
 
-});
+                return [];
 
-document
-.getElementById("closeBookingModalBtn")
-.addEventListener("click", () => {
+            }
 
-    bookingModal.classList.remove("active");
+            const data = snapshot.val();
 
-});
+            return Array.isArray(data)
+                ? data
+                : Object.values(data);
 
-document
-.getElementById("cancelBookingBtn")
-.addEventListener("click", () => {
+        } catch (error) {
 
-    bookingModal.classList.remove("active");
+            console.error(
+                "Booking load error:",
+                error
+            );
 
-});
+            return [];
+
+        }
+
+    }
+
+    // =======================================
+    // BOOKING MODAL
+    // =======================================
+    const bookingModal =
+        document.getElementById("bookingModal");
+
+    document
+    .getElementById("openBookingModalBtn")
+    .addEventListener("click", () => {
+
+        bookingModal.classList.add("active");
+
+    });
+
+    document
+    .getElementById("closeBookingModalBtn")
+    .addEventListener("click", () => {
+
+        bookingModal.classList.remove("active");
+
+    });
+
+    document
+    .getElementById("cancelBookingBtn")
+    .addEventListener("click", () => {
+
+        bookingModal.classList.remove("active");
+
+    });
 
 
 
-// =====================================
-// INITIALIZE
-// =====================================
-async function initializeCalendar() {
+    // =====================================
+    // INITIALIZE
+    // =====================================
+    async function initializeCalendar() {
 
-    const bookings =
-        await loadCampaignBookings();
+        const bookings =
+            await loadCampaignBookings();
 
-    renderBookingCalendar(
-        bookings,
-    );
+        renderBookingCalendar(
+            bookings,
+        );
 
-}
+    }
 
 
-// =======================================
-// DOM READY
-// =======================================
-document.addEventListener("DOMContentLoaded", async () => {
+    // =======================================
+    // DOM READY
+    // =======================================
+    document.addEventListener("DOMContentLoaded", async () => {
 
-    await initCampaignDashboard();
+        await initCampaignDashboard();
 
-    await initializeCalendar();
+        await initializeCalendar();
 
-});
+    });
 
 
 
