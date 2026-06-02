@@ -271,7 +271,7 @@ body::before {
   background-position: center;
   background-repeat: no-repeat;
 
-  filter: blur(10px);              
+  filter: blur(2px);              
   transform: scale(1.05);        
   
   z-index: -1;
@@ -860,6 +860,7 @@ body.no-scroll {
 
 .date-tomorrow {
   background-color: darkorange;
+  color: white;
 }
 
 .date-week {
@@ -868,6 +869,7 @@ body.no-scroll {
 
 .date-less-than-today {
   background-color: red;
+  color: white;
 }
 
 #fullscreenOverlay {
