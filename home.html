@@ -16,17 +16,23 @@
 
   requireAuth((user) => {
     const userNameEl = document.getElementById("userName");
-        const loggedUser =
+    const logoutBtn = document.getElementById("logoutBtn");
+    const loggedUser =
         user.displayName ||
-        user.email.split("@")[0];
+        user.email?.split("@")[0] ||
+        "User";
 
-    userNameEl.textContent =
+    if (userNameEl) {
+        userNameEl.textContent =
         loggedUser;
+    }
 
     // SET PERSON
-    setBookingPerson(loggedUser);
+    if (typeof setBookingPerson === "function") {
+        setBookingPerson(loggedUser);
+    }
 
-        document.getElementById("logoutBtn").addEventListener("click", () => {
+        logoutBtn?.addEventListener("click", () => {
             signOut(auth)
             .then(() => { window.location.href = "./login.html"; })
             .catch((error) => {
@@ -103,19 +109,33 @@ body {
     margin-top: 2px;
 }
 
-.header-buttons {
+.header-actions {
     display: flex;
+    align-items: center;
     gap: 12px;
+}
+
+.user-name {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.logout-icon, user-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    color: #64748b;
 }
 
 .btn {
     border: none;
     border-radius: 14px;
-    padding: 12px 18px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.25s;
+    
 }
 
 .btn:hover {
@@ -124,7 +144,6 @@ body {
 
 .btn-light {
     background: white;
-    border: 1px solid #e2e8f0;
 }
 
 .btn-dark {
@@ -162,16 +181,6 @@ body {
     gap: 40px;
     position: relative;
     z-index: 2;
-}
-
-.badge {
-    display: inline-block;
-    padding: 10px 16px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.1);
-    font-size: 13px;
-    margin-bottom: 20px;
 }
 
 .hero h2 {
@@ -265,9 +274,10 @@ body {
 /* MAIN GRID */
 .main-grid {
     display: grid;
-    grid-template-columns: 1.4fr 0.6fr;
+    grid-template-columns: auto;
     gap: 24px;
     margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 .card {
@@ -275,6 +285,7 @@ body {
     border-radius: 28px;
     border: 1px solid #e2e8f0;
     padding: 28px;
+    max-height: 800px;
 }
 
 .card-header {
@@ -294,13 +305,6 @@ body {
     margin-top: 6px;
     font-size: 14px;
 }
-
-.controls {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
 
 .gradient-text {
     background: linear-gradient(
@@ -353,7 +357,7 @@ CAMPAIGN BOOKING TABLE
     overflow-x:auto;
     overflow-y:auto;
 
-    max-height:1300px;
+    max-height:550px;
 
     border-radius:20px;
 }
@@ -392,10 +396,11 @@ TABLE
 TABLE HEADER
 ======================================= */
 .table th{
-    text-align:center;
+    text-align:left;
     color:#64748b;
     font-size:13px;
     padding-bottom:10px;
+    padding-left:14px;
     white-space:nowrap;
     position:sticky;
     top:0;
@@ -501,77 +506,20 @@ RESPONSIVE
     border-radius:0 !important;
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-}
-
-.form-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-top: 24px;
-}
-
-.asset-item {
-    background: #f8fafc;
-    border-radius: 24px;
-    padding: 20px;
-    border: 1px solid #f1f5f9;
-    margin-top: 14px;
-}
-
-.asset-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 14px;
-}
-
-.asset-item h4 {
-    font-size: 16px;
-}
-
-.asset-item p {
-    font-size: 13px;
-    color: #64748b;
-    margin-top: 4px;
-}
-
-.asset-bottom {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 18px;
-    font-size: 14px;
-}
-
-.footer {
-    margin-top: 30px;
-    margin-bottom: 40px;
-}
-
-.footer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.footer-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
 /* =======================================
 GRID
 ======================================= */
 .campaign-cards-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap: 5px;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap: 20px;
     width:100%;
+}
+
+.campaign-cards-grid :hover{
+    transform:translateY(-3px);
+    
+   
 }
 
 /* =======================================
@@ -585,6 +533,8 @@ CARD
     transition:0.25s ease;
     margin-top: 15px;
 }
+
+
 
 /* =======================================
 HEADER
@@ -693,22 +643,6 @@ EMPTY STATE
     font-size:13px;
     color:#9ca3af;
 }
-
-/* ======================================
-CAMPAIGN BOOKING HEADER
-====================================== */
-.campaign-booking-header{
-    font-size:28px;
-
-}
-
-.campaign-booking-header p {
-    font-size: 14px;
-    color: #64748b;
-    margin-top: 6px;
-}
-
-
 
 /* ======================================
 MODERN TOOLBAR
@@ -922,17 +856,6 @@ ANALYTICS
     font-size:13px;
 }
 
-.analytics-pill{
-    background:#ecfeff;
-    color:#0891b2;
-    padding:10px 14px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-    white-space:nowrap;
-}
-
-
 .chart-container{
     position:relative;
     width:100%;
@@ -1129,28 +1052,6 @@ ANALYTICS
         height:95vh;
         border-radius:20px;
     }
-
-    .calendar-circuit{
-        min-width:180px;
-        font-size:12px;
-    }
-
-    .calendar-slot{
-        left:180px;
-        min-width:80px;
-        font-size:11px;
-    }
-
-    .calendar-header-cell{
-        min-width:70px;
-    }
-}
-
-.asset-column{
-    background:#f8fafc;
-    padding:14px;
-    font-size:12px;
-    font-weight:700;
 }
 
 .calendar-modal {
@@ -1216,6 +1117,7 @@ ANALYTICS
 }
 
 
+
 @media(max-width: 1100px) {
     .hero-grid,
     .main-grid {
@@ -1250,14 +1152,6 @@ ANALYTICS
         grid-template-columns: 1fr;
     }
 
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .footer-content {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 }
 
 /* =======================================
@@ -1511,7 +1405,7 @@ BOOKING MODAL
         <div class="logo-wrap">
 
             <img 
-                src="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo.png" 
+                src="images/scooplogo.png"
                 alt="Scoop Logo"
                 class="logo"
             >
@@ -1523,7 +1417,24 @@ BOOKING MODAL
 
         </div>
 
+        <div class="header-actions">
+            <img
+                    src="https://img.icons8.com/parakeet-line/20/64748b/user.png"
+                    alt=""
+                    class="user-icon"
+            >
+            <span id="userName" class="user-name"></span>
+            <button class="btn btn-light" id="logoutBtn" type="button" aria-label="Logout" title="Logout">
+                <img
+                    src="https://img.icons8.com/ios/64748b/exit--v1.png"
+                    alt=""
+                    class="logout-icon"
+                >
+            </button>
+        </div>
+
     </div>
+
 </header>
 
 <div class="container">
@@ -1622,6 +1533,20 @@ BOOKING MODAL
 
         <div class="card">
 
+            <div>
+                <h3>Campaign Updates</h3>
+
+                <p style="margin-top:6px;color:#64748b;font-size:14px">
+                    Monitor Campaigns 
+                </p>
+            </div>
+
+            <div id="campaignUpdatesContainer"></div>
+
+        </div>
+
+        <div class="card">
+
             <div class="card-header">
 
                 <div>
@@ -1630,6 +1555,7 @@ BOOKING MODAL
                 </div>
             </div>
 
+        
             <!-- ======================================
             CAMPAIGN HEADER
             ====================================== -->
@@ -1770,31 +1696,14 @@ BOOKING MODAL
 		            <tbody id="campaignBookingBody"></tbody>
 
                 </table>
-            </div>
+            </div>        
 
+        </div>          
 
-
-        </div>        
-
-        <div class="sidebar">         
-
-            <div class="card">
-
-                <div>
-                    <h3>Campaign Updates</h3>
-
-                    <p style="margin-top:6px;color:#64748b;font-size:14px">
-                        Monitor Campaigns 
-                    </p>
-                </div>
-
-                <div id="campaignUpdatesContainer"></div>
-
-            </div>
-
-        </div>
 
     </section>
+
+
 
     <!-- ======================================
     CAMPAIGN TREND CHART
@@ -2165,7 +2074,7 @@ BOOKING MODAL
 
                     date: `
                         ${formatShortDate(rawStartDate)}
-                        -
+                        →
                         ${formatShortDate(rawEndDate)}
                     `,
 
@@ -2379,7 +2288,7 @@ BOOKING MODAL
         ){
 
             dateRangeDisplay.textContent =
-                `${formatToolbarDate(campaignFromDate.value)} - ${formatToolbarDate(campaignToDate.value)}`;
+                `${formatToolbarDate(campaignFromDate.value)} → ${formatToolbarDate(campaignToDate.value)}`;
 
         }
 
