@@ -14,31 +14,40 @@
   import { auth } from "./firebase/firebase.js";
   import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  requireAuth((user) => {
-    const userNameEl = document.getElementById("userName");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const loggedUser =
-        user.displayName ||
-        user.email?.split("@")[0] ||
-        "User";
+    requireAuth((user) => {
+        const userNameEl = document.getElementById("userName");
+        const bookingPersonLabel = document.getElementById("bookingPersonLabel");
+        const logoutBtn = document.getElementById("logoutBtn");
 
-    if (userNameEl) {
-        userNameEl.textContent =
-        loggedUser;
-    }
+        const loggedUser =
+            user.displayName ||
+            user.email?.split("@")[0] ||
+            "User";
 
-    // SET PERSON
-    if (typeof setBookingPerson === "function") {
-        setBookingPerson(loggedUser);
-    }
+        // Top navbar username
+        if (userNameEl) {
+            userNameEl.textContent = loggedUser;
+        }
+
+        // Booking form username
+        if (bookingPersonLabel) {
+            bookingPersonLabel.textContent = loggedUser;
+        }
+
+        // Existing function if used elsewhere
+        if (typeof setBookingPerson === "function") {
+            setBookingPerson(loggedUser);
+        }
 
         logoutBtn?.addEventListener("click", () => {
             signOut(auth)
-            .then(() => { window.location.href = "./login.html"; })
-            .catch((error) => {
-                console.error("Logout error:", error);
-                alert("Failed to logout");
-            });
+                .then(() => {
+                    window.location.href = "./login.html";
+                })
+                .catch((error) => {
+                    console.error("Logout error:", error);
+                    alert("Failed to logout");
+                });
         });
     });
 
@@ -81,7 +90,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 0;
+    padding: 15px;
 }
 
 .logo-wrap {
@@ -119,6 +128,12 @@ body {
     color: #64748b;
     font-size: 14px;
     font-weight: 600;
+}
+
+.bookedby-label {
+    color: #64748b;
+    font-size: 13px;
+    padding: 4px 12px;
 }
 
 .logout-icon, user-icon {
@@ -727,26 +742,125 @@ MODERN TOOLBAR
     cursor:pointer;
 }
 
+/* ==========================
+   DATE RANGE
+========================== */
+
 .date-range-box{
     position:relative;
-    gap:10px;
 }
 
 .date-range-display{
-    display:none;
-    font-size:13px;
-    color:#64748b;
-    white-space:nowrap;
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    padding:12px 18px;
+
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+
+    border:1px solid #dcdcdc;
+    border-radius:18px;
+
+    box-shadow:
+        0 10px 30px rgba(15,23,42,.08),
+        0 1px 0 rgba(255,255,255,.6) inset;
+
+    transition:all .3s ease;
+}
+
+.date-range-display:hover{
+    transform:translateY(-2px);
+
+    box-shadow:
+        0 18px 40px rgba(15,23,42,.12),
+        0 1px 0 rgba(255,255,255,.7) inset;
+}
+
+.date-range-display input[type="date"]{
+    border:none;
+    background:transparent;
+    outline:none;
+
+    font-size:14px;
+    font-weight:600;
+    color:#334155;
+
     cursor:pointer;
-    padding-left:4px;
-    border-left:1px solid #e2e8f0;
+
+    padding:6px 4px;
 }
 
-/* SHOW ONLY CUSTOM */
-.date-range-box.custom-active
-.date-range-display{
-    display:block;
+.date-range-display input[type="date"]::-webkit-calendar-picker-indicator{
+    cursor:pointer;
+    opacity:.75;
+    transition:.25s;
 }
+
+.date-range-display input[type="date"]::-webkit-calendar-picker-indicator:hover{
+    opacity:1;
+    transform:scale(1.1);
+}
+
+.date-divider{
+    width:32px;
+    height:32px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:rgba(59,130,246,.08);
+    color:#3b82f6;
+
+    font-size:14px;
+    font-weight:700;
+}
+
+.btn-close-calendar{
+    width:42px;
+    height:42px;
+
+    border:none;
+    border-radius:14px;
+
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(12px);
+
+    cursor:pointer;
+
+    font-size:16px;
+    color:#64748b;
+
+    box-shadow:
+        0 8px 24px rgba(15,23,42,.08);
+
+    transition:all .25s ease;
+}
+
+.btn-close-calendar:hover{
+    transform:translateY(-3px) rotate(90deg);
+
+    color:#ef4444;
+
+    box-shadow:
+        0 16px 30px rgba(239,68,68,.15);
+}
+
+/* Focus Glow */
+
+.date-range-display:focus-within{
+    border-color:#60a5fa;
+
+    box-shadow:
+        0 0 0 4px rgba(96,165,250,.15),
+        0 10px 30px rgba(15,23,42,.08);
+}
+
 
 /* HIDDEN INPUTS */
 .hidden-date-input{
@@ -1105,16 +1219,6 @@ ANALYTICS
     gap: 10px;
 }
 
-.calendar-header input[type="date"] {
-    width: 150px;
-    min-width: 140px;
-    padding: 10px 12px;
-    font-size: 13px;
-    border-radius: 10px;    
-    background: #fff;
-    border: 1px solid #e5e7eb;
-
-}
 
 
 
@@ -1157,6 +1261,7 @@ ANALYTICS
 /* =======================================
 BOOKING MODAL
 ======================================= */
+
 
 .booking-modal{
     position:fixed;
@@ -1207,30 +1312,26 @@ BOOKING MODAL
     }
 }
 
-.booking-close{
+.btn-close{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    border:1px solid #e2e8f0;
+    background:white;
+    cursor:pointer;
+    font-size:18px;
+    color:#0f172a;
+}
 
+.btn-close:hover{
+    background:#f8fafc;
+}
+
+.btn-close-booking{
     position:absolute;
     right:24px;
     top:24px;
 
-    width:40px;
-    height:40px;
-
-    border-radius:50%;
-
-    border:1px solid #e2e8f0;
-
-    background:white;
-
-    cursor:pointer;
-
-    font-size:18px;
-
-    color:#0f172a;
-}
-
-.booking-close:hover{
-    background:#f8fafc;
 }
 
 .booking-header h2{
@@ -1361,6 +1462,51 @@ BOOKING MODAL
     cursor:pointer;
 }
 
+.btn-booking{
+
+    height:48px;
+
+    padding:0 22px;
+
+    border-radius:999px;
+
+    background:white;
+
+    border:1px solid #dbe3ec;
+
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.btn-view-calendar{
+
+    height:48px;
+
+    padding:0 22px;
+
+    border:none;
+
+    border-radius:999px;
+
+    font-weight:700;
+
+    color:white;
+
+    cursor:pointer;
+
+    background:
+        linear-gradient(135deg,#c24700,#f88d00);    
+
+}
+
+.btn-view-calendar:hover{
+
+    transform:translateY(-2px);
+    box-shadow:
+        0 12px 25px rgba(139,92,246,.35);
+}
+
 .btn-save{
 
     height:48px;
@@ -1412,7 +1558,6 @@ BOOKING MODAL
 
             <div class="logo-text">
                 <h1>Scoop Media and Communication Co.</h1>
-                <p>Planning Dashboard</p>
             </div>
 
         </div>
@@ -1456,8 +1601,8 @@ BOOKING MODAL
                 </p>
 
                 <div class="hero-buttons">
-                    <button class="btn btn-light" id="openBookingModalBtn">Create Booking</button>
-                    <button class="btn btn-dark" id="openCalendarBtn">View Calendar</button>
+                    <button class="btn-booking" id="openBookingModalBtn">Create Booking</button>
+                    <button class="btn-view-calendar" id="openCalendarBtn">View Calendar</button>
                 </div>
             </div>
 
@@ -1738,11 +1883,11 @@ BOOKING MODAL
 <!-- =======================================
 CALENDAR MODAL
 ======================================= -->
-<div class="calendar-modal" id="calendarModal">
+<div class="calendar-modal" id="calendarModal">   
 
-    <div class="calendar-wrapper">
+    <div class="calendar-wrapper">            
 
-        <div class="calendar-header">
+        <div class="calendar-header">           
 
             <div>
                 <h2>OOH Campaign Calendar</h2>
@@ -1751,34 +1896,33 @@ CALENDAR MODAL
                 </p>
             </div>
 
-            <div style="display:flex;gap:12px;align-items:center">
+            <div style="display:flex;gap:12px;align-items:center;">
 
+                <div class="date-range-box">
 
-                <input type="date" id="calendarFrom">
-                <input type="date" id="calendarTo">
+                    <div class="date-range-display">
+                        <input type="date" id="calendarFrom">
+                        <span>→</span>
+                        <input type="date" id="calendarTo">
+                    </div>
 
+                </div>
 
-                <button
-                    class="btn btn-light"
-                    id="closeCalendarBtn"
-                >
-                    Close
+                <button class="btn-close btn-close-calendar" id="closeCalendarBtn">
+                    ✕
                 </button>
 
             </div>
 
-        </div>
+        </div>          
 
         <div class="calendar-scroll">
             <table id="bookingCalendar" class="booking-calendar"></table>
         </div>
 
-
-
     </div>
 
 </div>
-
 
 <!-- =======================================
 BOOKING MODAL
@@ -1788,7 +1932,7 @@ BOOKING MODAL
     <div class="booking-dialog">
 
         <button
-            class="booking-close"
+            class="btn-close btn-close-booking"
             id="closeBookingModalBtn"
         >
             ✕
@@ -1840,25 +1984,25 @@ BOOKING MODAL
             </div>
 
             <!-- DATES -->
-            <div class="booking-grid">
+            <div class="booking-grid">                
 
                 <div class="field">
-                    <label>Start Date</label>
 
-                    <input
-                        type="date"
-                        id="bookingStartDate"
-                    >
-                </div>
+                    <label>Dates</label>
+                    
+                    <div class="date-range-box">
+                            
+                        <div class="date-range-display" style="padding:0 18px; background:#fff; font-family: inherit;">
 
-                <div class="field">
-                    <label>End Date</label>
+                            <input type="date" id="bookingStartDate">
+                            <span>→</span>
+                            <input type="date" id="bookingEndDate">
 
-                    <input
-                        type="date"
-                        id="bookingEndDate"
-                    >
-                </div>
+                        </div>
+                            
+                    </div>
+
+                </div>              
 
                 <!-- TOTAL DAYS -->
                 <div class="field">
@@ -1873,18 +2017,16 @@ BOOKING MODAL
 
             </div>
 
-
-
             <!-- USER -->
             <div class="booking-user">
 
                 <span>Booked by</span>
 
-                <strong id="bookingPersonLabel">
+                <strong id="bookingPersonLabel" class="user-name bookedby-label">
                     Booked by
                 </strong>
 
-            </div>
+            </div>  
 
             <!-- FOOTER -->
             <div class="booking-footer">
