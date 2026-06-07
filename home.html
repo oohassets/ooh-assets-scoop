@@ -3421,8 +3421,8 @@ BOOKING MODAL
             const client =
                 log.Client || log.client || "-";
 
-            const location =
-                log.Location || log.location || "-";
+            const circuits =
+                log.Circuits || log.circuits || "-";
 
             if (!logDateRaw || !logType) return;
 
@@ -3485,7 +3485,7 @@ BOOKING MODAL
 
                     brand: client,
 
-                    asset: location,
+                    asset: circuits,
 
                     sortDate: logDate
 
@@ -3507,7 +3507,7 @@ BOOKING MODAL
 
                     brand: client || "—",
 
-                    asset: location || "—",
+                    asset: circuits || "—",
 
                     sortDate: logDate
 
