@@ -423,15 +423,15 @@ export async function loadCarousel() {
       const end = r["End Date"];
       if (!isEndingWithin3Days(end)) return;
 
-      let locationName = formattedName;
+      let circuitsName = formattedName;
 
       if (tableName.startsWith("s_") && r["Circuit"]) {
-        locationName = `${formattedName} ${r["Circuit"]}`;
+        circuitsName = `${formattedName} ${r["Circuit"]}`;
       }
 
       endingRows.push({
         Client: r.Client ?? "—",
-        Location: locationName,
+        Circuits: circuitsName,
         "End Date": end
       });
     });
@@ -451,7 +451,7 @@ export async function loadCarousel() {
       createCard(
         "Ending Campaigns (Next 3 Days)",
         Object.fromEntries(endingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "End Date"],
+        ["Client", "Circuits", "End Date"],
         ["End Date"]
       )
     );
@@ -478,7 +478,7 @@ export async function loadCarousel() {
 
       upcomingRows.push({
         Client: row.Client ?? "—",
-        Location: row.Location ?? "—",
+        Circuits: row.Circuits ?? "—",
         "Start Date": formatDateDDMMMYYYY(row["Start Date"]),
         "End Date": formatDateDDMMMYYYY(row["End Date"]) ?? "—",
         Status: row.Status ?? "—",  
@@ -492,7 +492,7 @@ export async function loadCarousel() {
       createCard(
         "Upcoming Campaigns",
         Object.fromEntries(upcomingRows.map((r, i) => [i, r])),
-        ["Client", "Location", "Start Date", "End Date", "Status", "Person"],
+        ["Client", "Circuits", "Start Date", "End Date", "Status", "Person"],
         ["Start Date"]
       )
     );

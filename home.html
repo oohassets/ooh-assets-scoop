@@ -742,135 +742,215 @@ MODERN TOOLBAR
     cursor:pointer;
 }
 
-/* ==========================
-   DATE RANGE
-========================== */
+/* ==============================
+   DATE RANGE PICKER
+============================== */
+.drp-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    color: #94a3b8;
+    white-space: nowrap;
+    user-select: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+.drp-trigger:hover { border-color: #cbd5e1; }
+.drp-trigger.active {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99,102,241,.12);
+}
+.drp-trigger img { opacity: 0.5; width: 16px; height: 16px; }
 
-.date-range-box{
-    position:relative;
+.drp-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 9999;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(15,23,42,.12);
+    display: none;
+    flex-direction: row;
+    overflow: hidden;
+    min-width: 620px;
+}
+.drp-dropdown.show { display: flex; }
+
+/* SIDEBAR */
+.drp-sidebar {
+    border-right: 1px solid #f1f5f9;
+    padding: 12px 0;
+    min-width: 130px;
+    display: flex;
+    flex-direction: column;
+}
+.drp-preset {
+    padding: 9px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #64748b;
+    font-family: inherit;
+    transition: background .1s, color .1s;
+}
+.drp-preset:hover { background: #f8fafc; color: #0f172a; }
+.drp-preset.selected { background: #f8fafc; color: #6366f1; font-weight: 600; }
+
+/* CALENDARS */
+.drp-body { display: flex; flex-direction: column; flex: 1; }
+.drp-calendars { display: flex; }
+.drp-cal { padding: 16px 18px; flex: 1; }
+
+.drp-cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.drp-cal-nav button {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.drp-cal-nav button:hover { background: #f8fafc; }
+.drp-cal-title { font-size: 14px; font-weight: 600; color: #0f172a; }
+
+.drp-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    margin-bottom: 4px;
+}
+.drp-weekday {
+    text-align: center;
+    font-size: 11px;
+    color: #94a3b8;
+    padding: 4px 0;
+    font-weight: 600;
 }
 
-.date-range-display{
-    display:flex;
-    align-items:center;
-    gap:14px;
+.drp-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.drp-day {
+    text-align: center;
+    padding: 6px 2px;
+    font-size: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #0f172a;
+    transition: background .1s;
+    position: relative;
+    user-select: none;
+}
+.drp-day:hover:not(.empty):not(.disabled) { background: #f1f5f9; }
+.drp-day.empty { pointer-events: none; }
+.drp-day.disabled { color: #cbd5e1; pointer-events: none; }
+.drp-day.in-range { background: rgba(99,102,241,.1); border-radius: 0; }
+.drp-day.range-start,
+.drp-day.range-end {
+    background: #6366f1;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+}
+.drp-day.range-start.in-range { border-radius: 8px 0 0 8px; }
+.drp-day.range-end.in-range { border-radius: 0 8px 8px 0; }
+.drp-day.today::after {
+    content: "•";
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    color: #6366f1;
+}
+.drp-day.range-start.today::after,
+.drp-day.range-end.today::after { color: rgba(255,255,255,.6); }
 
-    padding:12px 18px;
+/* SHORTCUTS */
+.drp-shortcuts {
+    display: flex;
+    gap: 6px;
+    padding: 8px 16px;
+    flex-wrap: wrap;
+}
+.drp-shortcut {
+    font-size: 12px;
+    color: #6366f1;
+    cursor: pointer;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(99,102,241,.25);
+    transition: background .1s;
+    font-family: inherit;
+}
+.drp-shortcut:hover { background: rgba(99,102,241,.08); }
 
-    background:rgba(255,255,255,.75);
-    backdrop-filter:blur(16px);
-    -webkit-backdrop-filter:blur(16px);
-
-    border:1px solid #dcdcdc;
-    border-radius:18px;
-
-    box-shadow:
-        0 10px 30px rgba(15,23,42,.08),
-        0 1px 0 rgba(255,255,255,.6) inset;
-
-    transition:all .3s ease;
+.drp-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid #f1f5f9;
+    gap: 12px;
+    flex-wrap: nowrap;
 }
 
-.date-range-display:hover{
-    transform:translateY(-2px);
-
-    box-shadow:
-        0 18px 40px rgba(15,23,42,.12),
-        0 1px 0 rgba(255,255,255,.7) inset;
+.drp-inputs { display: flex; align-items: center; gap: 8px; }
+.drp-input {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #f8fafc;
+    color: #0f172a;
+    width: 130px;
+    outline: none;
 }
-
-.date-range-display input[type="date"]{
-    border:none;
-    background:transparent;
-    outline:none;
-
-    font-size:14px;
-    font-weight:600;
-    color:#334155;
-
-    cursor:pointer;
-
-    padding:6px 4px;
+.drp-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+.drp-sep { color: #94a3b8; font-size: 13px; }
+.drp-actions { display: flex; gap: 8px; }
+.drp-btn-cancel {
+    padding: 7px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    color: #0f172a;
 }
-
-.date-range-display input[type="date"]::-webkit-calendar-picker-indicator{
-    cursor:pointer;
-    opacity:.75;
-    transition:.25s;
+.drp-btn-cancel:hover { background: #f8fafc; }
+.drp-btn-apply {
+    padding: 7px 20px;
+    border: none;
+    border-radius: 999px;
+    background: #6366f1;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
 }
+.drp-btn-apply:hover { background: #4f46e5; transform: translateY(-1px); }
 
-.date-range-display input[type="date"]::-webkit-calendar-picker-indicator:hover{
-    opacity:1;
-    transform:scale(1.1);
-}
-
-.date-divider{
-    width:32px;
-    height:32px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:50%;
-
-    background:rgba(59,130,246,.08);
-    color:#3b82f6;
-
-    font-size:14px;
-    font-weight:700;
-}
-
-.btn-close-calendar{
-    width:42px;
-    height:42px;
-
-    border:none;
-    border-radius:14px;
-
-    background:rgba(255,255,255,.75);
-    backdrop-filter:blur(12px);
-
-    cursor:pointer;
-
-    font-size:16px;
-    color:#64748b;
-
-    box-shadow:
-        0 8px 24px rgba(15,23,42,.08);
-
-    transition:all .25s ease;
-}
-
-.btn-close-calendar:hover{
-    transform:translateY(-3px) rotate(90deg);
-
-    color:#ef4444;
-
-    box-shadow:
-        0 16px 30px rgba(239,68,68,.15);
-}
-
-/* Focus Glow */
-
-.date-range-display:focus-within{
-    border-color:#60a5fa;
-
-    box-shadow:
-        0 0 0 4px rgba(96,165,250,.15),
-        0 10px 30px rgba(15,23,42,.08);
-}
-
-
-/* HIDDEN INPUTS */
-.hidden-date-input{
-    position:absolute;
-    opacity:0;
-    width:0;
-    height:0;
-    pointer-events:none;
-}
-
+.drp-cal-sep { border-left: 1px solid #f1f5f9; }
 
 
 /* ======================================
@@ -1719,70 +1799,51 @@ BOOKING MODAL
                     <input
                         type="text"
                         id="campaignSearch"
-                        placeholder="Search campaign, client, brand, asset..."
+                        placeholder="Search campaign, client, brand, circuit..."
                     />
 
                 </div>
 
                 <!-- DATE FILTER -->
-                <div
-                    class="modern-filter-box date-range-box"
-                    id="dateRangeBox"
-                >
+                <div style="position:relative;" id="drpWrapper">
 
-                    <img
-                        src="https://img.icons8.com/ios/50/64748b/calendar--v1.png"
-                        alt="Date"
-                        class="toolbar-icon"
-                    >
+                    <button class="drp-trigger" id="drpTrigger">
+                        <img src="https://img.icons8.com/ios/50/64748b/calendar--v1.png" alt="">
+                        <span id="drpLabel">This Month</span>
+                    </button>
 
-                    <!-- FILTER TYPE -->
-                    <select id="campaignDateFilter">
+                    <div class="drp-dropdown" id="drpDropdown">
 
-                        <option value="current">
-                            This Month
-                        </option>
+                        <div class="drp-sidebar" id="drpSidebar">
+                            <div class="drp-preset selected" data-preset="current">This month</div>
+                            <div class="drp-preset" data-preset="last">Last month</div>
+                            <div class="drp-preset" data-preset="next">Next month</div>
+                            <div class="drp-preset" data-preset="year">All year</div>
+                            <div class="drp-preset" data-preset="custom">Custom range</div>
+                        </div>
 
-                        <option value="last">
-                            Last Month
-                        </option>
+                        <div class="drp-body">
+                            <div class="drp-calendars">
+                                <div class="drp-cal" id="drpCal1"></div>
+                                <div class="drp-cal drp-cal-sep" id="drpCal2"></div>
+                            </div>
 
-                        <option value="next">
-                            Next Month
-                        </option>
+                            <div class="drp-footer">
+                                <div class="drp-inputs">
+                                    <input class="drp-input" id="drpFrom" type="text" placeholder="MM/DD/YYYY" readonly />
+                                    <span class="drp-sep">–</span>
+                                    <input class="drp-input" id="drpTo" type="text" placeholder="MM/DD/YYYY" readonly />
+                                </div>
+                                <div class="drp-actions">
+                                    <button class="drp-btn-cancel" id="drpCancel">Cancel</button>
+                                    <button class="drp-btn-apply" id="drpApply">Apply</button>
+                                </div>
+                            </div>
+                        </div>
 
-                        <option value="year">
-                            All Year
-                        </option>
-
-                        <option value="custom">
-                            Custom Range
-                        </option>
-
-                    </select>
-
-                    <!-- CUSTOM RANGE -->
-                    <div
-                        class="date-range-display"
-                        id="dateRangeDisplay"
-                    >
-                        Select Range
                     </div>
-
-                    <!-- HIDDEN DATE INPUTS -->
-                    <input
-                        type="date"
-                        id="campaignFromDate"
-                        class="hidden-date-input"
-                    >
-
-                    <input
-                        type="date"
-                        id="campaignToDate"
-                        class="hidden-date-input"
-                    >
-
                 </div>
+
 
                 <!-- STATUS -->
                 <div class="modern-filter-box">
@@ -1830,7 +1891,7 @@ BOOKING MODAL
                     <thead>
                         <tr>
                             <th>CLIENT / BRAND</th>
-                            <th>ASSET</th>
+                            <th>CIRCUIT</th>
                             <th>DATES</th>
                             <th>STATUS</th>
 			                <th>PERSON</th>
@@ -1908,6 +1969,46 @@ CALENDAR MODAL
 
                 </div>
 
+                <!-- DATE FILTER -->
+                <div style="position:relative;" id="drpWrapper">
+
+                    <button class="drp-trigger" id="drpTrigger">
+                        <img src="https://img.icons8.com/ios/50/64748b/calendar--v1.png" alt="">
+                        <span id="drpLabel">This Month</span>
+                    </button>
+
+                    <div class="drp-dropdown" id="drpDropdown">
+
+                        <div class="drp-sidebar" id="drpSidebar">
+                            <div class="drp-preset selected" data-preset="current">This month</div>
+                            <div class="drp-preset" data-preset="last">Last month</div>
+                            <div class="drp-preset" data-preset="next">Next month</div>
+                            <div class="drp-preset" data-preset="year">All year</div>
+                            <div class="drp-preset" data-preset="custom">Custom range</div>
+                        </div>
+
+                        <div class="drp-body">
+                            <div class="drp-calendars">
+                                <div class="drp-cal" id="calendarFrom"></div>
+                                <div class="drp-cal drp-cal-sep" id="calendarTo"></div>
+                            </div>
+
+                            <div class="drp-footer">
+                                <div class="drp-inputs">
+                                    <input class="drp-input" id="drpFrom" type="text" placeholder="MM/DD/YYYY" readonly />
+                                    <span class="drp-sep">–</span>
+                                    <input class="drp-input" id="drpTo" type="text" placeholder="MM/DD/YYYY" readonly />
+                                </div>
+                                <div class="drp-actions">
+                                    <button class="drp-btn-cancel" id="drpCancel">Cancel</button>
+                                    <button class="drp-btn-apply" id="drpApply">Apply</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
                 <button class="btn-close btn-close-calendar" id="closeCalendarBtn">
                     ✕
                 </button>
@@ -1978,7 +2079,7 @@ BOOKING MODAL
 
                 <select id="bookingAsset">
                     <option>
-                        Select Asset
+                        Select Circuit
                     </option>
                 </select>
             </div>
@@ -2241,7 +2342,7 @@ BOOKING MODAL
         // =======================================
         return campaigns.sort((a, b) => {
 
-            return a.sortDate - b.sortDate;
+            return b.sortDate - a.sortDate;
 
         });
 
@@ -2419,316 +2520,316 @@ BOOKING MODAL
         return `${day} ${month}`;
     }
 
-    // ======================================
-    // UPDATE LABEL
-    // ======================================
-    function updateDateRangeLabel(){
 
-        if(
-            campaignFromDate.value &&
-            campaignToDate.value
-        ){
+    // ==============================
+    // DATE RANGE PICKER
+    // ==============================
+    const WEEKDAYS = ["Mo","Tu","We","Th","Fr","Sa","Su"];
+    const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-            dateRangeDisplay.textContent =
-                `${formatToolbarDate(campaignFromDate.value)} → ${formatToolbarDate(campaignToDate.value)}`;
+    let drpStart   = null;
+    let drpEnd     = null;
+    let drpPicking = null;
+    let drpHover   = null;
 
-        }
+    const _now = new Date();
+    let drpViewLeft  = { year: _now.getFullYear(), month: _now.getMonth() };
+    let drpViewRight = { year: _now.getFullYear(), month: _now.getMonth() + 1 };
+    if (drpViewRight.month > 11) { drpViewRight.month = 0; drpViewRight.year++; }
 
-        else{
+    const drpTrigger  = document.getElementById("drpTrigger");
+    const drpDropdown = document.getElementById("drpDropdown");
+    const drpLabel    = document.getElementById("drpLabel");
+    const drpFromEl   = document.getElementById("drpFrom");
+    const drpToEl     = document.getElementById("drpTo");
 
-            dateRangeDisplay.textContent =
-                "Select Range";
-
-        }
-
+    function drpAdvanceView(view, delta) {
+        let m = view.month + delta, y = view.year;
+        while (m > 11) { m -= 12; y++; }
+        while (m < 0)  { m += 12; y--; }
+        return { year: y, month: m };
+    }
+    function drpSyncViews(side) {
+        if (side === "left") drpViewRight = drpAdvanceView(drpViewLeft, 1);
+        else                 drpViewLeft  = drpAdvanceView(drpViewRight, -1);
+    }
+    function drpSameDay(a, b) {
+        return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+    }
+    function drpFmt(d) {
+        if (!d) return "";
+        return `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}/${d.getFullYear()}`;
+    }
+    function drpShortLabel(d) {
+        if (!d) return "";
+        return d.toLocaleDateString("en", { month:"short", day:"numeric", year:"numeric" });
+    }
+    function drpTotalDays() {
+        if (!drpStart || !drpEnd) return 0;
+        const lo = drpStart < drpEnd ? drpStart : drpEnd;
+        const hi = drpStart < drpEnd ? drpEnd   : drpStart;
+        return Math.round((hi - lo) / 86400000) + 1;
     }
 
-    // ======================================
-    // DATE FILTER CHANGE
-    // ======================================
-    campaignDateFilter?.addEventListener(
-        "change",
-        () => {
+    // ── core render ──────────────────────────────────────────
+    function drpRenderCal(containerId, view) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
 
-            const filter =
-                campaignDateFilter.value;
+        const isLeft   = containerId === "drpCal1";
+        const firstDay = new Date(view.year, view.month, 1);
+        const lastDate = new Date(view.year, view.month + 1, 0).getDate();
+        const startDow = (firstDay.getDay() + 6) % 7;
+        const today    = new Date(); today.setHours(0,0,0,0);
 
-            // SHOW RANGE ONLY CUSTOM
-            if(filter === "custom"){
-
-                dateRangeBox.classList.add(
-                    "custom-active"
-                );
-
-                setTimeout(() => {
-
-                    campaignFromDate.showPicker();
-
-                }, 100);
-
-            }
-
-            else{
-
-                dateRangeBox.classList.remove(
-                    "custom-active"
-                );
-
-            }
-
-            applyCampaignFilters();
-
-        }
-    );
-
-    // ======================================
-    // CLICK RANGE DISPLAY
-    // ======================================
-    dateRangeDisplay?.addEventListener(
-        "click",
-        () => {
-
-            campaignFromDate.showPicker();
-
-        }
-    );
-
-    // ======================================
-    // FROM DATE
-    // ======================================
-    campaignFromDate?.addEventListener(
-        "change",
-        () => {
-
-            campaignToDate.min =
-                campaignFromDate.value;
-
-            campaignToDate.showPicker();
-
-        }
-    );
-
-    // ======================================
-    // TO DATE
-    // ======================================
-    campaignToDate?.addEventListener(
-        "change",
-        () => {
-
-            updateDateRangeLabel();
-
-            applyCampaignFilters();
-
-        }
-    );
-
-    // SEARCH
-    campaignSearch?.addEventListener(
-        "input",
-        applyCampaignFilters
-    );
-
-    // STATUS
-    campaignStatusFilter?.addEventListener(
-        "change",
-        applyCampaignFilters
-    );
-
-
-
-    // APPLY FILTERS
-    function applyCampaignFilters(){
-
-        const search =
-            campaignSearch.value
-            .toLowerCase();
-
-        const status =
-            campaignStatusFilter.value;
-
-        let filtered =
-            [...allCampaigns];
-
-        // ======================================
-        // SEARCH FILTER
-        // ======================================
-        if(search){
-
-            filtered = filtered.filter(campaign => {
-
-                return [
-                    campaign.client,
-                    campaign.brand,
-                    campaign.asset,
-                    campaign.location,
-                    campaign.status
-                ]
-                .join(" ")
-                .toLowerCase()
-                .includes(search);
-
-            });
-
+        // compute effective lo/hi for highlighting
+        let lo = drpStart ? new Date(drpStart) : null;
+        let hi = drpEnd   ? new Date(drpEnd)   : null;
+        if (drpPicking === "end" && drpHover && drpStart) {
+            lo = drpHover < drpStart ? new Date(drpHover) : new Date(drpStart);
+            hi = drpHover < drpStart ? new Date(drpStart) : new Date(drpHover);
+        } else if (lo && hi && lo > hi) {
+            [lo, hi] = [hi, lo];
         }
 
-        // ======================================
-        // DATE FILTER FIRST
-        // ======================================
-        const filter =
-            campaignDateFilter.value;
+        let html = `<div class="drp-cal-nav">`;
+        html += isLeft  ? `<button class="drp-nav-btn" data-dir="-1" data-side="left">‹</button>` : `<span></span>`;
+        html += `<span class="drp-cal-title">${MONTH_NAMES[view.month]} ${view.year}</span>`;
+        html += !isLeft ? `<button class="drp-nav-btn" data-dir="1" data-side="right">›</button>`  : `<span></span>`;
+        html += `</div>`;
 
-        const now = new Date();
+        html += `<div class="drp-weekdays">${WEEKDAYS.map(d=>`<div class="drp-weekday">${d}</div>`).join("")}</div>`;
+        html += `<div class="drp-days">`;
+        for (let i = 0; i < startDow; i++) html += `<div class="drp-day empty"></div>`;
 
-        let start;
-        let end;
-
-        // CURRENT
-        if(filter === "current"){
-
-            start = new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                1
-            );
-
-            end = new Date(
-                now.getFullYear(),
-                now.getMonth() + 1,
-                0
-            );
-
+        for (let d = 1; d <= lastDate; d++) {
+            const cur = new Date(view.year, view.month, d);
+            cur.setHours(0,0,0,0);
+            let cls = "drp-day";
+            const isStart = lo && drpSameDay(cur, lo);
+            const isEnd   = hi && drpSameDay(cur, hi);
+            const inRange = lo && hi && cur > lo && cur < hi;
+            if (drpSameDay(cur, today)) cls += " today";
+            if (isStart) cls += " range-start";
+            if (isEnd)   cls += " range-end";
+            if (inRange || (isStart && hi && !drpSameDay(lo, hi))) cls += " in-range";
+            html += `<div class="${cls}" data-ts="${cur.getTime()}">${d}</div>`;
         }
+        html += `</div>`;
+        el.innerHTML = html;
 
-        // LAST
-        else if(filter === "last"){
+        // attach events AFTER setting innerHTML
+        el.querySelectorAll(".drp-day:not(.empty)").forEach(dayEl => {
+            dayEl.addEventListener("click", e => {
+                e.stopPropagation();
+                const clicked = new Date(parseInt(dayEl.dataset.ts));
+                clicked.setHours(0,0,0,0);
 
-            start = new Date(
-                now.getFullYear(),
-                now.getMonth() - 1,
-                1
-            );
-
-            end = new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                0
-            );
-
-        }
-
-        // NEXT
-        else if(filter === "next"){
-
-            start = new Date(
-                now.getFullYear(),
-                now.getMonth() + 1,
-                1
-            );
-
-            end = new Date(
-                now.getFullYear(),
-                now.getMonth() + 2,
-                0
-            );
-
-        }
-
-        // YEAR
-        else if(filter === "year"){
-
-            start = new Date(
-                now.getFullYear(),
-                0,
-                1
-            );
-
-            end = new Date(
-                now.getFullYear(),
-                11,
-                31
-            );
-
-        }
-
-        // CUSTOM
-        else if(filter === "custom"){
-
-            if(
-                campaignFromDate.value &&
-                campaignToDate.value
-            ){
-
-                start = new Date(
-                    campaignFromDate.value
-                );
-
-                end = new Date(
-                    campaignToDate.value
-                );
-
-            }
-
-        }
-
-        // APPLY DATE FILTER
-        if(start && end){
-
-            filtered = filtered.filter(campaign => {
-
-                const campaignStart =
-                    parseDate(
-                        campaign.rawStartDate
-                    );
-
-                if(!campaignStart){
-                    return false;
+                if (drpPicking === "start" || drpPicking === null) {
+                    // first click — set start, wait for end
+                    drpStart   = clicked;
+                    drpEnd     = null;
+                    drpHover   = null;
+                    drpPicking = "end";
+                    drpUpdateInputs();
+                    drpRenderBoth();
+                } else if (drpPicking === "end") {
+                    // second click — finalise range
+                    if (clicked < drpStart) {
+                        drpEnd   = new Date(drpStart);
+                        drpStart = clicked;
+                    } else {
+                        drpEnd = clicked;
+                    }
+                    drpPicking = null;
+                    drpHover   = null;
+                    drpUpdateInputs();
+                    drpRenderBoth();
                 }
-
-                return (
-                    campaignStart >= start &&
-                    campaignStart <= end
-                );
-
             });
 
-        }
-
-        // ======================================
-        // STATUS FILTER AFTER DATE
-        // ======================================
-        if(status){
-
-            filtered = filtered.filter(campaign => {
-
-                return (
-                    (campaign.status || "")
-                    .toLowerCase()
-                    .trim()
-                    ===
-                    status.toLowerCase().trim()
-                );
-
+            dayEl.addEventListener("mousemove", () => {
+                if (drpPicking === "end") {
+                    const hovered = new Date(parseInt(dayEl.dataset.ts));
+                    hovered.setHours(0,0,0,0);
+                    if (!drpHover || !drpSameDay(drpHover, hovered)) {
+                        drpHover = hovered;
+                        drpRenderBoth();
+                    }
+                }
             });
+        });
 
-        }
-
-        // ======================================
-        // RENDER
-        // ======================================
-        renderCampaignBooking(filtered);
-
-        // KEEP CAMPAIGN UPDATES WORKING
-        if(window.allTables){
-
-            renderCampaignUpdates(
-                filtered,
-                window.allTables
-            );
-
-        }
-
+        el.querySelectorAll(".drp-nav-btn").forEach(btn => {
+            btn.addEventListener("click", e => {
+                e.stopPropagation();
+                const dir  = parseInt(btn.dataset.dir, 10);
+                const side = btn.dataset.side;
+                if (side === "left") {
+                    drpViewLeft  = drpAdvanceView(drpViewLeft, dir);
+                    drpSyncViews("left");
+                } else {
+                    drpViewRight = drpAdvanceView(drpViewRight, dir);
+                    drpSyncViews("right");
+                }
+                drpRenderBoth();
+            });
+        });
     }
 
+    function drpRenderBoth() {
+        drpRenderCal("drpCal1", drpViewLeft);
+        drpRenderCal("drpCal2", drpViewRight);
+        drpUpdateTotalDays();
+    }
+
+    function drpUpdateInputs() {
+        drpFromEl.value = drpStart ? drpFmt(drpStart) : "";
+        drpToEl.value   = drpEnd   ? drpFmt(drpEnd)   : "";
+    }
+
+    function drpUpdateTotalDays() {
+        let el = document.getElementById("drpTotalDays");
+        if (!el) {
+            el = document.createElement("span");
+            el.id = "drpTotalDays";
+            el.style.cssText = "font-size:13px;color:#6366f1;font-weight:600;white-space:nowrap;";
+            document.querySelector(".drp-footer")?.prepend(el);
+        }
+        const days = drpTotalDays();
+        el.textContent = days > 0 ? `${days} day${days > 1 ? "s" : ""}` : "";
+    }
+
+    function drpUpdateLabel() {
+        if (drpStart && drpEnd) {
+            const lo = drpStart < drpEnd ? drpStart : drpEnd;
+            const hi = drpStart < drpEnd ? drpEnd   : drpStart;
+            drpLabel.textContent = `${drpShortLabel(lo)} → ${drpShortLabel(hi)}`;
+        } else if (drpStart) {
+            drpLabel.textContent = drpShortLabel(drpStart);
+        }
+    }
+
+    // ── presets ──────────────────────────────────────────────
+    function drpApplyPreset(p) {
+        const now = new Date(); now.setHours(0,0,0,0);
+        switch (p) {
+            case "current":
+                drpStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                drpEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                drpPicking = null; break;
+            case "last":
+                drpStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                drpEnd   = new Date(now.getFullYear(), now.getMonth(), 0);
+                drpPicking = null; break;
+            case "next":
+                drpStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                drpEnd   = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+                drpPicking = null; break;
+            case "year":
+                drpStart = new Date(now.getFullYear(), 0, 1);
+                drpEnd   = new Date(now.getFullYear(), 11, 31);
+                drpPicking = null; break;
+            case "custom":
+                drpStart = drpEnd = drpHover = null;
+                drpPicking = "start";
+                document.querySelectorAll(".drp-preset").forEach(x => x.classList.remove("selected"));
+                document.querySelectorAll(`.drp-preset[data-preset="custom"]`).forEach(x => x.classList.add("selected"));
+                drpUpdateInputs();
+                drpRenderBoth();
+                return; // keep open, wait for clicks
+        }
+        if (drpStart) {
+            drpViewLeft  = { year: drpStart.getFullYear(), month: drpStart.getMonth() };
+            drpSyncViews("left");
+        }
+        document.querySelectorAll(".drp-preset").forEach(x => x.classList.remove("selected"));
+        document.querySelectorAll(`.drp-preset[data-preset="${p}"]`).forEach(x => x.classList.add("selected"));
+        drpUpdateInputs();
+        drpRenderBoth();
+    }
+
+    // ── open / close / commit ─────────────────────────────────
+    function drpOpen() {
+        drpDropdown.classList.add("show");
+        drpTrigger.classList.add("active");
+        drpRenderBoth();
+    }
+    function drpClose() {
+        drpDropdown.classList.remove("show");
+        drpTrigger.classList.remove("active");
+    }
+    function drpCommit() {
+        if (!drpStart) return;
+        if (!drpEnd) drpEnd = new Date(drpStart);
+        drpUpdateLabel();
+        drpClose();
+        applyCampaignFiltersFromDRP();
+    }
+
+    function applyCampaignFiltersFromDRP() {
+        const search = (document.getElementById("campaignSearch")?.value || "").toLowerCase();
+        const status =  document.getElementById("campaignStatusFilter")?.value || "";
+        let filtered = [...allCampaigns];
+        if (search) {
+            filtered = filtered.filter(c =>
+                [c.client, c.brand, c.asset, c.circuit, c.status].join(" ").toLowerCase().includes(search)
+            );
+        }
+        if (drpStart && drpEnd) {
+            const lo = drpStart < drpEnd ? drpStart : drpEnd;
+            const hi = drpStart < drpEnd ? drpEnd   : drpStart;
+            filtered = filtered.filter(c => {
+                const d = parseDate(c.rawStartDate);
+                return d && d >= lo && d <= hi;
+            });
+        }
+        if (status) {
+            filtered = filtered.filter(c =>
+                (c.status || "").toLowerCase().trim() === status.toLowerCase().trim()
+            );
+        }
+        renderCampaignBooking(filtered);
+        if (window.allTables) renderCampaignUpdates(filtered, window.allTables);
+    }
+
+    // ── wire events ───────────────────────────────────────────
+    drpTrigger.addEventListener("click", e => {
+        e.stopPropagation();
+        drpDropdown.classList.contains("show") ? drpClose() : drpOpen();
+    });
+
+    // outside click — use capture phase so it runs before stopPropagation on inner elements
+    document.addEventListener("click", e => {
+        if (drpDropdown.classList.contains("show") &&
+            !document.getElementById("drpWrapper").contains(e.target)) {
+            drpClose();
+        }
+    }, true);   // ← capture: true is the key fix
+
+    document.querySelectorAll(".drp-preset").forEach(el => {
+        el.addEventListener("click", e => {
+            e.stopPropagation();
+            drpApplyPreset(el.dataset.preset);
+        });
+    });
+
+    document.getElementById("drpApply").addEventListener("click", e => {
+        e.stopPropagation();
+        drpCommit();
+    });
+    document.getElementById("drpCancel").addEventListener("click", e => {
+        e.stopPropagation();
+        drpClose();
+    });
+
+    document.getElementById("campaignSearch")?.addEventListener("input", applyCampaignFiltersFromDRP);
+    document.getElementById("campaignStatusFilter")?.addEventListener("change", applyCampaignFiltersFromDRP);
+
+    // ── default: current month, apply filter immediately ─────
+    drpApplyPreset("current");
+    drpUpdateLabel();
+    applyCampaignFiltersFromDRP();
 
     // =======================================
     // UPDATE DASHBOARD STATS
@@ -3182,14 +3283,11 @@ BOOKING MODAL
         // ANALYTICS    
         renderCampaignAnalytics(allCampaigns);
 
+        // Campaign FILTERS
+        applyCampaignFiltersFromDRP();
+
         // INIT FILTERS
         initializeCampaignFilters();
-
-        // DEFAULT TO CURRENT MONTH
-        campaignDateFilter.value = "current";
-
-        // 
-        applyCampaignFilters();
 
         // STATS
         updateDashboardStats(allCampaigns, allTables);
