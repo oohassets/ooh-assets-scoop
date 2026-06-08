@@ -754,6 +754,12 @@ iframe {
         <div class="nav-indicator"></div>
 
         <div class="nav-item">
+            <a class="nav-link" id="homeDashboardLink" onclick="openHomeDashboard()">
+                Dashboard
+            </a>
+        </div>
+
+        <div class="nav-item">
             <a class="nav-link" id="contentInventoryLink" onclick="openContentInventory()">
                 Content Inventory
             </a>
@@ -974,6 +980,10 @@ iframe {
 
     <iframe id="mapFrame" style="display:none;"></iframe>
 
+    <iframe id="homeFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/home.html">
+    </iframe>
+
     <iframe id="vehicleFrame" style="display:none;"
         src="https://oohassets.github.io/ooh-assets-scoop/vehicle-traffic-report.html">
     </iframe>
@@ -997,6 +1007,11 @@ iframe {
 <!-- MOBILE BOTTOM NAV -->
 <div class="bottom-nav">
     <div class="bottom-indicator"></div>
+
+    <div class="bottom-item active" id="btnHomeDashboard">
+        <img src="https://img.icons8.com/ios-filled/50/glyph-neue/home.png" alt="Home">
+        <span>Home</span>
+    </div>
 
     <div class="bottom-item active" id="btnContentInventory">
         <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png" alt="Content Inventory">
@@ -1596,6 +1611,7 @@ function showOnlyFrame(frameId) {
     const frames = [
         "mapFrame",
         "vehicleFrame",
+        "homeFrame",
         "contentInventoryFrame",
         "assetDimensionCheckerFrame",
         "imageCompressorFrame"
@@ -1669,6 +1685,20 @@ function setActiveNav(key) {
 // =============================================
 // CONTENT SWITCHING
 // =============================================
+
+function openHomeDashboard() {
+    showOnlyFrame("homeFrame");
+    toggleOverlay(false);
+
+    setURL({ map: null, page: null });
+
+    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+    document.getElementById("homeDashboardLink").classList.add("active");
+
+    moveIndicator(document.getElementById("homeDashboardLink"));
+    setBottomActive(0);
+}
+
 function openContentInventory() {
     showOnlyFrame("contentInventoryFrame");
     toggleOverlay(false);
@@ -1681,6 +1711,8 @@ function openContentInventory() {
     moveIndicator(document.getElementById("contentInventoryLink"));
     setBottomActive(0);
 }
+
+
 
 function openVehicleReport() {
     showOnlyFrame("vehicleFrame");
@@ -1719,10 +1751,14 @@ function loadFromURL() {
     const page = params.get("page");
     const map = params.get("map");
 
+    if (page === "home") return openHomeDashboard();
     if (page === "vehicle") return openVehicleReport();
+    if (page === "asset-checker") return openAssetDimensionChecker();
+    if (page === "image-compressor") return openImageCompressor();
+
     if (map && maps[map]) return setMap(map);
 
-    openContentInventory();
+    openHomeDashboard();
 }
 
 // =============================================
