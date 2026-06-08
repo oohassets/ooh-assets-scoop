@@ -486,23 +486,32 @@ RESPONSIVE
 
 .quotation {
     background: #fef3c7;
-    color: #b45309;
+    color: orange;
 }
 
 
 .signed {
-    background: #ffbaba;
-    color: #b45309;
+    background: #FEE2E2;
+    color: red;
 }
 
 .live {
     background: #dcfce7;
-    color: #15803d;
+    color: green;
 }
 
 .completed {
     background: #0496ff;
-    color: #ffffff;
+    color: white;
+}
+
+/* For status pills in updates */
+.status-pill {
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 3px 8px;
 }
 
 .sidebar {
@@ -510,6 +519,8 @@ RESPONSIVE
     flex-direction: column;
     gap: 24px;
 }
+
+
 
 .campaign-date-label{
     font-size:12px;
@@ -531,11 +542,6 @@ GRID
     width:100%;
 }
 
-.campaign-cards-grid :hover{
-    transform:translateY(-3px);
-    
-   
-}
 
 /* =======================================
 CARD
@@ -754,7 +760,7 @@ MODERN TOOLBAR
     border: 1px solid #e2e8f0;
     border-radius: 16px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-family: inherit;
     font-weight: 500;
     color: #94a3b8;
@@ -772,7 +778,7 @@ MODERN TOOLBAR
 .drp-dropdown {
     position: absolute;
     top: calc(100% + 8px);
-    left: 0;
+    right: 0;
     z-index: 9999;
     background: white;
     border: 1px solid #e2e8f0;
@@ -1575,8 +1581,7 @@ BOOKING MODAL
 
     cursor:pointer;
 
-    background:
-        linear-gradient(135deg,#c24700,#f88d00);    
+    background:linear-gradient(135deg, #6366f1,#a855f7);   
 
 }
 
@@ -1868,8 +1873,8 @@ BOOKING MODAL
                             BO Signed
                         </option>
 
-                        <option value="Quotation">
-                            Quotation
+                        <option value="Quotation Sent">
+                            Quotation Sent  
                         </option>
 
                         <option value="Completed">
@@ -1904,11 +1909,9 @@ BOOKING MODAL
                 </table>
             </div>        
 
-        </div>          
-
+        </div>         
 
     </section>
-
 
 
     <!-- ======================================
@@ -1959,54 +1962,53 @@ CALENDAR MODAL
 
             <div style="display:flex;gap:12px;align-items:center;">
 
-                <div class="date-range-box">
-
-                    <div class="date-range-display">
-                        <input type="date" id="calendarFrom">
-                        <span>→</span>
-                        <input type="date" id="calendarTo">
-                    </div>
-
-                </div>
-
-                <!-- DATE FILTER -->
-                <div style="position:relative;" id="drpWrapper">
-
-                    <button class="drp-trigger" id="drpTrigger">
-                        <img src="https://img.icons8.com/ios/50/64748b/calendar--v1.png" alt="">
-                        <span id="drpLabel">This Month</span>
-                    </button>
-
-                    <div class="drp-dropdown" id="drpDropdown">
-
-                        <div class="drp-sidebar" id="drpSidebar">
-                            <div class="drp-preset selected" data-preset="current">This month</div>
-                            <div class="drp-preset" data-preset="last">Last month</div>
-                            <div class="drp-preset" data-preset="next">Next month</div>
-                            <div class="drp-preset" data-preset="year">All year</div>
-                            <div class="drp-preset" data-preset="custom">Custom range</div>
-                        </div>
-
-                        <div class="drp-body">
-                            <div class="drp-calendars">
-                                <div class="drp-cal" id="calendarFrom"></div>
-                                <div class="drp-cal drp-cal-sep" id="calendarTo"></div>
-                            </div>
-
-                            <div class="drp-footer">
-                                <div class="drp-inputs">
-                                    <input class="drp-input" id="drpFrom" type="text" placeholder="MM/DD/YYYY" readonly />
-                                    <span class="drp-sep">–</span>
-                                    <input class="drp-input" id="drpTo" type="text" placeholder="MM/DD/YYYY" readonly />
-                                </div>
-                                <div class="drp-actions">
-                                    <button class="drp-btn-cancel" id="drpCancel">Cancel</button>
-                                    <button class="drp-btn-apply" id="drpApply">Apply</button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:8px;
+                    padding:10px 14px;
+                    background:#f8fafc;
+                    border:1px solid #e2e8f0;
+                    border-radius:16px;
+                    font-size:14px;
+                    color:#64748b;
+                ">
+                    <img 
+                        src="https://img.icons8.com/ios/50/64748b/calendar--v1.png"
+                        style="width:16px;height:16px;opacity:0.5;"
+                        alt=""
+                    >
+                    <input 
+                        type="date" 
+                        id="calendarFrom"
+                        style="
+                            border:none;
+                            background:transparent;
+                            outline:none;
+                            font-family:inherit;
+                            font-size:14px;
+                            color:#0f172a;
+                            padding:0;
+                            width:auto;
+                            cursor:pointer;
+                        "
+                    >
+                    <span style="color:#94a3b8;">→</span>
+                    <input 
+                        type="date" 
+                        id="calendarTo"
+                        style="
+                            border:none;
+                            background:transparent;
+                            outline:none;
+                            font-family:inherit;
+                            font-size:14px;
+                            color:#0f172a;
+                            padding:0;
+                            width:auto;
+                            cursor:pointer;
+                        "
+                    >
                 </div>
 
                 <button class="btn-close btn-close-calendar" id="closeCalendarBtn">
@@ -2015,7 +2017,7 @@ CALENDAR MODAL
 
             </div>
 
-        </div>          
+        </div>
 
         <div class="calendar-scroll">
             <table id="bookingCalendar" class="booking-calendar"></table>
@@ -2237,30 +2239,35 @@ BOOKING MODAL
     // =======================================
     function getStatusClass(status = "") {
 
-        status = status.toString().toLowerCase();
+        status = status.toLowerCase().trim();
 
         if (status.includes("publish")) return "publish";
         if (status.includes("removed")) return "removed";
         if (status.includes("live")) return "live";
-        if (status.includes("signed")) return "signed";
-        if (status.includes("quotation")) return "quotation";
+
+        if (
+            status.includes("signed") ||
+            status.includes("bo signed")
+        ) return "signed";
+
+        if (
+            status.includes("quotation") ||
+            status.includes("quote")
+        ) return "quotation";
+
         if (status.includes("completed")) return "completed";
 
-        return "pending";
-
+        return "";
     }
 
 
-    // =======================================
-    // GET UPCOMING CAMPAIGNS
-    // =======================================
     function getUpcomingCampaigns(allTables) {
 
         const campaigns = [];
 
         Object.entries(allTables).forEach(([tableName, tableData]) => {
 
-            if (!tableName.startsWith("Campaigns_Booking")) {
+            if (tableName !== "Campaigns_Booking") {
                 return;
             }
 
@@ -2278,27 +2285,18 @@ BOOKING MODAL
                     return;
                 }
 
-                // =======================================
-                // RAW DATES
-                // =======================================
                 const rawStartDate = row["Start Date"] || "";
                 const rawEndDate = row["End Date"] || "";
 
-                // =======================================
-                // DATE OBJECT FOR SORTING
-                // =======================================
                 let sortDate = new Date(9999, 0, 1);
 
                 if (rawStartDate) {
-
                     const parts = rawStartDate
                         .split("/")
                         .map(v => parseInt(v.trim(), 10));
 
                     if (parts.length >= 2) {
-
                         const [month, day, year] = parts;
-
                         sortDate = new Date(
                             year || new Date().getFullYear(),
                             month - 1,
@@ -2307,47 +2305,25 @@ BOOKING MODAL
                     }
                 }
 
-                    campaigns.push({
-                    
+                campaigns.push({
                     client: row.Client || "—",
-
-                    brand: row['Brand Campaign'] || '—',
-
+                    brand: row["Brand Campaign"] || "—",
                     asset: row.Circuits || "—",
-
-                    date: `
-                        ${formatShortDate(rawStartDate)}
-                        →
-                        ${formatShortDate(rawEndDate)}
-                    `,
-
-                    status: row.Status || "Quotation",
-
+                    date: `${formatShortDate(rawStartDate)} → ${formatShortDate(rawEndDate)}`,
+                    status: row.Status || "BO Signed",
                     person: row.Person || "—",
-
                     rawStartDate,
-
                     rawEndDate,
-
                     sortDate
-
                 });
 
             });
 
         });
 
-        // =======================================
         // SORT OLDEST → NEWEST
-        // =======================================
-        return campaigns.sort((a, b) => {
-
-            return b.sortDate - a.sortDate;
-
-        });
-
+        return campaigns.sort((a, b) => b.sortDate - a.sortDate);
     }
-
 
     // =======================================
     // RENDER CAMPAIGN TABLE
@@ -2415,10 +2391,6 @@ BOOKING MODAL
 
     }
 
-
-
-
-
     // =======================================
     // INITIALIZE FILTER EVENTS
     // =======================================
@@ -2431,15 +2403,15 @@ BOOKING MODAL
         const dateFilter = document.getElementById("campaignDateFilter");
 
         if (searchInput) {
-            searchInput.addEventListener("input", applyCampaignFilters);
+            searchInput.addEventListener("input", applyCampaignFiltersFromDRP);
         }
 
         if (statusFilter) {
-            statusFilter.addEventListener("change", applyCampaignFilters);
+            statusFilter.addEventListener("change", applyCampaignFiltersFromDRP);
         }
 
         if (dateFilter) {
-            dateFilter.addEventListener("change", applyCampaignFilters);
+            dateFilter.addEventListener("change", applyCampaignFiltersFromDRP);
         }
 
         const fromDateInput = document.getElementById("campaignFromDate");
@@ -2453,11 +2425,9 @@ BOOKING MODAL
         
         if (toDateInput) {
             toDateInput.addEventListener("change", () => {
-                updateDateRangeLabel();
-                applyCampaignFilters();
+                applyCampaignFiltersFromDRP();
             });
         }
-
 
     }
 
@@ -2476,16 +2446,6 @@ BOOKING MODAL
     const campaignDateFilter =
         document.getElementById(
             "campaignDateFilter"
-        );
-
-    const dateRangeBox =
-        document.getElementById(
-            "dateRangeBox"
-        );
-
-    const dateRangeDisplay =
-        document.getElementById(
-            "dateRangeDisplay"
         );
 
     const campaignFromDate =
@@ -2771,11 +2731,13 @@ BOOKING MODAL
         const search = (document.getElementById("campaignSearch")?.value || "").toLowerCase();
         const status =  document.getElementById("campaignStatusFilter")?.value || "";
         let filtered = [...allCampaigns];
+
         if (search) {
             filtered = filtered.filter(c =>
                 [c.client, c.brand, c.asset, c.circuit, c.status].join(" ").toLowerCase().includes(search)
             );
         }
+
         if (drpStart && drpEnd) {
             const lo = drpStart < drpEnd ? drpStart : drpEnd;
             const hi = drpStart < drpEnd ? drpEnd   : drpStart;
@@ -2784,13 +2746,18 @@ BOOKING MODAL
                 return d && d >= lo && d <= hi;
             });
         }
+
         if (status) {
             filtered = filtered.filter(c =>
                 (c.status || "").toLowerCase().trim() === status.toLowerCase().trim()
             );
         }
+        
         renderCampaignBooking(filtered);
-        if (window.allTables) renderCampaignUpdates(filtered, window.allTables);
+
+        if (window.allTables && Object.keys(window.allTables).length > 0) {
+            renderCampaignUpdates(filtered, window.allTables);
+        }
     }
 
     // ── wire events ───────────────────────────────────────────
@@ -3299,7 +3266,7 @@ BOOKING MODAL
         initializeBookingDateCalculator();
 
         // CAMPAIGN UPDATES
-        renderCampaignUpdates(allCampaigns,allTables);
+        renderCampaignUpdates(allCampaigns, allTables);
 
         // ASSET OCCUPANCY
         updateAssetOccupancy(allTables);
@@ -3465,23 +3432,26 @@ BOOKING MODAL
     // =======================================
     // RENDER CAMPAIGN UPDATES
     // =======================================
-    // Published      = Campaign_Logs with Type = add
-    // Removed        = Campaign_Logs with Type = removed
-    // Upcoming       = Campaigns_Booking with Start Date within next 3 days
-    // Ending Soon    = Any campaign with End Date within next 3 days (from all tables)
-    // =======================================
-    function renderCampaignUpdates(
-        campaigns,
-        allTables = []) 
-    {
-        const container = document.getElementById(
-            "campaignUpdatesContainer"
-        );
+    function renderCampaignUpdates(campaigns, allTables = []) {
 
+        const container = document.getElementById("campaignUpdatesContainer");
         if (!container) return;
 
         const today = new Date();
         today.setHours(0,0,0,0);
+
+        // =======================================
+        // UNIFORM DATE LABEL — defined ONCE here
+        // =======================================
+        function getDateLabel(date, rawDateStr) {
+            const diff = Math.floor((date - today) / 86400000);
+            if (diff === 0)  return "Today";
+            if (diff === 1)  return "Tomorrow";
+            if (diff === -1) return "Yesterday";
+            if (diff > 1)    return `In ${diff} Day${diff > 1 ? "s" : ""}`;
+            if (diff < -1)   return formatShortDate(rawDateStr);
+            return formatShortDate(rawDateStr);
+        }
 
         // =======================================
         // GROUPS
@@ -3494,123 +3464,49 @@ BOOKING MODAL
         };
 
         // =======================================
-        // CAMPAIGN LOGS
-        // PUBLISHED + REMOVED
+        // CAMPAIGN LOGS — PUBLISHED + REMOVED
         // =======================================
         const logs =
             allTables?.Campaign_Logs ||
             allTables?.campaign_logs ||
             {};
 
-        // =======================================
-        // CAMPAIGN LOGS
-        // =======================================
         Object.values(logs).forEach(log => {
 
-            const logDateRaw =
-                log.Date || log.date;
-
-            const logType =
-                (log.Type || log.type || "")
-                .toString()
-                .trim()
-                .toLowerCase();
-
-            const client =
-                log.Client || log.client || "-";
-
-            const circuits =
-                log.Circuits || log.circuits || "-";
+            const logDateRaw = log.Date || log.date;
+            const logType = (log.Type || log.type || "").toString().trim().toLowerCase();
+            const client = log.Client || log.client || "-";
+            const circuits = log.Circuits || log.circuits || "-";
 
             if (!logDateRaw || !logType) return;
 
-            const logDate =
-                parseDate(logDateRaw);
-
+            const logDate = parseDate(logDateRaw);
             if (!logDate) return;
 
             logDate.setHours(0,0,0,0);
 
-            const diffDays = Math.floor(
-                (logDate - today) / 86400000
-            );
+            const diffDays = Math.floor((logDate - today) / 86400000);
 
-            // =======================================
-            // LAST 3 DAYS ONLY
-            // =======================================
-            if (diffDays < -3 || diffDays > 0) {
+            if (diffDays < -3 || diffDays > 0) return;
 
-                return;
-
-            }
-
-            // =======================================
-            // DATE LABEL
-            // =======================================
-            let dateLabel = "";
-
-            if (diffDays === 0) {
-
-                dateLabel = "Today";
-
-            }
-
-            else if (diffDays === -1) {
-
-                dateLabel = "Yesterday";
-
-            }
-
-            else {
-
-                dateLabel = formatShortDate(
-                    logDateRaw
-                );
-
-            }
-
-            // =======================================
-            // PUBLISHED
-            // TYPE = add
-            // =======================================
             if (logType === "add") {
-
                 groupedUpdates.published.push({
-
-                    label: dateLabel,
-
+                    label:    getDateLabel(logDate, logDateRaw),
                     className: "active",
-
-                    brand: client,
-
-                    asset: circuits,
-
+                    brand:    client,
+                    asset:    circuits,
                     sortDate: logDate
-
                 });
-
             }
 
-            // =======================================
-            // REMOVED
-            // TYPE = removed
-            // =======================================
             if (logType === "removed") {
-
                 groupedUpdates.removed.push({
-
-                    label: dateLabel,
-
+                    label:    getDateLabel(logDate, logDateRaw),
                     className: "cancelled",
-
-                    brand: client || "—",
-
-                    asset: circuits || "—",
-
+                    brand:    client || "—",
+                    asset:    circuits || "—",
                     sortDate: logDate
-
                 });
-
             }
 
         });
@@ -3621,38 +3517,41 @@ BOOKING MODAL
         campaigns.forEach(campaign => {
 
             const startDate = parseDate(campaign.rawStartDate);
+            const endDate   = parseDate(campaign.rawEndDate);
 
             if (!startDate) return;
 
             startDate.setHours(0,0,0,0);
+            if (endDate) endDate.setHours(0,0,0,0);
 
-            const startDiff = Math.floor(
-                (startDate - today) / 86400000
-            );
+            const startDiff = Math.floor((startDate - today) / 86400000);
+            const endDiff   = endDate ? Math.floor((endDate - today) / 86400000) : 999;
 
-            // UPCOMING ONLY
-            if (startDiff > 0 && startDiff <= 3) {
+            const status = (campaign.status || "").toLowerCase().trim();
 
+            const isAllowed =
+                status.includes("signed") ||
+                status.includes("quotation") ||
+                status.includes("quote");
+
+            if (!isAllowed) return;
+
+            if ((startDiff >= 0 && startDiff <= 30) || (startDiff < 0 && endDiff >= 0)) {
                 groupedUpdates.upcoming.push({
-
-                    label: formatShortDate(campaign.rawStartDate),
-
-                    className: "signed",
-
-                    brand: campaign.brand || campaign.client,
-
-                    asset: campaign.asset,
-
-                    sortDate: startDate
-
+                    label:       getDateLabel(startDate, campaign.rawStartDate),
+                    className:   getStatusClass(campaign.status || ""),
+                    statusLabel: campaign.status || "",
+                    brand:       campaign.brand || campaign.client,
+                    asset:       campaign.asset,
+                    person:      campaign.person || "",
+                    sortDate:    startDate
                 });
-
             }
 
         });
 
         // =======================================
-        // ENDING CAMPAIGNS (FROM d_ / s_ TABLES) with 3 days left
+        // ENDING CAMPAIGNS
         // =======================================
         for (const tableName in allTables) {
 
@@ -3679,31 +3578,22 @@ BOOKING MODAL
                 if (diff < 0 || diff > 3) return;
 
                 let locationName = formattedName;
-
                 if (tableName.startsWith("s_") && r["Circuit"]) {
                     locationName = `${formattedName} ${r["Circuit"]}`;
                 }
 
                 groupedUpdates.ending.push({
-
-                    label:
-                        diff === 0
-                            ? "Today"
-                            : `In ${diff} Day${diff > 1 ? "s" : ""}`,
-
+                    label:    getDateLabel(parsedEnd, r["End Date"]),
                     className: "completed",
-
-                    brand: r.Client || "—",
-
-                    asset: locationName,
-
+                    brand:    r.Client || "—",
+                    asset:    locationName,
                     sortDate: parsedEnd
-
                 });
 
             });
 
         }
+
 
         // =======================================
         // SORT GROUPS (DATE → BRAND)
@@ -3727,82 +3617,80 @@ BOOKING MODAL
 
         });
 
-        // =======================================
-        // CREATE CARD
-        // =======================================
         function createCard(id, title, updates) {
 
-            const hasUpdates =
-                updates.length > 0;
+            const hasUpdates = updates.length > 0;
+
+            const itemsHTML = hasUpdates ? updates.map(update => {
+
+                // =======================================
+                // UPCOMING CARD — special layout
+                // =======================================
+                if (id === "upcoming") {
+                    return `
+                        <div class="campaign-update-item">
+
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+
+                                <h4>${update.brand || update.client || "—"}</h4>
+
+                                <p>${update.asset || "—"}</p>
+
+                                <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+
+                                    <span class="status-pill ${update.className || ''}">
+                                        ● ${update.statusLabel || ""}
+                                    </span>
+
+                                    ${update.person ? `<span style="font-size:12px;color:#6b7280;">- ${update.person}</span>` : ""}
+                                </div>
+
+                            </div>
+
+                            <span class="campaign-date-label">${update.label}</span>
+
+                        </div>
+                    `;
+                }
+
+                // =======================================
+                // ALL OTHER CARDS — original layout
+                // =======================================
+                return `
+                    <div class="campaign-update-item">
+
+                        <div>
+                            <h4>${update.brand || update.client || "—"}</h4>
+                            <p>${update.asset || "—"}</p>
+                        </div>
+
+                        <span class="campaign-date-label">${update.label}</span>
+
+                    </div>
+                `;
+
+            }).join("") : `<div class="campaign-empty">No updates available</div>`;
 
             return `
-
                 <div class="campaign-card">
 
                     <div class="campaign-card-header ${id}-header">
-
                         <div>
-
-                            <div class="campaign-card-title">
-                                ${title}
-                            </div>
-
+                            <div class="campaign-card-title">${title}</div>
                             <div class="campaign-card-count">
-
-                                ${
-                                    hasUpdates
-                                        ? `${updates.length} Campaign${updates.length > 1 ? "s" : ""}`
-                                        : "No updates"
+                                ${hasUpdates
+                                    ? `${updates.length} Campaign${updates.length > 1 ? "s" : ""}`
+                                    : "No updates"
                                 }
-
                             </div>
-
                         </div>
-
                     </div>
 
                     <div class="campaign-card-body ${hasUpdates ? "expanded" : ""}">
-
-                        ${
-                            hasUpdates
-
-                            ? updates.map(update => `
-
-                                <div class="campaign-update-item">
-
-                                    <div>
-
-                                        <h4>
-                                            ${update.brand || update.client || "—"}
-                                        </h4>
-
-                                        <p>
-                                            ${update.asset || "—"}
-                                        </p>
-
-                                    </div>
-
-                                    <span class="campaign-date-label">
-                                        ${update.label}
-                                    </span>
-
-                                </div>
-
-                            `).join("")
-
-                            : `
-
-                                <div class="campaign-empty">
-                                    No updates available
-                                </div>
-
-                            `
-                        }
-
+                        ${itemsHTML}
                     </div>
 
                 </div>
-
             `;
         }
 
