@@ -2734,7 +2734,7 @@ BOOKING MODAL
 
         if (search) {
             filtered = filtered.filter(c =>
-                [c.client, c.brand, c.asset, c.circuit, c.status].join(" ").toLowerCase().includes(search)
+                [c.client, c.brand, c.asset, c.circuit, c.status, c.person].join(" ").toLowerCase().includes(search)
             );
         }
 
