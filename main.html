@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Scoop OOH</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #050A1A;
+  --bg-secondary: #0A1628;
+  --bg-tertiary: #0F1E38;
+  --bg-card: rgba(15, 28, 56, 0.7);
+  --bg-glass: rgba(255,255,255,0.04);
+  --bg-glass-hover: rgba(255,255,255,0.07);
+  --border-glass: rgba(255,255,255,0.1);
+  --border-glow: rgba(79,70,229,0.4);
+  --text-primary: #F8FAFF;
+  --text-secondary: #94A3C0;
+  --text-muted: #5A6A8A;
+  --accent-indigo: #4F46E5;
+  --accent-cyan: #0496ff;
+  --accent-violet: #7C3AED;
+  --accent-emerald: #10B981;
+  --accent-amber: #F59E0B;
+  --accent-rose: #F43F5E;
+  --glow-indigo: rgba(79,70,229,0.25);
+  --glow-cyan: rgba(4,150,255,0.2);
+  --nav-bg: rgba(5,10,26,0.85);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+[data-theme="light"] {
+  --bg-primary: #F0F4FF;
+  --bg-secondary: #E8EEF8;
+  --bg-tertiary: #DDE5F5;
+  --bg-card: rgba(255,255,255,0.85);
+  --bg-glass: rgba(255,255,255,0.7);
+  --bg-glass-hover: rgba(255,255,255,0.9);
+  --border-glass: rgba(79,70,229,0.15);
+  --border-glow: rgba(79,70,229,0.3);
+  --text-primary: #0A1628;
+  --text-secondary: #3D4F6E;
+  --text-muted: #6B7A99;
+  --nav-bg: rgba(240,244,255,0.9);
+  --shadow-card: 0 8px 32px rgba(79,70,229,0.1);
+  --bg-glass: rgba(255,255,255,0.6);
+  --glow-indigo: rgba(79,70,229,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-body);
+  background:var(--bg-primary);
+  color:var(--text-primary);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background 0.4s,color 0.4s;
+}
+
+/* SCROLL PROGRESS */
+#scroll-progress{
+  position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--accent-indigo),var(--accent-cyan));
+  z-index:9999;width:0%;
+  transition:width 0.1s;
+  box-shadow:0 0 8px var(--accent-indigo);
+}
+
+/* CURSOR */
+#cursor{
+  position:fixed;width:16px;height:16px;
+  border-radius:50%;
+  background:var(--accent-indigo);
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform 0.1s,width 0.2s,height 0.2s,opacity 0.2s;
+  mix-blend-mode:screen;
+  opacity:0.7;
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;
+  border-radius:50%;border:1.5px solid var(--accent-cyan);
+  pointer-events:none;z-index:9997;
+  transform:translate(-50%,-50%);
+  transition:transform 0.15s ease-out,width 0.2s,height 0.2s;
+  opacity:0.4;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:var(--nav-bg);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border-glass);
+  padding:0 2rem;
+  height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background 0.4s;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:12px;
+}
+.nav-logo-mark{
+  width: 50px;height:50px;
+  border-radius:18px;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  margin:16px;
+}
+
+.nav-logo-mark img{
+  width:100%;height:100%;
+  object-fit:contain;
+  display:block;
+}
+
+.nav-brand{
+  font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--text-primary);
+}
+.nav-brand span{color:var(--text-muted);font-weight:400;}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+.nav-badge{
+  padding:6px 14px;border-radius:999px;
+  font-size:12px;font-weight:600;font-family:var(--font-display);
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  color:var(--text-secondary);
+  display:flex;align-items:center;gap:6px;
+}
+.nav-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-emerald);animation:pulse-dot 2s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(0.8);}}
+.btn-theme{
+  width:40px;height:40px;border-radius:50%;
+  border:1px solid var(--border-glass);
+  background:var(--bg-glass);
+  color:var(--text-secondary);font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.btn-theme:hover{border-color:var(--accent-indigo);color:var(--text-primary);}
+.btn-nav{
+  padding:8px 20px;border-radius:999px;
+  border:none;cursor:pointer;
+  font-family:var(--font-display);font-weight:600;font-size:13px;
+  transition:all 0.2s;
+}
+.btn-nav-outline{
+  background:transparent;border:1px solid var(--border-glass);
+  color:var(--text-secondary);
+}
+.btn-nav-outline:hover{border-color:var(--accent-indigo);color:var(--text-primary);}
+.btn-nav-primary{
+  background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet));
+  color:white;
+  box-shadow:0 4px 15px var(--glow-indigo);
+}
+.btn-nav-primary:hover{transform:translateY(-1px);box-shadow:0 8px 25px var(--glow-indigo);}
+
+/* HERO */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;padding-top:64px;
+}
+#hero-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;
+}
+.hero-grid-overlay{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(79,70,229,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,70,229,0.06) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
+  pointer-events:none;
+}
+[data-theme="light"] .hero-grid-overlay{
+  background-image:
+    linear-gradient(rgba(79,70,229,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,70,229,0.08) 1px, transparent 1px);
+}
+.hero-content{
+  position:relative;z-index:10;
+  text-align:center;
+  max-width:900px;
+  padding:0 2rem;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 18px;border-radius:999px;
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  font-size:12px;font-weight:600;font-family:var(--font-display);
+  color:var(--accent-cyan);letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:2rem;
+  animation:fadeInUp 0.6s ease both;
+}
+.hero-eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent-cyan);}
+.hero-headline{
+  font-family:var(--font-display);
+  font-size:clamp(42px,6vw,84px);
+  font-weight:800;line-height:1.05;letter-spacing:-0.02em;
+  color:var(--text-primary);
+  margin-bottom:1.5rem;
+  animation:fadeInUp 0.6s 0.1s ease both;
+}
+.hero-headline .grad{
+  background:linear-gradient(135deg,#818CF8,#4F46E5,#06B6D4);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero-headline .grad2{
+  background:linear-gradient(135deg,#06B6D4,#7C3AED);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero-sub{
+  font-size:18px;line-height:1.7;color:var(--text-secondary);
+  max-width:580px;margin:0 auto 2.5rem;
+  font-weight:400;
+  animation:fadeInUp 0.6s 0.2s ease both;
+}
+.hero-cta{
+  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:4rem;
+  animation:fadeInUp 0.6s 0.3s ease both;
+}
+.btn-cta-primary{
+  padding:16px 36px;border-radius:999px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet));
+  color:white;font-family:var(--font-display);font-weight:700;font-size:15px;
+  box-shadow:0 8px 30px var(--glow-indigo);
+  transition:all 0.25s;display:flex;align-items:center;gap:8px;
+}
+.btn-cta-primary:hover{transform:translateY(-3px);box-shadow:0 16px 40px var(--glow-indigo);}
+.btn-cta-secondary{
+  padding:16px 36px;border-radius:999px;cursor:pointer;
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  color:var(--text-primary);font-family:var(--font-display);font-weight:600;font-size:15px;
+  transition:all 0.25s;display:flex;align-items:center;gap:8px;
+  backdrop-filter:blur(12px);
+}
+.btn-cta-secondary:hover{border-color:var(--accent-cyan);transform:translateY(-3px);background:var(--bg-glass-hover);}
+.btn-arrow{
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;
+  transition:transform 0.2s;
+}
+.btn-cta-primary:hover .btn-arrow{transform:translateX(4px);}
+
+/* HERO FLOATING STATS */
+.hero-stats-row{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+  animation:fadeInUp 0.6s 0.4s ease both;
+}
+.hero-stat-chip{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 20px;border-radius:var(--radius-md);
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  backdrop-filter:blur(16px);
+  transition:all 0.3s;
+}
+.hero-stat-chip:hover{
+  border-color:var(--accent-indigo);
+  transform:translateY(-4px);
+  background:var(--bg-glass-hover);
+}
+.hero-stat-chip .val{
+  font-family:var(--font-display);font-weight:800;font-size:22px;
+  color:var(--text-primary);
+}
+.hero-stat-chip .lbl{font-size:12px;color:var(--text-muted);}
+.chip-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.chip-indigo{background:rgba(79,70,229,0.15);color:var(--accent-indigo);}
+.chip-cyan{background:rgba(6,182,212,0.15);color:var(--accent-cyan);}
+.chip-emerald{background:rgba(16,185,129,0.15);color:var(--accent-emerald);}
+.chip-amber{background:rgba(245,158,11,0.15);color:var(--accent-amber);}
+
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(24px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* FLOATING ORBS */
+.orb{
+  position:absolute;border-radius:50%;
+  filter:blur(80px);pointer-events:none;
+  animation:orbFloat 8s ease-in-out infinite;
+}
+.orb1{width:500px;height:500px;background:rgba(79,70,229,0.12);top:-100px;right:-100px;animation-delay:0s;}
+.orb2{width:400px;height:400px;background:rgba(6,182,212,0.08);bottom:-50px;left:-80px;animation-delay:-3s;}
+.orb3{width:300px;height:300px;background:rgba(124,58,237,0.1);top:30%;left:10%;animation-delay:-6s;}
+@keyframes orbFloat{
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(15px,-20px) scale(1.02);}
+  66%{transform:translate(-10px,10px) scale(0.98);}
+}
+
+/* MAIN */
+main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
+
+/* SECTION HEADER */
+.section-header{margin-bottom:2rem;}
+.section-eyebrow{
+  font-size:11px;font-weight:700;font-family:var(--font-display);
+  color:var(--accent-cyan);letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:0.5rem;
+  display:flex;align-items:center;gap:8px;
+}
+.section-eyebrow::before{content:"";width:20px;height:2px;background:var(--accent-cyan);}
+.section-title{
+  font-family:var(--font-display);font-size:clamp(28px,3vw,42px);font-weight:800;
+  color:var(--text-primary);letter-spacing:-0.02em;
+}
+.section-sub{margin-top:8px;font-size:15px;color:var(--text-secondary);}
+
+/* STAT CARDS */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;margin-bottom:2rem;
+}
+.stat-card{
+  background:var(--bg-card);
+  border:1px solid var(--border-glass);
+  border-radius:var(--radius-lg);
+  padding:28px;
+  position:relative;overflow:hidden;
+  transition:all 0.3s;
+  cursor:default;
+  backdrop-filter:blur(20px);
+}
+.stat-card::before{
+  content:"";position:absolute;inset:0;border-radius:var(--radius-lg);
+  background:linear-gradient(135deg,var(--card-accent,var(--accent-indigo)) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.3s;
+}
+.stat-card:hover::before{opacity:0.04;}
+.stat-card:hover{
+  transform:translateY(-6px);
+  border-color:var(--card-accent,var(--accent-indigo));
+  box-shadow:0 20px 50px rgba(0,0,0,0.3),0 0 0 1px var(--card-accent,var(--accent-indigo));
+}
+.stat-card-glow{
+  position:absolute;top:-30px;right:-30px;
+  width:120px;height:120px;border-radius:50%;
+  background:var(--card-accent,var(--accent-indigo));
+  opacity:0.08;filter:blur(40px);
+  transition:opacity 0.3s;
+}
+.stat-card:hover .stat-card-glow{opacity:0.15;}
+.stat-label{
+  font-size:12px;font-weight:600;font-family:var(--font-display);
+  color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+.stat-value{
+  font-family:var(--font-display);font-size:52px;font-weight:800;
+  letter-spacing:-0.03em;line-height:1;
+  background:linear-gradient(135deg,var(--text-primary),var(--card-accent,var(--accent-indigo)));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:10px;
+}
+.stat-sub{font-size:13px;color:var(--text-muted);}
+.stat-icon{
+  position:absolute;bottom:24px;right:24px;
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+.stat-trend{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;
+  font-family:var(--font-display);margin-top:8px;
+}
+.trend-up{background:rgba(16,185,129,0.15);color:var(--accent-emerald);}
+.trend-down{background:rgba(244,63,94,0.15);color:var(--accent-rose);}
+.trend-pending{background:rgba(245,158,11,0.15);color:var(--accent-amber);}
+
+/* CARD */
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border-glass);
+  border-radius:var(--radius-lg);
+  padding:28px;
+  backdrop-filter:blur(20px);
+  transition:border-color 0.3s;
+}
+.card:hover{border-color:var(--border-glow);}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:2rem;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+/* CAMPAIGN UPDATES */
+.update-cards-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;margin-top:20px;
+}
+.update-card{
+  border-radius:var(--radius-md);
+  border:1px solid var(--border-glass);
+  overflow:hidden;
+  background:var(--bg-glass);
+  transition:all 0.3s;
+}
+.update-card:hover{border-color:var(--border-glow);transform:translateY(-3px);}
+.update-card-head{
+  padding:16px;display:flex;justify-content:space-between;align-items:flex-start;
+  border-bottom:2px solid;
+}
+.update-card-head.published{border-color:var(--accent-emerald);}
+.update-card-head.removed{border-color:var(--accent-rose);}
+.update-card-head.upcoming{border-color:var(--accent-amber);}
+.update-card-head.ending{border-color:var(--accent-cyan);}
+.update-title{font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--text-primary);}
+.update-count{font-size:11px;color:var(--text-muted);margin-top:3px;}
+.update-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;
+}
+.dot-green{background:var(--accent-emerald);}
+.dot-red{background:var(--accent-rose);}
+.dot-amber{background:var(--accent-amber);}
+.dot-cyan{background:var(--accent-cyan);}
+.update-body{max-height:280px;overflow-y:auto;padding:0 16px;}
+.update-body::-webkit-scrollbar{width:4px;}
+.update-body::-webkit-scrollbar-thumb{background:var(--border-glass);border-radius:999px;}
+.update-item{
+  padding:12px 0;border-top:1px solid var(--border-glass);
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+  animation:itemFadeIn 0.4s ease both;
+}
+@keyframes itemFadeIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+.update-item-label{font-size:13px;font-weight:500;color:var(--text-primary);}
+.update-item-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.update-date-badge{
+  font-size:11px;font-weight:600;font-family:var(--font-display);
+  color:var(--text-muted);white-space:nowrap;flex-shrink:0;
+  padding:3px 8px;border-radius:6px;background:var(--bg-glass);
+  border:1px solid var(--border-glass);
+}
+
+/* STATUS */
+.status-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:999px;
+  font-size:11px;font-weight:700;font-family:var(--font-display);
+  white-space:nowrap;
+}
+.status-pill::before{content:"•";}
+.pill-live{background:rgba(16,185,129,0.15);color:var(--accent-emerald);}
+.pill-signed{background:rgba(244,63,94,0.15);color:var(--accent-rose);}
+.pill-pending{background:rgba(245,158,11,0.15);color:var(--accent-amber);}
+.pill-completed{background:rgba(6,182,212,0.15);color:var(--accent-cyan);}
+
+/* TABLE */
+.table-container{
+  margin-top:20px;overflow:auto;border-radius:16px;max-height:420px;
+}
+.table-container::-webkit-scrollbar{width:6px;height:6px;}
+.table-container::-webkit-scrollbar-thumb{background:var(--border-glass);border-radius:999px;}
+table.data-table{
+  width:100%;border-collapse:separate;border-spacing:0 8px;min-width:700px;
+}
+table.data-table th{
+  font-size:11px;font-weight:700;font-family:var(--font-display);
+  color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;
+  padding:0 16px 10px;text-align:left;
+  position:sticky;top:0;background:var(--bg-card);z-index:5;
+}
+table.data-table td{
+  padding:16px;font-size:13px;
+  background:var(--bg-glass);
+  transition:background 0.2s;
+}
+table.data-table tr:hover td{background:var(--bg-glass-hover);}
+table.data-table td:first-child{border-radius:12px 0 0 12px;font-weight:600;}
+table.data-table td:last-child{border-radius:0 12px 12px 0;}
+.client-name{font-size:11px;color:var(--text-muted);margin-bottom:3px;font-weight:400;}
+.brand-name{font-size:14px;font-weight:600;color:var(--text-primary);}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap;}
+.search-box{
+  flex:1;min-width:200px;
+  display:flex;align-items:center;gap:10px;
+  padding:0 16px;height:44px;
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  border-radius:var(--radius-sm);transition:all 0.2s;
+}
+.search-box:focus-within{border-color:var(--accent-indigo);box-shadow:0 0 0 3px var(--glow-indigo);}
+.search-box input{
+  flex:1;border:none;outline:none;background:transparent;
+  color:var(--text-primary);font-family:var(--font-body);font-size:14px;
+}
+.search-box input::placeholder{color:var(--text-muted);}
+.filter-box{
+  display:flex;align-items:center;gap:8px;
+  padding:0 16px;height:44px;
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  border-radius:var(--radius-sm);min-width:140px;transition:all 0.2s;
+}
+.filter-box select{
+  border:none;outline:none;background:transparent;
+  color:var(--text-secondary);font-family:var(--font-body);font-size:14px;cursor:pointer;
+  width:100%;
+}
+.filter-box select option{background:var(--bg-secondary);color:var(--text-primary);}
+
+/* CHART */
+.chart-wrap{position:relative;height:320px;margin-top:20px;}
+
+/* BOOKING FORM */
+.booking-section{margin-bottom:2rem;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
+.field-group{margin-bottom:0;}
+.field-label{
+  display:block;font-size:12px;font-weight:600;font-family:var(--font-display);
+  color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;
+  margin-bottom:8px;
+}
+.field-input{
+  width:100%;height:50px;padding:0 16px;
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  border-radius:var(--radius-sm);
+  color:var(--text-primary);font-family:var(--font-body);font-size:14px;
+  outline:none;transition:all 0.2s;
+  -webkit-appearance:none;appearance:none;
+}
+.field-input:focus{border-color:var(--accent-indigo);box-shadow:0 0 0 3px var(--glow-indigo);}
+.field-input::placeholder{color:var(--text-muted);}
+.field-input option{background:var(--bg-secondary);}
+.booked-by-strip{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 18px;border-radius:var(--radius-sm);
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  margin-top:16px;
+}
+.booked-by-strip span{font-size:13px;color:var(--text-muted);}
+.booked-by-strip strong{
+  font-family:var(--font-display);font-size:13px;font-weight:700;
+  color:var(--accent-cyan);
+}
+.form-footer{display:flex;justify-content:flex-end;gap:12px;margin-top:24px;}
+.btn-form-cancel{
+  padding:12px 28px;border-radius:999px;
+  background:transparent;border:1px solid var(--border-glass);
+  color:var(--text-secondary);font-family:var(--font-display);font-weight:600;font-size:14px;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-form-cancel:hover{border-color:var(--text-muted);color:var(--text-primary);}
+.btn-form-save{
+  padding:12px 32px;border-radius:999px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet));
+  color:white;font-family:var(--font-display);font-weight:700;font-size:14px;
+  box-shadow:0 6px 20px var(--glow-indigo);transition:all 0.2s;
+}
+.btn-form-save:hover{transform:translateY(-2px);box-shadow:0 12px 30px var(--glow-indigo);}
+
+/* CALENDAR MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;
+}
+.modal-overlay.active{display:flex;}
+.modal-box{
+  background:var(--bg-secondary);border:1px solid var(--border-glass);
+  border-radius:var(--radius-xl);padding:32px;
+  width:100%;max-width:560px;position:relative;
+  animation:modalIn 0.25s ease;
+}
+@keyframes modalIn{
+  from{opacity:0;transform:scale(0.95) translateY(20px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+.modal-title{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);}
+.modal-sub{color:var(--text-muted);font-size:14px;margin-top:6px;}
+.modal-close{
+  position:absolute;top:24px;right:24px;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  color:var(--text-secondary);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+}
+.modal-close:hover{background:var(--bg-glass-hover);color:var(--text-primary);}
+
+/* CALENDAR MODAL FULL */
+.cal-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;
+}
+.cal-modal-overlay.active{display:flex;}
+.cal-modal-box{
+  background:var(--bg-secondary);border:1px solid var(--border-glass);
+  border-radius:var(--radius-xl);padding:28px;
+  width:95%;max-height:90vh;display:flex;flex-direction:column;
+  animation:modalIn 0.25s ease;
+}
+.cal-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
+.cal-modal-title{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text-primary);}
+.cal-controls{display:flex;align-items:center;gap:10px;}
+.cal-date-input{
+  padding:8px 14px;border-radius:10px;
+  background:var(--bg-glass);border:1px solid var(--border-glass);
+  color:var(--text-primary);font-family:var(--font-body);font-size:13px;
+  outline:none;cursor:pointer;
+}
+.cal-scroll{overflow:auto;flex:1;border-radius:16px;}
+.cal-scroll::-webkit-scrollbar{width:6px;height:6px;}
+.cal-scroll::-webkit-scrollbar-thumb{background:var(--border-glass);border-radius:999px;}
+.booking-calendar{border-collapse:collapse;width:100%;font-size:12px;}
+.booking-calendar th{
+  border:1px solid rgba(255,255,255,0.06);
+  height:36px;text-align:center;
+  position:sticky;top:0;z-index:10;
+  background:#0A1628;color:var(--text-secondary);
+  font-family:var(--font-display);font-weight:600;font-size:11px;
+}
+[data-theme="light"] .booking-calendar th{background:#E8EEF8;}
+.booking-calendar td{
+  border:1px solid rgba(255,255,255,0.04);
+  height:42px;text-align:center;position:relative;overflow:visible;
+}
+[data-theme="light"] .booking-calendar td{border-color:rgba(79,70,229,0.08);}
+.circuit-col{
+  position:sticky;left:0;z-index:5;
+  width:200px;min-width:200px;
+  background:var(--bg-secondary);
+  font-weight:600;font-size:12px;color:var(--text-primary);
+  text-align:left;padding:0 12px;
+}
+.slot-col{
+  position:sticky;left:200px;z-index:4;
+  width:70px;min-width:70px;
+  background:var(--bg-tertiary);
+  font-size:11px;color:var(--text-muted);
+}
+.circuit-col.head,.slot-col.head{z-index:15;}
+.date-head{min-width:44px;background:#0A1628;font-size:10px;color:var(--text-muted);}
+[data-theme="light"] .date-head{background:#E8EEF8;}
+.today-head{background:rgba(79,70,229,0.3) !important;color:white !important;}
+.booking-bar{
+  position:absolute;top:5px;left:0;height:30px;
+  border-radius:6px;display:flex;align-items:center;
+  font-size:10px;font-weight:600;padding:0 8px;z-index:20;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:rgba(0,0,0,0.8);
+}
+.booking-bar.live{background:rgba(16,185,129,0.7);}
+.booking-bar.signed{background:rgba(244,63,94,0.7);color:white;}
+.booking-bar.pending{background:rgba(245,158,11,0.7);}
+.booking-bar.completed{background:rgba(6,182,212,0.7);}
+
+/* FOOTER */
+footer{
+  text-align:center;padding:3rem 2rem;
+  border-top:1px solid var(--border-glass);
+  margin-top:4rem;
+}
+.footer-brand{
+  font-family:var(--font-display);font-size:20px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent-indigo),var(--accent-cyan));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.footer-copy{margin-top:8px;font-size:13px;color:var(--text-muted);}
+
+/* DIVIDER */
+.section-divider{height:1px;background:var(--border-glass);margin:2rem 0;}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* LIGHT MODE ADJUSTMENTS */
+[data-theme="light"] .stat-card{background:rgba(255,255,255,0.8);}
+[data-theme="light"] .card{background:rgba(255,255,255,0.8);}
+[data-theme="light"] .update-card{background:rgba(255,255,255,0.8);}
+[data-theme="light"] .circuit-col{background:#E8EEF8;}
+[data-theme="light"] .slot-col{background:#DDE5F5;}
+[data-theme="light"] .orb1{background:rgba(79,70,229,0.08);}
+[data-theme="light"] .orb2{background:rgba(6,182,212,0.06);}
+[data-theme="light"] .hero-headline .grad{filter:none;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{padding:0 1rem;}
+  main{padding:0 1rem 4rem;}
+  .hero-headline{font-size:36px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .nav-badge,.btn-nav-outline{display:none;}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr;}
+  .hero-stats-row{flex-direction:column;align-items:center;}
+}
+</style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">
+        <img id="loginLogo" src="images/scooplogo.png" alt="Scoop Logo">
+    </div>
+    <div class="nav-brand">Scoop Media & Communication Co.</div>
+  </div>
+  <div class="nav-actions">
+    <div class="nav-badge">
+      <span class="dot"></span>
+      <span id="navUser">Platform</span>
+    </div>
+    <button class="btn-nav btn-nav-outline" id="openBookingBtn">+ New Booking</button>
+    <button class="btn-nav btn-nav-primary" id="openCalBtn">View Calendar</button>
+    <button class="btn-theme" id="themeToggle" title="Toggle theme">☀</button>
+    <button class="btn-theme" id="logoutBtn" title="Logout" style="font-size:12px;">⏻</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-grid-overlay"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">OOH Campaign Intelligence</div>
+    <h1 class="hero-headline">
+      Plan, Schedule &amp;<br>
+      <span class="grad">Manage Campaigns</span><br>
+      <span class="grad2">at Scale</span>
+    </h1>
+    <p class="hero-sub">
+      Track asset availability, campaign schedules, booking conflicts, media rates, and client approvals — all in one intelligent platform.
+    </p>
+    <div class="hero-cta">
+      <button class="btn-cta-primary" id="openBookingBtnHero">
+        Create Booking
+        <span class="btn-arrow">→</span>
+      </button>
+      <button class="btn-cta-secondary" id="openCalBtnHero">
+        View Live Calendar
+        <span style="opacity:0.6;font-size:12px;">↗</span>
+      </button>
+    </div>
+
+    <div class="hero-stats-row">
+      <div class="hero-stat-chip">
+        <div class="chip-icon chip-indigo">📢</div>
+        <div><div class="val" id="heroLive">0</div><div class="lbl">Live Campaigns</div></div>
+      </div>
+      <div class="hero-stat-chip">
+        <div class="chip-icon chip-emerald">📊</div>
+        <div><div class="val" id="heroOccupancy">0%</div><div class="lbl">Asset Occupancy</div></div>
+      </div>
+      <div class="hero-stat-chip">
+        <div class="chip-icon chip-cyan">👁</div>
+        <div><div class="val" id="heroVisitors">0</div><div class="lbl">Monthly Visitors</div></div>
+      </div>
+      <div class="hero-stat-chip">
+        <div class="chip-icon chip-amber">⏳</div>
+        <div><div class="val" id="heroPending">0</div><div class="lbl">Pending Approvals</div></div>
+      </div>
+    </div>
+    
+  </div>
+</section>
+
+<!-- MAIN -->
+<main>
+  <!-- STATS -->
+  <div class="section-divider"></div>
+  <div class="stats-grid reveal">
+    <div class="stat-card" style="--card-accent: var(--accent-emerald);">
+      <div class="stat-card-glow"></div>
+      <div class="stat-label">Paid Campaigns</div>
+      <div class="stat-value" id="statActive">0</div>
+      <div class="stat-sub">Currently Running</div>
+      <div class="stat-trend trend-up" id="statActiveTrend">↑ Live</div>
+      <div class="stat-icon">📣</div>
+    </div>
+    <div class="stat-card" style="--card-accent: var(--accent-rose);">
+      <div class="stat-card-glow"></div>
+      <div class="stat-label">Booked Assets</div>
+      <div class="stat-value" id="statBooked">0</div>
+      <div class="stat-sub">Digital and Static</div>
+      <div class="stat-trend trend-down">📌 BO Signed</div>
+      <div class="stat-icon">📆</div>
+    </div>
+    <div class="stat-card" style="--card-accent: var(--accent-amber);">
+      <div class="stat-card-glow"></div>
+      <div class="stat-label">Pending Approvals</div>
+      <div class="stat-value" id="statPending">0</div>
+      <div class="stat-sub">Awaiting Clients</div>
+      <div class="stat-trend trend-pending">⏳ Pending</div>
+      <div class="stat-icon">📝</div>
+    </div>
+    <div class="stat-card" style="--card-accent: var(--accent-cyan);">
+      <div class="stat-card-glow"></div>
+      <div class="stat-label">Free Campaigns</div>
+      <div class="stat-value" id="statFree">0</div>
+      <div class="stat-sub">Free / Filler</div>
+      <div class="stat-trend trend-up">◌ Available</div>
+      <div class="stat-icon">💡</div>
+    </div>
+  </div>
+
+  <!-- CAMPAIGN UPDATES + BOOKING TABLE -->
+  <div class="reveal" style="margin-bottom: 2rem;">
+        <!-- UPDATES -->
+        <div class="card">
+            <div class="section-eyebrow">Activity</div>
+            <div class="section-title" style="font-size:22px;">Campaign Updates and Reminders</div>
+            <p class="section-sub">Track recent updates, monitor upcoming and ending campaigns, and important reminders.</p>
+            <div id="campaignUpdatesContainer"></div>
+        </div>
+  </div>
+  
+  <div class="reveal" style="margin-bottom: 2rem;">
+        <!-- BOOKING TABLE -->
+        <div class="card">
+        <div class="section-eyebrow">Schedule</div>
+        <div class="section-title" style="font-size:22px;">Campaign Booking</div>
+        <p class="section-sub">Manage and monitor campaign schedules.</p>
+
+        <div class="toolbar">
+            <div class="search-box">
+            <span style="color:var(--text-muted);font-size:14px;">🔍</span>
+            <input type="text" id="campaignSearch" placeholder="Search campaign, client, circuit…">
+            </div>
+            <div class="filter-box">
+            <select id="campaignStatusFilter">
+                <option value="">All Status</option>
+                <option value="Live">Live</option>
+                <option value="BO Signed">BO Signed</option>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+            <thead>
+                <tr>
+                <th>Client / Brand</th>
+                <th>Circuit</th>
+                <th>Dates</th>
+                <th>Status</th>
+                <th>Person</th>
+                </tr>
+            </thead>
+            <tbody id="campaignTableBody">
+                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">Loading campaigns…</td></tr>
+            </tbody>
+            </table>
+        </div>
+        </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card reveal" style="margin-bottom:2rem;">
+    <div class="section-eyebrow">Analytics</div>
+    <div class="section-title" style="font-size:22px;">Campaign Trends</div>
+    <p class="section-sub">Monthly activity insights across all booking statuses.</p>
+    <div class="chart-wrap">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <!-- NEW BOOKING FORM -->
+  <div class="card reveal booking-section" id="bookingFormSection">
+    <div class="section-eyebrow">New Campaign</div>
+    <div class="section-title" style="font-size:22px;">Create Booking</div>
+    <p class="section-sub">Add a new campaign to the schedule.</p>
+
+    <div style="margin-top:24px;">
+      <div class="form-grid">
+        <div class="field-group">
+          <label class="field-label">Client</label>
+          <input class="field-input" type="text" id="bookingClient" placeholder="Client name">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Brand Campaign</label>
+          <input class="field-input" type="text" id="bookingBrand" placeholder="Campaign name">
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <label class="field-label">Asset / Circuit</label>
+        <select class="field-input" id="bookingAsset">
+          <option value="">Select Circuit</option>
+        </select>
+      </div>
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="field-group">
+          <label class="field-label">Start Date</label>
+          <input class="field-input" type="date" id="bookingStartDate">
+        </div>
+        <div class="field-group">
+          <label class="field-label">End Date</label>
+          <input class="field-input" type="date" id="bookingEndDate">
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <label class="field-label">Total Days</label>
+        <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
+      </div>
+      <div class="booked-by-strip">
+        <span>Booked by</span>
+        <strong id="bookingPersonLabel">—</strong>
+      </div>
+      <div class="form-footer">
+        <button class="btn-form-cancel" id="clearFormBtn">Clear</button>
+        <button class="btn-form-save" id="confirmBookingBtn">Save Booking ✓</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-brand">Scoop Media &amp; Communication Co.</div>
+  <p class="footer-copy">OOH Campaign Intelligence Platform · © 2025</p>
+</footer>
+
+<!-- BOOKING MODAL (mobile) -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal-box">
+    <button class="modal-close" id="closeBookingModal">✕</button>
+    <div class="modal-title">New Campaign Booking</div>
+    <div class="modal-sub">Add a new booking to the schedule.</div>
+    <div style="margin-top:20px;">
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label">Client</label>
+        <input class="field-input" type="text" id="mBookingClient" placeholder="Client name">
+      </div>
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label">Brand Campaign</label>
+        <input class="field-input" type="text" id="mBookingBrand" placeholder="Campaign name">
+      </div>
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label">Asset / Circuit</label>
+        <select class="field-input" id="mBookingAsset"><option value="">Select Circuit</option></select>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Start Date</label>
+          <input class="field-input" type="date" id="mBookingStart">
+        </div>
+        <div>
+          <label class="field-label">End Date</label>
+          <input class="field-input" type="date" id="mBookingEnd">
+        </div>
+        <div style="margin-top:16px;">
+            <label class="field-label">Total Days</label>
+            <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
+        </div>
+
+      </div>
+      <div class="booked-by-strip" style="margin-top:14px;">
+        <span>Booked by</span>
+        <strong id="mBookingPerson">—</strong>
+      </div>
+      <div class="form-footer">
+        <button class="btn-form-cancel" id="closeBookingModal2">Cancel</button>
+        <button class="btn-form-save">Save Booking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR MODAL -->
+<div class="cal-modal-overlay" id="calendarModal">
+  <div class="cal-modal-box">
+    <div class="cal-modal-header">
+      <div>
+        <div class="cal-modal-title">OOH Campaign Calendar</div>
+        <p style="color:var(--text-muted);font-size:13px;margin-top:4px;">Live campaign schedules across all OOH assets</p>
+      </div>
+      <div class="cal-controls">
+        <input type="date" class="cal-date-input" id="calFrom">
+        <span style="color:var(--text-muted);font-size:13px;">→</span>
+        <input type="date" class="cal-date-input" id="calTo">
+        <button class="modal-close" id="closeCalModal" style="position:static;">✕</button>
+      </div>
+    </div>
+    <div class="cal-scroll">
+      <table id="bookingCalendar" class="booking-calendar"></table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script type="module">
+import { rtdb } from "./firebase/firebase.js";
+import { ref, get, push, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { requireAuth } from "./assets/js/authGuard.js";
+import { auth } from "./firebase/firebase.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+// AUTH
+requireAuth((user) => {
+  const name = user.displayName || user.email?.split("@")[0] || "User";
+  document.getElementById("navUser").textContent = name;
+  document.getElementById("bookingPersonLabel").textContent = name;
+  document.getElementById("mBookingPerson").textContent = name;
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  signOut(auth).then(() => { window.location.href = "./login.html"; });
+});
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTH_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function parseDate(v) {
+  if (!v) return null;
+  const p = v.toString().trim().split("/").map(x => parseInt(x,10));
+  if (p.length >= 3) return new Date(p[2]||new Date().getFullYear(), p[0]-1, p[1]);
+  if (p.length === 2) return new Date(new Date().getFullYear(), p[0]-1, p[1]);
+  return null;
+}
+
+function parseISOLocal(s) {
+  if (!s) return null;
+  const p = s.split("-").map(Number);
+  return new Date(p[0], p[1]-1, p[2]);
+}
+
+function toISO(d) {
+  if (!d) return "";
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function fmtShort(v) {
+  if (!v) return "—";
+  const p = v.trim().split("/").map(x => parseInt(x,10));
+  if (p.length < 2) return "—";
+  return `${p[1]} ${MONTHS[p[0]-1]||""}`;
+}
+
+function fmtCompact(n) {
+  return new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:1}).format(n);
+}
+
+function getStatusClass(s="") {
+  s = s.toLowerCase();
+  if (s.includes("live")) return "live";
+  if (s.includes("signed")) return "signed";
+  if (s.includes("pending")) return "pending";
+  if (s.includes("completed")) return "completed";
+  return "";
+}
+
+async function loadAll() {
+  try {
+    const snap = await get(ref(rtdb, "/"));
+    return snap.exists() ? snap.val() : {};
+  } catch(e) { console.error(e); return {}; }
+}
+
+let allCampaigns = [];
+let chartInstance = null;
+
+function getCampaigns(tables) {
+  const list = [];
+  const tableData = tables["Campaigns_Booking"];
+  if (!tableData) return list;
+  const rows = Array.isArray(tableData) ? tableData : Object.values(tableData);
+  rows.forEach(row => {
+    if (!row) return;
+    const sd = row["Start Date"]||""; const ed = row["End Date"]||"";
+    let sortDate = new Date(9999,0,1);
+    if (sd) { const p = sd.split("/").map(Number); sortDate = new Date(p[2]||new Date().getFullYear(),p[0]-1,p[1]); }
+    list.push({
+      client: row.Client||"—", brand: row["Brand Campaign"]||"—",
+      asset: row.Circuits||"—", status: row.Status||"BO Signed",
+      person: row.Person||"—", rawStartDate: sd, rawEndDate: ed,
+      date: `${fmtShort(sd)} → ${fmtShort(ed)}`, sortDate
+    });
+  });
+  return list.sort((a,b) => b.sortDate - a.sortDate);
+}
+
+function renderTable(campaigns) {
+  const tbody = document.getElementById("campaignTableBody");
+  if (!tbody) return;
+  if (!campaigns.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">No campaigns found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = campaigns.map(r => `
+    <tr>
+      <td><div class="client-name">${r.client}</div><div class="brand-name">${r.brand}</div></td>
+      <td style="color:var(--text-secondary);font-size:13px;">${r.asset}</td>
+      <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">${r.date}</td>
+      <td><span class="status-pill pill-${getStatusClass(r.status)}">${r.status}</span></td>
+      <td style="color:var(--text-muted);font-size:12px;">${r.person}</td>
+    </tr>
+  `).join("");
+}
+
+function updateStats(campaigns, tables) {
+  let live=0, booked=0, pending=0, free=0;
+  campaigns.forEach(c => {
+    const s = (c.status||"").toLowerCase();
+    if (s.includes("live")) live++;
+    if (s.includes("signed")) booked++;
+    if (s.includes("pending")) pending++;
+  });
+  Object.entries(tables).forEach(([k,v]) => {
+    if (!k.startsWith("d_") && !k.startsWith("s_")) return;
+    if (!v) return;
+    const rows = Array.isArray(v) ? v : Object.values(v);
+    rows.forEach(r => {
+      if (!r) return;
+      const bo = (r.BO||"").toString().toLowerCase();
+      if (bo.includes("free")||bo.includes("filler")) free++;
+    });
+  });
+  animateCounter("statActive", live);
+  animateCounter("statBooked", booked);
+  animateCounter("statPending", pending);
+  animateCounter("statFree", free);
+  animateCounter("heroLive", live);
+  animateCounter("heroPending", pending);
+}
+
+function animateCounter(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const duration = 1200;
+  const start = performance.now();
+  const from = parseInt(el.textContent)||0;
+  function step(now) {
+    const t = Math.min((now-start)/duration, 1);
+    const ease = 1 - Math.pow(1-t, 3);
+    el.textContent = Math.round(from + (target-from)*ease);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function updateAssetOccupancy(tables) {
+  const t = tables["oohassets"];
+  if (!t) return;
+  const rows = Array.isArray(t) ? t : Object.values(t);
+  let total=0, booked=0;
+  rows.forEach(r => {
+    if (!r) return;
+    const cleaned = {};
+    Object.keys(r).forEach(k => cleaned[k.trim()]=r[k]);
+    total += Number(cleaned.Slot||0);
+    booked += Number(cleaned["Booked Slot"]||0);
+  });
+  const pct = total > 0 ? Math.round(booked/total*100) : 0;
+  document.getElementById("heroOccupancy").textContent = pct + "%";
+}
+
+function updateMonthlyVisitors(tables) {
+  const vt = tables["vehiclecounts"]||tables["VehicleCounts"]||
+    Object.values(tables).find((v,i,a) => Object.keys(tables)[i]?.toLowerCase()==="vehiclecounts");
+  if (!vt) return;
+  const rows = Array.isArray(vt) ? vt : Object.values(vt);
+  const monthly = {};
+  rows.forEach(r => {
+    if (!r) return;
+    const raw = r.ContentDate||r.Date||"";
+    let d;
+    if (raw.includes("-")) { const p=raw.split("-").map(Number); d=new Date(p[0],p[1]-1,p[2]); }
+    else if (raw.includes("/")) { const p=raw.split("/").map(Number); d=new Date(p[2]||2025,p[0]-1,p[1]); }
+    else return;
+    if (!d||isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    const val = parseFloat(String(r.ContentTotal??r.Total??0).replace(/,/g,"").replace(/[^\d.-]/g,""))||0;
+    monthly[key] = (monthly[key]||0) + val;
+  });
+  const keys = Object.keys(monthly).sort();
+  if (!keys.length) return;
+  const latest = keys[keys.length-1];
+  const val = monthly[latest]||0;
+  document.getElementById("heroVisitors").textContent = fmtCompact(val);
+}
+
+function renderChart(campaigns) {
+  const canvas = document.getElementById("trendChart");
+  if (!canvas) return;
+  if (chartInstance) chartInstance.destroy();
+  const live=new Array(12).fill(0), booked=new Array(12).fill(0), completed=new Array(12).fill(0);
+  campaigns.forEach(c => {
+    const d = parseDate(c.rawStartDate);
+    if (!d) return;
+    const m = d.getMonth();
+    const s = (c.status||"").toLowerCase();
+    if (s.includes("live")) live[m]++;
+    else if (s.includes("signed")) booked[m]++;
+    else if (s.includes("completed")) completed[m]++;
+  });
+  const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+  const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
+  const labelColor = isDark ? "#5A6A8A" : "#6B7A99";
+  chartInstance = new Chart(canvas.getContext("2d"), {
+    type:"line",
+    data:{
+      labels:MONTHS,
+      datasets:[
+        {label:"Booked",data:booked,borderColor:"#F43F5E",backgroundColor:"rgba(244,63,94,0.08)",tension:0.45,fill:true,pointRadius:4,pointHoverRadius:7,borderWidth:2.5},
+        {label:"Live",data:live,borderColor:"#10B981",backgroundColor:"rgba(16,185,129,0.08)",tension:0.45,fill:true,pointRadius:4,pointHoverRadius:7,borderWidth:2.5},
+        {label:"Completed",data:completed,borderColor:"#0496ff",backgroundColor:"rgba(4,150,255,0.08)",tension:0.45,fill:true,pointRadius:4,pointHoverRadius:7,borderWidth:2.5}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{intersect:false,mode:"index"},
+      plugins:{
+        legend:{position:"top",align:"end",labels:{usePointStyle:true,pointStyle:"circle",padding:20,font:{family:"Space Grotesk",size:12,weight:"600"},color:labelColor}},
+        tooltip:{backgroundColor:isDark?"#0A1628":"white",borderColor:"rgba(79,70,229,0.2)",borderWidth:1,padding:14,cornerRadius:14,titleColor:isDark?"#F8FAFF":"#0A1628",bodyColor:isDark?"#94A3C0":"#3D4F6E",titleFont:{family:"Space Grotesk",size:13,weight:"700"},bodyFont:{family:"DM Sans",size:12}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:labelColor,font:{family:"Space Grotesk",weight:"600",size:11}}},
+        y:{beginAtZero:true,ticks:{precision:0,color:labelColor,font:{family:"DM Sans",size:11}},grid:{color:gridColor}}
+      },
+      animation:{duration:1200,easing:"easeOutQuart"}
+    }
+  });
+}
+
+function renderUpdates(campaigns, tables) {
+  const container = document.getElementById("campaignUpdatesContainer");
+  if (!container) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  function dateLabel(d, raw) {
+    const diff = Math.floor((d-today)/86400000);
+    if (diff===0) return "Today"; if (diff===1) return "Tomorrow";
+    if (diff===-1) return "Yesterday";
+    if (diff>1) return `In ${diff}d`; if (diff<-1) return fmtShort(raw);
+    return fmtShort(raw);
+  }
+  const groups = {published:[],removed:[],upcoming:[],ending:[]};
+  const logs = tables?.Campaign_Logs||tables?.campaign_logs||{};
+  Object.values(logs).forEach(log => {
+    const raw = log.Date||log.date; const type = (log.Type||log.type||"").toLowerCase();
+    if (!raw||!type) return;
+    const d = parseDate(raw); if (!d) return;
+    d.setHours(0,0,0,0);
+    const diff = Math.floor((d-today)/86400000);
+    if (diff<-3||diff>0) return;
+    if (type==="add") groups.published.push({label:dateLabel(d,raw),brand:log.Client||"-",asset:log.Circuits||"-",sortDate:d});
+    if (type==="removed") groups.removed.push({label:dateLabel(d,raw),brand:log.Client||"-",asset:log.Circuits||"-",sortDate:d});
+  });
+  campaigns.forEach(c => {
+    const sd = parseDate(c.rawStartDate); const ed = parseDate(c.rawEndDate);
+    if (!sd) return; sd.setHours(0,0,0,0); if (ed) ed.setHours(0,0,0,0);
+    const sdiff = Math.floor((sd-today)/86400000);
+    const ediff = ed ? Math.floor((ed-today)/86400000) : 999;
+    const s = (c.status||"").toLowerCase();
+    if (!(s.includes("signed")||s.includes("pending"))) return;
+    if ((sdiff>=0&&sdiff<=30)||(sdiff<0&&ediff>=0)) {
+      groups.upcoming.push({label:dateLabel(sd,c.rawStartDate),statusCls:getStatusClass(c.status),statusLabel:c.status,brand:c.brand||c.client,asset:c.asset,person:c.person,sortDate:sd});
+    }
+  });
+  Object.values(groups).forEach(g => g.sort((a,b)=>b.sortDate-a.sortDate));
+  function card(id, title, dotCls, items) {
+    const body = items.length ? items.map((u,i) => `
+      <div class="update-item" style="animation-delay:${i*0.05}s">
+        <div>
+          <div class="update-item-label">${u.brand}</div>
+          <div class="update-item-sub">${u.asset}</div>
+          ${id==="upcoming"&&u.statusLabel?`<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`:""}
+        </div>
+        <div class="update-date-badge">${u.label}</div>
+      </div>
+    `).join("") : `<div style="padding:14px 0;font-size:12px;color:var(--text-muted);">No updates</div>`;
+    return `
+      <div class="update-card">
+        <div class="update-card-head ${id}">
+          <div>
+            <div class="update-title">${title}</div>
+            <div class="update-count">${items.length} campaign${items.length!==1?"s":""}</div>
+          </div>
+          <div class="update-dot ${dotCls}"></div>
+        </div>
+        <div class="update-body">${body}</div>
+      </div>
+    `;
+  }
+  container.innerHTML = `
+    <div class="update-cards-grid">
+      ${card("published","Published","dot-green",groups.published)}
+      ${card("removed","Removed","dot-red",groups.removed)}
+      ${card("upcoming","Upcoming","dot-amber",groups.upcoming)}
+      ${card("ending","Ending","dot-cyan",groups.ending)}
+    </div>
+  `;
+}
+
+// FILTERS
+let drpStart = null, drpEnd = null;
+function setDefaultDateRange() {
+  const n = new Date();
+  drpStart = new Date(n.getFullYear(), n.getMonth(), 1);
+  drpEnd = new Date(n.getFullYear(), n.getMonth()+1, 0);
+}
+setDefaultDateRange();
+
+function applyFilters() {
+  const search = (document.getElementById("campaignSearch")?.value||"").toLowerCase();
+  const status = document.getElementById("campaignStatusFilter")?.value||"";
+  let f = [...allCampaigns];
+  if (search) f = f.filter(c => [c.client,c.brand,c.asset,c.status,c.person].join(" ").toLowerCase().includes(search));
+  if (drpStart && drpEnd) {
+    const lo = drpStart < drpEnd ? drpStart : drpEnd;
+    const hi = drpStart < drpEnd ? drpEnd : drpStart;
+    f = f.filter(c => { const d = parseDate(c.rawStartDate); return d && d>=lo && d<=hi; });
+  }
+  if (status) f = f.filter(c => (c.status||"").toLowerCase().trim() === status.toLowerCase().trim());
+  renderTable(f);
+}
+
+document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
+document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
+
+// ASSET DROPDOWN
+function populateAssets(tables) {
+  const t = tables["oohassets"]; if (!t) return;
+  const rows = Array.isArray(t) ? t : Object.values(t);
+  const circuits = [...new Set(rows.map(r=>r.Circuits).filter(Boolean))].sort();
+  const opts = `<option value="">Select Asset</option>${circuits.map(c=>`<option value="${c}">${c}</option>`).join("")}`;
+  const els = ["bookingAsset","mBookingAsset"];
+  els.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = opts; });
+}
+
+// DATE CALCULATOR
+function initDateCalc() {
+  const s = document.getElementById("bookingStartDate");
+  const e = document.getElementById("bookingEndDate");
+  const t = document.getElementById("bookingTotalDays");
+  if (!s||!e||!t) return;
+  function calc() {
+    if (!s.value||!e.value) { t.value=""; return; }
+    const diff = Math.floor((new Date(e.value)-new Date(s.value))/86400000)+1;
+    t.value = diff>0 ? `${diff} Day${diff>1?"s":""}` : "Invalid dates";
+  }
+  s.addEventListener("change",calc);
+  e.addEventListener("change",calc);
+}
+
+// BOOKING MODAL
+const bookingModal = document.getElementById("bookingModal");
+["openBookingBtn","openBookingBtnHero"].forEach(id => {
+  document.getElementById(id)?.addEventListener("click", () => bookingModal.classList.add("active"));
+});
+["closeBookingModal","closeBookingModal2"].forEach(id => {
+  document.getElementById(id)?.addEventListener("click", () => bookingModal.classList.remove("active"));
+});
+bookingModal.addEventListener("click", e => { if (e.target===bookingModal) bookingModal.classList.remove("active"); });
+
+// CLEAR FORM
+document.getElementById("clearFormBtn")?.addEventListener("click", () => {
+  ["bookingClient","bookingBrand","bookingStartDate","bookingEndDate","bookingTotalDays"].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value="";
+  });
+  const a = document.getElementById("bookingAsset"); if (a) a.selectedIndex=0;
+});
+
+// SAVE BOOKING
+document.getElementById("confirmBookingBtn")?.addEventListener("click", async () => {
+  const client = document.getElementById("bookingClient")?.value;
+  const brand = document.getElementById("bookingBrand")?.value;
+  const asset = document.getElementById("bookingAsset")?.value;
+  const start = document.getElementById("bookingStartDate")?.value;
+  const end = document.getElementById("bookingEndDate")?.value;
+  const person = document.getElementById("bookingPersonLabel")?.textContent;
+  if (!client||!brand||!asset||!start||!end) { alert("Please fill in all fields."); return; }
+  const btn = document.getElementById("confirmBookingBtn");
+  btn.textContent = "Saving…"; btn.disabled = true;
+  function toMMDDYYYY(iso) {
+    const p = iso.split("-"); return `${p[1]}/${p[2]}/${p[0]}`;
+  }
+  try {
+    await push(ref(rtdb,"Campaigns_Booking"), {
+      Client: client, "Brand Campaign": brand, Circuits: asset,
+      "Start Date": toMMDDYYYY(start), "End Date": toMMDDYYYY(end),
+      Status: "Pending", Person: person
+    });
+    btn.textContent = "Saved! ✓";
+    setTimeout(() => { btn.textContent = "Save Booking ✓"; btn.disabled = false; }, 2000);
+  } catch(e) { console.error(e); btn.textContent = "Error — try again"; btn.disabled = false; }
+});
+
+// CALENDAR
+const calModal = document.getElementById("calendarModal");
+["openCalBtn","openCalBtnHero"].forEach(id => {
+  document.getElementById(id)?.addEventListener("click", async () => {
+    calModal.classList.add("active");
+    const ci = document.getElementById("calFrom");
+    const ci2 = document.getElementById("calTo");
+    if (!ci.value) {
+      const n = new Date();
+      ci.value = toISO(new Date(n.getFullYear(), n.getMonth(), 1));
+      ci2.value = toISO(new Date(n.getFullYear(), n.getMonth()+1, 0));
+    }
+    await buildCalendar();
+  });
+});
+document.getElementById("closeCalModal")?.addEventListener("click", () => calModal.classList.remove("active"));
+calModal.addEventListener("click", e => { if (e.target===calModal) calModal.classList.remove("active"); });
+document.getElementById("calFrom")?.addEventListener("change", buildCalendar);
+document.getElementById("calTo")?.addEventListener("change", buildCalendar);
+
+async function buildCalendar() {
+  const table = document.getElementById("bookingCalendar");
+  if (!table) return;
+  const ciFrom = document.getElementById("calFrom"); const ciTo = document.getElementById("calTo");
+  const startD = ciFrom?.value ? parseISOLocal(ciFrom.value) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const endD = ciTo?.value ? parseISOLocal(ciTo.value) : new Date(new Date().getFullYear(), new Date().getMonth()+1, 0);
+  let [circuitSlots, bookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
+  if (!circuitSlots.length) { table.innerHTML = `<tr><td style="padding:20px;text-align:center;color:var(--text-muted);">No circuits found</td></tr>`; return; }
+  const dates = [];
+  const cur = new Date(startD);
+  while (cur <= endD) { dates.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
+  const today = new Date(); today.setHours(0,0,0,0);
+  table.innerHTML = "";
+  const thead = document.createElement("thead");
+  const hrow = document.createElement("tr");
+  hrow.innerHTML = `<th class="circuit-col head">Circuit</th><th class="slot-col head">Slot</th>`;
+  dates.forEach(d => {
+    const th = document.createElement("th");
+    th.className = "date-head" + (d.toDateString()===today.toDateString() ? " today-head" : "");
+    th.innerHTML = `${d.toLocaleDateString("en",{month:"short"})}<br>${d.getDate()}`;
+    hrow.appendChild(th);
+  });
+  thead.appendChild(hrow); table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  circuitSlots.forEach(circuit => {
+    for (let slot=1; slot<=circuit.slots; slot++) {
+      const tr = document.createElement("tr");
+      if (slot===1) {
+        const td = document.createElement("td");
+        td.className="circuit-col"; td.rowSpan=circuit.slots; td.textContent=circuit.name;
+        tr.appendChild(td);
+      }
+      const st = document.createElement("td");
+      st.className="slot-col"; st.textContent=`Slot ${slot}`; tr.appendChild(st);
+      dates.forEach(d => {
+        const td = document.createElement("td");
+        td.dataset.date = toISO(d); tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+  });
+  table.appendChild(tbody);
+  requestAnimationFrame(() => renderBars(bookings, dates, startD, endD));
+}
+
+function renderBars(bookings, dates, startD, endD) {
+  startD.setHours(0,0,0,0); endD.setHours(0,0,0,0);
+  const rows = document.querySelectorAll("#bookingCalendar tbody tr");
+  bookings.forEach(b => {
+    const start = parseDate(b["Start Date"]||b.startDate);
+    const end = parseDate(b["End Date"]||b.endDate);
+    if (!start||!end) return;
+    start.setHours(0,0,0,0); end.setHours(0,0,0,0);
+    const asset = (b.Circuits||b.Circuit||"").toLowerCase().replace(/[_-]/g," ").trim();
+    const slotVal = Number(b.Slot||b.slot||1);
+    const client = b.Client||"Booking";
+    const brand = b["Brand Campaign"]||"";
+    const status = (b.Status||"").toLowerCase();
+    rows.forEach(row => {
+      const slotCell = row.querySelector(".slot-cell,.slot-col:not(.head)");
+      if (!slotCell) return;
+      let rowCircuit = "";
+      const cc = row.querySelector(".circuit-col:not(.head)");
+      if (cc) rowCircuit = cc.textContent.trim();
+      else {
+        let prev = row.previousElementSibling;
+        while (prev && !rowCircuit) { const c2=prev.querySelector(".circuit-col:not(.head)"); if (c2) rowCircuit=c2.textContent.trim(); prev=prev.previousElementSibling; }
+      }
+      const rc = rowCircuit.toLowerCase().replace(/[_-]/g," ").trim();
+      if (!rc.includes(asset) && !asset.includes(rc)) return;
+      const rowSlot = parseInt(slotCell.textContent.replace("Slot","").trim(),10);
+      if (rowSlot !== slotVal) return;
+      const cells = Array.from(row.querySelectorAll("td[data-date]"));
+      let si = cells.findIndex(td => td.dataset.date === toISO(start));
+      let ei = cells.findIndex(td => td.dataset.date === toISO(end));
+      if (si===-1 && start<startD) si=0;
+      if (ei===-1 && end>endD) ei=cells.length-1;
+      if (si===-1||ei===-1) return;
+      const bar = document.createElement("div");
+      bar.className = "booking-bar";
+      if (status.includes("live")) bar.classList.add("live");
+      else if (status.includes("signed")) bar.classList.add("signed");
+      else if (status.includes("pending")) bar.classList.add("pending");
+      else bar.classList.add("completed");
+      bar.style.width = `calc(${(ei-si+1)*100}% + ${ei-si}px)`;
+      bar.textContent = brand ? `${client} | ${brand}` : client;
+      cells[si].style.position = "relative";
+      cells[si].appendChild(bar);
+    });
+  });
+}
+
+async function loadCircuitSlots() {
+  try {
+    const snap = await get(ref(rtdb,"oohassets"));
+    if (!snap.exists()) return [];
+    const d = snap.val();
+    const rows = Array.isArray(d) ? d : Object.values(d);
+    return rows.filter(r=>r&&r.Circuits).map(r=>({name:r.Circuits.trim(),slots:parseInt(r.Slot||1,10)}));
+  } catch(e) { return []; }
+}
+
+async function loadBookings() {
+  try {
+    const snap = await get(ref(rtdb,"Campaigns_Booking"));
+    if (!snap.exists()) return [];
+    const d = snap.val();
+    return Array.isArray(d) ? d : Object.values(d);
+  } catch(e) { return []; }
+}
+
+// INIT
+async function init() {
+  const tables = await loadAll();
+  window.__tables = tables;
+  allCampaigns = getCampaigns(tables);
+  applyFilters();
+  renderChart(allCampaigns);
+  updateStats(allCampaigns, tables);
+  updateAssetOccupancy(tables);
+  updateMonthlyVisitors(tables);
+  renderUpdates(allCampaigns, tables);
+  populateAssets(tables);
+  initDateCalc();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+
+<script>
+// SCROLL PROGRESS
+window.addEventListener("scroll", () => {
+  const p = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById("scroll-progress").style.width = p + "%";
+});
+
+// CUSTOM CURSOR (desktop only)
+const cursor = document.getElementById("cursor");
+const cursorRing = document.getElementById("cursor-ring");
+let mouseX=0, mouseY=0, ringX=0, ringY=0;
+if (window.innerWidth > 900) {
+  document.addEventListener("mousemove", e => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    cursor.style.left = mouseX + "px"; cursor.style.top = mouseY + "px";
+  });
+  setInterval(() => {
+    ringX += (mouseX - ringX) * 0.15;
+    ringY += (mouseY - ringY) * 0.15;
+    cursorRing.style.left = ringX + "px"; cursorRing.style.top = ringY + "px";
+  }, 16);
+  document.querySelectorAll("button,a,input,select,.stat-card,.hero-stat-chip").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+      cursor.style.width = "24px"; cursor.style.height = "24px";
+      cursorRing.style.width = "52px"; cursorRing.style.height = "52px";
+    });
+    el.addEventListener("mouseleave", () => {
+      cursor.style.width = "16px"; cursor.style.height = "16px";
+      cursorRing.style.width = "36px"; cursorRing.style.height = "36px";
+    });
+  });
+} else {
+  cursor.style.display = "none"; cursorRing.style.display = "none";
+}
+
+// HERO CANVAS PARTICLES
+const canvas = document.getElementById("hero-canvas");
+const ctx = canvas.getContext("2d");
+let W, H, particles = [];
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = canvas.parentElement.offsetHeight || window.innerHeight; }
+resize();
+window.addEventListener("resize", () => { resize(); initParticles(); });
+function Particle() {
+  this.x = Math.random()*W; this.y = Math.random()*H;
+  this.vx = (Math.random()-0.5)*0.4; this.vy = (Math.random()-0.5)*0.4;
+  this.r = Math.random()*1.5+0.5;
+  this.alpha = Math.random()*0.5+0.1;
+}
+Particle.prototype.update = function() {
+  this.x += this.vx; this.y += this.vy;
+  if (this.x<0) this.x=W; if (this.x>W) this.x=0;
+  if (this.y<0) this.y=H; if (this.y>H) this.y=0;
+};
+function initParticles() {
+  const count = Math.floor(W*H/12000);
+  particles = Array.from({length:count}, () => new Particle());
+}
+initParticles();
+let mouseHero = {x:W/2,y:H/2};
+canvas.parentElement.addEventListener("mousemove", e => { mouseHero.x=e.clientX; mouseHero.y=e.clientY; });
+function drawParticles() {
+  const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = isDark ? `rgba(99,102,241,${p.alpha})` : `rgba(79,70,229,${p.alpha*0.6})`;
+    ctx.fill();
+    p.update();
+  });
+  const maxDist = 120;
+  for (let i=0;i<particles.length;i++) {
+    const dx = particles[i].x - mouseHero.x;
+    const dy = particles[i].y - mouseHero.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if (dist < maxDist) {
+      ctx.beginPath();
+      ctx.moveTo(particles[i].x, particles[i].y);
+      ctx.lineTo(mouseHero.x, mouseHero.y);
+      const alpha = (1 - dist/maxDist) * (isDark ? 0.3 : 0.15);
+      ctx.strokeStyle = `rgba(79,70,229,${alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// THEME TOGGLE
+const themeBtn = document.getElementById("themeToggle");
+const logoImg = document.getElementById("loginLogo");
+themeBtn.addEventListener("click", () => {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+  themeBtn.textContent = isDark ? "☽" : "☀";
+  logoImg.src = isDark ? "images/scooplogo.png" : "images/scooplogo_white.png";
+  
+});
+
+// SCROLL REVEAL
+const reveals = document.querySelectorAll(".reveal");
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
+}, {threshold:0.1, rootMargin:"0px 0px -40px 0px"});
+reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
