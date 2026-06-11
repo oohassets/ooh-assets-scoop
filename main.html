@@ -643,7 +643,7 @@ table.data-table td:last-child{border-radius:0 12px 12px 0;}
   text-align:left;padding:0 12px;
 }
 .slot-col{
-  position:sticky;left:200px;z-index:4;
+  position:sticky;z-index:4;
   width:70px;min-width:70px;
   background:var(--bg-tertiary);
   font-size:11px;color:var(--text-muted);
@@ -659,10 +659,10 @@ table.data-table td:last-child{border-radius:0 12px 12px 0;}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   color:rgba(0,0,0,0.8);
 }
-.booking-bar.live{background:rgba(16,185,129,0.7);}
-.booking-bar.signed{background:rgba(244,63,94,0.7);color:white;}
-.booking-bar.pending{background:rgba(245,158,11,0.7);}
-.booking-bar.completed{background:rgba(6,182,212,0.7);}
+.booking-bar.live{background:var(--accent-emerald);}
+.booking-bar.signed{background:var(--accent-rose);color:white;}
+.booking-bar.pending{background:var(--accent-amber);}
+.booking-bar.completed{background:var(--accent-cyan);color:white}
 
 /* FOOTER */
 footer{
@@ -755,12 +755,13 @@ footer{
     </p>
     <div class="hero-cta">
       <button class="btn-cta-primary" id="openBookingBtnHero">
-        Create Booking
+        Get Started Booking
         <span class="btn-arrow">→</span>
       </button>
       <button class="btn-cta-secondary" id="openCalBtnHero">
-        View Live Calendar
-        <span style="opacity:0.6;font-size:12px;">↗</span>
+        View Calendar
+        <span class="btn-arrow">↗</span>
+        <!--<span style="opacity:0.6;font-size:14px;">↗</span>-->
       </button>
     </div>
 
@@ -890,68 +891,68 @@ footer{
   </div>
 
   <!-- BOOKING FORM -->
-  <div class="modal-overlay" id="bookingModal"> 
+  <div class="modal-overlay" id="bookingModal">
+
     <div class="modal-box">
-    <button class="modal-close" id="closeBookingModal">✕</button>
-    <div class="modal-title">Create Campaign Booking</div>
-    <div class="modal-sub">Add a new booking to the schedule.</div>
+      <button class="modal-close" id="closeBookingModal">✕</button>
+      <div class="modal-title">Create Campaign Booking</div>
+      <div class="modal-sub" style="margin-bottom:24px;">Add a new booking to the schedule.</div>
 
-    <div style="margin-top:24px;">
 
-        <div class="field-group" style="margin-bottom:14px;">
-          <label class="field-label">Booking Order No</label>
-          <input class="field-input" type="text" id="bookingOrder" placeholder="BO-0000">
-        </div>
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label">Booking Order No</label>
+        <input class="field-input" type="text" id="bookingOrder" placeholder="BO-0000">
+      </div>
       
-        <div class="field-group" style="margin-bottom:14px;">
-          <label class="field-label">Client</label>
-          <input class="field-input" type="text" id="bookingClient" placeholder="Client name">
-        </div>
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label">Client</label>
+        <input class="field-input" type="text" id="bookingClient" placeholder="Client name">
+      </div>
 
-        <div class="field-group" style="margin-bottom:14px;">
-          <label class="field-label">Brand Campaign</label>
-          <input class="field-input" type="text" id="bookingBrand" placeholder="Campaign name">
-        </div>
+      <div class="field-group" style="margin-bottom:14px;">
+        <label class="field-label">Brand Campaign</label>
+        <input class="field-input" type="text" id="bookingBrand" placeholder="Campaign name">
+      </div>
       
-        <div style="margin-top:16px;">
-            <label class="field-label">Asset / Circuit</label>
-            <select class="field-input" id="bookingAsset">
-            <option value="">Select Circuit</option>
-            </select>
-        </div>
+      <div style="margin-top:16px;">
+        <label class="field-label">Asset / Circuit</label>
+        <select class="field-input" id="bookingAsset">
+          <option value="">Select Circuit</option>
+        </select>
+      </div>
 
-        <div class="form-grid" style="margin-top:16px;">
-            <div class="field-group">
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="field-group">
             <label class="field-label">Start Date</label>
             <input class="field-input" type="date" id="bookingStartDate">
-            </div>
-            <div class="field-group">
-            <label class="field-label">End Date</label>
-            <input class="field-input" type="date" id="bookingEndDate">
-            </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">End Date</label>
+          <input class="field-input" type="date" id="bookingEndDate">
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="field-group">
+          <label class="field-label">Total Days</label>
+          <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Slot</label>
+            <input class="field-input" type="text" id="bookingSlot" readonly placeholder="Assigned automatically">
         </div>
 
-        <div class="form-grid" style="margin-top:16px;">
-            <div class="field-group">
-                <label class="field-label">Total Days</label>
-                <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
-            </div>
-            <div class="field-group">
-                <label class="field-label">Slot</label>
-                <input class="field-input" type="text" id="bookingSlot" readonly placeholder="Assigned automatically">
-            </div>
+      </div>
 
-        </div>
+      <div class="booked-by-strip">
+        <span>Booked by</span>
+        <strong id="bookingPersonLabel">—</strong>
+      </div>
 
-        <div class="booked-by-strip">
-            <span>Booked by</span>
-            <strong id="bookingPersonLabel">—</strong>
-        </div>
-
-        <div class="form-footer">
-            <button class="btn-form-cancel" id="clearFormBtn">Clear</button>
-            <button class="btn-form-save" id="confirmBookingBtn">Save Booking ✓</button>
-        </div>
+      <div class="form-footer">
+        <button class="btn-form-cancel" id="clearFormBtn">Clear</button>
+        <button class="btn-form-save" id="confirmBookingBtn">Save Booking ✓</button>
+      </div>
 
     </div>
 
@@ -1359,30 +1360,163 @@ document.getElementById("clearFormBtn")?.addEventListener("click", () => {
   const a = document.getElementById("bookingAsset"); if (a) a.selectedIndex=0;
 });
 
-// SAVE BOOKING
-document.getElementById("confirmBookingBtn")?.addEventListener("click", async () => {
-  const booking = document.getElementById("bookingOrder")?.value;  
-  const client = document.getElementById("bookingClient")?.value;
-  const brand = document.getElementById("bookingBrand")?.value;
-  const asset = document.getElementById("bookingAsset")?.value;
-  const start = document.getElementById("bookingStartDate")?.value;
-  const end = document.getElementById("bookingEndDate")?.value;
-  const person = document.getElementById("bookingPersonLabel")?.textContent;
-  if (!client||!brand||!asset||!start||!end) { alert("Please fill in all fields."); return; }
-  const btn = document.getElementById("confirmBookingBtn");
-  btn.textContent = "Saving…"; btn.disabled = true;
-  function toMMDDYYYY(iso) {
-    const p = iso.split("-"); return `${p[1]}/${p[2]}/${p[0]}`;
+// ── SLOT AUTO-ASSIGN ──────────────────────────────────────────────────────────
+// Called whenever asset/start/end changes. Finds the lowest slot number for
+// the chosen circuit that has NO overlapping booking in Campaigns_Booking.
+async function autoAssignSlot() {
+  const asset   = document.getElementById("bookingAsset")?.value;
+  const startEl = document.getElementById("bookingStartDate");
+  const endEl   = document.getElementById("bookingEndDate");
+  const slotEl  = document.getElementById("bookingSlot");
+  if (!slotEl) return;
+
+  if (!asset || !startEl?.value || !endEl?.value) {
+    slotEl.value = "";
+    return;
   }
+
+  slotEl.value = "Checking…";
+
+  const newStart = parseISOLocal(startEl.value);
+  const newEnd   = parseISOLocal(endEl.value);
+  if (!newStart || !newEnd || newStart > newEnd) {
+    slotEl.value = "Invalid dates";
+    return;
+  }
+  newStart.setHours(0,0,0,0);
+  newEnd.setHours(0,0,0,0);
+
   try {
-    await push(ref(rtdb,"Campaigns_Booking"), {
-      BO: booking, Client: client, "Brand Campaign": brand, Circuits: asset,
-      "Start Date": toMMDDYYYY(start), "End Date": toMMDDYYYY(end),
-      Status: "Pending", Person: person
+    // 1. How many slots does this circuit have?
+    const assetSnap = await get(ref(rtdb, "oohassets"));
+    let maxSlots = 1;
+    if (assetSnap.exists()) {
+      const rows = Object.values(assetSnap.val());
+      const match = rows.find(r => r && (r.Circuits||"").trim().toLowerCase() === asset.trim().toLowerCase());
+      if (match) maxSlots = parseInt(match.Slot || 1, 10);
+    }
+
+    // 2. Get all existing bookings for this circuit
+    const bookSnap = await get(ref(rtdb, "Campaigns_Booking"));
+    const bookedSlots = new Set();
+
+    if (bookSnap.exists()) {
+      const bookings = Object.values(bookSnap.val());
+      bookings.forEach(b => {
+        if (!b) return;
+        const bc = (b.Circuits || "").trim().toLowerCase();
+        if (bc !== asset.trim().toLowerCase()) return;
+
+        const bStart = parseDate(b["Start Date"]);
+        const bEnd   = parseDate(b["End Date"]);
+        if (!bStart || !bEnd) return;
+        bStart.setHours(0,0,0,0);
+        bEnd.setHours(0,0,0,0);
+
+        // Overlap check: newStart <= bEnd && newEnd >= bStart
+        if (newStart <= bEnd && newEnd >= bStart) {
+          const s = parseInt(b.Slot || 1, 10);
+          bookedSlots.add(s);
+        }
+      });
+    }
+
+    // 3. Find first available slot
+    let assigned = null;
+    for (let s = 1; s <= maxSlots; s++) {
+      if (!bookedSlots.has(s)) { assigned = s; break; }
+    }
+
+    slotEl.value = assigned !== null ? `Slot ${assigned}` : "No slots available";
+  } catch(e) {
+    console.error("Slot check error:", e);
+    slotEl.value = "Error";
+  }
+}
+
+// Wire slot auto-assign to asset + date changes
+["bookingAsset","bookingStartDate","bookingEndDate"].forEach(id => {
+  document.getElementById(id)?.addEventListener("change", autoAssignSlot);
+});
+
+
+// ── SAVE BOOKING ───
+document.getElementById("confirmBookingBtn")?.addEventListener("click", async () => {
+  const booking = document.getElementById("bookingOrder")?.value;
+  const client  = document.getElementById("bookingClient")?.value?.trim();
+  const brand   = document.getElementById("bookingBrand")?.value?.trim();
+  const asset   = document.getElementById("bookingAsset")?.value;
+  const start   = document.getElementById("bookingStartDate")?.value;
+  const end     = document.getElementById("bookingEndDate")?.value;
+  const slotRaw = document.getElementById("bookingSlot")?.value || "";
+  const person  = document.getElementById("bookingPersonLabel")?.textContent?.trim();
+
+  if (!client||!brand||!asset||!start||!end) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+
+  const slotNum = parseInt(slotRaw.replace(/\D/g,""), 10);
+  if (!slotRaw || isNaN(slotNum) || slotRaw.toLowerCase().includes("no slots")) {
+    alert("No available slot for the selected circuit and date range.");
+    return;
+  }
+
+  const btn = document.getElementById("confirmBookingBtn");
+  btn.textContent = "Saving…";
+  btn.disabled = true;
+
+  function toMMDDYYYY(iso) {
+    const p = iso.split("-");
+    return `${p[1]}/${p[2]}/${p[0]}`;
+  }
+
+  try {
+    // ── Sequential key: total rows + 1 ──────────────────────────────────────
+    const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
+    let nextKey = 1;
+    if (existingSnap.exists()) {
+      const val = existingSnap.val();
+      nextKey = (Array.isArray(val) ? val.filter(Boolean).length : Object.keys(val).length);
+    }
+
+    await set(ref(rtdb, `Campaigns_Booking/${nextKey}`), {
+      BO:               booking,
+      Client:           client,
+      "Brand Campaign": brand,
+      Circuits:         asset,
+      Slot:             slotNum,
+      "Start Date":     toMMDDYYYY(start),
+      "End Date":       toMMDDYYYY(end),
+      Status:           "Pending",
+      Person:           person
     });
+
     btn.textContent = "Saved! ✓";
-    setTimeout(() => { btn.textContent = "Save Booking ✓"; btn.disabled = false; }, 2000);
-  } catch(e) { console.error(e); btn.textContent = "Error — try again"; btn.disabled = false; }
+    // Refresh campaign list
+    const tables = await loadAll();
+    window.__tables = tables;
+    allCampaigns = getCampaigns(tables);
+    applyFilters();
+    renderUpdates(allCampaigns, tables);
+    updateStats(allCampaigns, tables);
+
+    setTimeout(() => {
+      btn.textContent = "Save Booking ✓";
+      btn.disabled = false;
+      // Reset form
+      ["bookingClient","bookingBrand","bookingStartDate","bookingEndDate","bookingTotalDays","bookingSlot"].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = "";
+      });
+      const a = document.getElementById("bookingAsset"); if (a) a.selectedIndex = 0;
+      document.getElementById("bookingModal")?.classList.remove("active");
+    }, 1500);
+
+  } catch(e) {
+    console.error(e);
+    btn.textContent = "Error — try again";
+    btn.disabled = false;
+  }
 });
 
 // CALENDAR
@@ -1463,6 +1597,7 @@ function renderBars(bookings, dates, startD, endD) {
     const client = b.Client||"Booking";
     const brand = b["Brand Campaign"]||"";
     const status = (b.Status||"").toLowerCase();
+    const person = b.Person ||""
     rows.forEach(row => {
       const slotCell = row.querySelector(".slot-cell,.slot-col:not(.head)");
       if (!slotCell) return;
@@ -1490,7 +1625,7 @@ function renderBars(bookings, dates, startD, endD) {
       else if (status.includes("pending")) bar.classList.add("pending");
       else bar.classList.add("completed");
       bar.style.width = `calc(${(ei-si+1)*100}% + ${ei-si}px)`;
-      bar.textContent = brand ? `${client} | ${brand}` : client;
+      bar.textContent = brand ? `${client} | ${brand} - ${person}` : client;
       cells[si].style.position = "relative";
       cells[si].appendChild(bar);
     });
