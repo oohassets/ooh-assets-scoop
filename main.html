@@ -1364,7 +1364,6 @@ const bookingModal = document.getElementById("bookingModal");
 ["closeBookingModal","closeBookingModal2"].forEach(id => {
   document.getElementById(id)?.addEventListener("click", () => bookingModal.classList.remove("active"));
 });
-bookingModal.addEventListener("click", e => { if (e.target===bookingModal) bookingModal.classList.remove("active"); });
 
 // CLEAR FORM
 document.getElementById("clearFormBtn")?.addEventListener("click", () => {
@@ -1549,7 +1548,6 @@ const calModal = document.getElementById("calendarModal");
   });
 });
 document.getElementById("closeCalModal")?.addEventListener("click", () => calModal.classList.remove("active"));
-calModal.addEventListener("click", e => { if (e.target===calModal) calModal.classList.remove("active"); });
 document.getElementById("calFrom")?.addEventListener("change", buildCalendar);
 document.getElementById("calTo")?.addEventListener("change", buildCalendar);
 
