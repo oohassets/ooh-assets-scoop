@@ -726,7 +726,7 @@ footer{
   <div class="nav-actions">
     <div class="nav-badge">
       <span class="dot"></span>
-      <span id="navUser">Platform</span>
+      <span id="navUser">User</span>
     </div>
     <button class="btn-nav btn-nav-outline" id="openBookingBtn">+ New Booking</button>
     <button class="btn-nav btn-nav-primary" id="openCalBtn">View Calendar</button>
@@ -889,106 +889,81 @@ footer{
     </div>
   </div>
 
-  <!-- NEW BOOKING FORM -->
-  <div class="card reveal booking-section" id="bookingFormSection">
-    <div class="section-eyebrow">New Campaign</div>
-    <div class="section-title" style="font-size:22px;">Create Booking</div>
-    <p class="section-sub">Add a new campaign to the schedule.</p>
+  <!-- BOOKING FORM -->
+  <div class="modal-overlay" id="bookingModal"> 
+    <div class="modal-box">
+    <button class="modal-close" id="closeBookingModal">✕</button>
+    <div class="modal-title">Create Campaign Booking</div>
+    <div class="modal-sub">Add a new booking to the schedule.</div>
 
     <div style="margin-top:24px;">
-      <div class="form-grid">
-        <div class="field-group">
+
+        <div class="field-group" style="margin-bottom:14px;">
+          <label class="field-label">Booking Order No</label>
+          <input class="field-input" type="text" id="bookingOrder" placeholder="BO-0000">
+        </div>
+      
+        <div class="field-group" style="margin-bottom:14px;">
           <label class="field-label">Client</label>
           <input class="field-input" type="text" id="bookingClient" placeholder="Client name">
         </div>
-        <div class="field-group">
+
+        <div class="field-group" style="margin-bottom:14px;">
           <label class="field-label">Brand Campaign</label>
           <input class="field-input" type="text" id="bookingBrand" placeholder="Campaign name">
         </div>
-      </div>
-      <div style="margin-top:16px;">
-        <label class="field-label">Asset / Circuit</label>
-        <select class="field-input" id="bookingAsset">
-          <option value="">Select Circuit</option>
-        </select>
-      </div>
-      <div class="form-grid" style="margin-top:16px;">
-        <div class="field-group">
-          <label class="field-label">Start Date</label>
-          <input class="field-input" type="date" id="bookingStartDate">
+      
+        <div style="margin-top:16px;">
+            <label class="field-label">Asset / Circuit</label>
+            <select class="field-input" id="bookingAsset">
+            <option value="">Select Circuit</option>
+            </select>
         </div>
-        <div class="field-group">
-          <label class="field-label">End Date</label>
-          <input class="field-input" type="date" id="bookingEndDate">
+
+        <div class="form-grid" style="margin-top:16px;">
+            <div class="field-group">
+            <label class="field-label">Start Date</label>
+            <input class="field-input" type="date" id="bookingStartDate">
+            </div>
+            <div class="field-group">
+            <label class="field-label">End Date</label>
+            <input class="field-input" type="date" id="bookingEndDate">
+            </div>
         </div>
-      </div>
-      <div style="margin-top:16px;">
-        <label class="field-label">Total Days</label>
-        <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
-      </div>
-      <div class="booked-by-strip">
-        <span>Booked by</span>
-        <strong id="bookingPersonLabel">—</strong>
-      </div>
-      <div class="form-footer">
-        <button class="btn-form-cancel" id="clearFormBtn">Clear</button>
-        <button class="btn-form-save" id="confirmBookingBtn">Save Booking ✓</button>
-      </div>
+
+        <div class="form-grid" style="margin-top:16px;">
+            <div class="field-group">
+                <label class="field-label">Total Days</label>
+                <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
+            </div>
+            <div class="field-group">
+                <label class="field-label">Slot</label>
+                <input class="field-input" type="text" id="bookingSlot" readonly placeholder="Assigned automatically">
+            </div>
+
+        </div>
+
+        <div class="booked-by-strip">
+            <span>Booked by</span>
+            <strong id="bookingPersonLabel">—</strong>
+        </div>
+
+        <div class="form-footer">
+            <button class="btn-form-cancel" id="clearFormBtn">Clear</button>
+            <button class="btn-form-save" id="confirmBookingBtn">Save Booking ✓</button>
+        </div>
+
     </div>
+
   </div>
 
 </main>
 
 <footer>
   <div class="footer-brand">Scoop Media &amp; Communication Co.</div>
-  <p class="footer-copy">OOH Campaign Intelligence Platform · © 2025</p>
+  <p class="footer-copy">OOH Campaign Intelligence Platform · © 2026</p>
 </footer>
 
-<!-- BOOKING MODAL (mobile) -->
-<div class="modal-overlay" id="bookingModal">
-  <div class="modal-box">
-    <button class="modal-close" id="closeBookingModal">✕</button>
-    <div class="modal-title">New Campaign Booking</div>
-    <div class="modal-sub">Add a new booking to the schedule.</div>
-    <div style="margin-top:20px;">
-      <div class="field-group" style="margin-bottom:14px;">
-        <label class="field-label">Client</label>
-        <input class="field-input" type="text" id="mBookingClient" placeholder="Client name">
-      </div>
-      <div class="field-group" style="margin-bottom:14px;">
-        <label class="field-label">Brand Campaign</label>
-        <input class="field-input" type="text" id="mBookingBrand" placeholder="Campaign name">
-      </div>
-      <div class="field-group" style="margin-bottom:14px;">
-        <label class="field-label">Asset / Circuit</label>
-        <select class="field-input" id="mBookingAsset"><option value="">Select Circuit</option></select>
-      </div>
-      <div class="form-grid">
-        <div>
-          <label class="field-label">Start Date</label>
-          <input class="field-input" type="date" id="mBookingStart">
-        </div>
-        <div>
-          <label class="field-label">End Date</label>
-          <input class="field-input" type="date" id="mBookingEnd">
-        </div>
-        <div style="margin-top:16px;">
-            <label class="field-label">Total Days</label>
-            <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
-        </div>
-
-      </div>
-      <div class="booked-by-strip" style="margin-top:14px;">
-        <span>Booked by</span>
-        <strong id="mBookingPerson">—</strong>
-      </div>
-      <div class="form-footer">
-        <button class="btn-form-cancel" id="closeBookingModal2">Cancel</button>
-        <button class="btn-form-save">Save Booking</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- CALENDAR MODAL -->
 <div class="cal-modal-overlay" id="calendarModal">
@@ -1378,7 +1353,7 @@ bookingModal.addEventListener("click", e => { if (e.target===bookingModal) booki
 
 // CLEAR FORM
 document.getElementById("clearFormBtn")?.addEventListener("click", () => {
-  ["bookingClient","bookingBrand","bookingStartDate","bookingEndDate","bookingTotalDays"].forEach(id => {
+  ["bookingOrder","bookingClient","bookingBrand","bookingStartDate","bookingEndDate","bookingTotalDays"].forEach(id => {
     const el = document.getElementById(id); if (el) el.value="";
   });
   const a = document.getElementById("bookingAsset"); if (a) a.selectedIndex=0;
@@ -1386,6 +1361,7 @@ document.getElementById("clearFormBtn")?.addEventListener("click", () => {
 
 // SAVE BOOKING
 document.getElementById("confirmBookingBtn")?.addEventListener("click", async () => {
+  const booking = document.getElementById("bookingOrder")?.value;  
   const client = document.getElementById("bookingClient")?.value;
   const brand = document.getElementById("bookingBrand")?.value;
   const asset = document.getElementById("bookingAsset")?.value;
@@ -1400,7 +1376,7 @@ document.getElementById("confirmBookingBtn")?.addEventListener("click", async ()
   }
   try {
     await push(ref(rtdb,"Campaigns_Booking"), {
-      Client: client, "Brand Campaign": brand, Circuits: asset,
+      BO: booking, Client: client, "Brand Campaign": brand, Circuits: asset,
       "Start Date": toMMDDYYYY(start), "End Date": toMMDDYYYY(end),
       Status: "Pending", Person: person
     });
