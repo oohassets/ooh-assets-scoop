@@ -192,6 +192,7 @@ nav{
   text-align:center;
   max-width:900px;
   padding:0 2rem;
+  margin-top: 28px;
 }
 .hero-eyebrow{
   display:inline-flex;align-items:center;gap:8px;
@@ -350,6 +351,7 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
   transition:all 0.3s;
   cursor:default;
   backdrop-filter:blur(20px);
+  white-space: nowrap;
 }
 .stat-card::before{
   content:"";position:absolute;inset:0;border-radius:var(--radius-lg);
@@ -715,7 +717,7 @@ footer{
   .nav-badge,.btn-nav-outline{display:none;}
 }
 @media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
   .hero-stats-row{flex-direction:column;align-items:center;}
 }
 </style>
