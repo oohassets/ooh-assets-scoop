@@ -163,10 +163,12 @@ nav{
 
 /* HERO */
 .hero{
-  position:relative;min-height:100vh;
+  position:relative;
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;padding-top:64px;
+
 }
+
 #hero-canvas{
   position:absolute;inset:0;width:100%;height:100%;
   pointer-events:none;
@@ -257,9 +259,11 @@ nav{
 
 /* HERO FLOATING STATS */
 .hero-stats-row{
-  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+ gap:16px;justify-content:center;
   animation:fadeInUp 0.6s 0.4s ease both;
+  flex-direction:column;align-items:center;
 }
+
 .hero-stat-chip{
   display:flex;align-items:center;gap:10px;
   padding:12px 20px;border-radius:var(--radius-md);
@@ -327,14 +331,21 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
 
 /* STAT CARDS */
 .stats-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
   gap:20px;margin-bottom:2rem;
+  padding: 28px;
+
+  max-width:1200px;
+  margin:-40px auto 2rem;
+  position:relative;
+  z-index:20;
+  
 }
 .stat-card{
-  background:var(--bg-card);
+  background:transparent;
   border:1px solid var(--border-glass);
   border-radius:var(--radius-lg);
-  padding:28px;
+  padding:20px;
   position:relative;overflow:hidden;
   transition:all 0.3s;
   cursor:default;
@@ -765,76 +776,52 @@ footer{
       </button>
     </div>
 
-    <div class="hero-stats-row">
-      <div class="hero-stat-chip">
-        <div class="chip-icon chip-indigo">📢</div>
-        <div><div class="val" id="heroLive">0</div><div class="lbl">Live Campaigns</div></div>
-      </div>
-      <div class="hero-stat-chip">
-        <div class="chip-icon chip-emerald">📊</div>
-        <div><div class="val" id="heroOccupancy">0%</div><div class="lbl">Asset Occupancy</div></div>
-      </div>
-      <div class="hero-stat-chip">
-        <div class="chip-icon chip-cyan">👁</div>
-        <div><div class="val" id="heroVisitors">0</div><div class="lbl">Monthly Visitors</div></div>
-      </div>
-      <div class="hero-stat-chip">
-        <div class="chip-icon chip-amber">⏳</div>
-        <div><div class="val" id="heroPending">0</div><div class="lbl">Pending Approvals</div></div>
-      </div>
-    </div>
-    
   </div>
+      
 </section>
+
+        <div class="stats-grid reveal">
+        <div class="stat-card" style="--card-accent: var(--accent-emerald);">
+          <div class="stat-card-glow"></div>
+          <div class="stat-label">Paid Campaigns</div>
+          <div class="stat-value" id="statActive">0</div>
+          <div class="stat-sub">Currently Running</div>
+          <div class="stat-trend trend-up" id="statActiveTrend">↑ Live</div>
+          
+        </div>
+        <div class="stat-card" style="--card-accent: var(--accent-rose);">
+          <div class="stat-card-glow"></div>
+          <div class="stat-label">Booked Assets</div>
+          <div class="stat-value" id="statBooked">0</div>
+          <div class="stat-sub">Digital and Static</div>
+          <div class="stat-trend trend-down">📌 BO Signed</div>
+         
+        </div>
+        <div class="stat-card" style="--card-accent: var(--accent-amber);">
+          <div class="stat-card-glow"></div>
+          <div class="stat-label">Pending Approvals</div>
+          <div class="stat-value" id="statPending">0</div>
+          <div class="stat-sub">Awaiting Clients</div>
+          <div class="stat-trend trend-pending">⏳ Pending</div>
+          
+        </div>
+        <div class="stat-card" style="--card-accent: var(--accent-cyan);">
+          <div class="stat-card-glow"></div>
+          <div class="stat-label">Free Campaigns</div>
+          <div class="stat-value" id="statFree">0</div>
+          <div class="stat-sub">Free / Filler</div>
+          <div class="stat-trend trend-up">◌ Available</div>       
+        </div>
+      </div>  
+
+
 
 <!-- MAIN -->
 <main>
-  <!-- STATS -->
-  <div class="section-divider"></div>
-  <div class="stats-grid reveal">
-    <div class="stat-card" style="--card-accent: var(--accent-emerald);">
-      <div class="stat-card-glow"></div>
-      <div class="stat-label">Paid Campaigns</div>
-      <div class="stat-value" id="statActive">0</div>
-      <div class="stat-sub">Currently Running</div>
-      <div class="stat-trend trend-up" id="statActiveTrend">↑ Live</div>
-      <div class="stat-icon">📣</div>
-    </div>
-    <div class="stat-card" style="--card-accent: var(--accent-rose);">
-      <div class="stat-card-glow"></div>
-      <div class="stat-label">Booked Assets</div>
-      <div class="stat-value" id="statBooked">0</div>
-      <div class="stat-sub">Digital and Static</div>
-      <div class="stat-trend trend-down">📌 BO Signed</div>
-      <div class="stat-icon">📆</div>
-    </div>
-    <div class="stat-card" style="--card-accent: var(--accent-amber);">
-      <div class="stat-card-glow"></div>
-      <div class="stat-label">Pending Approvals</div>
-      <div class="stat-value" id="statPending">0</div>
-      <div class="stat-sub">Awaiting Clients</div>
-      <div class="stat-trend trend-pending">⏳ Pending</div>
-      <div class="stat-icon">📝</div>
-    </div>
-    <div class="stat-card" style="--card-accent: var(--accent-cyan);">
-      <div class="stat-card-glow"></div>
-      <div class="stat-label">Free Campaigns</div>
-      <div class="stat-value" id="statFree">0</div>
-      <div class="stat-sub">Free / Filler</div>
-      <div class="stat-trend trend-up">◌ Available</div>
-      <div class="stat-icon">💡</div>
-    </div>
-  </div>
+
 
   <!-- CAMPAIGN UPDATES + BOOKING TABLE -->
-  <div class="reveal" style="margin-bottom: 2rem;">
-    <!-- UPDATES -->
-      <div class="section-eyebrow">Activity</div>
-      <div class="section-title" style="font-size:22px;">Campaign Updates and Reminders</div>
-      <p class="section-sub">Track recent updates, monitor upcoming and ending campaigns, and important reminders.</p>
-      <div id="campaignUpdatesContainer"></div>
-
-  </div>
+  <div class="section-divider"></div> 
   
   <div class="reveal" style="margin-bottom: 2rem;">
     <!-- BOOKING TABLE -->
