@@ -1368,7 +1368,7 @@ function applyFilters() {
 document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
 document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
 
-
+// CAMPAIGN UPDATES
 function renderUpdates(campaigns, tables) {
   const container = document.getElementById("campaignUpdatesContainer");
   if (!container) return;
@@ -1392,18 +1392,31 @@ function renderUpdates(campaigns, tables) {
     if (type==="add") groups.published.push({label:dateLabel(d,raw),brand:log.Client||"-",asset:log.Circuits||"-",sortDate:d});
     if (type==="removed") groups.removed.push({label:dateLabel(d,raw),brand:log.Client||"-",asset:log.Circuits||"-",sortDate:d});
   });
+
   campaigns.forEach(c => {
     const sd = parseDate(c.rawStartDate); const ed = parseDate(c.rawEndDate);
     if (!sd) return; sd.setHours(0,0,0,0); if (ed) ed.setHours(0,0,0,0);
     const sdiff = Math.floor((sd-today)/86400000);
     const ediff = ed ? Math.floor((ed-today)/86400000) : 999;
     const s = (c.status||"").toLowerCase();
-    if (!(s.includes("signed")||s.includes("pending"))) return;
-    if ((sdiff>=0&&sdiff<=30)||(sdiff<0&&ediff>=0)) {
+
+    // Upcoming: BO Signed + Pending only
+    const isUpcoming = s.includes("signed") || s.includes("pending");
+
+    // Ending: Live + Signed + Pending (already running)
+    const isActive = isUpcoming || s.includes("live");
+
+    if (!isActive) return;
+
+    if (isUpcoming && ((sdiff>=0&&sdiff<=30)||(sdiff<0&&ediff>=0))) {
       groups.upcoming.push({label:dateLabel(sd,c.rawStartDate),statusCls:getStatusClass(c.status),statusLabel:c.status,brand:c.brand||c.client,asset:c.asset,person:c.person,sortDate:sd});
     }
+    if (ed && ediff >= 0 && ediff <= 7 && sdiff < 0) {
+      groups.ending.push({label:dateLabel(ed,c.rawEndDate),statusCls:getStatusClass(c.status),statusLabel:c.status,brand:c.brand||c.client,asset:c.asset,person:c.person,sortDate:ed});
+    }
   });
-  Object.values(groups).forEach(g => g.sort((a,b)=>b.sortDate-a.sortDate));
+
+  Object.values(groups).forEach(g => g.sort((a,b) => a.sortDate - b.sortDate));
   function card(id, title, dotCls, items) {
     const body = items.length ? items.map((u,i) => `
       <div class="update-item" style="animation-delay:${i*0.05}s">
