@@ -33,6 +33,11 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
+body{
+    padding-bottom:0;
+}
+
+
 iframe {
     position: relative;
     z-index: 1;
@@ -879,7 +884,7 @@ iframe {
     font-size:16px;
     font-weight:700;
 
-    margin-bottom:1px;
+    margin-bottom:8px;
     border: none;
     background: none;
 }
@@ -890,18 +895,21 @@ iframe {
 }
 
 .panel-content button{
+    width:100%;
     border:none;
-    background:#131b37;
-
-    color:white;
-
-    padding:14px;
-
+    background:#fff;
     border-radius:12px;
-
+    padding:8px 10px;
     text-align:left;
-
+    margin-bottom:5px;
     cursor:pointer;
+    transition:.25s;
+}
+
+.panel-content button:hover{
+    background:#fff7ed;
+    border-color:#fdba74;
+    color:#f97316;
 }
 
 @keyframes panelUp{
@@ -1472,11 +1480,13 @@ iframe {
 
         <div class="panel-content">
 
-            <button onclick="openAssetDimensionChecker()">
+            <button 
+                onclick="openAssetDimensionChecker()">
                 Asset Dimension Checker
             </button>
 
-            <button onclick="openImageCompressor()">
+            <button
+                onclick="openImageCompressor()">
                 Bulk Image Compressor
             </button>
 
