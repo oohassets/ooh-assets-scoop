@@ -876,10 +876,12 @@ iframe {
 
 .panel-header{
     color:#111827;
-    font-size:18px;
+    font-size:16px;
     font-weight:700;
 
-    margin-bottom:15px;
+    margin-bottom:1px;
+    border: none;
+    background: none;
 }
 
 .panel-content{
@@ -912,123 +914,72 @@ iframe {
         transform:translateY(0);
     }
 }
-.tree-parent{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.asset-section-title{
+    font-size:14px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1px;
 
-    background:#ffffff;
+    color:#f97316;
 
-    border:1px solid #e5e7eb;
+    margin:20px 0 12px;
+    border: none;
+    background: none;
+}
 
-    padding:14px 16px;
+.asset-group{
+    margin-bottom:15px;
+}
 
-    border-radius:14px;
+.asset-header{
+    font-size:18px;    
+    font-weight:700;
+    color:#111827;
 
-    cursor:pointer;
-
-    font-weight:600;
+    border: none;
+    background: none;
+}
+.asset-group-title{
+    font-size:14px;
+    font-weight:700;
 
     color:#111827;
 
-    transition:.3s;
-}
-.tree-parent:hover{
-    background:#fafafa;
+    margin-bottom:5px;
 }
 
-.tree-child-title{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    background:#fafafa;
-
-    border:1px solid #e5e7eb;
-
-    padding:12px 14px;
-
-    border-radius:12px;
-
-    cursor:pointer;
-
+.asset-group-submenu{
+    font-size:12px;    
     color:#111827;
-
-    transition:.3s;
+    margin-left: 20px;
+    margin-bottom:5px;
+    border: none;
 }
 
-.tree-child-title:hover{
-    background:#f5f5f5;
-}
-
-.tree-content,
-.tree-subcontent{
-    display:none;
-    padding-top:8px;
-    padding-left:12px;
-}
-
-.tree-content.open,
-.tree-subcontent.open{
-    display:grid;
-    gap:8px;
-}
-
-.tree-group{
-    margin-bottom:12px;
-}
-
-.tree-child{
-    margin-top:8px;
-}
-
-.tree-content button,
-.tree-subcontent button{
+.asset-group button{
+    width:100%;
 
     border:none;
 
-    width:100%;
+    background:#fff;
+
+    border-radius:12px;
+
+    padding:8px 10px;
 
     text-align:left;
 
-    background:#ffffff;
-
-    border:1px solid #e5e7eb;
-
-    color:#111827;
-
-    padding:12px 14px;
-
-    border-radius:12px;
+    margin-bottom:5px;
 
     cursor:pointer;
 
     transition:.25s;
 }
-.tree-content button:hover,
-.tree-subcontent button:hover{
 
+.asset-group button:hover{
     background:#fff7ed;
-
     border-color:#fdba74;
-
     color:#f97316;
-}
-
-.tree-parent.open,
-.tree-child-title.open{
-
-    background:#fff7ed;
-
-    border-color:#fdba74;
-
-    color:#f97316;
-}
-
-.tree-parent span,
-.tree-child-title span{
-    font-size:18px;
-    font-weight:700;
 }
 
 </style>
@@ -1314,17 +1265,17 @@ iframe {
 
     <button class="dock-item active" id="btnContentInventory">
         <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png">
-        <span>Contents</span>
+        <span>Content Inventory</span>
     </button>
 
     <button class="dock-item has-panel" id="btnAssetsLocation">
         <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png">
-        <span>Assets</span>
+        <span>Assets Location</span>
     </button>
 
     <button class="dock-item" id="btnVehicleTraffic">
         <img src="https://img.icons8.com/ios/50/people-in-car.png">
-        <span>Impressions</span>
+        <span>Traffic & Impressions</span>
     </button>
 
     <button class="dock-item has-panel" id="btnServices">
@@ -1337,266 +1288,201 @@ iframe {
 <div class="dock-panel" id="assetsPanel">
 
     <div class="panel-header">
-        Asset Locations
-    </div>
-
-    <!-- DIGITAL -->
-
-    <div class="tree-group">
-
-        <div class="tree-parent">
-            Digital Assets
-            <span>+</span>
-        </div>
-
-        <div class="tree-content">
-
-            <button onclick="setMapAndClose('digital')">
-                All Digital Assets
-            </button>
-
-            <!-- Underpass -->
-
-            <div class="tree-child">
-
-                <div class="tree-child-title">
-                    Underpass
-                    <span>+</span>
-                </div>
-
-                <div class="tree-subcontent">
-
-                    <button onclick="setMapAndClose('underpass')">
-                        All Underpass
-                    </button>
-
-                    <button onclick="setMapAndClose('underpass-entrance')">
-                        Underpass Entrance
-                    </button>
-
-                    <button onclick="setMapAndClose('underpass-exit')">
-                        Underpass Exit
-                    </button>
-
-                </div>
-
-            </div>
-
-            <!-- MUPI -->
-
-            <div class="tree-child">
-
-                <div class="tree-child-title">
-                    Mupi
-                    <span>+</span>
-                </div>
-
-                <div class="tree-subcontent">
-
-                    <button onclick="setMapAndClose('mupi')">
-                        All Mupi
-                    </button>
-
-                    <button onclick="setMapAndClose('mupi-c1')">
-                        Mupi Circuit 1
-                    </button>
-
-                    <button onclick="setMapAndClose('mupi-c2')">
-                        Mupi Circuit 2
-                    </button>
-
-                </div>
-
-            </div>
-
-            <!-- GEWAN -->
-
-            <div class="tree-child">
-
-                <div class="tree-child-title">
-                    Gewan Crystal Walk
-                    <span>+</span>
-                </div>
-
-                <div class="tree-subcontent">
-
-                    <button onclick="setMapAndClose('gewan')">
-                        All Gewan
-                    </button>
-
-                    <button onclick="setMapAndClose('gewan-c1')">
-                        Circuit 1
-                    </button>
-
-                    <button onclick="setMapAndClose('gewan-c2')">
-                        Circuit 2
-                    </button>
-
-                    <button onclick="setMapAndClose('gewan-c3')">
-                        Crystal Building
-                    </button>
-
-                </div>
-
-            </div>
-
-            <button onclick="setMapAndClose('udctower')">
-                UDC Tower
-            </button>
-
-            <button onclick="setMapAndClose('monoprix')">
-                Monoprix
-            </button>
-
-            <button onclick="setMapAndClose('qqscreen')">
-                Qanat Quartier Screen
-            </button>
-
-        </div>
+        <button class="asset-header"
+            onclick="setMapAndClose('assets')">
+            Asset Location
+        </button>
 
     </div>
 
-    <!-- STATIC -->
+    <button class="asset-section-title"
+        onclick="setMapAndClose('digital')">
+        Digital Assets
+    </button>
 
-    <div class="tree-group">
+    <div class="asset-group">
+        <button class="asset-group-title"
+            onclick="setMapAndClose('underpass')">
+            Underpass
+        </button>
 
-        <div class="tree-parent">
-            Static Assets
-            <span>+</span>
-        </div>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('underpass-entrance')">
+            Underpass Entrance
+        </button>
 
-        <div class="tree-content">
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('underpass-exit')">
+            Underpass Exit
+        </button>
+    </div>
 
-            <button onclick="setMapAndClose('lightpoles-me-mb-mc')">
-                All Static Assets
-            </button>
+    <div class="asset-group">
+        <button class="asset-group-title"
+            onclick="setMapAndClose('underpass')">
+            Mupi
+        </button>
 
-            <!-- Main Entrance -->
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('mupi-c1')">
+            Mupi Circuit 1
+        </button>
 
-            <div class="tree-child">
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('mupi-c2')">
+            Mupi Circuit 2
+        </button>
+    </div>
 
-                <div class="tree-child-title">
-                    Main Entrance
-                    <span>+</span>
-                </div>
+    <div class="asset-group">
+        <button class="asset-group-title"
+            onclick="setMapAndClose('gewan')">
+            Gewan Crystal Walk
+        </button>
 
-                <div class="tree-subcontent">
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('gewan-c1')">
+            Gewan Crystal Walk Circuit 1
+        </button>
 
-                    <button onclick="setMapAndClose('lightpoles-me')">
-                        All Main Entrance
-                    </button>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('gewan-c2')">
+            Gewan Crystal Walk Circuit 2
+        </button>
 
-                    <button onclick="setMapAndClose('lightpoles-me-c1')">
-                        Circuit 1
-                    </button>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('gewan-building')">
+            Gewan Crystal Building
+        </button>
+    </div>
 
-                    <button onclick="setMapAndClose('lightpoles-me-c2')">
-                        Circuit 2
-                    </button>
+    <div class="asset-group">
 
-                    <button onclick="setMapAndClose('lightpoles-me-c3')">
-                        Circuit 3
-                    </button>
+        <button class="asset-group-title"
+            onclick="setMapAndClose('udctower')">
+            UDC Tower
+        </button>
 
-                </div>
+        <button class="asset-group-title"
+            onclick="setMapAndClose('monoprix')">
+            Monoprix
+        </button>
 
-            </div>
+        <button class="asset-group-title"
+            onclick="setMapAndClose('qqscreen')">
+            Qanat Quartier Screen
+        </button>
+    </div>
 
-            <!-- Main Boulevard -->
+    <button class="asset-section-title"
+        onclick="setMapAndClose('lightpoles-me-mb-mc')">
+        Static Assets
+    </button>
 
-            <div class="tree-child">
+    <div class="asset-group">
+        <button class="asset-group-title"
+            onclick="setMapAndClose('lightpoles-me')">
+            Light Poles Main Entrance
+        </button>            
 
-                <div class="tree-child-title">
-                    Main Boulevard
-                    <span>+</span>
-                </div>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('lightpoles-me-c1')">
+            Main Entrance Circuit 1
+        </button>
 
-                <div class="tree-subcontent">
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('lightpoles-me-c2')">
+            Main Entrance Circuit 2
+        </button>
 
-                    <button onclick="setMapAndClose('lightpoles-mb')">
-                        All Main Boulevard
-                    </button>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('lightpoles-me-c3')">
+            Main Entrance Circuit 3
+        </button>
+    </div>
 
-                    <button onclick="setMapAndClose('lightpoles-mb-c1')">
-                        Circuit 1
-                    </button>
+    <div class="asset-group">
+        <button class="asset-group-title"
+            onclick="setMapAndClose('lightpoles-mb')">
+            Light Poles Main Boulevard
+        </button>  
 
-                    <button onclick="setMapAndClose('lightpoles-mb-c2')">
-                        Circuit 2
-                    </button>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('lightpoles-mb-c1')">
+            Circuit 1
+        </button>
 
-                    <button onclick="setMapAndClose('lightpoles-mb-c3')">
-                        Circuit 3
-                    </button>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('lightpoles-mb-c2')">
+            Circuit 2
+        </button>
 
-                </div>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('lightpoles-mb-c3')">
+            Circuit 3
+        </button>
+    </div>
 
-            </div>
+    <div class="asset-group">
+        <button class="asset-group-title"
+            onclick="setMapAndClose('lightpoles-mc')">
+            Light Poles Medina Centrale
+        </button>  
 
-            <button onclick="setMapAndClose('lightpoles-mc')">
-                Medina Centrale
-            </button>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('lightpoles-mc')">
+            Medina Centrale Circuit 1
+        </button>
+    </div>
 
-            <!-- Porto Arabia -->
+    <div class="asset-group">
+        <button class="asset-group-title"
+            onclick="setMapAndClose('mupi-pa')">
+            Mupi Porto Arabia, Boardwalk
+        </button>  
 
-            <div class="tree-child">
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('mupi-pa-c1')">
+            Mupi Boardwalk Circuit 1
+        </button>
 
-                <div class="tree-child-title">
-                    Porto Arabia
-                    <span>+</span>
-                </div>
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('mupi-pa-c2')">
+            Mupi Boardwalk Circuit 2
+        </button>
 
-                <div class="tree-subcontent">
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('mupi-pa-c3')">
+            Mupi Boardwalk Circuit 3
+        </button>
 
-                    <button onclick="setMapAndClose('lightpoles-pa')">
-                        All Porto Arabia
-                    </button>
-
-                    <button onclick="setMapAndClose('lightpoles-pa-c1')">
-                        Circuit 1
-                    </button>
-
-                    <button onclick="setMapAndClose('lightpoles-pa-c2')">
-                        Circuit 2
-                    </button>
-
-                    <button onclick="setMapAndClose('lightpoles-pa-c3')">
-                        Circuit 3
-                    </button>
-
-                    <button onclick="setMapAndClose('lightpoles-pa-c4')">
-                        Circuit 4
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
+        <button class="asset-group-submenu"
+            onclick="setMapAndClose('mupi-pa-low')">
+            Mupi Boardwalk Low Visibility
+        </button>
     </div>
 
 </div>
 
 <div class="dock-panel" id="servicesPanel">
 
-    <div class="panel-header">
-        Services
+        <div class="panel-header">
+            Services
+        </div>
+
+        <div class="panel-content">
+
+            <button onclick="openAssetDimensionChecker()">
+                Asset Dimension Checker
+            </button>
+
+            <button onclick="openImageCompressor()">
+                Bulk Image Compressor
+            </button>
+
+        </div>
+
     </div>
-
-    <div class="panel-content">
-
-        <button onclick="openAssetDimensionChecker()">
-            Asset Dimension Checker
-        </button>
-
-        <button onclick="openImageCompressor()">
-            Bulk Image Compressor
-        </button>
-
-    </div>
-
-</div>
 
 <script>
 
