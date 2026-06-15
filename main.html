@@ -602,7 +602,7 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
 <div id="cursor"></div>
 
 
-<!-- NAV -->
+<!-- NAVIGATION TOP -->
 <nav>
   <div class="nav-logo">
     <div class="nav-logo-mark">
@@ -794,78 +794,76 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
   </div>
 </nav>
 
-
 <!-- HERO -->
 <section class="hero">
-    <canvas id="hero-canvas"></canvas>
-    <div class="hero-grid-overlay"></div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-grid-overlay"></div>
 
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
 
-    <div class="hero-content">
-        <div class="hero-eyebrow">OOH Campaign Intelligence</div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">OOH Campaign Intelligence</div>
 
-        <h1 class="hero-headline">
-            Plan, Schedule &amp;<br>
-            <span class="grad">Manage Campaigns</span><br>
-            <span class="grad2">at Scale</span>
-        </h1>
+    <h1 class="hero-headline">
+      Plan, Schedule &amp;<br>
+      <span class="grad">Manage Campaigns</span><br>
+      <span class="grad2">at Scale</span>
+    </h1>
 
-        <p class="hero-sub">
-            Track asset availability, campaign schedules, booking conflicts,
-            media rates, and client approvals — all in one intelligent platform.
-        </p>
+    <p class="hero-sub">
+      Track asset availability, campaign schedules, booking conflicts,
+      media rates, and client approvals — all in one intelligent platform.
+    </p>
 
-        <div class="hero-cta">
-            <button class="btn-cta-primary" id="openBookingBtnHero">
-                Get Started Booking
-                <span class="btn-arrow">→</span>
-            </button>
+    <div class="hero-cta">
+      <button class="btn-cta-primary" id="openBookingBtnHero">
+        Get Started Booking
+        <span class="btn-arrow">→</span>
+    </button>
 
-            <button class="btn-cta-secondary" id="openCalBtnHero">
-                Content Inventory
-                <span class="btn-arrow">→</span>
-            </button>
-        </div>
+    <button class="btn-cta-secondary" id="openCalBtnHero">
+      Content Inventory
+      <span class="btn-arrow">→</span>
+    </button>
+  </div>
 
-        <!-- CAMPAIGN UPDATES -->
-        <div class="stats-grid reveal">
-            <div class="stat-card" style="--card-accent:var(--accent-emerald);">
-                <div class="stat-card-glow"></div>
-                <div class="stat-label">Paid Campaigns</div>
-                <div class="stat-value" id="statActive">0</div>
-                <div class="stat-sub">Currently Running</div>
-                <div class="stat-trend trend-up">↑ Live</div>
-            </div>
-
-            <div class="stat-card" style="--card-accent:var(--accent-rose);">
-                <div class="stat-card-glow"></div>
-                <div class="stat-label">Booked Assets</div>
-                <div class="stat-value" id="statBooked">0</div>
-                <div class="stat-sub">Digital and Static</div>
-                <div class="stat-trend trend-down">📌 BO Signed</div>
-            </div>
-
-            <div class="stat-card" style="--card-accent:var(--accent-amber);">
-                <div class="stat-card-glow"></div>
-                <div class="stat-label">Pending Approvals</div>
-                <div class="stat-value" id="statPending">0</div>
-                <div class="stat-sub">Awaiting Clients</div>
-                <div class="stat-trend trend-pending">⏳ Pending</div>
-            </div>
-
-            <div class="stat-card" style="--card-accent:var(--accent-cyan);">
-                <div class="stat-card-glow"></div>
-                <div class="stat-label">Free Campaigns</div>
-                <div class="stat-value" id="statFree">0</div>
-                <div class="stat-sub">Free / Filler</div>
-                <div class="stat-trend trend-up">◌ Available</div>
-            </div>
-        </div>
-
+  <!-- CAMPAIGN UPDATES -->
+  <div class="stats-grid reveal">
+    <div class="stat-card" style="--card-accent:var(--accent-emerald);">
+        <div class="stat-card-glow"></div>
+        <div class="stat-label">Paid Campaigns</div>
+        <div class="stat-value" id="statActive">0</div>
+        <div class="stat-sub">Currently Running</div>
+        <div class="stat-trend trend-up">↑ Live</div>
     </div>
+
+    <div class="stat-card" style="--card-accent:var(--accent-rose);">
+      <div class="stat-card-glow"></div>
+      <div class="stat-label">Booked Assets</div>
+      <div class="stat-value" id="statBooked">0</div>
+      <div class="stat-sub">Digital and Static</div>
+      <div class="stat-trend trend-down">📌 BO Signed</div>
+    </div>
+
+    <div class="stat-card" style="--card-accent:var(--accent-amber);">
+      <div class="stat-card-glow"></div>
+      <div class="stat-label">Pending Approvals</div>
+      <div class="stat-value" id="statPending">0</div>
+      <div class="stat-sub">Awaiting Clients</div>
+      <div class="stat-trend trend-pending">⏳ Pending</div>
+    </div>
+
+    <div class="stat-card" style="--card-accent:var(--accent-cyan);">
+      <div class="stat-card-glow"></div>
+      <div class="stat-label">Free Campaigns</div>
+      <div class="stat-value" id="statFree">0</div>
+      <div class="stat-sub">Free / Filler</div>
+      <div class="stat-trend trend-up">◌ Available</div>
+    </div>
+  </div>
+
 </section>
 
 <!-- MAIN -->
@@ -1037,6 +1035,7 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
 
 <!-- CALENDAR MODAL -->
 <div class="cal-modal-overlay" id="calendarModal">
+
   <div class="cal-modal-box">
     <div class="cal-modal-header">
       <div>
@@ -1054,6 +1053,7 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
       <table id="bookingCalendar" class="booking-calendar"></table>
     </div>
   </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -1266,8 +1266,6 @@ function animateCounter(id, target) {
   }
   requestAnimationFrame(step);
 }
-
-
 
 // ── DATE FILTER ───────────────────────────────────────────────────────────────
 let drpStart = null, drpEnd = null;
