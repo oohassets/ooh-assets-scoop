@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v113.5';
+const CACHE_NAME = 'scoop-ooh-cache-v113.6';
 
 const ASSETS_TO_CACHE = [
   './',
