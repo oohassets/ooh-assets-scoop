@@ -726,6 +726,311 @@ iframe {
     }
 }
 
+/* ======================
+   EXPANDABLE DOCK
+====================== */
+
+.mobile-dock{
+    position:fixed;
+    bottom:18px;
+    left:50%;
+    transform:translateX(-50%);
+
+    z-index:9999;
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:8px;
+
+    background:#ffffff;
+
+    border-radius:24px;
+
+    border:1px solid #e5e7eb;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.12);
+
+    backdrop-filter:blur(20px);
+}
+
+/* Hidden desktop */
+
+@media(min-width:769px){
+    .mobile-dock{
+        display:none;
+    }
+}
+
+/* Dock Items */
+
+.dock-item{
+    border:none;
+    background:transparent;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:0;
+
+    height:48px;
+
+    padding:0 14px;
+
+    border-radius:16px;
+
+    cursor:pointer;
+
+    color:#111827;
+
+    transition:all .35s ease;
+}
+
+/* Icons */
+
+.dock-item img{
+    width:22px;
+    height:22px;
+    object-fit:contain;
+
+    filter:none;
+}
+
+/* Hidden text */
+
+.dock-item span{
+    max-width:0;
+    opacity:0;
+
+    overflow:hidden;
+    white-space:nowrap;
+
+    transition:all .35s ease;
+
+    color:#111827;
+}
+
+/* Hover */
+
+.dock-item:hover{
+    background:#f5f5f5;
+}
+
+/* Active */
+
+.dock-item.active{
+    background:#fff7ed;
+
+    color:#f97316;
+
+    gap:10px;
+
+    padding-left:18px;
+    padding-right:18px;
+}
+
+.dock-item.active span{
+    max-width:140px;
+    opacity:1;
+
+    color:#f97316;
+}
+
+
+
+.dock-panel{
+    position:fixed;
+
+    left:12px;
+    right:12px;
+
+    bottom:95px;
+
+    z-index:9998;
+
+    background:#ffffff;
+
+    border-radius:22px;
+
+    border:1px solid #e5e7eb;
+
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.12);
+
+    padding:18px;
+
+    display:none;
+
+    max-height:70vh;
+    overflow:auto;
+
+    animation:panelUp .25s ease;
+}
+
+.dock-panel.show{
+    display:block;
+}
+
+.panel-header{
+    color:#111827;
+    font-size:18px;
+    font-weight:700;
+
+    margin-bottom:15px;
+}
+
+.panel-content{
+    display:grid;
+    gap:10px;
+}
+
+.panel-content button{
+    border:none;
+    background:#131b37;
+
+    color:white;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    text-align:left;
+
+    cursor:pointer;
+}
+
+@keyframes panelUp{
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+.tree-parent{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    background:#ffffff;
+
+    border:1px solid #e5e7eb;
+
+    padding:14px 16px;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    color:#111827;
+
+    transition:.3s;
+}
+.tree-parent:hover{
+    background:#fafafa;
+}
+
+.tree-child-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    background:#fafafa;
+
+    border:1px solid #e5e7eb;
+
+    padding:12px 14px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    color:#111827;
+
+    transition:.3s;
+}
+
+.tree-child-title:hover{
+    background:#f5f5f5;
+}
+
+.tree-content,
+.tree-subcontent{
+    display:none;
+    padding-top:8px;
+    padding-left:12px;
+}
+
+.tree-content.open,
+.tree-subcontent.open{
+    display:grid;
+    gap:8px;
+}
+
+.tree-group{
+    margin-bottom:12px;
+}
+
+.tree-child{
+    margin-top:8px;
+}
+
+.tree-content button,
+.tree-subcontent button{
+
+    border:none;
+
+    width:100%;
+
+    text-align:left;
+
+    background:#ffffff;
+
+    border:1px solid #e5e7eb;
+
+    color:#111827;
+
+    padding:12px 14px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+.tree-content button:hover,
+.tree-subcontent button:hover{
+
+    background:#fff7ed;
+
+    border-color:#fdba74;
+
+    color:#f97316;
+}
+
+.tree-parent.open,
+.tree-child-title.open{
+
+    background:#fff7ed;
+
+    border-color:#fdba74;
+
+    color:#f97316;
+}
+
+.tree-parent span,
+.tree-child-title span{
+    font-size:18px;
+    font-weight:700;
+}
+
 </style>
 
 <link rel="manifest" href="manifest.json">
@@ -1004,184 +1309,291 @@ iframe {
 
 <div id="bottomDropdown" class="dropdown"></div>
 
-<!-- MOBILE BOTTOM NAV -->
-<div class="bottom-nav">
-    <div class="bottom-indicator"></div>
+<!-- EXPANDABLE MOBILE DOCK -->
+<div class="mobile-dock" id="mobileDock">
 
-   <!-- <div class="bottom-item active" id="btnHomeDashboard">
-        <img src="https://img.icons8.com/ios-filled/50/glyph-neue/home.png" alt="Home">
-        <span>Home</span>
-    </div> -->
-
-    <div class="bottom-item active" id="btnContentInventory">
-        <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png" alt="Content Inventory">
+    <button class="dock-item active" id="btnContentInventory">
+        <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png">
         <span>Contents</span>
-    </div>
+    </button>
 
-    <div class="bottom-item mobile-mega-trigger" id="btnAssetsLocation">
-        <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png" alt="Assets Location">
+    <button class="dock-item has-panel" id="btnAssetsLocation">
+        <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png">
         <span>Assets</span>
+    </button>
 
-        <div class="mega-dropdown">
-            <div class="mega-column">
-                <div class="mega-title">
-                    <a onclick="setMapAndClose('digital')">Digital Assets</a>
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="setMapAndClose('underpass')">Underpass</a>
-                        <span>›</span>
-                    </div>
-                    <div class="hover-submenu deep">
-                        <a onclick="setMapAndClose('underpass-entrance')">Underpass Entrance</a>
-                        <a onclick="setMapAndClose('underpass-exit')">Underpass Exit</a>
-                    </div>
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="setMapAndClose('mupi')">Mupi</a>
-                        <span>›</span>
-                    </div>
-                    <div class="hover-submenu deep">
-                        <a onclick="setMapAndClose('mupi-c1')">Mupi Circuit 1</a>
-                        <a onclick="setMapAndClose('mupi-c2')">Mupi Circuit 2</a>
-                    </div>
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="setMapAndClose('gewan')">Gewan Crystal Walk</a>
-                        <span>›</span>
-                    </div>
-                    <div class="hover-submenu deep">
-                        <a onclick="setMapAndClose('gewan-c1')">Gewan Crystal Walk Circuit 1</a>
-                        <a onclick="setMapAndClose('gewan-c2')">Gewan Crystal Walk Circuit 2</a>
-                        <a onclick="setMapAndClose('gewan-c3')">Gewan Crystal Building</a>
-                    </div>
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title"><a onclick="setMapAndClose('udctower')">UDC Tower</a></div>
-                    <div class="hover-title"><a onclick="setMapAndClose('monoprix')">Monoprix</a></div>
-                    <div class="hover-title"><a onclick="setMapAndClose('qqscreen')">Qanat Quartier Screen</a></div>
-                </div>
-            </div>
-
-            <div class="mega-column">
-                <div class="mega-title">
-                    <a onclick="setMapAndClose('lightpoles-me-mb-mc')">Static Assets</a>
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="setMapAndClose('lightpoles-me-mb')">Light Poles Main Circuits</a>
-                        <span>›</span>
-                    </div>                    
-                        
-                    <div class="hover-title ">
-                        <a onclick="setMapAndClose('lightpoles-me')">Main Entrance</a>
-                        <span>›</span>
-                    </div>
-
-                    <div class="hover-submenu deep">
-                        <a onclick="setMapAndClose('lightpoles-me-c1')">Main Entrance Circuit 1</a>
-                        <a onclick="setMapAndClose('lightpoles-me-c2')">Main Entrance Circuit 2</a>
-                        <a onclick="setMapAndClose('lightpoles-me-c3')">Main Entrance Circuit 3</a>
-                    </div>                        
-                        
-                    <div class="hover-title ">
-                        <a onclick="setMapAndClose('lightpoles-mb')">Main Boulevard</a>
-                        <span>›</span>
-                    </div>
-
-                    <div class="hover-submenu deep">
-                        <a onclick="setMapAndClose('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
-                        <a onclick="setMapAndClose('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
-                        <a onclick="setMapAndClose('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
-                    </div>
-                                            
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="setMapAndClose('lightpoles-mc')">Medina Centrale</a>
-                    </div>
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="setMapAndClose('lightpoles-pa')">Light Poles Porto Arabia</a>
-                        <span>›</span>
-                    </div>
-                    <div class="hover-submenu deep">
-                        <a onclick="setMapAndClose('lightpoles-pa-c1')">Light Poles Porto Arabia Circuit 1</a>
-                        <a onclick="setMapAndClose('lightpoles-pa-c2')">Light Poles Porto Arabia Circuit 2</a>
-                        <a onclick="setMapAndClose('lightpoles-pa-c3')">Light Poles Porto Arabia Circuit 3</a>
-                        <a onclick="setMapAndClose('lightpoles-pa-c4')">Light Poles Porto Arabia Circuit 4</a>
-                    </div>
-                </div>
-
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="setMapAndClose('mupi-pa')">Mupi Porto Arabia</a>
-                        <span>›</span>
-                    </div>
-                    <div class="hover-submenu deep">
-                        <a onclick="setMapAndClose('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
-                        <a onclick="setMapAndClose('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
-                        <a onclick="setMapAndClose('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
-                        <a onclick="setMapAndClose('mupi-pa-low')">Mupi Porto Arabia Low Visibility</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mega-column">
-
-                    <div class="mega-title">
-                        <a href="https://earth.google.com/web/@25.37272326,51.53164098,1.04532372a,1440.22784026d,35y,99.15131406h,66.75047323t,0r/data=CgRCAggBMikKJwolCiExTlJHcTlTb2tDX1JMc0ppVGI5RkVoX256cWs2WXcwSzcgAToDCgEwQgIIAEoICMGWp80HEAE?authuser=0" 
-                            target="_blank"
-                            style="color: #777676;text-decoration: none;"   
-                            rel="noopener noreferrer"> 
-                            View 3D Asset Locations in Google Earth
-                        </a>
-                    </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="bottom-item" id="btnVehicleTraffic">
-        <img src="https://img.icons8.com/ios/50/people-in-car.png" alt="Vehicle Traffic">
+    <button class="dock-item" id="btnVehicleTraffic">
+        <img src="https://img.icons8.com/ios/50/people-in-car.png">
         <span>Impressions</span>
+    </button>
+
+    <button class="dock-item has-panel" id="btnServices">
+        <img src="https://img.icons8.com/material-sharp/24/circled-menu.png">
+        <span>Services</span>
+    </button>
+
+</div>
+
+<div class="dock-panel" id="assetsPanel">
+
+    <div class="panel-header">
+        Asset Locations
     </div>
 
-    <div class="bottom-item" id="btnServices">
-        <img src="https://img.icons8.com/material-sharp/24/circled-menu.png" alt="Services">
-        <span>Services</span>
+    <!-- DIGITAL -->
 
-        <div class="mega-dropdown">
-            <div class="mega-column">
+    <div class="tree-group">
 
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="openAssetDimensionChecker()">
-                            Asset Dimension Checker
-                        </a>
-                    </div>
+        <div class="tree-parent">
+            Digital Assets
+            <span>+</span>
+        </div>
+
+        <div class="tree-content">
+
+            <button onclick="setMapAndClose('digital')">
+                All Digital Assets
+            </button>
+
+            <!-- Underpass -->
+
+            <div class="tree-child">
+
+                <div class="tree-child-title">
+                    Underpass
+                    <span>+</span>
                 </div>
 
-                <div class="hover-item">
-                    <div class="hover-title">
-                        <a onclick="openImageCompressor()">
-                            Bulk Image Compressor
-                        </a>
-                    </div>
+                <div class="tree-subcontent">
+
+                    <button onclick="setMapAndClose('underpass')">
+                        All Underpass
+                    </button>
+
+                    <button onclick="setMapAndClose('underpass-entrance')">
+                        Underpass Entrance
+                    </button>
+
+                    <button onclick="setMapAndClose('underpass-exit')">
+                        Underpass Exit
+                    </button>
+
                 </div>
 
             </div>
+
+            <!-- MUPI -->
+
+            <div class="tree-child">
+
+                <div class="tree-child-title">
+                    Mupi
+                    <span>+</span>
+                </div>
+
+                <div class="tree-subcontent">
+
+                    <button onclick="setMapAndClose('mupi')">
+                        All Mupi
+                    </button>
+
+                    <button onclick="setMapAndClose('mupi-c1')">
+                        Mupi Circuit 1
+                    </button>
+
+                    <button onclick="setMapAndClose('mupi-c2')">
+                        Mupi Circuit 2
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- GEWAN -->
+
+            <div class="tree-child">
+
+                <div class="tree-child-title">
+                    Gewan Crystal Walk
+                    <span>+</span>
+                </div>
+
+                <div class="tree-subcontent">
+
+                    <button onclick="setMapAndClose('gewan')">
+                        All Gewan
+                    </button>
+
+                    <button onclick="setMapAndClose('gewan-c1')">
+                        Circuit 1
+                    </button>
+
+                    <button onclick="setMapAndClose('gewan-c2')">
+                        Circuit 2
+                    </button>
+
+                    <button onclick="setMapAndClose('gewan-c3')">
+                        Crystal Building
+                    </button>
+
+                </div>
+
+            </div>
+
+            <button onclick="setMapAndClose('udctower')">
+                UDC Tower
+            </button>
+
+            <button onclick="setMapAndClose('monoprix')">
+                Monoprix
+            </button>
+
+            <button onclick="setMapAndClose('qqscreen')">
+                Qanat Quartier Screen
+            </button>
+
         </div>
+
+    </div>
+
+    <!-- STATIC -->
+
+    <div class="tree-group">
+
+        <div class="tree-parent">
+            Static Assets
+            <span>+</span>
+        </div>
+
+        <div class="tree-content">
+
+            <button onclick="setMapAndClose('lightpoles-me-mb-mc')">
+                All Static Assets
+            </button>
+
+            <!-- Main Entrance -->
+
+            <div class="tree-child">
+
+                <div class="tree-child-title">
+                    Main Entrance
+                    <span>+</span>
+                </div>
+
+                <div class="tree-subcontent">
+
+                    <button onclick="setMapAndClose('lightpoles-me')">
+                        All Main Entrance
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-me-c1')">
+                        Circuit 1
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-me-c2')">
+                        Circuit 2
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-me-c3')">
+                        Circuit 3
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- Main Boulevard -->
+
+            <div class="tree-child">
+
+                <div class="tree-child-title">
+                    Main Boulevard
+                    <span>+</span>
+                </div>
+
+                <div class="tree-subcontent">
+
+                    <button onclick="setMapAndClose('lightpoles-mb')">
+                        All Main Boulevard
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-mb-c1')">
+                        Circuit 1
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-mb-c2')">
+                        Circuit 2
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-mb-c3')">
+                        Circuit 3
+                    </button>
+
+                </div>
+
+            </div>
+
+            <button onclick="setMapAndClose('lightpoles-mc')">
+                Medina Centrale
+            </button>
+
+            <!-- Porto Arabia -->
+
+            <div class="tree-child">
+
+                <div class="tree-child-title">
+                    Porto Arabia
+                    <span>+</span>
+                </div>
+
+                <div class="tree-subcontent">
+
+                    <button onclick="setMapAndClose('lightpoles-pa')">
+                        All Porto Arabia
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-pa-c1')">
+                        Circuit 1
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-pa-c2')">
+                        Circuit 2
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-pa-c3')">
+                        Circuit 3
+                    </button>
+
+                    <button onclick="setMapAndClose('lightpoles-pa-c4')">
+                        Circuit 4
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="dock-panel" id="servicesPanel">
+
+    <div class="panel-header">
+        Services
+    </div>
+
+    <div class="panel-content">
+
+        <button onclick="openAssetDimensionChecker()">
+            Asset Dimension Checker
+        </button>
+
+        <button onclick="openImageCompressor()">
+            Bulk Image Compressor
+        </button>
+
     </div>
 
 </div>
@@ -1572,6 +1984,92 @@ function toggleOverlay(show) {
 function copyGoogleMapLink() {
     navigator.clipboard.writeText(currentMapUrl).then(() => alert("Google Map link copied!"));
 }
+
+const dockItems =
+document.querySelectorAll(".dock-item");
+
+dockItems.forEach(item=>{
+
+    item.addEventListener("click",()=>{
+
+        dockItems.forEach(i=>
+            i.classList.remove("active")
+        );
+
+        item.classList.add("active");
+
+    });
+
+});
+
+const assetsBtn =
+document.getElementById("btnAssetsLocation");
+
+const servicesBtn =
+document.getElementById("btnServices");
+
+const assetsPanel =
+document.getElementById("assetsPanel");
+
+const servicesPanel =
+document.getElementById("servicesPanel");
+
+assetsBtn.addEventListener("click",(e)=>{
+
+    e.stopPropagation();
+
+    servicesPanel.classList.remove("show");
+
+    assetsPanel.classList.toggle("show");
+
+});
+
+servicesBtn.addEventListener("click",(e)=>{
+
+    e.stopPropagation();
+
+    assetsPanel.classList.remove("show");
+
+    servicesPanel.classList.toggle("show");
+
+});
+
+document.addEventListener("click",()=>{
+
+    assetsPanel.classList.remove("show");
+    servicesPanel.classList.remove("show");
+
+});
+
+document
+.querySelectorAll(".tree-parent")
+.forEach(item=>{
+
+    item.addEventListener("click",()=>{
+
+        item.classList.toggle("open");
+
+        item.nextElementSibling
+            .classList.toggle("open");
+
+    });
+
+});
+
+document
+.querySelectorAll(".tree-child-title")
+.forEach(item=>{
+
+    item.addEventListener("click",()=>{
+
+        item.classList.toggle("open");
+
+        item.nextElementSibling
+            .classList.toggle("open");
+
+    });
+
+});
 
 // =============================================
 // BOTTOM NAV INDICATOR
