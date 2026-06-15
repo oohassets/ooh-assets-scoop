@@ -598,9 +598,9 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
 </head>
 <body>
 
-<!-- <div id="scroll-progress"></div>
+<div id="scroll-progress"></div>
 <div id="cursor"></div>
-<div id="cursor-ring"></div> -->
+<div id="cursor-ring"></div>
 
 <!-- NAV -->
 <nav>
@@ -1829,6 +1829,17 @@ const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
 }, {threshold:0.1,rootMargin:"0px 0px -40px 0px"});
 reveals.forEach(el => observer.observe(el));
+
+// Trigger reveal for elements already in viewport on page load
+window.addEventListener('load', () => {
+  reveals.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add("visible");
+      observer.unobserve(el);
+    }
+  });
+});
 
 // NAV STUBS (replace with real navigation logic)
 function openHomeDashboard() { console.log("Dashboard"); }
