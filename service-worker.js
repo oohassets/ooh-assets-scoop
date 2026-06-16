@@ -18,7 +18,7 @@ importScripts("https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"
 importScripts("https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-  apiKey: "   ",
+  apiKey: "AIzaSyA4amK6CZuiU3_Nfaw4OLD17BqWrX0VYAA",
   authDomain: "scoopassets.firebaseapp.com",
   projectId: "scoopassets",
   storageBucket: "scoopassets.firebasestorage.app",
