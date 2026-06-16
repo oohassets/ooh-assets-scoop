@@ -84,7 +84,7 @@ nav {
   backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border-glass);
   height:64px;
-  display:flex;align-items:center;justify-content:space-between;
+  display:none;
   padding:0 1.5rem;
   transition:background 0.4s;
 }
@@ -199,16 +199,13 @@ nav {
 .btn-nav-primary:hover{transform:translateY(-1px);box-shadow:0 8px 25px var(--glow-indigo);}
 
 /* HERO */
-.hero{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding-top:90px;padding-bottom:80px;min-height:100vh;}
+.hero{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding-top:0;padding-bottom:80px;min-height:100vh;}
 .hero-content{
     position:relative;
     z-index:10;
-
     max-width:1400px;
     width:100%;
-
     padding:0 2rem;
-
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -612,7 +609,6 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
     <div class="nav-logo-mark">
       <img id="loginLogo" src="images/scooplogo.png" alt="Scoop Logo">
     </div>
-    <div class="nav-brand">Scoop Media &amp; Communication Co.</div>
   </div>
 
   <!-- MEGA MENU CENTER -->
@@ -796,7 +792,8 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
     <button class="btn-theme" id="themeToggle" title="Toggle theme">☀</button>
     <button class="btn-theme" id="logoutBtn" title="Logout" style="font-size:12px;">⏻</button>
   </div>
-</nav>
+
+</nav> 
 
 <!-- HERO -->
 <section class="hero">
@@ -828,8 +825,8 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
     </button>
 
     <button class="btn-cta-secondary" id="openCalBtnHero">
-      Content Inventory
-      <span class="btn-arrow">→</span>
+      View Calendar
+      <span class="btn-arrow">📅</span>
     </button>
   </div>
 
@@ -1039,7 +1036,6 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
 
 <!-- CALENDAR MODAL -->
 <div class="cal-modal-overlay" id="calendarModal">
-
   <div class="cal-modal-box">
     <div class="cal-modal-header">
       <div>
@@ -1047,15 +1043,13 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
         <p style="color:var(--text-muted);font-size:13px;margin-top:4px;">Live campaign schedules across all OOH assets</p>
       </div>
       <div class="cal-controls">
-        <input type="date" class="cal-date-input" id="calFrom">
-        <span style="color:var(--text-muted);font-size:13px;">→</span>
+        <!-- Date filter dropdown — same UI as Campaign Booking -->
         <div class="date-filter-wrap">
           <button class="date-filter-btn" id="calDateFilterBtn">
             <span class="cal-icon">📅</span>
-           <span id="calDateFilterLabel">This Month</span>
-           <span class="chevron-icon">▾</span>
+            <span id="calDateFilterLabel">This Month</span>
+            <span class="chevron-icon">▾</span>
           </button>
-
           <div class="date-filter-dropdown" id="calDateFilterDropdown">
             <button class="date-preset selected" data-cal-preset="this-month">This Month</button>
             <button class="date-preset" data-cal-preset="last-month">Last Month</button>
@@ -1063,24 +1057,25 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
             <button class="date-preset" data-cal-preset="all-year">All Year</button>
             <button class="date-preset" data-cal-preset="custom">Custom Range…</button>
             <div class="date-custom-inputs" id="calDateCustomInputs">
-              <div><div class="date-custom-label">From</div>
-              <input type="date" class="date-custom-field" id="calFrom"></div>
-              <div><div class="date-custom-label">To</div>
-              <input type="date" class="date-custom-field" id="calTo"></div>
+              <div>
+                <div class="date-custom-label">From</div>
+                <input type="date" class="date-custom-field" id="calFrom">
+              </div>
+              <div>
+                <div class="date-custom-label">To</div>
+                <input type="date" class="date-custom-field" id="calTo">
+              </div>
               <button class="date-apply-btn" id="applyCalCustomDate">Apply</button>
             </div>
           </div>
         </div>
-
         <button class="modal-close" id="closeCalModal" style="position:static;">✕</button>
-
       </div>
     </div>
     <div class="cal-scroll">
       <table id="bookingCalendar" class="booking-calendar"></table>
     </div>
   </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

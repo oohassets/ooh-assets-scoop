@@ -669,10 +669,11 @@ body.no-scroll {
   align-items: center;
   margin-bottom: 6px;
   padding-right: 10px;
+
 }
 
 .carousel-title {
-  color: var(--text);
+  color:#000;
   font-size: 20px;
   font-weight: 600;
   margin: 20px 0 10px;
