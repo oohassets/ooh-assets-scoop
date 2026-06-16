@@ -1049,8 +1049,31 @@ main{padding:0 2rem 4rem;max-width:1400px;margin:0 auto;}
       <div class="cal-controls">
         <input type="date" class="cal-date-input" id="calFrom">
         <span style="color:var(--text-muted);font-size:13px;">→</span>
-        <input type="date" class="cal-date-input" id="calTo">
+        <div class="date-filter-wrap">
+          <button class="date-filter-btn" id="calDateFilterBtn">
+            <span class="cal-icon">📅</span>
+           <span id="calDateFilterLabel">This Month</span>
+           <span class="chevron-icon">▾</span>
+          </button>
+
+          <div class="date-filter-dropdown" id="calDateFilterDropdown">
+            <button class="date-preset selected" data-cal-preset="this-month">This Month</button>
+            <button class="date-preset" data-cal-preset="last-month">Last Month</button>
+            <button class="date-preset" data-cal-preset="next-month">Next Month</button>
+            <button class="date-preset" data-cal-preset="all-year">All Year</button>
+            <button class="date-preset" data-cal-preset="custom">Custom Range…</button>
+            <div class="date-custom-inputs" id="calDateCustomInputs">
+              <div><div class="date-custom-label">From</div>
+              <input type="date" class="date-custom-field" id="calFrom"></div>
+              <div><div class="date-custom-label">To</div>
+              <input type="date" class="date-custom-field" id="calTo"></div>
+              <button class="date-apply-btn" id="applyCalCustomDate">Apply</button>
+            </div>
+          </div>
+        </div>
+
         <button class="modal-close" id="closeCalModal" style="position:static;">✕</button>
+
       </div>
     </div>
     <div class="cal-scroll">
@@ -1627,27 +1650,84 @@ document.getElementById("confirmBookingBtn")?.addEventListener("click", async ()
 
 // ── CALENDAR ──────────────────────────────────────────────────────────────────
 const calModal = document.getElementById("calendarModal");
-["openCalBtn","openCalBtnHero"].forEach(id => {
-  document.getElementById(id)?.addEventListener("click", async () => {
-    calModal.classList.add("active");
-    const ci = document.getElementById("calFrom"), ci2 = document.getElementById("calTo");
-    if (!ci.value) {
-      const n = new Date();
-      ci.value  = toISO(new Date(n.getFullYear(), n.getMonth(), 1));
-      ci2.value = toISO(new Date(n.getFullYear(), n.getMonth()+1, 0));
-    }
-    await buildCalendar();
-  });
-});
-document.getElementById("closeCalModal")?.addEventListener("click", () => calModal.classList.remove("active"));
-document.getElementById("calFrom")?.addEventListener("change", buildCalendar);
-document.getElementById("calTo")?.addEventListener("change", buildCalendar);
+let calDrpStart = null, calDrpEnd = null;
+function setCalPresetRange(preset) {
+const n = new Date(), y = n.getFullYear(), m = n.getMonth();
+const ranges = {
+     "this-month":  [new Date(y,m,1),   new Date(y,m+1,0)],
+     "last-month":  [new Date(y,m-1,1), new Date(y,m,0)],
+    "next-month":  [new Date(y,m+1,1), new Date(y,m+2,0)],
+    "all-year":    [new Date(y,0,1),   new Date(y,11,31)]
+  };
+   return ranges[preset] || [null, null];
+ }
+ [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
+ 
+ const calDateFilterBtn = document.getElementById("calDateFilterBtn");
+ const calDateFilterDropdown = document.getElementById("calDateFilterDropdown");
+ 
+ calDateFilterBtn?.addEventListener("click", e => {
+   e.stopPropagation();
+   calDateFilterDropdown.classList.toggle("open");
+   calDateFilterBtn.classList.toggle("open");
+ });
+ document.addEventListener("click", e => {
+   if (!calDateFilterBtn?.contains(e.target) && !calDateFilterDropdown?.contains(e.target)) {
+     calDateFilterDropdown?.classList.remove("open");
+     calDateFilterBtn?.classList.remove("open");
+   }
+ });
+ 
+ document.querySelectorAll("[data-cal-preset]").forEach(btn => {
+   btn.addEventListener("click", async () => {
+     document.querySelectorAll("[data-cal-preset]").forEach(b => b.classList.remove("selected"));
+     btn.classList.add("selected");
+     const preset = btn.dataset.calPreset;
+     const labels = {"this-month":"This Month","last-month":"Last Month","next-month":"Next Month","all-year":"All Year"};
+     if (preset === "custom") {
+       document.getElementById("calDateCustomInputs").classList.add("visible");
+       document.getElementById("calDateFilterLabel").textContent = "Custom Range";
+     } else {
+       document.getElementById("calDateCustomInputs").classList.remove("visible");
+       [calDrpStart, calDrpEnd] = setCalPresetRange(preset);
+       document.getElementById("calFrom").value = toISO(calDrpStart);
+       document.getElementById("calTo").value = toISO(calDrpEnd);
+       document.getElementById("calDateFilterLabel").textContent = labels[preset];
+       calDateFilterDropdown.classList.remove("open");
+       calDateFilterBtn.classList.remove("open");
+       await buildCalendar();
+     }
+   });
+ });
+ 
+ document.getElementById("applyCalCustomDate")?.addEventListener("click", async () => {
+   const f = document.getElementById("calFrom")?.value;
+   const t = document.getElementById("calTo")?.value;
+   if (f && t) {
+     calDrpStart = parseISOLocal(f); calDrpEnd = parseISOLocal(t);
+     document.getElementById("calDateFilterLabel").textContent = `${f} → ${t}`;
+     calDateFilterDropdown.classList.remove("open");
+     calDateFilterBtn.classList.remove("open");
+     await buildCalendar();
+   }
+ });
+ 
+ ["openCalBtn","openCalBtnHero"].forEach(id => {
+   document.getElementById(id)?.addEventListener("click", async () => {
+     calModal.classList.add("active");
+     if (!calDrpStart) [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
+     document.getElementById("calFrom").value = toISO(calDrpStart);
+     document.getElementById("calTo").value = toISO(calDrpEnd);
+     await buildCalendar();
+   });
+ });
+ document.getElementById("closeCalModal")?.addEventListener("click", () => calModal.classList.remove("active"));
 
 async function buildCalendar() {
   const table = document.getElementById("bookingCalendar"); if (!table) return;
   const ciFrom = document.getElementById("calFrom"), ciTo = document.getElementById("calTo");
-  const startD = ciFrom?.value ? parseISOLocal(ciFrom.value) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const endD   = ciTo?.value  ? parseISOLocal(ciTo.value)   : new Date(new Date().getFullYear(), new Date().getMonth()+1, 0);
+   const startD = calDrpStart || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+   const endD   = calDrpEnd   || new Date(new Date().getFullYear(), new Date().getMonth()+1, 0);
   let [circuitSlots, bookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
   if (!circuitSlots.length) { table.innerHTML = `<tr><td style="padding:20px;text-align:center;color:var(--text-muted);">No circuits found</td></tr>`; return; }
   const dates = [], cur = new Date(startD);
