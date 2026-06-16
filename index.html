@@ -83,30 +83,6 @@ body {
   padding-bottom: 0;
 }
 
-
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background:
-    linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.0)),  /* overlay */
-    url("https://oohassets.github.io/ooh-assets-scoop/images/thepearlisland.jpg");
-
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  filter: blur(2px);              
-  transform: scale(1.05);        
-  
-  z-index: -1;
-}
-
 iframe { position:relative; z-index:1; border:none; }
 
 /* ══════════════════════════════════════════
@@ -463,7 +439,7 @@ nav {
   <div class="nav-center">
 
     <div class="nav-item">
-      <button class="nav-link" id="homeDashboardLink" onclick="openHomeDashboard()">Dashboard</button>
+      <button class="nav-link" id="homeLink" onclick="openHome()">Dashboard</button>
     </div>
 
     <div class="nav-item">
@@ -644,11 +620,16 @@ nav {
      MOBILE DOCK
 ══════════════════════════════════════════ -->
 <div class="mobile-dock" id="mobileDock">
-  <button class="dock-item active" id="btnContentInventory">
+
+  <button class="dock-item active" id="btnHome">
+    <img src="https://img.icons8.com/fluency-systems-regular/48/home--v1.png">
+    <span>Dashboard</span>
+  </button>
+  <button class="dock-item" id="btnContentInventory">
     <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png">
     <span>Content Inventory</span>
   </button>
-  <button class="dock-item has-panel" id="btnAssetsLocation">
+  <button class="dock-item" id="btnAssetsLocation">
     <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png">
     <span>Assets Location</span>
   </button>
@@ -656,7 +637,7 @@ nav {
     <img src="https://img.icons8.com/ios/50/people-in-car.png">
     <span>Traffic &amp; Impressions</span>
   </button>
-  <button class="dock-item has-panel" id="btnServices">
+  <button class="dock-item" id="btnServices">
     <img src="https://img.icons8.com/material-sharp/24/circled-menu.png">
     <span>Services</span>
   </button>
@@ -880,45 +861,45 @@ function setMap(key) {
     document.getElementById("mapFrame").src = currentMapUrl;
     toggleOverlay(true);
     setURL({ map: key, page: null });
-    setDockActive(1);
+    setDockActive(2);
 }
 
-function setMapAndClose(key) {
+function setMapAndClose(key) {    
     closeAllPanels();
     setMap(key);
+
 }
 
 // =============================================
 // CONTENT SWITCHING
 // =============================================
 
-function openHomeDashboard() {
+function openHome() {
     showOnlyFrame("homeFrame");
     toggleOverlay(false);
 
-    setURL({ map: null, page: null });
+    setURL({ map: null, page: "home" });
 
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
-    document.getElementById("homeDashboardLink").classList.add("active");
+    document.getElementById("homeLink").classList.add("active");
 
-    moveIndicator(document.getElementById("homeDashboardLink"));
-    setBottomActive(0);
+    setDockActive(0);
+    closeAllPanels();
 }
 
 function openContentInventory() {
     showOnlyFrame("contentInventoryFrame");
     toggleOverlay(false);
 
-    setURL({ map: null, page: null });
+    setURL({ map: null, page: "content-inventory" });
 
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("contentInventoryLink").classList.add("active");
 
-    moveIndicator(document.getElementById("contentInventoryLink"));
-    setBottomActive(0);
+
+    setDockActive(1);
+    closeAllPanels();
 }
-
-
 
 function openVehicleReport() {
     showOnlyFrame("vehicleFrame");
@@ -928,9 +909,10 @@ function openVehicleReport() {
 
     document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
     document.getElementById("vehicleTrafficLink").classList.add("active");
+  
+    setDockActive(3);
+    closeAllPanels();
 
-    moveIndicator(document.getElementById("vehicleTrafficLink"));
-    setBottomActive(2);
 }
 
 function openAssetDimensionChecker() {
@@ -938,7 +920,9 @@ function openAssetDimensionChecker() {
     toggleOverlay(false);
 
     setURL({ map: null, page: "asset-checker" });
-    setBottomActive(3);
+    setDockActive(4);
+    closeAllPanels();
+
 }
 
 function openImageCompressor() {
@@ -946,7 +930,9 @@ function openImageCompressor() {
     toggleOverlay(false);
 
     setURL({ map: null, page: "image-compressor" });
-    setBottomActive(3);
+    setDockActive(4);
+    closeAllPanels();
+
 }
 
 
@@ -957,10 +943,12 @@ function loadFromURL() {
     const params = new URLSearchParams(window.location.search);
     const page = params.get("page");
     const map  = params.get("map");
-    if (page === "vehicle")          return openVehicleReport();
-    if (page === "asset-checker")    return openAssetDimensionChecker();
-    if (page === "image-compressor") return openImageCompressor();
-    if (map && maps[map])            return setMap(map);
+    if (page === "home")                return openHome();
+    if (page === "content-inventory")   return openContentInventory();
+    if (page === "vehicle")             return openVehicleReport();
+    if (page === "asset-checker")       return openAssetDimensionChecker();
+    if (page === "image-compressor")    return openImageCompressor();
+    if (map && maps[map])               return setMap(map);
     openContentInventory();
 }
 
@@ -1028,6 +1016,9 @@ document.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", () => {
 
     // Dock buttons
+    document.getElementById("btnHome").addEventListener("click", () => {
+        closeAllPanels(); openHome();
+    });
     document.getElementById("btnContentInventory").addEventListener("click", () => {
         closeAllPanels(); openContentInventory();
     });
