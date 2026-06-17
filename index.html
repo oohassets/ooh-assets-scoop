@@ -25,8 +25,13 @@
       });
     </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+
+    
     <style>
     /* ══════════════════════════════════════════
       THEME TOKENS
@@ -319,6 +324,45 @@
       backdrop-filter: blur(20px);
     }
     @media(min-width:769px) { .mobile-dock { display:none; } }
+
+    /* --ICONS --*/
+    .material-symbols-outlined {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      opacity: 1 !important;
+      max-width: none !important;
+      overflow: visible !important;
+      flex-shrink: 0;
+    }
+    
+    .dock-item span:not(.material-symbols-outlined) {
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: all .35s ease;
+      color: var(--text-primary);
+    }
+
+    .dock-item.active span:not(.material-symbols-outlined) {
+      max-width: 140px;
+      opacity: 1;
+      color: var(--accent-indigo);
+    }
+
+    .dock-label {
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: all .35s ease;
+    }
+
+    .dock-item.active .dock-label {
+      max-width: 140px;
+      opacity: 1;
+    }
 
     .dock-item {
       border: none; background: transparent;
@@ -630,24 +674,28 @@
     <div class="mobile-dock" id="mobileDock">
 
       <button class="dock-item active" id="btnHome">
-        <img src="https://img.icons8.com/fluency-systems-regular/48/home--v1.png">
-        <span>Dashboard</span>
+        <span class="material-symbols-outlined">home</span>
+        <span class="dock-label">Dashboard</span>
       </button>
+
       <button class="dock-item" id="btnContentInventory">
-        <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png">
-        <span>Content Inventory</span>
+        <span class="material-symbols-outlined">format_align_left</span>
+        <span class="dock-label">Contents</span>
       </button>
+
       <button class="dock-item" id="btnAssetsLocation">
-        <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png">
-        <span>Assets Location</span>
+        <span class="material-symbols-outlined">pin_drop</span>
+        <span class="dock-label">Assets</span>
       </button>
+
       <button class="dock-item" id="btnVehicleTraffic">
-        <img src="https://img.icons8.com/ios/50/people-in-car.png">
-        <span>Visitors</span>
+        <span class="material-symbols-outlined">directions_car</span>
+        <span class="dock-label">Visitors</span>
       </button>
+
       <button class="dock-item" id="btnServices">
-        <img src="https://img.icons8.com/material-sharp/24/circled-menu.png">
-        <span>Services</span>
+        <span class="material-symbols-outlined">apps</span>
+        <span class="dock-label">Services</span>
       </button>
 
     </div>
