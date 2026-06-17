@@ -1,1082 +1,1054 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SCOOP OOH Assets</title>
-
-<script type="module">
-  import { requireAuth } from "./assets/js/authGuard.js";
-  import { auth } from "./firebase/firebase.js";
-  import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-  requireAuth((user) => {
-    const userNameEl = document.getElementById("navUser");
-    userNameEl.textContent = user.displayName || user.email.split("@")[0];
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-        signOut(auth)
-          .then(() => { window.location.href = "./login.html"; })
-          .catch((error) => {
-              console.error("Logout error:", error);
-              alert("Failed to logout");
-          });
-    });
-  });
-</script>
-
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<style>
-/* ══════════════════════════════════════════
-   THEME TOKENS
-══════════════════════════════════════════ */
-:root {
-  --bg-primary: #050A1A;
-  --bg-secondary: #0A1628;
-  --bg-tertiary: #0F1E38;
-  --bg-card: rgba(15,28,56,0.7);
-  --bg-glass: rgba(255,255,255,0.04);
-  --bg-glass-hover: rgba(255,255,255,0.07);
-  --border-glass: rgba(255,255,255,0.1);
-  --border-glow: rgba(79,70,229,0.4);
-  --text-primary: #F8FAFF;
-  --text-secondary: #94A3C0;
-  --text-muted: #5A6A8A;
-  --accent-indigo: #4F46E5;
-  --accent-cyan: #0496ff;
-  --accent-violet: #7C3AED;
-  --accent-emerald: #10B981;
-  --glow-indigo: rgba(79,70,229,0.25);
-  --nav-bg: rgba(5,10,26,0.95);
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --radius-sm: 12px;
-  --radius-md: 18px;
-}
-
-[data-theme="light"] {
-  --bg-primary: #F0F4FF;
-  --bg-secondary: #E8EEF8;
-  --bg-tertiary: #DDE5F5;
-  --bg-card: rgba(255,255,255,0.85);
-  --bg-glass: rgba(255,255,255,0.7);
-  --bg-glass-hover: rgba(255,255,255,0.9);
-  --border-glass: rgba(79,70,229,0.15);
-  --border-glow: rgba(79,70,229,0.3);
-  --text-primary: #0A1628;
-  --text-secondary: #3D4F6E;
-  --text-muted: #6B7A99;
-  --nav-bg: rgba(240,244,255,0.97);
-  --glow-indigo: rgba(79,70,229,0.1);
-}
-
-* { margin:0; padding:0; box-sizing:border-box; }
-
-body {
-  font-family: var(--font-body);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background 0.4s, color 0.4s;
-  padding-bottom: 0;
-}
-
-iframe { position:relative; z-index:1; border:none; }
-
-/* ══════════════════════════════════════════
-   NAV
-══════════════════════════════════════════ */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 3000;
-  background: var(--nav-bg);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-glass);
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
-  transition: background 0.4s;
-}
-
-.nav-logo { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-.nav-logo-mark { width:40px; height:40px; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-.nav-logo-mark img { width:100%; height:100%; object-fit:contain; }
-.nav-brand { font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--text-primary); white-space:nowrap; }
-
-/* Center menu */
-.nav-center { display:flex; align-items:center; gap:2px; }
-.nav-item { position:relative; }
-.nav-link {
-  display:flex; align-items:center; gap:5px;
-  padding:8px 14px; border-radius:10px;
-  font-family:var(--font-display); font-size:13px; font-weight:600;
-  color:var(--text-secondary); cursor:pointer;
-  transition:all 0.2s; white-space:nowrap;
-  user-select:none; background:none; border:none;
-  text-decoration:none;
-}
-.nav-link:hover, .nav-link.active { color:var(--text-primary); background:var(--bg-glass); }
-.nav-link .chevron { font-size:10px; transition:transform 0.2s; opacity:0.6; }
-.nav-item.dropdown-parent:hover .nav-link .chevron { transform:rotate(180deg); }
-
-/* Mega dropdown */
-.mega-dropdown {
-  position:absolute; top:calc(100% + 12px); left:50%; transform:translateX(-50%);
-  background:var(--nav-bg);
-  border:1px solid var(--border-glass);
-  border-radius:var(--radius-md);
-  padding:20px;
-  display:none; gap:24px;
-  min-width:560px;
-  box-shadow:0 24px 48px rgba(0,0,0,0.3);
-  backdrop-filter:blur(24px);
-  z-index:200;
-}
-.nav-item.dropdown-parent:hover .mega-dropdown { display:flex; }
-
-.mega-column { min-width:170px; flex:1; }
-.mega-title {
-  font-family:var(--font-display); font-size:11px; font-weight:700;
-  color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase;
-  padding:0 8px 10px;
-  border-bottom:1px solid var(--border-glass);
-  margin-bottom:8px;
-}
-.mega-title a { color:inherit; text-decoration:none; cursor:pointer; }
-.mega-title a:hover { color:var(--accent-cyan); }
-
-.hover-item { position:relative; }
-.hover-title {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:7px 8px; border-radius:8px; cursor:pointer;
-  font-size:13px; color:var(--text-secondary);
-  transition:all 0.15s;
-}
-.hover-title a { color:inherit; text-decoration:none; flex:1; display:block; }
-.hover-title span { font-size:11px; opacity:0.5; transition:transform 0.15s; flex-shrink:0; }
-.hover-item:hover > .hover-title { background:var(--bg-glass); color:var(--text-primary); }
-.hover-item:hover > .hover-title span { transform:translateX(3px); }
-
-.hover-submenu {
-  display:none;
-  position:absolute; left:calc(100% + 8px); top:0;
-  background:var(--nav-bg);
-  border:1px solid var(--border-glass);
-  border-radius:12px; padding:10px;
-  min-width:200px;
-  box-shadow:0 16px 40px rgba(0,0,0,0.25);
-  backdrop-filter:blur(24px);
-  z-index:300;
-}
-.hover-item:hover > .hover-submenu { display:block; }
-.hover-submenu a {
-  display:block; padding:7px 10px; border-radius:8px;
-  font-size:12px; color:var(--text-secondary); text-decoration:none; cursor:pointer;
-  transition:all 0.15s;
-}
-.hover-submenu a:hover { background:var(--bg-glass); color:var(--text-primary); }
-.hover-submenu a.active { background:rgba(4,150,255,0.12); color:var(--accent-cyan); font-weight:600; }
-
-.hover-submenu.deep {
-  position:absolute; left:calc(100% + 8px); top:0;
-  display:none;
-}
-.hover-item.sub:hover > .hover-submenu.deep { display:block; }
-.hover-item.sub .hover-title { padding:6px 8px; font-size:12px; }
-
-.mega-earth-link {
-  font-size:12px; color:var(--text-muted); text-decoration:none;
-  padding:8px; display:block; line-height:1.5;
-  transition:color 0.2s;
-}
-.mega-earth-link:hover { color:var(--accent-cyan); }
-
-/* Nav actions */
-.nav-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-.nav-badge {
-  padding:5px 12px; border-radius:999px; font-size:12px; font-weight:600;
-  font-family:var(--font-display);
-  background:var(--bg-glass); border:1px solid var(--border-glass);
-  color:var(--text-secondary); display:flex; align-items:center; gap:6px;
-}
-.nav-badge .dot {
-  width:6px; height:6px; border-radius:50%;
-  background:var(--accent-emerald); animation:pulse-dot 2s infinite;
-}
-@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(0.8);} }
-.btn-theme {
-  width:38px; height:38px; border-radius:50%;
-  border:1px solid var(--border-glass); background:var(--bg-glass);
-  color:var(--text-secondary); font-size:15px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; transition:all 0.2s;
-}
-.btn-theme:hover { border-color:var(--accent-indigo); color:var(--text-primary); }
-.btn-nav {
-  padding:7px 16px; border-radius:999px; border:none; cursor:pointer;
-  font-family:var(--font-display); font-weight:600; font-size:12px; transition:all 0.2s;
-}
-.btn-nav-outline {
-  background:transparent; border:1px solid var(--border-glass); color:var(--text-secondary);
-}
-.btn-nav-outline:hover { border-color:var(--accent-indigo); color:var(--text-primary); }
-.btn-nav-primary {
-  background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet));
-  color:white; box-shadow:0 4px 15px var(--glow-indigo);
-}
-.btn-nav-primary:hover { transform:translateY(-1px); box-shadow:0 8px 25px var(--glow-indigo); }
-
-/* ══════════════════════════════════════════
-   MAP
-══════════════════════════════════════════ */
-.map-container {
-  position: relative;
-  height: calc(100vh - 64px);
-  margin-top: 64px;
-}
-
-.map-container iframe {
-  width: 100%;
-  height: 100%;
-}
-
-/* ══════════════════════════════════════════
-   OVERLAY BUTTONS
-══════════════════════════════════════════ */
-.map-overlay {
-  position: absolute;
-  top: 0; right: 0;
-  width: 140px; height: 50px;
-  background: #4d6a79;
-  z-index: 1500;
-}
-
-.info-btn {
-  position: absolute; top: 20px; right: 70px;
-  background: transparent; border: none; cursor: pointer;
-}
-.share-btn {
-  position: absolute; top: 20px; right: 20px;
-  background: transparent; border: none; cursor: pointer;
-}
-.share-btn img, .info-btn img { width: 25px; }
-
-/* ══════════════════════════════════════════
-   INFO CARD
-══════════════════════════════════════════ */
-.info-card {
-  position: absolute; top: 75px; right: 20px;
-  width: 400px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  overflow: hidden; z-index: 999;
-  display: none;
-  animation: fadeInCard 0.25s ease;
-  backdrop-filter: blur(20px);
-}
-@keyframes fadeInCard {
-  from { opacity:0; transform:translateY(-8px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.info-header {
-  padding: 14px 18px;
-  background: #4d6a79;
-  color: #ffffff; font-size: 13px;
-  display: flex; align-items: center; justify-content: space-between;
-  font-family: var(--font-display); font-weight: 600;
-}
-.close-info { cursor:pointer; font-size:14px; opacity:0.8; }
-.close-info:hover { opacity:1; }
-
-.info-table { width:100%; border-collapse:collapse; }
-.info-table tr { border-bottom:1px solid var(--border-glass); }
-.info-table th {
-  width:50%; padding:14px 16px; text-align:left;
-  font-size:12px; color:var(--text-muted);
-  background:var(--bg-glass);
-  font-family:var(--font-display); font-weight:600;
-}
-.info-table td {
-  padding:14px 16px; font-size:13px; color:var(--text-primary);
-}
-
-/* ══════════════════════════════════════════
-   MOBILE DOCK
-══════════════════════════════════════════ */
-.mobile-dock {
-  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-  z-index: 9999;
-  display: flex; align-items: center; gap: 8px; padding: 8px;
-  background: var(--nav-bg);
-  border-radius: 24px; border: 1px solid var(--border-glass);
-  box-shadow: 0 10px 30px rgba(0,0,0,.12);
-  backdrop-filter: blur(20px);
-}
-@media(min-width:769px) { .mobile-dock { display:none; } }
-
-.dock-item {
-  border: none; background: transparent;
-  display: flex; align-items: center; justify-content: center; gap: 0;
-  height: 48px; padding: 0 14px; border-radius: 16px;
-  cursor: pointer; color: var(--text-primary); transition: all .35s ease;
-}
-.dock-item img { width:22px; height:22px; object-fit:contain; filter:none; }
-.dock-item span {
-  max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap;
-  transition: all .35s ease; color: var(--text-primary);
-}
-.dock-item:hover { background: var(--bg-glass); }
-.dock-item.active { background: rgba(79,70,229,0.12); color: var(--accent-indigo); gap: 10px; padding-left: 18px; padding-right: 18px; }
-.dock-item.active span { max-width: 140px; opacity: 1; color: var(--accent-indigo); }
-
-.dock-panel {
-  position: fixed; left: 12px; right: 12px; bottom: 95px; z-index: 9998;
-  background: var(--nav-bg);
-  border-radius: 22px; border: 1px solid var(--border-glass);
-  box-shadow: 0 10px 40px rgba(0,0,0,.18);
-  padding: 18px; display: none;
-  max-height: 70vh; overflow: auto;
-  animation: panelUp .25s ease;
-  backdrop-filter: blur(20px);
-}
-.dock-panel.show { display: block; }
-@keyframes panelUp {
-  from { opacity:0; transform:translateY(15px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-.panel-header {
-  color: var(--text-primary); font-size: 16px; font-weight: 700;
-  font-family: var(--font-display);
-  margin-bottom: 8px; border:none; background:none;
-}
-.panel-content { display:grid; gap:10px; }
-.panel-content button {
-  width:100%; border:1px solid var(--border-glass); background:var(--bg-glass);
-  border-radius:12px; padding:8px 10px; text-align:left;
-  margin-bottom:5px; cursor:pointer; transition:.25s;
-  color:var(--text-secondary); font-family:var(--font-body); font-size:13px;
-}
-.panel-content button:hover { background:rgba(79,70,229,0.12); border-color:var(--accent-indigo); color:var(--accent-indigo); }
-
-.asset-section-title {
-  font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;
-  color:var(--accent-indigo);
-  margin:20px 0 12px; border:none; background:none; cursor:pointer;
-  font-family:var(--font-display);
-}
-.asset-group { margin-bottom:15px; }
-.asset-header { font-size:18px; font-weight:700; color:var(--text-primary); border:none; background:none; cursor:pointer; font-family:var(--font-display); }
-.asset-group-title {
-  font-size:14px; font-weight:700; color:var(--text-primary);
-  margin-bottom:5px; border:none; background:none; cursor:pointer;
-  font-family:var(--font-display); display:block; width:100%; text-align:left;
-  padding:4px 0;
-}
-.asset-group-submenu {
-  font-size:12px; color:var(--text-secondary); margin-left:20px; margin-bottom:5px;
-  border:none; background:none; cursor:pointer; display:block; width:100%; text-align:left;
-  padding:4px 0; transition:color 0.2s;
-}
-.asset-group-submenu:hover { color:var(--accent-indigo); }
-.asset-group button {
-  width:100%; border:none; background:transparent;
-  border-radius:12px; padding:6px 8px; text-align:left;
-  margin-bottom:4px; cursor:pointer; transition:.25s;
-  color:var(--text-secondary); font-family:var(--font-body); font-size:13px;
-}
-.asset-group button:hover { background:var(--bg-glass); color:var(--text-primary); }
-
-/* ══════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════ */
-@media(max-width:900px) {
-  .nav-center { display:none; }
-  nav { padding:0 1rem; }
-  .nav-badge, .btn-nav-outline { display:none; }
-  .map-container { height: calc(100vh - 64px - env(safe-area-inset-bottom, 0px)); }
-}
-
-@media(max-width:768px) {
-  .info-card { width: calc(100vw - 40px); right: 20px; }
-}
-</style>
-
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="images/scooplogo_black_192x192.png">
-<link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_180x180.png">
-<meta name="theme-color" content="#050A1A">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SCOOP OOH">
-<meta name="application-name" content="SCOOP OOH">
-<meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
-<meta name="msapplication-TileColor" content="#050A1A">
-
-</head>
-<body>
-
-<!-- ══════════════════════════════════════════
-     TOP NAV
-══════════════════════════════════════════ -->
-<nav>
-  <div class="nav-logo">
-    <div class="nav-logo-mark">
-      <img id="loginLogo" src="images/scooplogo.png" alt="Scoop Logo">
-    </div>
-  </div>
-
-  <div class="nav-center">
-
-    <div class="nav-item">
-      <button class="nav-link" id="homeLink" onclick="openHome()">Dashboard</button>
-    </div>
-
-    <div class="nav-item">
-      <button class="nav-link" id="contentInventoryLink" onclick="openContentInventory()">Content Inventory</button>
-    </div>
-
-    <div class="nav-item dropdown-parent">
-      <button class="nav-link">
-        Assets Location <span class="chevron">▾</span>
-      </button>
-      <div class="mega-dropdown">
-
-        <div class="mega-column">
-          <div class="mega-title"><a onclick="setMap('digital')">Digital Assets</a></div>
-
-          <div class="hover-item">
-            <div class="hover-title"><a onclick="setMap('underpass')">Underpass</a><span>›</span></div>
-            <div class="hover-submenu">
-              <a onclick="setMap('underpass-entrance')">Underpass Entrance</a>
-              <a onclick="setMap('underpass-exit')">Underpass Exit</a>
-            </div>
-          </div>
-
-          <div class="hover-item">
-            <div class="hover-title"><a onclick="setMap('mupi')">Mupi</a><span>›</span></div>
-            <div class="hover-submenu">
-              <a onclick="setMap('mupi-c1')">Mupi Circuit 1</a>
-              <a onclick="setMap('mupi-c2')">Mupi Circuit 2</a>
-            </div>
-          </div>
-
-          <div class="hover-item">
-            <div class="hover-title"><a onclick="setMap('gewan')">Gewan Crystal Walk</a><span>›</span></div>
-            <div class="hover-submenu">
-              <a onclick="setMap('gewan-c1')">Gewan Crystal Walk Circuit 1</a>
-              <a onclick="setMap('gewan-c2')">Gewan Crystal Walk Circuit 2</a>
-              <a onclick="setMap('gewan-building')">Gewan Crystal Building</a>
-            </div>
-          </div>
-
-          <div class="hover-item"><div class="hover-title"><a onclick="setMap('udctower')">UDC Tower</a></div></div>
-          <div class="hover-item"><div class="hover-title"><a onclick="setMap('monoprix')">Monoprix</a></div></div>
-          <div class="hover-item"><div class="hover-title"><a onclick="setMap('qqscreen')">Qanat Quartier Screen</a></div></div>
-        </div>
-
-        <div class="mega-column">
-          <div class="mega-title"><a onclick="setMap('lightpoles-me-mb-mc')">Static Assets</a></div>
-
-          <div class="hover-item">
-            <div class="hover-title"><a onclick="setMap('lightpoles-me-mb')">Light Poles Main Circuits</a><span>›</span></div>
-            <div class="hover-submenu">
-              <div class="hover-item sub">
-                <div class="hover-title"><a onclick="setMap('lightpoles-me')">Main Entrance</a><span>›</span></div>
-                <div class="hover-submenu deep">
-                  <a onclick="setMap('lightpoles-me-c1')">Main Entrance Circuit 1</a>
-                  <a onclick="setMap('lightpoles-me-c2')">Main Entrance Circuit 2</a>
-                  <a onclick="setMap('lightpoles-me-c3')">Main Entrance Circuit 3</a>
-                </div>
-              </div>
-              <div class="hover-item sub">
-                <div class="hover-title"><a onclick="setMap('lightpoles-mb')">Main Boulevard</a><span>›</span></div>
-                <div class="hover-submenu deep">
-                  <a onclick="setMap('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
-                  <a onclick="setMap('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
-                  <a onclick="setMap('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="hover-item"><div class="hover-title"><a onclick="setMap('lightpoles-mc')">Light Poles Medina Centrale</a></div></div>
-
-          <div class="hover-item">
-            <div class="hover-title"><a onclick="setMap('lightpoles-pa')">Light Poles Porto Arabia</a><span>›</span></div>
-            <div class="hover-submenu">
-              <a onclick="setMap('lightpoles-pa-c1')">Light Poles Porto Arabia Circuit 1</a>
-              <a onclick="setMap('lightpoles-pa-c2')">Light Poles Porto Arabia Circuit 2</a>
-              <a onclick="setMap('lightpoles-pa-c3')">Light Poles Porto Arabia Circuit 3</a>
-              <a onclick="setMap('lightpoles-pa-c4')">Light Poles Porto Arabia Circuit 4</a>
-            </div>
-          </div>
-
-          <div class="hover-item">
-            <div class="hover-title"><a onclick="setMap('mupi-pa')">Mupi Porto Arabia</a><span>›</span></div>
-            <div class="hover-submenu">
-              <a onclick="setMap('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
-              <a onclick="setMap('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
-              <a onclick="setMap('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
-              <a onclick="setMap('mupi-pa-low')">Mupi Porto Arabia Low Visibility</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="mega-column" style="min-width:160px;max-width:180px;">
-          <div class="mega-title">3D View</div>
-          <a class="mega-earth-link"
-             href="https://earth.google.com/web/@25.37272326,51.53164098,1.04532372a,1440.22784026d,35y,99.15131406h,66.75047323t,0r/data=CgRCAggBMikKJwolCiExTlJHcTlTb2tDX1JMc0ppVGI5RkVoX256cWs2WXcwSzcgAToDCgEwQgIIAEoICMGWp80HEAE?authuser=0"
-             target="_blank" rel="noopener noreferrer">
-            🌍 View 3D Asset Locations<br>in Google Earth
-          </a>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="nav-item">
-      <button class="nav-link" id="vehicleTrafficLink" onclick="openVehicleReport()">Vehicle Traffic</button>
-    </div>
-
-    <div class="nav-item dropdown-parent">
-      <button class="nav-link">Services <span class="chevron">▾</span></button>
-      <div class="mega-dropdown" style="min-width:240px;">
-        <div class="mega-column">
-          <div class="mega-title">Services</div>
-          <div class="hover-item"><div class="hover-title"><a onclick="openAssetDimensionChecker()">Asset Dimension Checker</a></div></div>
-          <div class="hover-item"><div class="hover-title"><a onclick="openImageCompressor()">Bulk Image Compressor</a></div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="nav-item">
-      <button class="nav-link" id="viewScreenLink" onclick="openViewScreen()">View Screen</button>
-    </div>
-
-  </div>
-
-  <div class="nav-actions">
-    <div class="nav-badge">
-      <span class="dot"></span>
-      <span id="navUser">User</span>
-    </div>
-    <button class="btn-theme" id="themeToggle" title="Toggle theme">☀</button>
-    <button class="btn-theme" id="logoutBtn" title="Logout" style="font-size:12px;">⏻</button>
-  </div>
-</nav>
-
-<!-- ══════════════════════════════════════════
-     MAP AREA
-══════════════════════════════════════════ -->
-<div class="map-container">
-
-  <div class="map-overlay">
-    <button class="info-btn" onclick="toggleInfoCard()" title="View Asset Details">
-      <img src="https://img.icons8.com/softteal-line/ffffff/info.png" alt="Info">
-    </button>
-    <button class="share-btn" onclick="copyGoogleMapLink()" title="Copy Map Link">
-      <img src="https://img.icons8.com/?size=100&id=98959&format=png&color=ffffff" alt="Share">
-    </button>
-  </div>
-
-  <div id="infoCard" class="info-card">
-    <div class="info-header" id="infoHeader">
-      Asset Rate Card
-      <span class="close-info" onclick="toggleInfoCard()">✕</span>
-    </div>
-    <table class="info-table">
-      <tbody id="infoTableBody"></tbody>
-    </table>
-  </div>
-
-  <iframe id="mapFrame" style="display:none;"></iframe>
-
-  
-  <iframe id="homeFrame" style="display:none;"
-    src="https://oohassets.github.io/ooh-assets-scoop/main.html"></iframe>
-
-  <iframe id="contentInventoryFrame" style="display:none;"
-    src="https://oohassets.github.io/ooh-assets-scoop/content-inventory.html"></iframe>
-
-  <iframe id="vehicleFrame" style="display:none;"
-    src="https://oohassets.github.io/ooh-assets-scoop/vehicle-traffic-report.html"></iframe>
-
-  <iframe id="assetDimensionCheckerFrame" style="display:none;"
-    src="https://oohassets.github.io/ooh-assets-scoop/asset-dimension-checker.html"></iframe>
-
-  <iframe id="imageCompressorFrame" style="display:none;"
-    src="https://oohassets.github.io/ooh-assets-scoop/bulk-image-compressor.html"></iframe>
-
-  <iframe id="viewScreenFrame" style="display:none;"
-    src="https://oohassets.github.io/ooh-assets-scoop/asset-digital-content.html"></iframe>
-
-</div>
-
-<!-- ══════════════════════════════════════════
-     MOBILE DOCK
-══════════════════════════════════════════ -->
-<div class="mobile-dock" id="mobileDock">
-
-  <button class="dock-item active" id="btnHome">
-    <img src="https://img.icons8.com/fluency-systems-regular/48/home--v1.png">
-    <span>Dashboard</span>
-  </button>
-  <button class="dock-item" id="btnContentInventory">
-    <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png">
-    <span>Content Inventory</span>
-  </button>
-  <button class="dock-item" id="btnAssetsLocation">
-    <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png">
-    <span>Assets Location</span>
-  </button>
-  <button class="dock-item" id="btnVehicleTraffic">
-    <img src="https://img.icons8.com/ios/50/people-in-car.png">
-    <span>Traffic &amp; Impressions</span>
-  </button>
-  <button class="dock-item" id="btnServices">
-    <img src="https://img.icons8.com/material-sharp/24/circled-menu.png">
-    <span>Services</span>
-  </button>
-  <button class="dock-item" id="btnViewScreen">
-    <img src="https://img.icons8.com/ios-glyphs/air-play.png">
-    <span>View Screen</span>
-  </button>
-</div>
-
-<!-- Assets Panel -->
-<div class="dock-panel" id="assetsPanel">
-  <div class="panel-header">
-    <button class="asset-header" onclick="setMapAndClose('assets')">Asset Location</button>
-  </div>
-
-  <button class="asset-section-title" onclick="setMapAndClose('digital')">Digital Assets</button>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('underpass')">Underpass</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('underpass-entrance')">Underpass Entrance</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('underpass-exit')">Underpass Exit</button>
-  </div>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('mupi')">Mupi</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('mupi-c1')">Mupi Circuit 1</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('mupi-c2')">Mupi Circuit 2</button>
-  </div>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('gewan')">Gewan Crystal Walk</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('gewan-c1')">Gewan Crystal Walk Circuit 1</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('gewan-c2')">Gewan Crystal Walk Circuit 2</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('gewan-building')">Gewan Crystal Building</button>
-  </div>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('udctower')">UDC Tower</button>
-    <button class="asset-group-title" onclick="setMapAndClose('monoprix')">Monoprix</button>
-    <button class="asset-group-title" onclick="setMapAndClose('qqscreen')">Qanat Quartier Screen</button>
-  </div>
-
-  <button class="asset-section-title" onclick="setMapAndClose('lightpoles-me-mb-mc')">Static Assets</button>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('lightpoles-me')">Light Poles Main Entrance</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c1')">Main Entrance Circuit 1</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c2')">Main Entrance Circuit 2</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c3')">Main Entrance Circuit 3</button>
-  </div>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('lightpoles-mb')">Light Poles Main Boulevard</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c1')">Circuit 1</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c2')">Circuit 2</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c3')">Circuit 3</button>
-  </div>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('lightpoles-mc')">Light Poles Medina Centrale</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mc')">Medina Centrale Circuit 1</button>
-  </div>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('lightpoles-pa')">Light Poles Porto Arabia</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c1')">Circuit 1</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c2')">Circuit 2</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c3')">Circuit 3</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c4')">Circuit 4</button>
-  </div>
-
-  <div class="asset-group">
-    <button class="asset-group-title" onclick="setMapAndClose('mupi-pa')">Mupi Porto Arabia, Boardwalk</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c1')">Mupi Boardwalk Circuit 1</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c2')">Mupi Boardwalk Circuit 2</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c3')">Mupi Boardwalk Circuit 3</button>
-    <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-low')">Mupi Boardwalk Low Visibility</button>
-  </div>
-</div>
-
-<!-- Services Panel -->
-<div class="dock-panel" id="servicesPanel">
-  <div class="panel-header">Services</div>
-  <div class="panel-content">
-    <button onclick="openAssetDimensionChecker()">Asset Dimension Checker</button>
-    <button onclick="openImageCompressor()">Bulk Image Compressor</button>
-  </div>
-</div>
-
-
-
-<script>
-// ══════════════════════════════════════════
-// THEME TOGGLE
-// ══════════════════════════════════════════
-const themeBtn = document.getElementById("themeToggle");
-const logoImg  = document.getElementById("loginLogo");
-
-themeBtn.addEventListener("click", () => {
-  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-  document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
-  themeBtn.textContent = isDark ? "☽" : "☀";
-  logoImg.src = isDark ? "images/scooplogo.png" : "images/scooplogo_white.png";
-});
-
-// ══════════════════════════════════════════
-// MAP DATA
-// ══════════════════════════════════════════
-const maps = {
-    "assets":               "https://www.google.com/maps/d/u/0/embed?mid=1O9QdapVXTxIAc27SDk8ELyLVISIOVB4&noprof=1&hl=en",
-    "digital":              "https://www.google.com/maps/d/u/0/embed?mid=1t_EhNntR3I06WqkHaqzRDvYjHrXCdbM&noprof=1&hl=en",
-    "underpass":            "https://www.google.com/maps/d/u/0/embed?mid=15JQiSPepcZmeo4aDskMY6OWGiAF5Gdg&noprof=1&hl=en",
-    "underpass-entrance":   "https://www.google.com/maps/d/u/0/embed?mid=1E6NPWl93orbNijhr5zH4Orb2aWT_z5o&noprof=1&hl=en",
-    "underpass-exit":       "https://www.google.com/maps/d/u/0/embed?mid=1m9aRQtqlbbdEJYmjzNOcds_fPXZe0PM&noprof=1&hl=en",
-    "udctower":             "https://www.google.com/maps/d/u/0/embed?mid=1TiVuDE320ZUxLN2Mdydi3-YgYoOim4M&noprof=1&hl=en",
-    "monoprix":             "https://www.google.com/maps/d/u/0/embed?mid=1z8NjNY3ZIUG7YrnNeam7uqZbX0x1jNY&noprof=1&hl=en",
-    "qqscreen":             "https://www.google.com/maps/d/u/0/embed?mid=1k4h99g2dTfmTrIzY3Js7M92j8BOTpkk&noprof=1&hl=en",
-    "mupi":                 "https://www.google.com/maps/d/u/0/embed?mid=1vOMNPiS5Y-HrRRHCR1KcJhUcXn9xwEw&noprof=1&hl=en",
-    "mupi-c1":              "https://www.google.com/maps/d/u/0/embed?mid=1BrVkhO1Lg0HRAKHpGeH74zEDztPX-pE&noprof=1&hl=en",
-    "mupi-c2":              "https://www.google.com/maps/d/u/0/embed?mid=1MajcJPKIVulbFbP5yotE1NxGdhElf_k&noprof=1&hl=en",
-    "gewan":                "https://www.google.com/maps/d/u/0/embed?mid=1SFDoLXZLLc2-B3se_7_qjfZcf2ZYNDs&noprof=1&hl=en",
-    "gewan-c1":             "https://www.google.com/maps/d/u/0/embed?mid=1wrqeO7Do01Qi-opFeeALKHALMdYyRN8&noprof=1&hl=en",
-    "gewan-c2":             "https://www.google.com/maps/d/u/0/embed?mid=1nPSY9CLK2ylFcBmWyf87oQrmQy7wF3A&noprof=1&hl=en",
-    "gewan-building":       "https://www.google.com/maps/d/u/0/embed?mid=166LX-hEhyLkOiYMXHkFeWFcV-i7hW-w&noprof=1&hl=en",
-    "lightpoles-me-mb-mc":  "https://www.google.com/maps/d/u/0/embed?mid=1gDh_bZEpRLSaat86k1w98xUendnKYWU&noprof=1&hl=en",
-    "lightpoles-me-mb":     "https://www.google.com/maps/d/u/0/embed?mid=1Gz9picEAgT-cCahubRivimvxR_RWR6U&noprof=1&hl=en",
-    "lightpoles-me":        "https://www.google.com/maps/d/u/0/embed?mid=1QdozkvfmFHSKl4-WbGsxYRZSY4F4Efw&noprof=1&hl=en",
-    "lightpoles-me-c1":     "https://www.google.com/maps/d/u/0/embed?mid=10dH5uxmKgTJVg4fHtAjrZMDcAl8rwGY&noprof=1&hl=en",
-    "lightpoles-me-c2":     "https://www.google.com/maps/d/u/0/embed?mid=1MCsELJCQAFr3XEtW-0EQz7xqaEjxmwY&noprof=1&hl=en",
-    "lightpoles-me-c3":     "https://www.google.com/maps/d/u/0/embed?mid=134Qm5HV3pu0vGEc3MZKVWNSso6v6a7Q&noprof=1&hl=en",
-    "lightpoles-mb":        "https://www.google.com/maps/d/u/0/embed?mid=1GjWw7-wVWV1Fk_-RNwr3egYdvFGX6Ps&noprof=1&hl=en",
-    "lightpoles-mb-c1":     "https://www.google.com/maps/d/u/0/embed?mid=1LUgg-DxCO4Z6ZosnYyyCORfOFmjp9ec&noprof=1&hl=en",
-    "lightpoles-mb-c2":     "https://www.google.com/maps/d/u/0/embed?mid=1mCE2soYkBCj5FCz5wA_gBpch98Jo0Cw&noprof=1&hl=en",
-    "lightpoles-mb-c3":     "https://www.google.com/maps/d/u/0/embed?mid=19zR16bM8uBvhfAejf2WfDnX5w5Dt0Bs&noprof=1&hl=en",
-    "lightpoles-mc":        "https://www.google.com/maps/d/u/0/embed?mid=1-2OwVCSXdxbJ5EMrL86ziAYYyxpWWLY&noprof=1&hl=en",
-    "lightpoles-pa":        "https://www.google.com/maps/d/u/0/embed?mid=1i_evQjZALeMbNR5qAu7y550-FpztPMM&noprof=1&hl=en",
-    "lightpoles-pa-c1":     "https://www.google.com/maps/d/u/0/embed?mid=1VnQurtB2nj6Wn5Kusx4-iv7Ty1iMQZM&noprof=1&hl=en",
-    "lightpoles-pa-c2":     "https://www.google.com/maps/d/u/0/embed?mid=17gxQvvE533Haw5NZ664MG_fftFcu1Yw&noprof=1&hl=en",
-    "lightpoles-pa-c3":     "https://www.google.com/maps/d/u/0/embed?mid=148DGkNNWesU5NXgRjdLF_SN2vMFZ0YM&noprof=1&hl=en",
-    "lightpoles-pa-c4":     "https://www.google.com/maps/d/u/0/embed?mid=1nu4ao35FX9BxwqQJy5UFZodZD2CaRQ4&noprof=1&hl=en",
-    "mupi-pa":              "https://www.google.com/maps/d/u/0/embed?mid=1FfdQf0DTJHPt7B4u1MwHcXGkTKeY7Wo&noprof=1&hl=en",
-    "mupi-pa-c1":           "https://www.google.com/maps/d/u/0/embed?mid=1i1_Q16qBXVmpyIoSoxy5tuYTjjrGuh4&noprof=1&hl=en",
-    "mupi-pa-c2":           "https://www.google.com/maps/d/u/0/embed?mid=1ImXsQCd1FN0PMP_QiYdOq5Kk3D5fUgE&noprof=1&hl=en",
-    "mupi-pa-c3":           "https://www.google.com/maps/d/u/0/embed?mid=1Bn9qg0voB7acWefrsldjCh4nFcd-Alw&noprof=1&hl=en",
-    "mupi-pa-low":          "https://www.google.com/maps/d/u/0/embed?mid=1JhqYIESVivHiJO-PLFciKR-9HWLSqqc&noprof=1&hl=en"
-};
-
-// ══════════════════════════════════════════
-// ASSET RATE DATA
-// ══════════════════════════════════════════
-const assetRate = {
-    underpass: { title:"Underpass Screens", screens:"2", rate:"110,000 QAR", uploadfee:"3,000 QAR", duration:"2 Weeks", dimension:"6240 × 420 px" },
-    "underpass-entrance": { title:"Underpass Entrance", screens:"1", rate:"65,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"6240 × 420 px" },
-    "underpass-exit": { title:"Underpass Exit", screens:"1", rate:"65,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"6240 × 420 px" },
-    mupi: { title:"Mupi Screens", screens:"24", rate:"80,000 QAR", uploadfee:"3,000 QAR", duration:"2 Weeks", dimension:"256 × 384 px" },
-    "mupi-c1": { title:"Mupi Circuit 1", screens:"12", rate:"40,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"256 × 384 px" },
-    "mupi-c2": { title:"Mupi Circuit 2", screens:"12", rate:"40,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"256 × 384 px" },
-    gewan: { title:"Gewan Crystal Walk Screens", screens:"24", rate:"90,000 QAR", uploadfee:"3,000 QAR", duration:"2 Weeks", dimension:"512×640 / 384×640 / 640×384 / 384×512 / 640×640 px" },
-    "gewan-c1": { title:"Gewan Crystal Walk Circuit 1", screens:"12", rate:"45,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"512×640 / 384×640 / 640×384 / 384×512 / 640×640 px" },
-    "gewan-c2": { title:"Gewan Crystal Walk Circuit 2", screens:"12", rate:"45,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"512×640 / 384×640 / 640×384 / 384×512 / 640×640 px" },
-    "gewan-building": { title:"Gewan Crystal Building", screens:"2", rate:"10,000 QAR", uploadfee:"1,500 QAR", duration:"4 Weeks", dimension:"1248 × 728 px" },
-    "udctower": { title:"UDC Tower Screens", screens:"4", rate:"45,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"1664 × 1040 px" },
-    "qqscreen": { title:"Qanat Quartier Screen", screens:"1", rate:"20,000 QAR", uploadfee:"1,500 QAR", duration:"4 Weeks", dimension:"3742 × 432 px" },
-    "monoprix": { title:"Monoprix Screen", screens:"8", rate:"10,000 QAR", uploadfee:"1,500 QAR", duration:"4 Weeks", dimension:"1080 × 1920 px" },
-    "lightpoles-me-mb": { title:"Light Poles Main Circuits", faces:"144 Faces (72 Poles)", rate:"240,000 QAR", installation:"72,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-me": { title:"Light Poles Main Entrance", faces:"72 Faces (36 Poles)", rate:"120,000 QAR", installation:"36,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-me-c1": { title:"Light Poles Main Entrance Circuit 1", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-me-c2": { title:"Light Poles Main Entrance Circuit 2", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-me-c3": { title:"Light Poles Main Entrance Circuit 3", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-mb": { title:"Light Poles Main Boulevard", faces:"72 Faces (36 Poles)", rate:"120,000 QAR", installation:"36,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-mb-c1": { title:"Light Poles Main Boulevard Circuit 1", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-mb-c2": { title:"Light Poles Main Boulevard Circuit 2", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-mb-c3": { title:"Light Poles Main Boulevard Circuit 3", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-mc": { title:"Light Poles Medina Centrale", faces:"18 Faces (9 Poles)", rate:"20,000 QAR", installation:"9,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-pa": { title:"Light Poles Porto Arabia", faces:"168 Faces (84 Poles)", rate:"120,000 QAR", installation:"72,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-pa-c1": { title:"Light Poles Porto Arabia Circuit 1", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-pa-c2": { title:"Light Poles Porto Arabia Circuit 2", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-pa-c3": { title:"Light Poles Porto Arabia Circuit 3", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "lightpoles-pa-c4": { title:"Light Poles Porto Arabia Circuit 4", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
-    "mupi-pa": { title:"Mupi Porto Arabia Boardwalk", faces:"180", rate:"90,000 QAR", installation:"39,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" },
-    "mupi-pa-c1": { title:"Mupi Porto Arabia Boardwalk Circuit 1", faces:"60", rate:"30,000 QAR", installation:"13,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" },
-    "mupi-pa-c2": { title:"Mupi Porto Arabia Boardwalk Circuit 2", faces:"60", rate:"30,000 QAR", installation:"13,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" },
-    "mupi-pa-c3": { title:"Mupi Porto Arabia Boardwalk Circuit 3", faces:"60", rate:"30,000 QAR", installation:"13,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" }
-};
-
-let currentMapKey = "assets";
-let currentMapUrl = maps["assets"];
-
-// ══════════════════════════════════════════
-// UTILITIES
-// ══════════════════════════════════════════
-function toggleOverlay(show) {
-    document.querySelector(".map-overlay").style.display = show ? "block" : "none";
-}
-
-function copyGoogleMapLink() {
-    navigator.clipboard.writeText(currentMapUrl).then(() => alert("Google Map link copied!"));
-}
-
-function showOnlyFrame(frameId) {
-    ["mapFrame","vehicleFrame","homeFrame","contentInventoryFrame","assetDimensionCheckerFrame","imageCompressorFrame","viewScreenFrame"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = "none";
-    });
-    const active = document.getElementById(frameId);
-    if (active) active.style.display = "block";
-}
-
-function setURL(params = {}) {
-    const url = new URL(window.location);
-    Object.keys(params).forEach(key => {
-        if (params[key] === null) url.searchParams.delete(key);
-        else url.searchParams.set(key, params[key]);
-    });
-    window.history.pushState({}, "", url);
-}
-
-// ══════════════════════════════════════════
-// MAP CONTROL
-// ══════════════════════════════════════════
-function setMap(key) {
-    if (!maps[key]) return;
-    currentMapKey = key;
-    currentMapUrl = maps[key];
-    updateInfoCard(key);
-    showOnlyFrame("mapFrame");
-    document.getElementById("mapFrame").src = currentMapUrl;
-    toggleOverlay(true);
-    setURL({ map: key, page: null });
-    setDockActive(2);
-}
-
-function setMapAndClose(key) {    
-    closeAllPanels();
-    setMap(key);
-
-}
-
-// =============================================
-// CONTENT SWITCHING
-// =============================================
-
-function openHome() {
-    showOnlyFrame("homeFrame");
-    toggleOverlay(false);
-
-    setURL({ map: null, page: "home" });
-
-    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
-    document.getElementById("homeLink").classList.add("active");
-
-    setDockActive(0);
-    closeAllPanels();
-}
-
-function openContentInventory() {
-    showOnlyFrame("contentInventoryFrame");
-    toggleOverlay(false);
-
-    setURL({ map: null, page: "content-inventory" });
-
-    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
-    document.getElementById("contentInventoryLink").classList.add("active");
-
-
-    setDockActive(1);
-    closeAllPanels();
-}
-
-function openVehicleReport() {
-    showOnlyFrame("vehicleFrame");
-    toggleOverlay(false);
-
-    setURL({ map: null, page: "vehicle" });
-
-    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
-    document.getElementById("vehicleTrafficLink").classList.add("active");
-  
-    setDockActive(3);
-    closeAllPanels();
-
-}
-
-function openAssetDimensionChecker() {
-    showOnlyFrame("assetDimensionCheckerFrame");
-    toggleOverlay(false);
-
-    setURL({ map: null, page: "asset-checker" });
-    setDockActive(4);
-    closeAllPanels();
-
-}
-
-function openImageCompressor() {
-    showOnlyFrame("imageCompressorFrame");
-    toggleOverlay(false);
-
-    setURL({ map: null, page: "image-compressor" });
-    setDockActive(4);
-    closeAllPanels();
-
-}
-
-function openViewScreen() {
-    showOnlyFrame("viewScreenFrame");
-    toggleOverlay(false);
-
-    setURL({ map: null, page: "view-screen" });
-    setDockActive(5);
-    closeAllPanels();
-
-}
-
-
-// ══════════════════════════════════════════
-// URL LOAD
-// ══════════════════════════════════════════
-function loadFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const page = params.get("page");
-    const map  = params.get("map");
-    if (page === "home")                return openHome();
-    if (page === "content-inventory")   return openContentInventory();
-    if (page === "vehicle")             return openVehicleReport();
-    if (page === "asset-checker")       return openAssetDimensionChecker();
-    if (page === "image-compressor")    return openImageCompressor();
-    if (page === "view-screen")         return openViewScreen();
-    if (map && maps[map])               return setMap(map);
-    openContentInventory();
-}
-
-// ══════════════════════════════════════════
-// DOCK
-// ══════════════════════════════════════════
-function setDockActive(index) {
-    document.querySelectorAll(".dock-item").forEach((item, i) => {
-        item.classList.toggle("active", i === index);
-    });
-}
-
-function closeAllPanels() {
-    document.getElementById("assetsPanel").classList.remove("show");
-    document.getElementById("servicesPanel").classList.remove("show");
-}
-
-// ══════════════════════════════════════════
-// INFO CARD
-// ══════════════════════════════════════════
-function toggleInfoCard() {
-    const card = document.getElementById("infoCard");
-    if (!card.dataset.hasdata || card.dataset.hasdata === "false") return;
-    card.style.display = card.style.display === "block" ? "none" : "block";
-}
-
-function updateInfoCard(mapKey) {
-    const details = assetRate[mapKey];
-    const card    = document.getElementById("infoCard");
-    const tbody   = document.getElementById("infoTableBody");
-    const header  = document.getElementById("infoHeader");
-    if (!details) { card.style.display = "none"; card.dataset.hasdata = "false"; return; }
-    const isDigital = details.screens !== undefined;
-    const isStatic  = details.faces   !== undefined;
-    card.dataset.hasdata = "true";
-    header.innerHTML = `Asset Rate Card › ${details.title || "Asset"}<span class="close-info" onclick="toggleInfoCard()">✕</span>`;
-    let html = "";
-    if (isDigital) {
-        html = `<tr><th>Screens</th><td>${details.screens}</td></tr>
-                <tr><th>Rate</th><td>${details.rate}</td></tr>
-                <tr><th>Upload Fee</th><td>${details.uploadfee}</td></tr>
-                <tr><th>Campaign Duration</th><td>${details.duration}</td></tr>
-                <tr><th>Dimension W×H</th><td>${details.dimension}</td></tr>`;
-    } else if (isStatic) {
-        html = `<tr><th>Faces</th><td>${details.faces}</td></tr>
-                <tr><th>Rate</th><td>${details.rate}</td></tr>
-                <tr><th>Production &amp; Installation</th><td>${details.installation}</td></tr>
-                <tr><th>Campaign Duration</th><td>${details.duration}</td></tr>
-                <tr><th>Dimension W×H</th><td>${details.dimension}</td></tr>`;
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCOOP OOH Assets</title>
+
+    <script type="module">
+      import { requireAuth } from "./assets/js/authGuard.js";
+      import { auth } from "./firebase/firebase.js";
+      import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+      requireAuth((user) => {
+        const userNameEl = document.getElementById("navUser");
+        userNameEl.textContent = user.displayName || user.email.split("@")[0];
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            signOut(auth)
+              .then(() => { window.location.href = "./login.html"; })
+              .catch((error) => {
+                  console.error("Logout error:", error);
+                  alert("Failed to logout");
+              });
+        });
+      });
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+    /* ══════════════════════════════════════════
+      THEME TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      --bg-primary: #050A1A;
+      --bg-secondary: #0A1628;
+      --bg-tertiary: #0F1E38;
+      --bg-card: rgba(15,28,56,0.7);
+      --bg-glass: rgba(255,255,255,0.04);
+      --bg-glass-hover: rgba(255,255,255,0.07);
+      --border-glass: rgba(255,255,255,0.1);
+      --border-glow: rgba(79,70,229,0.4);
+      --text-primary: #F8FAFF;
+      --text-secondary: #94A3C0;
+      --text-muted: #5A6A8A;
+      --accent-indigo: #4F46E5;
+      --accent-cyan: #0496ff;
+      --accent-violet: #7C3AED;
+      --accent-emerald: #10B981;
+      --glow-indigo: rgba(79,70,229,0.25);
+      --nav-bg: rgba(5,10,26,0.95);
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --radius-sm: 12px;
+      --radius-md: 18px;
     }
-    tbody.innerHTML = html;
-}
 
-document.addEventListener("click", (e) => {
-    const card    = document.getElementById("infoCard");
-    const infoBtn = document.querySelector(".info-btn");
-    if (!card || card.style.display !== "block") return;
-    if (card.contains(e.target) || infoBtn.contains(e.target)) return;
-    card.style.display = "none";
-});
+    [data-theme="light"] {
+      --bg-primary: #F0F4FF;
+      --bg-secondary: #E8EEF8;
+      --bg-tertiary: #DDE5F5;
+      --bg-card: rgba(255,255,255,0.85);
+      --bg-glass: rgba(255,255,255,0.7);
+      --bg-glass-hover: rgba(255,255,255,0.9);
+      --border-glass: rgba(79,70,229,0.15);
+      --border-glow: rgba(79,70,229,0.3);
+      --text-primary: #0A1628;
+      --text-secondary: #3D4F6E;
+      --text-muted: #6B7A99;
+      --nav-bg: rgba(240,244,255,0.97);
+      --glow-indigo: rgba(79,70,229,0.1);
+    }
 
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
-document.addEventListener("DOMContentLoaded", () => {
+    * { margin:0; padding:0; box-sizing:border-box; }
 
-    // Dock buttons
-    document.getElementById("btnHome").addEventListener("click", () => {
-        closeAllPanels(); openHome();
-    });
-    document.getElementById("btnContentInventory").addEventListener("click", () => {
-        closeAllPanels(); openContentInventory();
-    });
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.4s, color 0.4s;
+      padding-bottom: 0;
+    }
 
-    document.getElementById("btnAssetsLocation").addEventListener("click", (e) => {
-        e.stopPropagation();
-        const panel = document.getElementById("assetsPanel");
-        const isOpen = panel.classList.contains("show");
+    iframe { position:relative; z-index:1; border:none; }
+
+    /* ══════════════════════════════════════════
+      NAV
+    ══════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 3000;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-glass);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      transition: background 0.4s;
+    }
+
+    .nav-logo { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .nav-logo-mark { width:40px; height:40px; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    .nav-logo-mark img { width:100%; height:100%; object-fit:contain; }
+    .nav-brand { font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--text-primary); white-space:nowrap; }
+
+    /* Center menu */
+    .nav-center { display:flex; align-items:center; gap:2px; }
+    .nav-item { position:relative; }
+    .nav-link {
+      display:flex; align-items:center; gap:5px;
+      padding:8px 14px; border-radius:10px;
+      font-family:var(--font-display); font-size:13px; font-weight:600;
+      color:var(--text-secondary); cursor:pointer;
+      transition:all 0.2s; white-space:nowrap;
+      user-select:none; background:none; border:none;
+      text-decoration:none;
+    }
+    .nav-link:hover, .nav-link.active { color:var(--text-primary); background:var(--bg-glass); }
+    .nav-link .chevron { font-size:10px; transition:transform 0.2s; opacity:0.6; }
+    .nav-item.dropdown-parent:hover .nav-link .chevron { transform:rotate(180deg); }
+
+    /* Mega dropdown */
+    .mega-dropdown {
+      position:absolute; top:calc(100% + 12px); left:50%; transform:translateX(-50%);
+      background:var(--nav-bg);
+      border:1px solid var(--border-glass);
+      border-radius:var(--radius-md);
+      padding:20px;
+      display:none; gap:24px;
+      min-width:560px;
+      box-shadow:0 24px 48px rgba(0,0,0,0.3);
+      backdrop-filter:blur(24px);
+      z-index:200;
+    }
+    .nav-item.dropdown-parent:hover .mega-dropdown { display:flex; }
+
+    .mega-column { min-width:170px; flex:1; }
+    .mega-title {
+      font-family:var(--font-display); font-size:11px; font-weight:700;
+      color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase;
+      padding:0 8px 10px;
+      border-bottom:1px solid var(--border-glass);
+      margin-bottom:8px;
+    }
+    .mega-title a { color:inherit; text-decoration:none; cursor:pointer; }
+    .mega-title a:hover { color:var(--accent-cyan); }
+
+    .hover-item { position:relative; }
+    .hover-title {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:7px 8px; border-radius:8px; cursor:pointer;
+      font-size:13px; color:var(--text-secondary);
+      transition:all 0.15s;
+    }
+    .hover-title a { color:inherit; text-decoration:none; flex:1; display:block; }
+    .hover-title span { font-size:11px; opacity:0.5; transition:transform 0.15s; flex-shrink:0; }
+    .hover-item:hover > .hover-title { background:var(--bg-glass); color:var(--text-primary); }
+    .hover-item:hover > .hover-title span { transform:translateX(3px); }
+
+    .hover-submenu {
+      display:none;
+      position:absolute; left:calc(100% + 8px); top:0;
+      background:var(--nav-bg);
+      border:1px solid var(--border-glass);
+      border-radius:12px; padding:10px;
+      min-width:200px;
+      box-shadow:0 16px 40px rgba(0,0,0,0.25);
+      backdrop-filter:blur(24px);
+      z-index:300;
+    }
+    .hover-item:hover > .hover-submenu { display:block; }
+    .hover-submenu a {
+      display:block; padding:7px 10px; border-radius:8px;
+      font-size:12px; color:var(--text-secondary); text-decoration:none; cursor:pointer;
+      transition:all 0.15s;
+    }
+    .hover-submenu a:hover { background:var(--bg-glass); color:var(--text-primary); }
+    .hover-submenu a.active { background:rgba(4,150,255,0.12); color:var(--accent-cyan); font-weight:600; }
+
+    .hover-submenu.deep {
+      position:absolute; left:calc(100% + 8px); top:0;
+      display:none;
+    }
+    .hover-item.sub:hover > .hover-submenu.deep { display:block; }
+    .hover-item.sub .hover-title { padding:6px 8px; font-size:12px; }
+
+    .mega-earth-link {
+      font-size:12px; color:var(--text-muted); text-decoration:none;
+      padding:8px; display:block; line-height:1.5;
+      transition:color 0.2s;
+    }
+    .mega-earth-link:hover { color:var(--accent-cyan); }
+
+    /* Nav actions */
+    .nav-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .nav-badge {
+      padding:5px 12px; border-radius:999px; font-size:12px; font-weight:600;
+      font-family:var(--font-display);
+      background:var(--bg-glass); border:1px solid var(--border-glass);
+      color:var(--text-secondary); display:flex; align-items:center; gap:6px;
+    }
+    .nav-badge .dot {
+      width:6px; height:6px; border-radius:50%;
+      background:var(--accent-emerald); animation:pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(0.8);} }
+    .btn-theme {
+      width:38px; height:38px; border-radius:50%;
+      border:1px solid var(--border-glass); background:var(--bg-glass);
+      color:var(--text-secondary); font-size:15px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+    }
+    .btn-theme:hover { border-color:var(--accent-indigo); color:var(--text-primary); }
+    .btn-nav {
+      padding:7px 16px; border-radius:999px; border:none; cursor:pointer;
+      font-family:var(--font-display); font-weight:600; font-size:12px; transition:all 0.2s;
+    }
+    .btn-nav-outline {
+      background:transparent; border:1px solid var(--border-glass); color:var(--text-secondary);
+    }
+    .btn-nav-outline:hover { border-color:var(--accent-indigo); color:var(--text-primary); }
+    .btn-nav-primary {
+      background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet));
+      color:white; box-shadow:0 4px 15px var(--glow-indigo);
+    }
+    .btn-nav-primary:hover { transform:translateY(-1px); box-shadow:0 8px 25px var(--glow-indigo); }
+
+    /* ══════════════════════════════════════════
+      MAP
+    ══════════════════════════════════════════ */
+    .map-container {
+      position: relative;
+      height: calc(100vh - 64px);
+      margin-top: 64px;
+    }
+
+    .map-container iframe {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ══════════════════════════════════════════
+      OVERLAY BUTTONS
+    ══════════════════════════════════════════ */
+    .map-overlay {
+      position: absolute;
+      top: 0; right: 0;
+      width: 140px; height: 50px;
+      background: #4d6a79;
+      z-index: 1500;
+    }
+
+    .info-btn {
+      position: absolute; top: 20px; right: 70px;
+      background: transparent; border: none; cursor: pointer;
+    }
+    .share-btn {
+      position: absolute; top: 20px; right: 20px;
+      background: transparent; border: none; cursor: pointer;
+    }
+    .share-btn img, .info-btn img { width: 25px; }
+
+    /* ══════════════════════════════════════════
+      INFO CARD
+    ══════════════════════════════════════════ */
+    .info-card {
+      position: absolute; top: 75px; right: 20px;
+      width: 400px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      overflow: hidden; z-index: 999;
+      display: none;
+      animation: fadeInCard 0.25s ease;
+      backdrop-filter: blur(20px);
+    }
+    @keyframes fadeInCard {
+      from { opacity:0; transform:translateY(-8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .info-header {
+      padding: 14px 18px;
+      background: #4d6a79;
+      color: #ffffff; font-size: 13px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-display); font-weight: 600;
+    }
+    .close-info { cursor:pointer; font-size:14px; opacity:0.8; }
+    .close-info:hover { opacity:1; }
+
+    .info-table { width:100%; border-collapse:collapse; }
+    .info-table tr { border-bottom:1px solid var(--border-glass); }
+    .info-table th {
+      width:50%; padding:14px 16px; text-align:left;
+      font-size:12px; color:var(--text-muted);
+      background:var(--bg-glass);
+      font-family:var(--font-display); font-weight:600;
+    }
+    .info-table td {
+      padding:14px 16px; font-size:13px; color:var(--text-primary);
+    }
+
+    /* ══════════════════════════════════════════
+      MOBILE DOCK
+    ══════════════════════════════════════════ */
+    .mobile-dock {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      z-index: 9999;
+      display: flex; align-items: center; gap: 8px; padding: 8px;
+      background: var(--nav-bg);
+      border-radius: 24px; border: 1px solid var(--border-glass);
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      backdrop-filter: blur(20px);
+    }
+    @media(min-width:769px) { .mobile-dock { display:none; } }
+
+    .dock-item {
+      border: none; background: transparent;
+      display: flex; align-items: center; justify-content: center; gap: 0;
+      height: 48px; padding: 0 14px; border-radius: 16px;
+      cursor: pointer; color: var(--text-primary); transition: all .35s ease;
+    }
+    .dock-item img { width:22px; height:22px; object-fit:contain; filter:none; }
+    .dock-item span {
+      max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap;
+      transition: all .35s ease; color: var(--text-primary);
+    }
+    .dock-item:hover { background: var(--bg-glass); }
+    .dock-item.active { background: rgba(79,70,229,0.12); color: var(--accent-indigo); gap: 10px; padding-left: 18px; padding-right: 18px; }
+    .dock-item.active span { max-width: 140px; opacity: 1; color: var(--accent-indigo); }
+
+    .dock-panel {
+      position: fixed; left: 12px; right: 12px; bottom: 95px; z-index: 9998;
+      background: var(--nav-bg);
+      border-radius: 22px; border: 1px solid var(--border-glass);
+      box-shadow: 0 10px 40px rgba(0,0,0,.18);
+      padding: 18px; display: none;
+      max-height: 70vh; overflow: auto;
+      animation: panelUp .25s ease;
+      backdrop-filter: blur(20px);
+    }
+    .dock-panel.show { display: block; }
+    @keyframes panelUp {
+      from { opacity:0; transform:translateY(15px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .panel-header {
+      color: var(--text-primary); font-size: 16px; font-weight: 700;
+      font-family: var(--font-display);
+      margin-bottom: 8px; border:none; background:none;
+    }
+    .panel-content { display:grid; gap:10px; }
+    .panel-content button {
+      width:100%; border:1px solid var(--border-glass); background:var(--bg-glass);
+      border-radius:12px; padding:8px 10px; text-align:left;
+      margin-bottom:5px; cursor:pointer; transition:.25s;
+      color:var(--text-secondary); font-family:var(--font-body); font-size:13px;
+    }
+    .panel-content button:hover { background:rgba(79,70,229,0.12); border-color:var(--accent-indigo); color:var(--accent-indigo); }
+
+    .asset-section-title {
+      font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;
+      color:var(--accent-indigo);
+      margin:20px 0 12px; border:none; background:none; cursor:pointer;
+      font-family:var(--font-display);
+    }
+    .asset-group { margin-bottom:15px; }
+    .asset-header { font-size:18px; font-weight:700; color:var(--text-primary); border:none; background:none; cursor:pointer; font-family:var(--font-display); }
+    .asset-group-title {
+      font-size:14px; font-weight:700; color:var(--text-primary);
+      margin-bottom:5px; border:none; background:none; cursor:pointer;
+      font-family:var(--font-display); display:block; width:100%; text-align:left;
+      padding:4px 0;
+    }
+    .asset-group-submenu {
+      font-size:12px; color:var(--text-secondary); margin-left:20px; margin-bottom:5px;
+      border:none; background:none; cursor:pointer; display:block; width:100%; text-align:left;
+      padding:4px 0; transition:color 0.2s;
+    }
+    .asset-group-submenu:hover { color:var(--accent-indigo); }
+    .asset-group button {
+      width:100%; border:none; background:transparent;
+      border-radius:12px; padding:6px 8px; text-align:left;
+      margin-bottom:4px; cursor:pointer; transition:.25s;
+      color:var(--text-secondary); font-family:var(--font-body); font-size:13px;
+    }
+    .asset-group button:hover { background:var(--bg-glass); color:var(--text-primary); }
+
+    /* ══════════════════════════════════════════
+      RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media(max-width:900px) {
+      .nav-center { display:none; }
+      nav { padding:0 1rem; }
+      .nav-badge, .btn-nav-outline { display:none; }
+      .map-container { height: calc(100vh - 64px - env(safe-area-inset-bottom, 0px)); }
+    }
+
+    @media(max-width:768px) {
+      .info-card { width: calc(100vw - 40px); right: 20px; }
+    }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="images/scooplogo_black_192x192.png">
+    <link rel="icon" type="image/x-icon" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_32x32.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_180x180.png">
+    <meta name="theme-color" content="#050A1A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="SCOOP OOH">
+    <meta name="application-name" content="SCOOP OOH">
+    <meta name="msapplication-TileImage" content="https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_512x512.png">
+    <meta name="msapplication-TileColor" content="#050A1A">
+
+  </head>
+
+  <body>
+    <!-- ══════════════════════════════════════════
+        TOP NAV
+    ══════════════════════════════════════════ -->
+    <nav>
+      <div class="nav-logo">
+        <div class="nav-logo-mark">
+          <img id="loginLogo" src="images/scooplogo.png" alt="Scoop Logo">
+        </div>
+      </div>
+
+      <div class="nav-center">
+
+        <div class="nav-item">
+          <button class="nav-link" id="homeLink" onclick="openHome()">Dashboard</button>
+        </div>
+
+        <div class="nav-item">
+          <button class="nav-link" id="contentInventoryLink" onclick="openContentInventory()">Content Inventory</button>
+        </div>
+
+        <div class="nav-item dropdown-parent">
+          <button class="nav-link">
+            Assets Location <span class="chevron">▾</span>
+          </button>
+          <div class="mega-dropdown">
+
+            <div class="mega-column">
+              <div class="mega-title"><a onclick="setMap('digital')">Digital Assets</a></div>
+
+              <div class="hover-item">
+                <div class="hover-title"><a onclick="setMap('underpass')">Underpass</a><span>›</span></div>
+                <div class="hover-submenu">
+                  <a onclick="setMap('underpass-entrance')">Underpass Entrance</a>
+                  <a onclick="setMap('underpass-exit')">Underpass Exit</a>
+                </div>
+              </div>
+
+              <div class="hover-item">
+                <div class="hover-title"><a onclick="setMap('mupi')">Mupi</a><span>›</span></div>
+                <div class="hover-submenu">
+                  <a onclick="setMap('mupi-c1')">Mupi Circuit 1</a>
+                  <a onclick="setMap('mupi-c2')">Mupi Circuit 2</a>
+                </div>
+              </div>
+
+              <div class="hover-item">
+                <div class="hover-title"><a onclick="setMap('gewan')">Gewan Crystal Walk</a><span>›</span></div>
+                <div class="hover-submenu">
+                  <a onclick="setMap('gewan-c1')">Gewan Crystal Walk Circuit 1</a>
+                  <a onclick="setMap('gewan-c2')">Gewan Crystal Walk Circuit 2</a>
+                  <a onclick="setMap('gewan-building')">Gewan Crystal Building</a>
+                </div>
+              </div>
+
+              <div class="hover-item"><div class="hover-title"><a onclick="setMap('udctower')">UDC Tower</a></div></div>
+              <div class="hover-item"><div class="hover-title"><a onclick="setMap('monoprix')">Monoprix</a></div></div>
+              <div class="hover-item"><div class="hover-title"><a onclick="setMap('qqscreen')">Qanat Quartier Screen</a></div></div>
+            </div>
+
+            <div class="mega-column">
+              <div class="mega-title"><a onclick="setMap('lightpoles-me-mb-mc')">Static Assets</a></div>
+
+              <div class="hover-item">
+                <div class="hover-title"><a onclick="setMap('lightpoles-me-mb')">Light Poles Main Circuits</a><span>›</span></div>
+                <div class="hover-submenu">
+                  <div class="hover-item sub">
+                    <div class="hover-title"><a onclick="setMap('lightpoles-me')">Main Entrance</a><span>›</span></div>
+                    <div class="hover-submenu deep">
+                      <a onclick="setMap('lightpoles-me-c1')">Main Entrance Circuit 1</a>
+                      <a onclick="setMap('lightpoles-me-c2')">Main Entrance Circuit 2</a>
+                      <a onclick="setMap('lightpoles-me-c3')">Main Entrance Circuit 3</a>
+                    </div>
+                  </div>
+                  <div class="hover-item sub">
+                    <div class="hover-title"><a onclick="setMap('lightpoles-mb')">Main Boulevard</a><span>›</span></div>
+                    <div class="hover-submenu deep">
+                      <a onclick="setMap('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
+                      <a onclick="setMap('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
+                      <a onclick="setMap('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hover-item"><div class="hover-title"><a onclick="setMap('lightpoles-mc')">Light Poles Medina Centrale</a></div></div>
+
+              <div class="hover-item">
+                <div class="hover-title"><a onclick="setMap('lightpoles-pa')">Light Poles Porto Arabia</a><span>›</span></div>
+                <div class="hover-submenu">
+                  <a onclick="setMap('lightpoles-pa-c1')">Light Poles Porto Arabia Circuit 1</a>
+                  <a onclick="setMap('lightpoles-pa-c2')">Light Poles Porto Arabia Circuit 2</a>
+                  <a onclick="setMap('lightpoles-pa-c3')">Light Poles Porto Arabia Circuit 3</a>
+                  <a onclick="setMap('lightpoles-pa-c4')">Light Poles Porto Arabia Circuit 4</a>
+                </div>
+              </div>
+
+              <div class="hover-item">
+                <div class="hover-title"><a onclick="setMap('mupi-pa')">Mupi Porto Arabia</a><span>›</span></div>
+                <div class="hover-submenu">
+                  <a onclick="setMap('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
+                  <a onclick="setMap('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
+                  <a onclick="setMap('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
+                  <a onclick="setMap('mupi-pa-low')">Mupi Porto Arabia Low Visibility</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="mega-column" style="min-width:160px;max-width:180px;">
+              <div class="mega-title">3D View</div>
+              <a class="mega-earth-link"
+                href="https://earth.google.com/web/@25.37272326,51.53164098,1.04532372a,1440.22784026d,35y,99.15131406h,66.75047323t,0r/data=CgRCAggBMikKJwolCiExTlJHcTlTb2tDX1JMc0ppVGI5RkVoX256cWs2WXcwSzcgAToDCgEwQgIIAEoICMGWp80HEAE?authuser=0"
+                target="_blank" rel="noopener noreferrer">
+                🌍 View 3D Asset Locations<br>in Google Earth
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <button class="nav-link" id="vehicleTrafficLink" onclick="openVehicleReport()">Vehicle Traffic</button>
+        </div>
+
+        <div class="nav-item dropdown-parent">
+          <button class="nav-link">Services <span class="chevron">▾</span></button>
+          <div class="mega-dropdown" style="min-width:240px;">
+            <div class="mega-column">
+              <div class="mega-title">Services</div>
+              <div class="hover-item"><div class="hover-title"><a onclick="openAssetDimensionChecker()">Asset Dimension Checker</a></div></div>
+              <div class="hover-item"><div class="hover-title"><a onclick="openImageCompressor()">Bulk Image Compressor</a></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <button class="nav-link" id="viewScreenLink" onclick="openViewScreen()">View Screen</button>
+        </div>
+
+      </div>
+
+      <div class="nav-actions">
+        <div class="nav-badge">
+          <span class="dot"></span>
+          <span id="navUser">User</span>
+        </div>
+        <button class="btn-theme" id="themeToggle" title="Toggle theme">☀</button>
+        <button class="btn-theme" id="logoutBtn" title="Logout" style="font-size:12px;">⏻</button>
+      </div>
+
+    </nav>
+
+    <!-- ══════════════════════════════════════════
+        MAP AREA
+    ══════════════════════════════════════════ -->
+    <div class="map-container">
+
+      <div class="map-overlay">
+        <button class="info-btn" onclick="toggleInfoCard()" title="View Asset Details">
+          <img src="https://img.icons8.com/softteal-line/ffffff/info.png" alt="Info">
+        </button>
+        <button class="share-btn" onclick="copyGoogleMapLink()" title="Copy Map Link">
+          <img src="https://img.icons8.com/?size=100&id=98959&format=png&color=ffffff" alt="Share">
+        </button>
+      </div>
+
+      <div id="infoCard" class="info-card">
+        <div class="info-header" id="infoHeader">
+          Asset Rate Card
+          <span class="close-info" onclick="toggleInfoCard()">✕</span>
+        </div>
+        <table class="info-table">
+          <tbody id="infoTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- FRAME SOURCE-->
+      <iframe id="mapFrame" style="display:none;"></iframe>
+      
+      <iframe id="homeFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/main.html"></iframe>
+
+      <iframe id="contentInventoryFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/content-inventory.html"></iframe>
+
+      <iframe id="vehicleFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/vehicle-traffic-report.html"></iframe>
+
+      <iframe id="assetDimensionCheckerFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/asset-dimension-checker.html"></iframe>
+
+      <iframe id="imageCompressorFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/bulk-image-compressor.html"></iframe>
+
+      <iframe id="viewScreenFrame" style="display:none;"
+        src="https://oohassets.github.io/ooh-assets-scoop/asset-digital-content.html"></iframe>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════
+        MOBILE DOCK
+    ══════════════════════════════════════════ -->
+    <div class="mobile-dock" id="mobileDock">
+
+      <button class="dock-item active" id="btnHome">
+        <img src="https://img.icons8.com/fluency-systems-regular/48/home--v1.png">
+        <span>Dashboard</span>
+      </button>
+      <button class="dock-item" id="btnContentInventory">
+        <img src="https://img.icons8.com/ios-filled/50/glyph-neue/in-inventory.png">
+        <span>Content Inventory</span>
+      </button>
+      <button class="dock-item" id="btnAssetsLocation">
+        <img src="https://img.icons8.com/50/external-dreamstale-lineal-dreamstale/external-map-location-camping-dreamstale-lineal-dreamstale.png">
+        <span>Assets Location</span>
+      </button>
+      <button class="dock-item" id="btnVehicleTraffic">
+        <img src="https://img.icons8.com/ios/50/people-in-car.png">
+        <span>Visitors</span>
+      </button>
+      <button class="dock-item" id="btnServices">
+        <img src="https://img.icons8.com/material-sharp/24/circled-menu.png">
+        <span>Services</span>
+      </button>
+
+    </div>
+
+    <!-- Assets Panel -->
+    <div class="dock-panel" id="assetsPanel">
+      <div class="panel-header">
+        <button class="asset-header" onclick="setMapAndClose('assets')">Asset Location</button>
+      </div>
+
+      <button class="asset-section-title" onclick="setMapAndClose('digital')">Digital Assets</button>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('underpass')">Underpass</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('underpass-entrance')">Underpass Entrance</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('underpass-exit')">Underpass Exit</button>
+      </div>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('mupi')">Mupi</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-c1')">Mupi Circuit 1</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-c2')">Mupi Circuit 2</button>
+      </div>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('gewan')">Gewan Crystal Walk</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('gewan-c1')">Gewan Crystal Walk Circuit 1</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('gewan-c2')">Gewan Crystal Walk Circuit 2</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('gewan-building')">Gewan Crystal Building</button>
+      </div>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('udctower')">UDC Tower</button>
+        <button class="asset-group-title" onclick="setMapAndClose('monoprix')">Monoprix</button>
+        <button class="asset-group-title" onclick="setMapAndClose('qqscreen')">Qanat Quartier Screen</button>
+      </div>
+
+      <button class="asset-section-title" onclick="setMapAndClose('lightpoles-me-mb-mc')">Static Assets</button>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-me')">Light Poles Main Entrance</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c1')">Main Entrance Circuit 1</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c2')">Main Entrance Circuit 2</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c3')">Main Entrance Circuit 3</button>
+      </div>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-mb')">Light Poles Main Boulevard</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c1')">Circuit 1</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c2')">Circuit 2</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c3')">Circuit 3</button>
+      </div>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-mc')">Light Poles Medina Centrale</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mc')">Medina Centrale Circuit 1</button>
+      </div>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-pa')">Light Poles Porto Arabia</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c1')">Circuit 1</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c2')">Circuit 2</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c3')">Circuit 3</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c4')">Circuit 4</button>
+      </div>
+
+      <div class="asset-group">
+        <button class="asset-group-title" onclick="setMapAndClose('mupi-pa')">Mupi Porto Arabia, Boardwalk</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c1')">Mupi Boardwalk Circuit 1</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c2')">Mupi Boardwalk Circuit 2</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c3')">Mupi Boardwalk Circuit 3</button>
+        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-low')">Mupi Boardwalk Low Visibility</button>
+      </div>
+    </div>
+
+    <!-- Services Panel -->
+    <div class="dock-panel" id="servicesPanel">
+      <div class="panel-header">Services</div>
+      <div class="panel-content">
+        <button onclick="openAssetDimensionChecker()">Asset Dimension Checker</button>
+        <button onclick="openImageCompressor()">Bulk Image Compressor</button>
+        <button onclick="openViewScreen()">View Screen</button>
+      </div>
+    </div>
+
+    <script>
+      // ══════════════════════════════════════════
+      // THEME TOGGLE
+      // ══════════════════════════════════════════
+      const themeBtn = document.getElementById("themeToggle");
+      const logoImg  = document.getElementById("loginLogo");
+
+      themeBtn.addEventListener("click", () => {
+        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+        document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+        themeBtn.textContent = isDark ? "☽" : "☀";
+        logoImg.src = isDark ? "images/scooplogo.png" : "images/scooplogo_white.png";
+      });
+
+      // ══════════════════════════════════════════
+      // MAP DATA
+      // ══════════════════════════════════════════
+      const maps = {
+          "assets":               "https://www.google.com/maps/d/u/0/embed?mid=1O9QdapVXTxIAc27SDk8ELyLVISIOVB4&noprof=1&hl=en",
+          "digital":              "https://www.google.com/maps/d/u/0/embed?mid=1t_EhNntR3I06WqkHaqzRDvYjHrXCdbM&noprof=1&hl=en",
+          "underpass":            "https://www.google.com/maps/d/u/0/embed?mid=15JQiSPepcZmeo4aDskMY6OWGiAF5Gdg&noprof=1&hl=en",
+          "underpass-entrance":   "https://www.google.com/maps/d/u/0/embed?mid=1E6NPWl93orbNijhr5zH4Orb2aWT_z5o&noprof=1&hl=en",
+          "underpass-exit":       "https://www.google.com/maps/d/u/0/embed?mid=1m9aRQtqlbbdEJYmjzNOcds_fPXZe0PM&noprof=1&hl=en",
+          "udctower":             "https://www.google.com/maps/d/u/0/embed?mid=1TiVuDE320ZUxLN2Mdydi3-YgYoOim4M&noprof=1&hl=en",
+          "monoprix":             "https://www.google.com/maps/d/u/0/embed?mid=1z8NjNY3ZIUG7YrnNeam7uqZbX0x1jNY&noprof=1&hl=en",
+          "qqscreen":             "https://www.google.com/maps/d/u/0/embed?mid=1k4h99g2dTfmTrIzY3Js7M92j8BOTpkk&noprof=1&hl=en",
+          "mupi":                 "https://www.google.com/maps/d/u/0/embed?mid=1vOMNPiS5Y-HrRRHCR1KcJhUcXn9xwEw&noprof=1&hl=en",
+          "mupi-c1":              "https://www.google.com/maps/d/u/0/embed?mid=1BrVkhO1Lg0HRAKHpGeH74zEDztPX-pE&noprof=1&hl=en",
+          "mupi-c2":              "https://www.google.com/maps/d/u/0/embed?mid=1MajcJPKIVulbFbP5yotE1NxGdhElf_k&noprof=1&hl=en",
+          "gewan":                "https://www.google.com/maps/d/u/0/embed?mid=1SFDoLXZLLc2-B3se_7_qjfZcf2ZYNDs&noprof=1&hl=en",
+          "gewan-c1":             "https://www.google.com/maps/d/u/0/embed?mid=1wrqeO7Do01Qi-opFeeALKHALMdYyRN8&noprof=1&hl=en",
+          "gewan-c2":             "https://www.google.com/maps/d/u/0/embed?mid=1nPSY9CLK2ylFcBmWyf87oQrmQy7wF3A&noprof=1&hl=en",
+          "gewan-building":       "https://www.google.com/maps/d/u/0/embed?mid=166LX-hEhyLkOiYMXHkFeWFcV-i7hW-w&noprof=1&hl=en",
+          "lightpoles-me-mb-mc":  "https://www.google.com/maps/d/u/0/embed?mid=1gDh_bZEpRLSaat86k1w98xUendnKYWU&noprof=1&hl=en",
+          "lightpoles-me-mb":     "https://www.google.com/maps/d/u/0/embed?mid=1Gz9picEAgT-cCahubRivimvxR_RWR6U&noprof=1&hl=en",
+          "lightpoles-me":        "https://www.google.com/maps/d/u/0/embed?mid=1QdozkvfmFHSKl4-WbGsxYRZSY4F4Efw&noprof=1&hl=en",
+          "lightpoles-me-c1":     "https://www.google.com/maps/d/u/0/embed?mid=10dH5uxmKgTJVg4fHtAjrZMDcAl8rwGY&noprof=1&hl=en",
+          "lightpoles-me-c2":     "https://www.google.com/maps/d/u/0/embed?mid=1MCsELJCQAFr3XEtW-0EQz7xqaEjxmwY&noprof=1&hl=en",
+          "lightpoles-me-c3":     "https://www.google.com/maps/d/u/0/embed?mid=134Qm5HV3pu0vGEc3MZKVWNSso6v6a7Q&noprof=1&hl=en",
+          "lightpoles-mb":        "https://www.google.com/maps/d/u/0/embed?mid=1GjWw7-wVWV1Fk_-RNwr3egYdvFGX6Ps&noprof=1&hl=en",
+          "lightpoles-mb-c1":     "https://www.google.com/maps/d/u/0/embed?mid=1LUgg-DxCO4Z6ZosnYyyCORfOFmjp9ec&noprof=1&hl=en",
+          "lightpoles-mb-c2":     "https://www.google.com/maps/d/u/0/embed?mid=1mCE2soYkBCj5FCz5wA_gBpch98Jo0Cw&noprof=1&hl=en",
+          "lightpoles-mb-c3":     "https://www.google.com/maps/d/u/0/embed?mid=19zR16bM8uBvhfAejf2WfDnX5w5Dt0Bs&noprof=1&hl=en",
+          "lightpoles-mc":        "https://www.google.com/maps/d/u/0/embed?mid=1-2OwVCSXdxbJ5EMrL86ziAYYyxpWWLY&noprof=1&hl=en",
+          "lightpoles-pa":        "https://www.google.com/maps/d/u/0/embed?mid=1i_evQjZALeMbNR5qAu7y550-FpztPMM&noprof=1&hl=en",
+          "lightpoles-pa-c1":     "https://www.google.com/maps/d/u/0/embed?mid=1VnQurtB2nj6Wn5Kusx4-iv7Ty1iMQZM&noprof=1&hl=en",
+          "lightpoles-pa-c2":     "https://www.google.com/maps/d/u/0/embed?mid=17gxQvvE533Haw5NZ664MG_fftFcu1Yw&noprof=1&hl=en",
+          "lightpoles-pa-c3":     "https://www.google.com/maps/d/u/0/embed?mid=148DGkNNWesU5NXgRjdLF_SN2vMFZ0YM&noprof=1&hl=en",
+          "lightpoles-pa-c4":     "https://www.google.com/maps/d/u/0/embed?mid=1nu4ao35FX9BxwqQJy5UFZodZD2CaRQ4&noprof=1&hl=en",
+          "mupi-pa":              "https://www.google.com/maps/d/u/0/embed?mid=1FfdQf0DTJHPt7B4u1MwHcXGkTKeY7Wo&noprof=1&hl=en",
+          "mupi-pa-c1":           "https://www.google.com/maps/d/u/0/embed?mid=1i1_Q16qBXVmpyIoSoxy5tuYTjjrGuh4&noprof=1&hl=en",
+          "mupi-pa-c2":           "https://www.google.com/maps/d/u/0/embed?mid=1ImXsQCd1FN0PMP_QiYdOq5Kk3D5fUgE&noprof=1&hl=en",
+          "mupi-pa-c3":           "https://www.google.com/maps/d/u/0/embed?mid=1Bn9qg0voB7acWefrsldjCh4nFcd-Alw&noprof=1&hl=en",
+          "mupi-pa-low":          "https://www.google.com/maps/d/u/0/embed?mid=1JhqYIESVivHiJO-PLFciKR-9HWLSqqc&noprof=1&hl=en"
+      };
+
+      // ══════════════════════════════════════════
+      // ASSET RATE DATA
+      // ══════════════════════════════════════════
+      const assetRate = {
+          underpass: { title:"Underpass Screens", screens:"2", rate:"110,000 QAR", uploadfee:"3,000 QAR", duration:"2 Weeks", dimension:"6240 × 420 px" },
+          "underpass-entrance": { title:"Underpass Entrance", screens:"1", rate:"65,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"6240 × 420 px" },
+          "underpass-exit": { title:"Underpass Exit", screens:"1", rate:"65,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"6240 × 420 px" },
+          mupi: { title:"Mupi Screens", screens:"24", rate:"80,000 QAR", uploadfee:"3,000 QAR", duration:"2 Weeks", dimension:"256 × 384 px" },
+          "mupi-c1": { title:"Mupi Circuit 1", screens:"12", rate:"40,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"256 × 384 px" },
+          "mupi-c2": { title:"Mupi Circuit 2", screens:"12", rate:"40,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"256 × 384 px" },
+          gewan: { title:"Gewan Crystal Walk Screens", screens:"24", rate:"90,000 QAR", uploadfee:"3,000 QAR", duration:"2 Weeks", dimension:"512×640 / 384×640 / 640×384 / 384×512 / 640×640 px" },
+          "gewan-c1": { title:"Gewan Crystal Walk Circuit 1", screens:"12", rate:"45,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"512×640 / 384×640 / 640×384 / 384×512 / 640×640 px" },
+          "gewan-c2": { title:"Gewan Crystal Walk Circuit 2", screens:"12", rate:"45,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"512×640 / 384×640 / 640×384 / 384×512 / 640×640 px" },
+          "gewan-building": { title:"Gewan Crystal Building", screens:"2", rate:"10,000 QAR", uploadfee:"1,500 QAR", duration:"4 Weeks", dimension:"1248 × 728 px" },
+          "udctower": { title:"UDC Tower Screens", screens:"4", rate:"45,000 QAR", uploadfee:"1,500 QAR", duration:"2 Weeks", dimension:"1664 × 1040 px" },
+          "qqscreen": { title:"Qanat Quartier Screen", screens:"1", rate:"20,000 QAR", uploadfee:"1,500 QAR", duration:"4 Weeks", dimension:"3742 × 432 px" },
+          "monoprix": { title:"Monoprix Screen", screens:"8", rate:"10,000 QAR", uploadfee:"1,500 QAR", duration:"4 Weeks", dimension:"1080 × 1920 px" },
+          "lightpoles-me-mb": { title:"Light Poles Main Circuits", faces:"144 Faces (72 Poles)", rate:"240,000 QAR", installation:"72,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-me": { title:"Light Poles Main Entrance", faces:"72 Faces (36 Poles)", rate:"120,000 QAR", installation:"36,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-me-c1": { title:"Light Poles Main Entrance Circuit 1", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-me-c2": { title:"Light Poles Main Entrance Circuit 2", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-me-c3": { title:"Light Poles Main Entrance Circuit 3", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-mb": { title:"Light Poles Main Boulevard", faces:"72 Faces (36 Poles)", rate:"120,000 QAR", installation:"36,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-mb-c1": { title:"Light Poles Main Boulevard Circuit 1", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-mb-c2": { title:"Light Poles Main Boulevard Circuit 2", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-mb-c3": { title:"Light Poles Main Boulevard Circuit 3", faces:"24 Faces (12 Poles)", rate:"40,000 QAR", installation:"12,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-mc": { title:"Light Poles Medina Centrale", faces:"18 Faces (9 Poles)", rate:"20,000 QAR", installation:"9,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-pa": { title:"Light Poles Porto Arabia", faces:"168 Faces (84 Poles)", rate:"120,000 QAR", installation:"72,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-pa-c1": { title:"Light Poles Porto Arabia Circuit 1", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-pa-c2": { title:"Light Poles Porto Arabia Circuit 2", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-pa-c3": { title:"Light Poles Porto Arabia Circuit 3", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "lightpoles-pa-c4": { title:"Light Poles Porto Arabia Circuit 4", faces:"42 Faces (21 Poles)", rate:"30,000 QAR", installation:"18,000 QAR", duration:"2 Weeks", dimension:"1 × 3 m" },
+          "mupi-pa": { title:"Mupi Porto Arabia Boardwalk", faces:"180", rate:"90,000 QAR", installation:"39,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" },
+          "mupi-pa-c1": { title:"Mupi Porto Arabia Boardwalk Circuit 1", faces:"60", rate:"30,000 QAR", installation:"13,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" },
+          "mupi-pa-c2": { title:"Mupi Porto Arabia Boardwalk Circuit 2", faces:"60", rate:"30,000 QAR", installation:"13,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" },
+          "mupi-pa-c3": { title:"Mupi Porto Arabia Boardwalk Circuit 3", faces:"60", rate:"30,000 QAR", installation:"13,000 QAR", duration:"4 Weeks", dimension:"1.2 × 1.76 m" }
+      };
+
+      let currentMapKey = "assets";
+      let currentMapUrl = maps["assets"];
+
+      // ══════════════════════════════════════════
+      // UTILITIES
+      // ══════════════════════════════════════════
+      function toggleOverlay(show) {
+        document.querySelector(".map-overlay").style.display = show ? "block" : "none";
+      }
+
+      function copyGoogleMapLink() {
+        navigator.clipboard.writeText(currentMapUrl).then(() => alert("Google Map link copied!"));
+      }
+
+      function showOnlyFrame(frameId) {
+        ["mapFrame","vehicleFrame","homeFrame","contentInventoryFrame","assetDimensionCheckerFrame","imageCompressorFrame","viewScreenFrame"].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = "none";
+        });
+        const active = document.getElementById(frameId);
+        if (active) active.style.display = "block";
+      }
+
+      function setURL(params = {}) {
+        const url = new URL(window.location);
+        Object.keys(params).forEach(key => {
+          if (params[key] === null) url.searchParams.delete(key);
+          else url.searchParams.set(key, params[key]);
+        });
+        window.history.pushState({}, "", url);
+      }
+
+      // ══════════════════════════════════════════
+      // MAP CONTROL
+      // ══════════════════════════════════════════
+      function setMap(key) {
+        if (!maps[key]) return;
+        currentMapKey = key;
+        currentMapUrl = maps[key];
+        updateInfoCard(key);
+        showOnlyFrame("mapFrame");
+        document.getElementById("mapFrame").src = currentMapUrl;
+        toggleOverlay(true);
+        setURL({ map: key, page: null });
+        setDockActive(2);
+      }
+
+      function setMapAndClose(key) {    
         closeAllPanels();
-        if (!isOpen) { panel.classList.add("show"); setDockActive(1); }
-    });
+        setMap(key);
+      }
 
-    document.getElementById("btnVehicleTraffic").addEventListener("click", () => {
-        closeAllPanels(); openVehicleReport();
-    });
+      // =============================================
+      // CONTENT SWITCHING
+      // =============================================
 
-    document.getElementById("btnServices").addEventListener("click", (e) => {
-        e.stopPropagation();
-        const panel = document.getElementById("servicesPanel");
-        const isOpen = panel.classList.contains("show");
+      function openHome() {
+        showOnlyFrame("homeFrame");
+        toggleOverlay(false);
+        setURL({ map: null, page: "home" });
+        setDockActive(0);
         closeAllPanels();
-        if (!isOpen) { panel.classList.add("show"); setDockActive(3); }
-    });
+      }
 
-    document.getElementById("btnViewScreen").addEventListener("click", () => {
-        closeAllPanels(); openViewScreen();
-    });
+      function openContentInventory() {
+        showOnlyFrame("contentInventoryFrame");
+        toggleOverlay(false);
+        setURL({ map: null, page: "content-inventory" });
+        setDockActive(1);
+        closeAllPanels();
+      }
 
-    // Close panels on outside click
-    document.addEventListener("click", () => closeAllPanels());
-    document.querySelectorAll(".dock-panel").forEach(p => p.addEventListener("click", e => e.stopPropagation()));
+      function openVehicleReport() {
+        showOnlyFrame("vehicleFrame");
+        toggleOverlay(false);
+        setURL({ map: null, page: "vehicle" });  
+        setDockActive(3);
+        closeAllPanels();
+      }
 
-    loadFromURL();
-});
-</script>
-</body>
+      function openAssetDimensionChecker() {
+        showOnlyFrame("assetDimensionCheckerFrame");
+        toggleOverlay(false);
+        setURL({ map: null, page: "asset-checker" });
+        setDockActive(4);
+        closeAllPanels();
+      }
+
+      function openImageCompressor() {
+        showOnlyFrame("imageCompressorFrame");
+        toggleOverlay(false);
+        setURL({ map: null, page: "image-compressor" });
+        setDockActive(4);
+        closeAllPanels();
+      }
+
+      function openViewScreen() {
+        showOnlyFrame("viewScreenFrame");
+        toggleOverlay(false);
+        setURL({ map: null, page: "view-screen" });
+        setDockActive(5);
+        closeAllPanels();
+      }
+
+
+      // ══════════════════════════════════════════
+      // URL LOAD
+      // ══════════════════════════════════════════
+      function loadFromURL() {
+          const params = new URLSearchParams(window.location.search);
+          const page = params.get("page");
+          const map  = params.get("map");
+          if (page === "home")                return openHome();
+          if (page === "content-inventory")   return openContentInventory();
+          if (page === "vehicle")             return openVehicleReport();
+          if (page === "asset-checker")       return openAssetDimensionChecker();
+          if (page === "image-compressor")    return openImageCompressor();
+          if (page === "view-screen")         return openViewScreen();
+          if (map && maps[map])               return setMap(map);
+          openContentInventory();
+      }
+
+      // ══════════════════════════════════════════
+      // DOCK
+      // ══════════════════════════════════════════
+      function setDockActive(index) {
+          document.querySelectorAll(".dock-item").forEach((item, i) => {
+              item.classList.toggle("active", i === index);
+          });
+      }
+
+      function closeAllPanels() {
+          document.getElementById("assetsPanel").classList.remove("show");
+          document.getElementById("servicesPanel").classList.remove("show");
+      }
+
+      // ══════════════════════════════════════════
+      // INFO CARD
+      // ══════════════════════════════════════════
+      function toggleInfoCard() {
+          const card = document.getElementById("infoCard");
+          if (!card.dataset.hasdata || card.dataset.hasdata === "false") return;
+          card.style.display = card.style.display === "block" ? "none" : "block";
+      }
+
+      function updateInfoCard(mapKey) {
+          const details = assetRate[mapKey];
+          const card    = document.getElementById("infoCard");
+          const tbody   = document.getElementById("infoTableBody");
+          const header  = document.getElementById("infoHeader");
+          if (!details) { card.style.display = "none"; card.dataset.hasdata = "false"; return; }
+          const isDigital = details.screens !== undefined;
+          const isStatic  = details.faces   !== undefined;
+          card.dataset.hasdata = "true";
+          header.innerHTML = `Asset Rate Card › ${details.title || "Asset"}<span class="close-info" onclick="toggleInfoCard()">✕</span>`;
+          let html = "";
+          if (isDigital) {
+              html = `<tr><th>Screens</th><td>${details.screens}</td></tr>
+                      <tr><th>Rate</th><td>${details.rate}</td></tr>
+                      <tr><th>Upload Fee</th><td>${details.uploadfee}</td></tr>
+                      <tr><th>Campaign Duration</th><td>${details.duration}</td></tr>
+                      <tr><th>Dimension W×H</th><td>${details.dimension}</td></tr>`;
+          } else if (isStatic) {
+              html = `<tr><th>Faces</th><td>${details.faces}</td></tr>
+                      <tr><th>Rate</th><td>${details.rate}</td></tr>
+                      <tr><th>Production &amp; Installation</th><td>${details.installation}</td></tr>
+                      <tr><th>Campaign Duration</th><td>${details.duration}</td></tr>
+                      <tr><th>Dimension W×H</th><td>${details.dimension}</td></tr>`;
+          }
+          tbody.innerHTML = html;
+      }
+
+      document.addEventListener("click", (e) => {
+          const card    = document.getElementById("infoCard");
+          const infoBtn = document.querySelector(".info-btn");
+          if (!card || card.style.display !== "block") return;
+          if (card.contains(e.target) || infoBtn.contains(e.target)) return;
+          card.style.display = "none";
+      });
+
+      // ══════════════════════════════════════════
+      // INIT
+      // ══════════════════════════════════════════
+      document.addEventListener("DOMContentLoaded", () => {
+
+        // Dock buttons
+        document.getElementById("btnHome").addEventListener("click", () => {
+          closeAllPanels(); openHome();
+        });
+
+        document.getElementById("btnContentInventory").addEventListener("click", () => {
+          closeAllPanels(); openContentInventory();
+        });
+
+        document.getElementById("btnAssetsLocation").addEventListener("click", (e) => {
+          e.stopPropagation();
+          const panel = document.getElementById("assetsPanel");
+          const isOpen = panel.classList.contains("show");
+          closeAllPanels();
+          if (!isOpen) { panel.classList.add("show"); setDockActive(2); }
+        });
+
+        document.getElementById("btnVehicleTraffic").addEventListener("click", () => {
+          closeAllPanels(); openVehicleReport();
+        });
+
+        document.getElementById("btnServices").addEventListener("click", (e) => {
+          e.stopPropagation();
+          const panel = document.getElementById("servicesPanel");
+          const isOpen = panel.classList.contains("show");
+          closeAllPanels();
+          if (!isOpen) { panel.classList.add("show"); setDockActive(4); }
+        });
+
+        // Close panels on outside click
+        document.addEventListener("click", () => closeAllPanels());
+        document.querySelectorAll(".dock-panel").forEach(p => p.addEventListener("click", e => e.stopPropagation()));
+
+        loadFromURL();
+
+      });
+
+    </script>
+  </body>
 </html>
