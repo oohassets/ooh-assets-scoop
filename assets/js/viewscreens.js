@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const viewScreensBtn = document.getElementById("viewScreensBtn");
+  const viewScreensBtn = document.getElementById("btnViewScreen");
   if (!viewScreensBtn) {
-    console.warn("⚠️ viewScreensBtn not found in DOM.");
+    console.warn("⚠️ btnViewScreen not found in DOM.");
     return;
   }
 

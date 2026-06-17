@@ -560,6 +560,10 @@ nav {
       </div>
     </div>
 
+    <div class="nav-item">
+      <button class="nav-link" id="viewScreenLink" onclick="openViewScreen()">View Screen</button>
+    </div>
+
   </div>
 
   <div class="nav-actions">
@@ -614,6 +618,9 @@ nav {
   <iframe id="imageCompressorFrame" style="display:none;"
     src="https://oohassets.github.io/ooh-assets-scoop/bulk-image-compressor.html"></iframe>
 
+  <iframe id="viewScreenFrame" style="display:none;"
+    src="https://oohassets.github.io/ooh-assets-scoop/asset-digital-content.html"></iframe>
+
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -640,6 +647,10 @@ nav {
   <button class="dock-item" id="btnServices">
     <img src="https://img.icons8.com/material-sharp/24/circled-menu.png">
     <span>Services</span>
+  </button>
+  <button class="dock-item" id="btnViewScreen">
+    <img src="https://img.icons8.com/ios-glyphs/air-play.png">
+    <span>View Screen</span>
   </button>
 </div>
 
@@ -722,6 +733,8 @@ nav {
     <button onclick="openImageCompressor()">Bulk Image Compressor</button>
   </div>
 </div>
+
+
 
 <script>
 // ══════════════════════════════════════════
@@ -832,7 +845,7 @@ function copyGoogleMapLink() {
 }
 
 function showOnlyFrame(frameId) {
-    ["mapFrame","vehicleFrame","homeFrame","contentInventoryFrame","assetDimensionCheckerFrame","imageCompressorFrame"].forEach(id => {
+    ["mapFrame","vehicleFrame","homeFrame","contentInventoryFrame","assetDimensionCheckerFrame","imageCompressorFrame","viewScreenFrame"].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = "none";
     });
@@ -935,6 +948,16 @@ function openImageCompressor() {
 
 }
 
+function openViewScreen() {
+    showOnlyFrame("viewScreenFrame");
+    toggleOverlay(false);
+
+    setURL({ map: null, page: "view-screen" });
+    setDockActive(5);
+    closeAllPanels();
+
+}
+
 
 // ══════════════════════════════════════════
 // URL LOAD
@@ -948,6 +971,7 @@ function loadFromURL() {
     if (page === "vehicle")             return openVehicleReport();
     if (page === "asset-checker")       return openAssetDimensionChecker();
     if (page === "image-compressor")    return openImageCompressor();
+    if (page === "view-screen")         return openViewScreen();
     if (map && maps[map])               return setMap(map);
     openContentInventory();
 }
@@ -1041,6 +1065,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const isOpen = panel.classList.contains("show");
         closeAllPanels();
         if (!isOpen) { panel.classList.add("show"); setDockActive(3); }
+    });
+
+    document.getElementById("btnViewScreen").addEventListener("click", () => {
+        closeAllPanels(); openViewScreen();
     });
 
     // Close panels on outside click
