@@ -1436,7 +1436,11 @@ function renderUpdates(campaigns, tables) {
     }
   });
 
-  Object.values(groups).forEach(g => g.sort((a,b) => a.sortDate - b.sortDate));
+  groups.published.sort((a,b) => b.sortDate - a.sortDate);
+  groups.removed.sort((a,b) => b.sortDate - a.sortDate);
+
+  groups.upcoming.sort((a,b) => a.sortDate - b.sortDate);
+  groups.ending.sort((a,b) => a.sortDate - b.sortDate);
   function card(id, title, dotCls, items) {
     const body = items.length ? items.map((u,i) => `
       <div class="update-item" style="animation-delay:${i*0.05}s">
