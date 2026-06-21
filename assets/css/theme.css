@@ -1,0 +1,98 @@
+/* ══════════════════════════════════════════
+   SCOOP OOH — THEME TOKENS
+   Dark mode (default) + Light mode overrides
+══════════════════════════════════════════ */
+
+:root {
+  --bg-primary:    #050A1A;
+  --bg-secondary:  #0A1628;
+  --bg-tertiary:   #0F1E38;
+  --bg-card:       rgba(15,28,56,0.7);
+  --bg-glass:      rgba(255,255,255,0.04);
+  --bg-glass-hover:rgba(255,255,255,0.07);
+  --border-glass:  rgba(255,255,255,0.1);
+  --border-glow:   rgba(79,70,229,0.4);
+
+  --text-primary:  #F8FAFF;
+  --text-secondary:#94A3C0;
+  --text-muted:    #5A6A8A;
+
+  --accent-indigo: #4F46E5;
+  --accent-cyan:   #0496ff;
+  --accent-violet: #7C3AED;
+  --accent-emerald:#10B981;
+  --accent-amber:  #F59E0B;
+  --accent-rose:   #F43F5E;
+
+  --glow-indigo:   rgba(79,70,229,0.25);
+  --glow-cyan:     rgba(4,150,255,0.2);
+
+  --nav-bg:        rgba(5,10,26,0.95);
+  --shadow-card:   0 8px 32px rgba(0,0,0,0.4);
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+}
+
+[data-theme="light"] {
+  --bg-primary:    #F0F4FF;
+  --bg-secondary:  #E8EEF8;
+  --bg-tertiary:   #DDE5F5;
+  --bg-card:       rgba(255,255,255,0.85);
+  --bg-glass:      rgba(255,255,255,0.7);
+  --bg-glass-hover:rgba(255,255,255,0.9);
+  --border-glass:  rgba(79,70,229,0.15);
+  --border-glow:   rgba(79,70,229,0.3);
+
+  --text-primary:  #0A1628;
+  --text-secondary:#3D4F6E;
+  --text-muted:    #6B7A99;
+
+  --nav-bg:        rgba(240,244,255,0.97);
+  --shadow-card:   0 8px 32px rgba(79,70,229,0.1);
+  --glow-indigo:   rgba(79,70,229,0.1);
+}
+
+/* ── Global reset ─────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background:  var(--bg-primary);
+  color:       var(--text-primary);
+  min-height:  100vh;
+  overflow-x:  hidden;
+  transition:  background 0.4s, color 0.4s;
+}
+
+iframe { position:relative; z-index:1; border:none; }
+
+/* ── Animated dot ─────────────────────── */
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.6; transform:scale(0.8); }
+}
+
+/* ── Orb float ────────────────────────── */
+@keyframes orbFloat {
+  0%,100% { transform:translate(0,0) scale(1); }
+  33%     { transform:translate(15px,-20px) scale(1.02); }
+  66%     { transform:translate(-10px,10px) scale(0.98); }
+}
+
+/* ── Fade in up ───────────────────────── */
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── Reveal on scroll ─────────────────── */
+.reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }

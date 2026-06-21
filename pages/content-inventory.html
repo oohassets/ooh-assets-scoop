@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOOP OOH Assets</title>
+
+<script type="module">
+  import { requireAuth } from "../assets/js/authGuard.js";
+  requireAuth();
+</script>
+
+<link rel="stylesheet" href="../assets/css/styles.css">
+<style>
+/* Content Inventory */
+
+
+
+.carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-right: 10px;
+
+}
+
+.carousel-title {
+  color:black !important;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 20px 0 10px;
+}
+
+.expand-btn {
+  margin-top: 20px;
+}
+
+.expand-btn a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.expand-btn a:hover {
+  color: #FF5F15;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.carousel-container {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 15px;
+  box-sizing: border-box;
+  display: flex;
+  gap: 16px;
+  padding-top: 20px;
+  padding-bottom: 25px;
+
+}
+
+.carousel {
+  display: grid !important;
+
+  grid-template-columns: repeat(2, 1fr); /* ✅ 2 columns */
+  gap: 20px;
+
+  row-gap: 26px;
+  column-gap: 20px;
+
+}
+
+.carousel > :last-child:nth-child(odd) {
+  grid-column: span 2;
+  justify-self: left;
+  max-width: 600px;
+}
+
+
+.card {
+  background: #ffffff;
+  opacity: 0.95 !important;
+  padding: 15px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  width: 600px;
+  margin-right: 14px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.card h2 {
+  font-size: 16px;
+  padding-top: 5px;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+#carouselPublishToday .card {
+  width: fit-content;
+}
+
+#carouselUpcoming .card {
+  width: fit-content;
+}
+
+.published-card h2 {
+  color: green;
+}
+
+.removed-card h2 {
+  color: red; 
+}
+
+
+/* Scrollable table area */
+.table-container {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-top: -4px;
+}
+
+/* Table styling */
+.json-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.json-table td {
+  padding: 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+.separator td {
+  border-bottom: 2px solid #999;
+}
+
+.json-table tr:hover {
+  background: #fafafa;
+}
+
+/* nested JSON formatting */
+.json-table pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  font-size: 12px;
+  background: #f9f9f9;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.card-table-wrapper {
+  max-height: 65vh;      
+  overflow-y: auto;     
+  padding-right: 10px;  
+}
+
+.json-table th {
+  background: #f4f4f4;
+  position: sticky;
+  top: 0;
+  padding: 4px 6px;
+  font-weight: bold;
+  border-bottom: 2px solid #ccc;
+  z-index: 3;
+  font-size: 13px;      
+}
+
+.json-table td.key {
+  font-weight: bold;
+  width: 80px;
+}
+
+.json-table tr:last-child td {
+  border-bottom: none;
+}
+
+</style>
+
+</head>
+<body>
+
+<!-- MAIN CONTENT -->
+<div class="container" style="display:none;">
+
+<!-- TPI Carousel -->
+<div class="carousel-header">
+  <div class="carousel-title">Digital Circuits</div>
+</div>
+<div class="carousel-container">
+  <div class="carousel" id="carouselTPI"></div>
+</div>
+
+<!-- Gewan Carousel -->
+<div class="carousel-container">
+  <div class="carousel" id="carouselGewan"></div>
+</div>
+
+  <!-- STATIC CAROUSEL -->
+  <div class="carousel-header">
+    <div class="carousel-title">Static Circuits</div>
+  </div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselStatic"></div>
+  </div>
+
+  <!-- PUBLISHED TODAY -->
+  <div class="carousel-title">Campaign Activity</div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselPublishToday"></div>
+  </div>
+
+<!-- UPCOMING & ENDING CAMPAIGNS -->
+<div class="carousel-title">Ending & Upcoming Campaigns</div>
+<div class="carousel-container">
+  <div class="carousel" id="carouselUpcoming"></div>
+</div>
+
+<!-- JS Modules -->
+<script type="module" src="./firebase/firebase.js"></script>
+
+<!-- UI helpers -->
+<script type="module" src="./assets/js/ui.js"></script>
+
+<!-- Feature modules -->
+<script type="module" src="./assets/js/loadCarousel.js"></script>
+    
+<!-- Main logic last (depends on others) -->
+<script type="module" src="./assets/js/main.js"></script>
+
+<!-- PWA last -->
+<script type="module" src="./assets/js/pwa.js"></script>
+
+
+</body>
+</html>
+

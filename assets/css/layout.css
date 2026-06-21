@@ -1,0 +1,86 @@
+/* ══════════════════════════════════════════
+   SCOOP OOH — LAYOUT
+   Map container, info card, overlay buttons
+══════════════════════════════════════════ */
+
+/* ── Map area ─────────────────────────── */
+.map-container {
+  position:  relative;
+  height:    calc(100vh - 64px);
+  margin-top:64px;
+}
+.map-container iframe { width:100%; height:100%; }
+
+@media(max-width:900px) {
+  .map-container { height: calc(100vh - 64px - env(safe-area-inset-bottom, 0px)); }
+}
+@media(max-width:768px) {
+  .info-card { width: calc(100vw - 40px); right:20px; }
+}
+
+/* ── Overlay (hides Google branding) ─── */
+.map-overlay {
+  position:absolute; top:0; right:0;
+  width:140px; height:50px;
+  background:#4d6a79; z-index:1500;
+}
+
+/* ── Map action buttons ───────────────── */
+.info-btn  { position:absolute; top:20px; right:70px; background:transparent; border:none; cursor:pointer; }
+.share-btn { position:absolute; top:20px; right:20px; background:transparent; border:none; cursor:pointer; }
+.share-btn img, .info-btn img { width:25px; }
+
+/* ── Asset info card ──────────────────── */
+.info-card {
+  position:absolute; top:75px; right:20px;
+  width:400px;
+  background:var(--bg-card); border:1px solid var(--border-glass);
+  border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.25);
+  overflow:hidden; z-index:999; display:none;
+  animation:fadeInCard 0.25s ease; backdrop-filter:blur(20px);
+}
+@keyframes fadeInCard {
+  from { opacity:0; transform:translateY(-8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.info-header {
+  padding:14px 18px; background:#4d6a79; color:#ffffff;
+  font-size:13px; display:flex; align-items:center; justify-content:space-between;
+  font-family:var(--font-display); font-weight:600;
+}
+.close-info       { cursor:pointer; font-size:14px; opacity:0.8; }
+.close-info:hover { opacity:1; }
+
+.info-table             { width:100%; border-collapse:collapse; }
+.info-table tr          { border-bottom:1px solid var(--border-glass); }
+.info-table th {
+  width:50%; padding:14px 16px; text-align:left;
+  font-size:12px; color:var(--text-muted);
+  background:var(--bg-glass); font-family:var(--font-display); font-weight:600;
+}
+.info-table td { padding:14px 16px; font-size:13px; color:var(--text-primary); }
+
+/* ── Shared card + section utilities ─── */
+.card { background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-lg); padding:28px; backdrop-filter:blur(20px); transition:border-color 0.3s; }
+.card:hover { border-color:var(--border-glow); }
+
+.section-divider { height:1px; background:var(--border-glass); margin:2rem 0; }
+.section-eyebrow { font-size:11px; font-weight:700; font-family:var(--font-display); color:var(--accent-cyan); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.5rem; display:flex; align-items:center; gap:8px; }
+.section-eyebrow::before { content:""; width:20px; height:2px; background:var(--accent-cyan); }
+.section-title { font-family:var(--font-display); font-size:clamp(28px,3vw,42px); font-weight:800; color:var(--text-primary); letter-spacing:-0.02em; }
+.section-sub   { margin-top:8px; font-size:15px; color:var(--text-secondary); }
+
+/* ── Status pills ─────────────────────── */
+.status-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; font-family:var(--font-display); white-space:nowrap; }
+.status-pill::before { content:"•"; }
+.pill-live      { background:rgba(16,185,129,0.15); color:var(--accent-emerald); }
+.pill-signed    { background:rgba(244,63,94,0.15);  color:var(--accent-rose); }
+.pill-pending   { background:rgba(245,158,11,0.15); color:var(--accent-amber); }
+.pill-completed { background:rgba(6,182,212,0.15);  color:var(--accent-cyan); }
+.pill-cancelled { background:rgba(100,100,100,0.15);color:var(--text-muted); }
+
+/* ── Footer ───────────────────────────── */
+footer { text-align:center; padding:3rem 2rem; border-top:1px solid var(--border-glass); margin-top:4rem; }
+.footer-brand { font-family:var(--font-display); font-size:20px; font-weight:800; background:linear-gradient(135deg,var(--accent-indigo),var(--accent-cyan)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.footer-copy  { margin-top:8px; font-size:13px; color:var(--text-muted); }

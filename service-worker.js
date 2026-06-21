@@ -1,14 +1,38 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v115.4';
+const CACHE_NAME = 'scoop-ooh-cache-v116.0';
 
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './login.html',
   './manifest.json',
-  './assets/css/styles.css',
-  './assets/js/main.js',
+  // Organized CSS
+  './assets/css/theme.css',
+  './assets/css/layout.css',
+  './assets/css/navigation.css',
+  './assets/css/dashboard.css',
+  './assets/css/content-inventory.css',
+  // Organized JS
+  './assets/js/app.js',
+  './assets/js/router.js',
+  './assets/js/theme.js',
+  './assets/js/maps.js',
+  './assets/js/asset-rates.js',
+  './assets/js/authGuard.js',
+  './assets/js/navigation.js',
+  './assets/js/utils.js',
+  './assets/js/scoop-ai.js',
+  // Firebase
+  './firebase/firebase.js',
+  // Pages
+  './pages/dashboard.html',
+  './pages/content-inventory.html',
+  './pages/vehicle-report.html',
+  './pages/asset-dimension-checker.html',
+  './pages/image-compressor.html',
+  // Legacy JS still needed by sub-pages
   './assets/js/login.js',
+  // Images
   './images/scooplogo_black_180x180.png',
   './images/scooplogo_black_192x192.png',
   './images/scooplogo_black_512x512.png',
