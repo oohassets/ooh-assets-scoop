@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -31,4 +31,4 @@ jobs:
         working-directory: functions
 
       - name: Deploy Firebase Functions
-        run: firebase deploy --only functions --project scoopassets
+        run: firebase deploy --only functions --project scoopassets --debug
