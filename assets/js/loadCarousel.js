@@ -161,14 +161,16 @@ function createCard(title, data, columns, highlightColumns = []) {
           </div>`;
       }
 
+      const bo        = row["BO"] ?? "";
       const startCls  = getDateClass(start, false);
       const endCls    = getDateClass(end,   true);
       return `
         <div class="ml-row">
           ${snKey ? `<span class="ml-sn">${sn}</span>` : ""}
           <div class="ml-body">
-            <div class="ml-client">${client}</div>
+            <div class="ml-client">${client}</div>            
             <div class="ml-dates">
+              ${bo && bo !== "—" ? `<div class="ml-bo">${bo}</div>` : ""}
               <span class="ml-date ${startCls}">${fmtMobileDate(start)}</span>
               <span class="ml-arrow">→</span>
               <span class="ml-date ${endCls}">${fmtMobileDate(end)}</span>
@@ -336,7 +338,7 @@ export async function loadCarousel() {
     const data = allTables[tableName];
     if (!data) return;
 
-    const columns = ["SN", "Client", "Start Date", "End Date"];
+    const columns = ["SN", "Client", "BO", "Start Date", "End Date"];
     const highlightCols = ["End Date"];
 
     const rows = Array.isArray(data) ? data : Object.values(data);
@@ -438,7 +440,7 @@ export async function loadCarousel() {
     const data = allTables[tableName];
     if (!data) return;
 
-    const columns = ["Circuit", "Client", "Start Date", "End Date"];
+    const columns = ["Circuit", "Client", "BO", "Start Date", "End Date"];
     const highlightCols = ["End Date"];
 
     const rows = Array.isArray(data) ? data : Object.values(data);

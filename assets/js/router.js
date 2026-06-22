@@ -18,13 +18,13 @@ async function switchView(htmlPath, cssPath, viewModulePath) {
   if (currentView?.cleanup) currentView.cleanup();
   currentView = null;
 
-  // Hide map, show content + orbs
+  // Hide map, show content; restore orbs (may have been hidden by setMap)
   const mapFrame   = document.getElementById("mapFrame");
   const appContent = document.getElementById("app-content");
   const pageOrbs   = document.getElementById("page-orbs");
   if (mapFrame)   mapFrame.style.display   = "none";
   if (appContent) appContent.style.display = "block";
-  if (pageOrbs)   pageOrbs.style.display   = "block";
+  if (pageOrbs)   pageOrbs.style.display   = "block"; // restore after map view
   toggleOverlay(false);
 
   // Load HTML into container

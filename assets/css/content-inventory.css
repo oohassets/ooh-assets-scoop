@@ -11,7 +11,17 @@
 }
 
 .carousel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding: 0 20px; }
-.carousel-title  { color:var(--text-primary,#000); font-size:20px; font-weight:600; margin:20px 0 10px; padding: 0 20px; }
+.carousel-title  {
+  color: var(--text-primary, #000);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 20px 0 10px;
+  padding: 8px 20px;
+  position: sticky;
+  top: 52px;   /* sits just below the 52px circuit-tabs bar */
+  z-index: 99;
+  background: transparent;
+}
 
 .expand-btn   { margin-top:20px; }
 .expand-btn a { color:var(--text-primary,#fff); text-decoration:none; }
@@ -96,17 +106,23 @@
 .inventory-tabs .tab { display:inline-block; margin:0 10px; font-size:13px; cursor:pointer; font-weight:bold; color:#666; padding-bottom:2px; }
 .inventory-tabs .tab.active { color:#000; border-bottom:2px solid #f47c2c; }
 
-/* ── Circuit section tabs ─────────────── */
+/* ── Circuit section tabs — sticky ───────── */
 .circuit-tabs {
   display: flex;
   gap: 8px;
-  padding: 4px 20px 0;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: transparent;
+  border-radius: 10px;
+ 
 }
 .circuit-tab {
   padding: 7px 20px;
   border-radius: 999px;
   border: 1px solid var(--border-glass);
-  background: transparent;
+  background: var(--bg-primary);
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 13px;
@@ -177,9 +193,10 @@
     color: var(--text-muted);
     padding-top: 2px;
     flex-shrink: 0;
+    padding-left: 10px;
   }
 
-  .ml-body { flex: 1; min-width: 0; }
+  .ml-body { flex: 1; min-width: 0; padding-left:6px;}
 
   .ml-client {
     font-size: 13px;
@@ -195,6 +212,13 @@
     font-weight: 500;
     color: var(--accent-emerald);
     padding-top: 2px;
+  }
+
+  .ml-bo {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-right: 10px;
+    display: inline-block;
   }
 
   .ml-dates {

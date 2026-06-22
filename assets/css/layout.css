@@ -19,16 +19,17 @@
   right: 0;
   bottom: 0;
   overflow-y: auto;
-  background: var(--bg-primary);
+  background: transparent;
   z-index: 10;
 }
 
 /* ── Global decorative orbs ───────────── */
+/* z-index 5 = behind app-frame (10) so orbs glow through the transparent frame */
 #page-orbs {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 11;
+  z-index: 5;
   overflow: hidden;
 }
 .page-orb {
