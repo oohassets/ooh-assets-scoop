@@ -4,9 +4,9 @@ import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth
 import { getToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js";
 import { ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-import { loadMapLinks } from "./map.js";
-import { loadInventory } from "./inventory.js";
-import { initFullscreen } from "./fullscreen.js";
+// import { loadMapLinks } from "./map.js";
+// import { loadInventory } from "./inventory.js";
+// import { initFullscreen } from "./fullscreen.js";
 
 async function initPush(user) {
   try {
@@ -45,9 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     await initPush(user);
 
-    initFullscreen();
-    loadMapLinks().catch(console.error);
-    loadInventory().catch(console.error);
+    // initFullscreen();
+    // loadMapLinks().catch(console.error);
+    // loadInventory().catch(console.error);
   });
 
   // 🚪 Logout

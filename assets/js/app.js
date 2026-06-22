@@ -33,9 +33,20 @@ window.toggleInfoCard          = toggleInfoCard;
 window.copyGoogleMapLink       = () => copyGoogleMapLink(getCurrentMapUrl());
 
 // ── Auth guard ────────────────────────────────────────────
+let firstLoad = true;
 requireAuth((user) => {
+  const userName = user.displayName || user.email.split("@")[0];
   const userEl = document.getElementById("navUser");
-  if (userEl) userEl.textContent = user.displayName || user.email.split("@")[0];
+  if (userEl) userEl.textContent = userName;
+
+  // Store globally for view modules
+  window.__currentUser = { name: userName, email: user.email, uid: user.uid };
+
+  // Load the initial view only once, after auth confirms user identity
+  if (firstLoad) {
+    firstLoad = false;
+    loadFromURL();
+  }
 });
 
 // ── DOMContentLoaded bootstrap ────────────────────────────
@@ -67,9 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
     openVehicleReport,
     setMapAndClose,
   });
-
-  // Restore from URL
-  loadFromURL();
 
   // Scoop AI
   initScoopAI();

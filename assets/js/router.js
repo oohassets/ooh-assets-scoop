@@ -1,81 +1,115 @@
 /* ── Client-side router ─────────────────────────────────── */
-import { setURL, showOnlyFrame, toggleOverlay } from "./utils.js";
+import { loadPage, toggleOverlay, setURL } from "./utils.js";
 import { maps }        from "./maps.js";
 import { updateInfoCard } from "./asset-rates.js";
 import { setDockActive, closeAllPanels } from "./navigation.js";
 
-/* Absolute base URL for iframe sources.
-   Pages live in /pages/ so each iframe src is relative to that. */
-const BASE = "https://oohassets.github.io/ooh-assets-scoop/pages/";
+const BASE_PAGES = "./pages/";
+const BASE_CSS = "./assets/css/";
 
+let currentView = null; // holds { cleanup } of the active view module
 let currentMapKey = "assets";
 let currentMapUrl = maps["assets"];
 
 export function getCurrentMapUrl() { return currentMapUrl; }
 
-// ── Page openers ──────────────────────────────────────────
+async function switchView(htmlPath, cssPath, viewModulePath) {
+  // Cleanup previous view
+  if (currentView?.cleanup) currentView.cleanup();
+  currentView = null;
 
-export function openHome() {
-  showOnlyFrame("homeFrame");
+  // Hide map, show content
+  const mapFrame = document.getElementById("mapFrame");
+  const appContent = document.getElementById("app-content");
+  if (mapFrame) mapFrame.style.display = "none";
+  if (appContent) appContent.style.display = "block";
   toggleOverlay(false);
+
+  // Load HTML into container
+  await loadPage(htmlPath, cssPath);
+
+  // Dynamically import view module and call init
+  if (viewModulePath) {
+    const mod = await import(viewModulePath);
+    const userName = window.__currentUser?.name || "";
+    if (mod.init) await mod.init(userName);
+    currentView = mod;
+  }
+}
+
+export async function openHome() {
+  await switchView(
+    BASE_PAGES + "dashboard.html",
+    BASE_CSS + "dashboard.css",
+    "./views/dashboard.js"
+  );
   setURL({ map: null, page: "home" });
   setDockActive(0);
   closeAllPanels();
   markNavActive("homeLink");
 }
 
-export function openContentInventory() {
-  showOnlyFrame("contentInventoryFrame");
-  toggleOverlay(false);
+export async function openContentInventory() {
+  await switchView(
+    BASE_PAGES + "content-inventory.html",
+    BASE_CSS + "content-inventory.css",
+    "./views/content-inventory.js"
+  );
   setURL({ map: null, page: "content-inventory" });
   setDockActive(1);
   closeAllPanels();
   markNavActive("contentInventoryLink");
 }
 
-export function openVehicleReport() {
-  showOnlyFrame("vehicleFrame");
-  toggleOverlay(false);
+export async function openVehicleReport() {
+  await switchView(
+    BASE_PAGES + "vehicle-report.html",
+    null,
+    "./views/vehicle-report.js"
+  );
   setURL({ map: null, page: "vehicle" });
   setDockActive(3);
   closeAllPanels();
   markNavActive("vehicleTrafficLink");
 }
 
-export function openAssetDimensionChecker() {
-  showOnlyFrame("assetDimensionCheckerFrame");
-  toggleOverlay(false);
+export async function openAssetDimensionChecker() {
+  await switchView(BASE_PAGES + "asset-dimension-checker.html", null, null);
   setURL({ map: null, page: "asset-checker" });
   setDockActive(4);
   closeAllPanels();
 }
 
-export function openImageCompressor() {
-  showOnlyFrame("imageCompressorFrame");
-  toggleOverlay(false);
+export async function openImageCompressor() {
+  await switchView(BASE_PAGES + "image-compressor.html", null, null);
   setURL({ map: null, page: "image-compressor" });
   setDockActive(4);
   closeAllPanels();
 }
 
-export function openViewScreen() {
-  showOnlyFrame("viewScreenFrame");
-  toggleOverlay(false);
+export async function openViewScreen() {
+  await switchView(BASE_PAGES + "asset-digital-content.html", null, null);
   setURL({ map: null, page: "view-screen" });
   setDockActive(5);
   closeAllPanels();
 }
-
-// ── Map opener ────────────────────────────────────────────
 
 export function setMap(key) {
   if (!maps[key]) return;
   currentMapKey = key;
   currentMapUrl = maps[key];
   updateInfoCard(key);
-  showOnlyFrame("mapFrame");
-  document.getElementById("mapFrame").src = currentMapUrl;
+
+  // Cleanup current view
+  if (currentView?.cleanup) currentView.cleanup();
+  currentView = null;
+
+  const mapFrame = document.getElementById("mapFrame");
+  const appContent = document.getElementById("app-content");
+  if (mapFrame) { mapFrame.style.display = "block"; mapFrame.src = currentMapUrl; }
+  if (appContent) appContent.style.display = "none";
   toggleOverlay(true);
+
   setURL({ map: key, page: null });
   setDockActive(2);
   markNavActive(null);
@@ -86,12 +120,10 @@ export function setMapAndClose(key) {
   setMap(key);
 }
 
-// ── URL-based restore on load ─────────────────────────────
-
 export function loadFromURL() {
   const params = new URLSearchParams(window.location.search);
-  const page   = params.get("page");
-  const map    = params.get("map");
+  const page = params.get("page");
+  const map  = params.get("map");
 
   if (page === "home")              return openHome();
   if (page === "content-inventory") return openContentInventory();
@@ -101,10 +133,8 @@ export function loadFromURL() {
   if (page === "view-screen")       return openViewScreen();
   if (map && maps[map])             return setMap(map);
 
-  openContentInventory();
+  openHome(); // default
 }
-
-// ── Helper: mark active top-nav link ─────────────────────
 
 function markNavActive(id) {
   document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));

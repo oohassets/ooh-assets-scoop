@@ -503,35 +503,3 @@ export async function loadCarousel() {
     upcomingCarousel.appendChild(msg);
   }
 }
-
-
-// ===============================
-// DOMContentLoaded
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  // 🔄 Load all inventory content
-  loadCarousel();
-
-  // 🔀 Tabs logic (Digital / Static)
-  const tabs = document.querySelectorAll(".inventory-tabs .tab");
-  const sections = {
-    digital: document.getElementById("digital-section"),
-    static: document.getElementById("static-section")
-  };
-
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-
-      tabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-
-      Object.values(sections).forEach(sec => {
-        if (sec) sec.style.display = "none";
-      });
-
-      if (sections[tab.dataset.target]) {
-        sections[tab.dataset.target].style.display = "block";
-      }
-    });
-  });
-});

@@ -11,6 +11,18 @@
 }
 .map-container iframe { width:100%; height:100%; }
 
+/* ── SPA page container ───────────────── */
+.app-frame {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  z-index: 10;
+}
+
 @media(max-width:900px) {
   .map-container { height: calc(100vh - 64px - env(safe-area-inset-bottom, 0px)); }
 }
