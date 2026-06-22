@@ -226,4 +226,7 @@ nav {
   nav { padding:0 1rem; }
   .nav-badge, .btn-nav-outline { display:none; }
   .btn-scoop-agent { display: flex; }
+
+  /* Hide Chatbase default floating bubble — nav bar button replaces it */
+  #chatbase-bubble-button { display: none !important; }
 }
