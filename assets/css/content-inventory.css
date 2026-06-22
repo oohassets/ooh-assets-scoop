@@ -3,29 +3,53 @@
    Carousel cards, table, overlay styles
 ══════════════════════════════════════════ */
 
-.carousel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding-right:10px; }
-.carousel-title  { color:var(--text-primary,#000); font-size:20px; font-weight:600; margin:20px 0 10px; }
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  box-sizing: border-box;
+}
+
+.carousel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding: 0 20px; }
+.carousel-title  { color:var(--text-primary,#000); font-size:20px; font-weight:600; margin:20px 0 10px; padding: 0 20px; }
 
 .expand-btn   { margin-top:20px; }
 .expand-btn a { color:var(--text-primary,#fff); text-decoration:none; }
 .expand-btn a:hover { color:#FF5F15; cursor:pointer; text-decoration:underline; }
 
 .carousel-container {
-  width:100%; overflow-x:auto; white-space:nowrap;
-  padding:15px; box-sizing:border-box;
-  display:flex; gap:16px; padding-top:20px; padding-bottom:25px;
+  width: 100%;
+  padding: 0 20px 28px;
+  box-sizing: border-box;
 }
 .carousel {
-  display:grid !important;
-  grid-template-columns:repeat(2,1fr); gap:20px;
-  row-gap:26px; column-gap:20px;
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
-.carousel > :last-child:nth-child(odd) { grid-column:span 2; justify-self:left; max-width:600px; }
+.carousel > :last-child:nth-child(odd) {
+  grid-column: span 2;
+  justify-self: center;
+  width: 50%;
+}
 
-.card { background:var(--bg-card); padding:15px; border-radius:16px; box-shadow:var(--shadow-card); width:600px; margin-right:14px; flex-shrink:0; display:flex; flex-direction:column; border:1px solid var(--border-glass); transition:background 0.4s, border-color 0.3s; }
+.card {
+  background: var(--bg-card);
+  padding: 15px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-glass);
+  transition: background 0.4s, border-color 0.3s;
+}
 .card h2 { font-size:16px; padding-top:5px; margin-top:0; margin-bottom:10px; color:var(--text-primary); }
-#carouselPublishToday .card { width:fit-content; }
-#carouselUpcoming .card     { width:fit-content; }
+#carouselPublishToday .card { width: 100%; }
+#carouselUpcoming .card     { width: 100%; }
 .published-card h2 { color:var(--accent-emerald); }
 .removed-card h2   { color:var(--accent-rose); }
 
@@ -39,7 +63,7 @@
 .json-table pre { white-space:pre-wrap; word-break:break-word; margin:0; font-size:12px; background:var(--bg-glass); padding:4px 6px; border-radius:6px; }
 
 .card-table-wrapper { max-height:65vh; overflow-y:auto; padding-right:10px; }
-.json-table th { background:var(--bg-tertiary); color:var(--text-secondary); position:sticky; top:0; padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); z-index:3; font-size:13px; }
+.json-table th { background:var(--bg-tertiary); color:var(--text-secondary); position:sticky; top:0; padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); z-index:3; font-size:13px;}
 .json-table td.key { font-weight:bold; width:80px; }
 .json-table tr:last-child td { border-bottom:none; }
 
@@ -50,7 +74,7 @@
 .no-data-message { color:var(--text-primary,#fff); padding:10px; font-size:12px; }
 
 /* ── Date highlight cells ─────────────── */
-.date-today        { background-color:yellow; }
+.date-today        { background-color:yellow; color:black}
 .date-tomorrow     { background-color:darkorange; color:white; }
 .date-week         { background-color:orange; }
 .date-less-than-today { background-color:red; color:white; }
@@ -72,11 +96,139 @@
 .inventory-tabs .tab { display:inline-block; margin:0 10px; font-size:13px; cursor:pointer; font-weight:bold; color:#666; padding-bottom:2px; }
 .inventory-tabs .tab.active { color:#000; border-bottom:2px solid #f47c2c; }
 
+/* ── Circuit section tabs ─────────────── */
+.circuit-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 4px 20px 0;
+}
+.circuit-tab {
+  padding: 7px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border-glass);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-display, inherit);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.circuit-tab:hover {
+  background: var(--bg-glass);
+  color: var(--text-primary);
+}
+.circuit-tab.active {
+  background: var(--accent-indigo, #4f46e5);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ── Desk / mobile toggle ─────────────── */
+.mob-view  { display: none; }
+.desk-view { display: block; }
+
 /* ── Responsive ───────────────────────── */
+@media(max-width:768px) {
+  .carousel {
+    grid-template-columns: 1fr;
+  }
+  .carousel > :last-child:nth-child(odd) {
+    grid-column: span 1;
+    width: 100%;
+    justify-self: stretch;
+  }
+  .carousel-container { padding: 0 12px 20px; }
+
+  /* Switch from desktop table to mobile list */
+  .desk-view { display: none; }
+  .mob-view  { display: block; }
+
+  /* ── Mobile slot list ─────────────────── */
+  .ml-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 6px;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 2px solid var(--border-glass);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--bg-tertiary);
+  }
+  .ml-header span:first-child { min-width: 36px; }
+
+  .ml-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-glass);
+  }
+  .ml-row:last-child { border-bottom: none; }
+
+  .ml-sn {
+    min-width: 36px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .ml-body { flex: 1; min-width: 0; }
+
+  .ml-client {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+
+  .ml-available {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent-emerald);
+    padding-top: 2px;
+  }
+
+  .ml-dates {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .ml-arrow {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Individual date token — only colored when a date class is present */
+  .ml-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: inline-block;
+  }
+
+  /* Reuse existing date classes; add token border+radius in mobile context */
+  .ml-date.date-today,
+  .ml-date.date-tomorrow,
+  .ml-date.date-week,
+  .ml-date.date-less-than-today {
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    padding: 1px 8px;
+    font-weight: 600;
+  }
+}
+
 @media(max-width:500px) {
-  .table-container   { max-height:250px; }
-  .carousel-title    { font-size:18px !important; }
-  .card { width:fit-content; max-width:320px !important; grid-template-columns:repeat(1,1fr); }
-  #carouselPublishToday .card { width:fit-content; max-width:320px !important; }
-  #carouselUpcoming .card     { width:fit-content; max-width:320px !important; }
+  .table-container { max-height:250px; }
+  .carousel-title  { font-size:18px !important; }
 }

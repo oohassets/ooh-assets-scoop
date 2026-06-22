@@ -7,41 +7,48 @@
 </head>
 <body>
 
-<!-- MAIN CONTENT -->
-<div class="container" style="display:none;">
+<div class="container">
 
-<!-- TPI Carousel -->
-<div class="carousel-header">
-  <div class="carousel-title">Digital Circuits</div>
-</div>
-<div class="carousel-container">
-  <div class="carousel" id="carouselTPI"></div>
-</div>
-
-<!-- Gewan Carousel -->
-<div class="carousel-container">
-  <div class="carousel" id="carouselGewan"></div>
-</div>
-
-  <!-- STATIC CAROUSEL -->
-  <div class="carousel-header">
-    <div class="carousel-title">Static Circuits</div>
-  </div>
-  <div class="carousel-container">
-    <div class="carousel" id="carouselStatic"></div>
+  <!-- Circuit tab buttons -->
+  <div class="circuit-tabs">
+    <button class="circuit-tab active" data-tab="digital">Digital Circuits</button>
+    <button class="circuit-tab" data-tab="static">Static Circuits</button>
   </div>
 
-  <!-- PUBLISHED TODAY -->
+  <!-- Digital section (default visible) -->
+  <div id="digitalSection">
+    <div class="carousel-header">
+      <div class="carousel-title">Digital Circuits</div>
+    </div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselTPI"></div>
+    </div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselGewan"></div>
+    </div>
+  </div>
+
+  <!-- Static section (hidden by default) -->
+  <div id="staticSection" style="display:none;">
+    <div class="carousel-header">
+      <div class="carousel-title">Static Circuits</div>
+    </div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselStatic"></div>
+    </div>
+  </div>
+
+  <!-- Campaign Activity (always visible) -->
   <div class="carousel-title">Campaign Activity</div>
   <div class="carousel-container">
     <div class="carousel" id="carouselPublishToday"></div>
   </div>
 
-<!-- UPCOMING & ENDING CAMPAIGNS -->
-<div class="carousel-title">Ending &amp; Upcoming Campaigns</div>
-<div class="carousel-container">
-  <div class="carousel" id="carouselUpcoming"></div>
-</div>
+  <!-- Ending & Upcoming -->
+  <div class="carousel-title">Ending &amp; Upcoming Campaigns</div>
+  <div class="carousel-container">
+    <div class="carousel" id="carouselUpcoming"></div>
+  </div>
 
 </div>
 

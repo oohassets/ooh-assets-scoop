@@ -1,5 +1,5 @@
 /* ── Dashboard View Module ───────────────────────────────── */
-import { rtdb } from "../../firebase/firebase.js";
+import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get, push, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 // ── MODULE-LEVEL STATE ────────────────────────────────────

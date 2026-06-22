@@ -1,5 +1,5 @@
 /* ── Vehicle Traffic Report View Module ─────────────────── */
-import { rtdb } from "../../firebase/firebase.js";
+import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const adsPerMinute = 6;

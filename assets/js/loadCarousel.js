@@ -99,26 +99,113 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
   return html;
 }
 
+// ── Mobile helpers ──────────────────────
+function parseDDMMMYYYY(str) {
+  if (!str || str === "—") return null;
+  const m = str.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+  if (!m) return null;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return new Date(parseInt(m[3]), months.indexOf(m[2]), parseInt(m[1]));
+}
+
+function fmtMobileDate(str) {
+  if (!str || str === "—") return "—";
+  const m = str.match(/^(\d{2})-([A-Za-z]{3})-\d{4}$/);
+  return m ? `${parseInt(m[1])} ${m[2]}` : str;
+}
+
+// Returns the date highlight class for a given date string.
+// isHighlight=false → only "date-today" (mirrors Start Date logic in table)
+// isHighlight=true  → full range (mirrors highlightColumns / End Date logic)
+function getDateClass(dateStr, isHighlight) {
+  const d = parseDDMMMYYYY(dateStr); if (!d) return "";
+  const today = new Date(); today.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  const diff = (d - today) / 86400000;
+  if (!isHighlight) return diff === 0 ? "date-today" : "";
+  if (diff === 0)           return "date-today";
+  if (diff === 1)           return "date-tomorrow";
+  if (diff > 1 && diff <= 7) return "date-week";
+  if (diff < 0)             return "date-less-than-today";
+  return "";
+}
+
 // ===============================
 function createCard(title, data, columns, highlightColumns = []) {
   const card = document.createElement("div");
   card.className = "card";
 
+  // Build mobile slot-list for cards that have Client + date range
+  const hasDates  = columns.includes("Start Date") && columns.includes("End Date");
+  const hasClient = columns.includes("Client");
+  const snKey     = columns.includes("SN") ? "SN" : columns.includes("Circuit") ? "Circuit" : null;
+
+  let mobileHtml = "";
+  if (hasDates && hasClient) {
+    const rows = Object.values(data);
+    const isStaticCard = snKey === "Circuit";
+    const items = rows.map(row => {
+      const sn        = snKey ? (row[snKey] ?? "—") : "";
+      const client    = row["Client"] ?? "—";
+      const start     = row["Start Date"] ?? "—";
+      const end       = row["End Date"]   ?? "—";
+      const noDate    = !start || start === "—";
+
+      // Static circuit with no booking → show "Available"
+      if (isStaticCard && noDate) {
+        return `
+          <div class="ml-row">
+            <span class="ml-sn">${sn}</span>
+            <div class="ml-body">
+              <div class="ml-client ml-available">Available</div>
+            </div>
+          </div>`;
+      }
+
+      const startCls  = getDateClass(start, false);
+      const endCls    = getDateClass(end,   true);
+      return `
+        <div class="ml-row">
+          ${snKey ? `<span class="ml-sn">${sn}</span>` : ""}
+          <div class="ml-body">
+            <div class="ml-client">${client}</div>
+            <div class="ml-dates">
+              <span class="ml-date ${startCls}">${fmtMobileDate(start)}</span>
+              <span class="ml-arrow">→</span>
+              <span class="ml-date ${endCls}">${fmtMobileDate(end)}</span>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+
+    mobileHtml = `
+      <div class="mobile-list">
+        <div class="ml-header">
+          ${snKey ? `<span>${snKey}</span>` : ""}
+          <span>Client</span>
+        </div>
+        ${items}
+      </div>`;
+  }
+
   card.innerHTML = `
-  <h2>${title}</h2>
-    <div class="table-container">
+    <h2>${title}</h2>
+    <div class="table-container desk-view">
       ${jsonToTableAuto(data, columns, highlightColumns)}
     </div>
-    `;
-    return card;
+    ${mobileHtml ? `<div class="mob-view">${mobileHtml}</div>` : ""}
+  `;
+  return card;
 }
 
 // ===============================
-function showNoData(container) {
-    const msg = document.createElement("div");
-    msg.textContent = "No Campaign Published and Removed Today";
-    msg.classList.add("no-data-message");
-    container.appendChild(msg);
+function appendActivityMsg(container, text, cardClass) {
+  const card = document.createElement("div");
+  card.className = `card ${cardClass}`;
+  const p = document.createElement("p");
+  p.className = "no-data-message";
+  p.textContent = text;
+  card.appendChild(p);
+  container.appendChild(card);
 }
 
 // ===============================
@@ -153,7 +240,8 @@ function publishCampaignToday(allTables) {
 
     const logs = allTables["Campaign_Logs"];
     if (!logs) {
-      showNoData(todayCarousel);
+      appendActivityMsg(todayCarousel, "No Campaign Published Today", "published-card");
+      appendActivityMsg(todayCarousel, "No Campaign Removed Today",   "removed-card");
       return;
     }
 
@@ -161,9 +249,8 @@ function publishCampaignToday(allTables) {
     today.setHours(0, 0, 0, 0);
 
     const rows = Array.isArray(logs) ? logs : Object.values(logs);
-
     const publishedSet = new Map();
-    const removedSet = new Map();
+    const removedSet   = new Map();
 
     rows.forEach(row => {
       if (!row?.Date || !row?.Type) return;
@@ -173,61 +260,47 @@ function publishCampaignToday(allTables) {
 
       const [d, mmm, y] = formattedLogDate.split("-");
       const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const m = months.indexOf(mmm);
-
-      const logDate = new Date(y, m, d);
+      const logDate = new Date(y, months.indexOf(mmm), d);
       logDate.setHours(0, 0, 0, 0);
-
       if (logDate.getTime() !== today.getTime()) return;
 
-      const client = row.Client ?? "—";
+      const client   = row.Client   ?? "—";
       const circuits = row.Circuits ?? "—";
-      const key = `${client}|${circuits}`;
+      const key      = `${client}|${circuits}`;
+      const record   = { Client: client, Circuits: circuits };
 
-      const record = {
-          Client: client,
-          Circuits: circuits 
-      };
-
-      if (row.Type === "Add") publishedSet.set(key, record);
-      if (row.Type === "Removed") removedSet.set(key, record);
+      const type = (row.Type || "").toLowerCase();
+      if (type === "add" || type === "added")       publishedSet.set(key, record);
+      if (type === "removed" || type === "remove")  removedSet.set(key, record);
     });
 
-    let hasData = false;
-
+    // Published
     if (publishedSet.size > 0) {
-      hasData = true;
-
-      const sortedPublished = [...publishedSet.values()]
-        .sort((a, b) => a.Client.localeCompare(b.Client));
-
-      const publishedCard = createCard(
+      const sorted = [...publishedSet.values()].sort((a, b) => a.Client.localeCompare(b.Client));
+      const card = createCard(
         "Campaign Published Today",
-        Object.fromEntries(sortedPublished.map((r, i) => [i, r])),
+        Object.fromEntries(sorted.map((r, i) => [i, r])),
         ["Client", "Circuits"]
       );
-
-      publishedCard.classList.add("published-card");
-      todayCarousel.appendChild(publishedCard);
+      card.classList.add("published-card");
+      todayCarousel.appendChild(card);
+    } else {
+      appendActivityMsg(todayCarousel, "No Campaign Published Today", "published-card");
     }
 
+    // Removed
     if (removedSet.size > 0) {
-      hasData = true;
-
-      const sortedRemoved = [...removedSet.values()]
-        .sort((a, b) => a.Client.localeCompare(b.Client));
-
-      const removedCard = createCard(
+      const sorted = [...removedSet.values()].sort((a, b) => a.Client.localeCompare(b.Client));
+      const card = createCard(
         "Campaign Removed Today",
-        Object.fromEntries(sortedRemoved.map((r, i) => [i, r])),
+        Object.fromEntries(sorted.map((r, i) => [i, r])),
         ["Client", "Circuits"]
       );
-
-      removedCard.classList.add("removed-card");
-      todayCarousel.appendChild(removedCard);
+      card.classList.add("removed-card");
+      todayCarousel.appendChild(card);
+    } else {
+      appendActivityMsg(todayCarousel, "No Campaign Removed Today", "removed-card");
     }
-
-    if (!hasData) showNoData(todayCarousel);
 }
 
 // ===============================

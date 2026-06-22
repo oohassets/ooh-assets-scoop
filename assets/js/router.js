@@ -18,11 +18,13 @@ async function switchView(htmlPath, cssPath, viewModulePath) {
   if (currentView?.cleanup) currentView.cleanup();
   currentView = null;
 
-  // Hide map, show content
-  const mapFrame = document.getElementById("mapFrame");
+  // Hide map, show content + orbs
+  const mapFrame   = document.getElementById("mapFrame");
   const appContent = document.getElementById("app-content");
-  if (mapFrame) mapFrame.style.display = "none";
+  const pageOrbs   = document.getElementById("page-orbs");
+  if (mapFrame)   mapFrame.style.display   = "none";
   if (appContent) appContent.style.display = "block";
+  if (pageOrbs)   pageOrbs.style.display   = "block";
   toggleOverlay(false);
 
   // Load HTML into container
@@ -104,10 +106,12 @@ export function setMap(key) {
   if (currentView?.cleanup) currentView.cleanup();
   currentView = null;
 
-  const mapFrame = document.getElementById("mapFrame");
+  const mapFrame   = document.getElementById("mapFrame");
   const appContent = document.getElementById("app-content");
-  if (mapFrame) { mapFrame.style.display = "block"; mapFrame.src = currentMapUrl; }
+  const pageOrbs   = document.getElementById("page-orbs");
+  if (mapFrame)   { mapFrame.style.display = "block"; mapFrame.src = currentMapUrl; }
   if (appContent) appContent.style.display = "none";
+  if (pageOrbs)   pageOrbs.style.display   = "none";
   toggleOverlay(true);
 
   setURL({ map: key, page: null });

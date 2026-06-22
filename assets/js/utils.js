@@ -39,6 +39,19 @@ export async function loadPage(url, cssHref) {
 
   const text = await fetch(url).then(r => r.text());
 
+  // Inject <style> blocks from <head> (e.g. vehicle-report inline CSS)
+  const headMatch = text.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+  if (headMatch) {
+    const styleRe = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+    let m;
+    while ((m = styleRe.exec(headMatch[1])) !== null) {
+      const tag = document.createElement("style");
+      tag.dataset.pageStyle = url; // mark so we can clean up later if needed
+      tag.textContent = m[1];
+      document.head.appendChild(tag);
+    }
+  }
+
   // Extract body content
   const bodyMatch = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   const html = bodyMatch ? bodyMatch[1] : text;
