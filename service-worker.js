@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v117.2';
+const CACHE_NAME = 'scoop-ooh-cache-v117.3';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -106,6 +106,7 @@ self.addEventListener('fetch', event => {
           if (
             networkResponse &&
             networkResponse.ok &&
+            networkResponse.status !== 206 &&
             event.request.url.startsWith(self.location.origin)
           ) {
             const clone = networkResponse.clone();

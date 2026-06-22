@@ -23,10 +23,7 @@ export async function loadMapLinks() {
   const container = document.getElementById("assetLinks");
   const mapIframe = document.getElementById("mapIframe");
 
-  if (!container || !mapIframe) {
-    console.warn("mapLinks: missing #assetLinks or #mapIframe in DOM");
-    return;
-  }
+  if (!container || !mapIframe) return;
 
   container.innerHTML = "";
 

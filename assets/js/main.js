@@ -5,7 +5,7 @@ import { getToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-mes
 import { ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 import { loadMapLinks } from "./map.js";
-//import { loadInventory } from "./inventory.js";
+import { loadInventory } from "./inventory.js";
 import { initFullscreen } from "./fullscreen.js";
 
 async function initPush(user) {
