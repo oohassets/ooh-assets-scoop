@@ -117,6 +117,132 @@ exports.chatbaseToken = functions
 
 
 // ═══════════════════════════════════════════════════════════
+// CHATBASE DATA SYNC  — pushes live RTDB snapshot to Chatbase
+// Runs every 6 hours (Qatar time) so the chatbot always has
+// current campaign, circuit, and availability data.
+// Requires CHATBASE_API_KEY in Firebase Secrets Manager.
+// ═══════════════════════════════════════════════════════════
+const CHATBOT_ID = "0rwe9Qe63NSTaz30U9HXA";
+
+function buildChatbaseSnapshot(allData) {
+  const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Qatar", hour12: false });
+  const lines = [
+    "SCOOP OOH Assets — Live Campaign & Circuit Data",
+    `Last updated: ${now} (Qatar Time)`,
+    "",
+  ];
+
+  // ── Digital Circuits ──────────────────────────────────────
+  lines.push("=== DIGITAL CIRCUITS ===");
+  for (const key of Object.keys(allData).sort()) {
+    if (!key.startsWith("d_")) continue;
+    const location = key.replace(/^d_/, "").replace(/_/g, " ");
+    lines.push(`\nLocation: ${location}`);
+    const table = allData[key];
+    for (const row of Object.values(table)) {
+      if (!row || !row.Client) continue;
+      const sn    = row["SN"]         || "—";
+      const bo    = row["BO"]         ? ` | BO: ${row["BO"]}` : "";
+      const start = row["Start Date"] || "—";
+      const end   = row["End Date"]   || "—";
+      lines.push(`  SN: ${sn} | Client: ${row.Client}${bo} | ${start} → ${end}`);
+    }
+  }
+
+  // ── Static Circuits ───────────────────────────────────────
+  lines.push("\n=== STATIC CIRCUITS ===");
+  for (const key of Object.keys(allData).sort()) {
+    if (!key.startsWith("s_")) continue;
+    const location = key.replace(/^s_/, "").replace(/_/g, " ");
+    lines.push(`\nLocation: ${location}`);
+    const table = allData[key];
+    for (const row of Object.values(table)) {
+      if (!row) continue;
+      const circuit = row["Circuit"]    || "—";
+      const client  = row["Client"]     || "—";
+      const bo      = row["BO"]         ? ` | BO: ${row["BO"]}` : "";
+      const start   = row["Start Date"];
+      const end     = row["End Date"]   || "—";
+      const status  = !start || start === "—" ? "AVAILABLE" : `${start} → ${end}`;
+      lines.push(`  Circuit: ${circuit} | Client: ${client}${bo} | ${status}`);
+    }
+  }
+
+  // ── Summary counts ────────────────────────────────────────
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let active = 0, available = 0, endingThisWeek = 0;
+
+  for (const key of Object.keys(allData)) {
+    if (!key.startsWith("d_") && !key.startsWith("s_")) continue;
+    for (const row of Object.values(allData[key])) {
+      if (!row) continue;
+      const start = parseDate(row["Start Date"]);
+      const end   = parseDate(row["End Date"]);
+      if (start && end && start <= today && end >= today) {
+        active++;
+        const daysLeft = (end - today) / 86400000;
+        if (daysLeft <= 7) endingThisWeek++;
+      } else if (!row["Start Date"] || row["Start Date"] === "—") {
+        available++;
+      }
+    }
+  }
+
+  lines.push("\n=== SUMMARY ===");
+  lines.push(`Active campaigns today: ${active}`);
+  lines.push(`Available (unbooked) circuits: ${available}`);
+  lines.push(`Campaigns ending within 7 days: ${endingThisWeek}`);
+
+  return lines.join("\n");
+}
+
+exports.syncChatbaseData = functions
+  .runWith({ secrets: ["CHATBASE_API_KEY"] })
+  .pubsub.schedule("0 */6 * * *")
+  .timeZone("Asia/Qatar")
+  .onRun(async () => {
+    const apiKey = process.env.CHATBASE_API_KEY;
+    if (!apiKey) { console.error("CHATBASE_API_KEY not set"); return null; }
+
+    const db   = admin.database();
+    const snap = await db.ref("/").once("value");
+    if (!snap.exists()) { console.log("No RTDB data"); return null; }
+
+    const sourceText = buildChatbaseSnapshot(snap.val());
+
+    // Chatbase API: update the "Live Data" text source
+    // Docs: https://www.chatbase.co/docs/api-reference
+    const payload = JSON.stringify({
+      chatbotId:  CHATBOT_ID,
+      sourceText,
+    });
+
+    const result = await new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: "www.chatbase.co",
+        path:     "/api/v1/update-chatbot-data",
+        method:   "POST",
+        headers:  {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type":  "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+        },
+      }, (res) => {
+        let body = "";
+        res.on("data", c => { body += c; });
+        res.on("end",  ()  => resolve({ status: res.statusCode, body }));
+      });
+      req.on("error", reject);
+      req.write(payload);
+      req.end();
+    });
+
+    console.log(`Chatbase sync ${result.status}:`, result.body);
+    return null;
+  });
+
+
+// ═══════════════════════════════════════════════════════════
 // CAMPAIGN ENDING NOTIFICATIONS  (Daily 8 AM Qatar Time)
 // ═══════════════════════════════════════════════════════════
 function parseDate(dateStr) {
