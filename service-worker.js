@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v117.7';
+const CACHE_NAME = 'scoop-ooh-cache-v117.8';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -96,23 +96,20 @@ self.addEventListener('activate', event => {
 
 // ===== FETCH EVENT =====
 self.addEventListener('fetch', event => {
+  // Skip cross-origin requests — let the browser handle them natively.
+  // Intercepting them causes CORS preflight to fail and returns an
+  // unconvertible undefined when .catch() has no non-navigate fallback.
+  if (!event.request.url.startsWith(self.location.origin)) return;
+
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-
       if (cachedResponse) return cachedResponse;
 
       return fetch(event.request)
         .then(networkResponse => {
-          if (
-            networkResponse &&
-            networkResponse.ok &&
-            networkResponse.status !== 206 &&
-            event.request.url.startsWith(self.location.origin)
-          ) {
+          if (networkResponse && networkResponse.ok && networkResponse.status !== 206) {
             const clone = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, clone);
-            });
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           }
           return networkResponse;
         })
@@ -120,6 +117,8 @@ self.addEventListener('fetch', event => {
           if (event.request.mode === 'navigate') {
             return caches.match('./index.html');
           }
+          // Return a proper 503 so respondWith() never receives undefined
+          return new Response('Network unavailable', { status: 503 });
         });
     })
   );

@@ -1,8 +1,19 @@
 const functions = require("firebase-functions");
 const admin     = require("firebase-admin");
 const https     = require("https");
+const corsLib   = require("cors");
 
 admin.initializeApp();
+
+const corsMiddleware = corsLib({
+  origin: [
+    "https://oohassets.github.io",
+    /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+  ],
+  methods: ["POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
+});
 
 // ═══════════════════════════════════════════════════════════
 // SCOOP AI  — HTTP proxy to Anthropic Claude API
@@ -10,25 +21,9 @@ admin.initializeApp();
 // ═══════════════════════════════════════════════════════════
 exports.scoopAI = functions
   .runWith({ secrets: ["ANTHROPIC_API_KEY"], memory: "256MB", timeoutSeconds: 60 })
-  .https.onRequest(async (req, res) => {
-
-    // CORS headers — allow your GitHub Pages origin
-    const allowed = [
-      "https://oohassets.github.io",
-      "http://localhost",
-      "http://127.0.0.1",
-    ];
-    const origin = req.headers.origin || "";
-    if (allowed.some(o => origin.startsWith(o))) {
-      res.set("Access-Control-Allow-Origin", origin);
-    } else {
-      res.set("Access-Control-Allow-Origin", "https://oohassets.github.io");
-    }
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST")   { res.status(405).json({ error: "Method not allowed" }); return; }
+  .https.onRequest((req, res) => {
+    corsMiddleware(req, res, async () => {
+    if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
 
     const { system, messages } = req.body || {};
 
@@ -89,10 +84,12 @@ exports.scoopAI = functions
     try {
       const parsed = JSON.parse(claudeRes.body);
       res.status(200).json(parsed);
-    } catch {
+    } catch (parseErr) {
+      console.error("Parse error:", parseErr);
       res.status(500).json({ error: "Failed to parse AI response" });
     }
-  });
+    }); // end corsMiddleware callback
+  });   // end onRequest
 
 
 // ═══════════════════════════════════════════════════════════
