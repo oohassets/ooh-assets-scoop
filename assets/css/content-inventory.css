@@ -66,7 +66,7 @@
 /* ── Scrollable table ─────────────────── */
 .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; }
 
-.json-table { width:100%; border-collapse:collapse; font-size:13px; color:var(--text-primary); }
+.json-table { white-space: nowrap;width:100%; border-collapse:collapse; font-size:13px; color:var(--text-primary); }
 .json-table td { padding:6px; border-bottom:1px solid var(--border-glass); }
 .separator td  { border-bottom:2px solid var(--text-muted); }
 .json-table tr:hover { background:var(--bg-glass); }
