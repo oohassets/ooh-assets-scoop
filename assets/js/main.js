@@ -18,7 +18,7 @@ async function initPush(user) {
     const registration = await navigator.serviceWorker.ready;
 
     const token = await getToken(messaging, {
-      vapidKey: "OIqmgn0OBIJW183NCdLjBEB9daLgFVR-65M-iSWkbfA",
+      vapidKey: "jTs0Qe4q3akaLshm3F0Es6BmOPZWzkl5B4DSGRCUlIU",
       serviceWorkerRegistration: registration
     });
 

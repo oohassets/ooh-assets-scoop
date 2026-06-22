@@ -20,8 +20,11 @@ export function initTheme() {
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
     if (btn) btn.textContent = theme === "dark" ? "☀" : "☽";
-    if (logo) logo.src = theme === "dark"
-      ? "../images/scooplogo_white.png"
-      : "../images/scooplogo.png";
+    if (logo) {
+      const base = window.location.pathname.includes("/pages/") ? "../" : "";
+      logo.src = theme === "dark"
+        ? `${base}images/scooplogo_white.png`
+        : `${base}images/scooplogo.png`;
+    }
   }
 }
