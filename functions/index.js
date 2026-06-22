@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const admin     = require("firebase-admin");
 const https     = require("https");
 const corsLib   = require("cors");
+const jwt       = require("jsonwebtoken");
 
 admin.initializeApp();
 
@@ -90,6 +91,29 @@ exports.scoopAI = functions
     }
     }); // end corsMiddleware callback
   });   // end onRequest
+
+
+// ═══════════════════════════════════════════════════════════
+// CHATBASE TOKEN  — signs a JWT so Chatbase can identify the user
+// POST { userId, email } → { token }
+// Requires CHATBOT_IDENTITY_SECRET in Firebase Secrets Manager
+// ═══════════════════════════════════════════════════════════
+exports.chatbaseToken = functions
+  .runWith({ secrets: ["CHATBOT_IDENTITY_SECRET"] })
+  .https.onRequest((req, res) => {
+    corsMiddleware(req, res, () => {
+      if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
+
+      const secret = process.env.CHATBOT_IDENTITY_SECRET;
+      if (!secret) { res.status(500).json({ error: "Secret not configured" }); return; }
+
+      const { userId, email } = req.body || {};
+      if (!userId) { res.status(400).json({ error: "userId is required" }); return; }
+
+      const token = jwt.sign({ user_id: userId, email }, secret, { expiresIn: "1h" });
+      res.status(200).json({ token });
+    });
+  });
 
 
 // ═══════════════════════════════════════════════════════════

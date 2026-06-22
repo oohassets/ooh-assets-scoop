@@ -42,6 +42,9 @@ requireAuth((user) => {
   // Store globally for view modules
   window.__currentUser = { name: userName, email: user.email, uid: user.uid };
 
+  // Identify signed-in user in Chatbase widget
+  initScoopAI(user);
+
   // Load the initial view only once, after auth confirms user identity
   if (firstLoad) {
     firstLoad = false;
@@ -78,7 +81,4 @@ document.addEventListener("DOMContentLoaded", () => {
     openVehicleReport,
     setMapAndClose,
   });
-
-  // Scoop AI
-  initScoopAI();
 });
