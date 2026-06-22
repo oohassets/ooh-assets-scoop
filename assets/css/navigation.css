@@ -217,9 +217,13 @@ nav {
 }
 .asset-group button:hover { background:var(--bg-glass); color:var(--text-primary); }
 
+/* ── Scoop Agent nav button — mobile only ── */
+.btn-scoop-agent { display: none; }
+
 /* ── Responsive breakpoints ─────────── */
 @media(max-width:900px) {
   .nav-center { display:none; }
   nav { padding:0 1rem; }
   .nav-badge, .btn-nav-outline { display:none; }
+  .btn-scoop-agent { display: flex; }
 }

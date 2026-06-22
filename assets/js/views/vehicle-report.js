@@ -100,19 +100,19 @@ function createCard(loc, totalImp, impDay, avg, avgPersons) {
     <h3>${loc.name}</h3>
     <div class="big">${format(totalImp)}</div>
     <div class="metric">
-      <div class="label"><span class="material-icons">${loc.icon}</span> Screens</div>
+      <div class="label"><span class="material-symbols-outlined">${loc.icon}</span> Screens</div>
       <div class="value">${loc.screens}</div>
     </div>
     <div class="metric">
-      <div class="label"><span class="material-icons">visibility</span> Impression/day</div>
+      <div class="label"><span class="material-symbols-outlined">visibility</span> Impression/day</div>
       <div class="value">${format(impDay)}</div>
     </div>
     <div class="metric">
-      <div class="label"><span class="material-icons">directions_car</span> Avg Traffic</div>
+      <div class="label"><span class="material-symbols-outlined">directions_car</span> Avg Traffic</div>
       <div class="value">${format(avg)}</div>
     </div>
     <div class="metric">
-      <div class="label"><span class="material-icons">accessibility</span> Avg Persons/day</div>
+      <div class="label"><span class="material-symbols-outlined">accessibility</span> Avg Persons/day</div>
       <div class="value">${format(avgPersons)}</div>
     </div>
   </div>`;
