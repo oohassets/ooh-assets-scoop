@@ -123,70 +123,110 @@
 </div>
 
 <!-- ADD / EDIT BOOKING MODAL -->
-<div class="modal-overlay" id="bookingModal">
-  <div class="modal-box">
-    <button class="modal-close" id="closeBookingModal">✕</button>
-    <div class="modal-title" id="bookingModalTitle">Create Campaign Booking</div>
-    <div class="modal-sub" style="margin-bottom:24px;" id="bookingModalSub">Add a new booking to the schedule.</div>
-    <input type="hidden" id="bookingEditKey">
+<div class="modal-overlay bk-overlay" id="bookingModal">
+  <div class="bk-modal">
 
-    <div class="field-group" style="margin-bottom:14px;">
-      <label class="field-label">Booking Order No</label>
-      <input class="field-input" type="text" id="bookingOrder" placeholder="BO-0000">
-    </div>
-    <div class="field-group" style="margin-bottom:14px;">
-      <label class="field-label">Client</label>
-      <input class="field-input" type="text" id="bookingClient" placeholder="Client name">
-    </div>
-    <div class="field-group" style="margin-bottom:14px;">
-      <label class="field-label">Brand Campaign</label>
-      <input class="field-input" type="text" id="bookingBrand" placeholder="Campaign name">
-    </div>
-    <div style="margin-top:16px;">
-      <label class="field-label">Asset / Circuit</label>
-      <select class="field-input" id="bookingAsset">
-        <option value="">Select Circuit</option>
-      </select>
-    </div>
-    <div class="form-grid" style="margin-top:16px;">
-      <div>
-        <label class="field-label">Start Date</label>
-        <input class="field-input" type="date" id="bookingStartDate">
+    <!-- ── Form view ── -->
+    <div class="bk-view" id="bkFormView">
+      <div class="bk-hdr">
+        <span class="bk-hdr-title">Booking</span>
+        <button class="bk-x" id="closeBookingModal"><span class="material-symbols-outlined">close</span></button>
       </div>
-      <div>
-        <label class="field-label">End Date</label>
-        <input class="field-input" type="date" id="bookingEndDate">
+
+      <div class="bk-body">
+        <h2 class="bk-heading" id="bookingModalTitle">Let's start your booking</h2>
+        <input type="hidden" id="bookingEditKey">
+
+        <div class="bk-field">
+          <input class="bk-inp" id="bookingOrder" type="text" placeholder=" ">
+          <label class="bk-lbl" for="bookingOrder">BO NO</label>
+        </div>
+
+        <div class="bk-field bk-ac">
+          <input class="bk-inp" id="bookingClient" type="text" placeholder=" " autocomplete="off">
+          <label class="bk-lbl" for="bookingClient">Client</label>
+          <div class="bk-ac-drop" id="clientSuggestions"></div>
+        </div>
+
+        <div class="bk-field bk-ac">
+          <input class="bk-inp" id="bookingBrand" type="text" placeholder=" " autocomplete="off">
+          <label class="bk-lbl" for="bookingBrand">Brand Campaign</label>
+          <div class="bk-ac-drop" id="brandSuggestions"></div>
+        </div>
+
+        <div class="bk-field bk-ac">
+          <input class="bk-inp" id="bookingAssetText" type="text" placeholder=" " autocomplete="off">
+          <input type="hidden" id="bookingAsset">
+          <label class="bk-lbl" for="bookingAssetText">Asset / Circuit</label>
+          <div class="bk-ac-drop" id="assetSuggestions"></div>
+        </div>
+
+        <!-- Date card -->
+        <div class="bk-date-card">
+          <div class="bk-date-cols">
+            <div class="bk-date-col" id="bkPickStart" role="button" tabindex="0">
+              <span class="bk-dt-lbl">Start Date</span>
+              <span class="bk-dt-val" id="bkStartVal">—</span>
+            </div>
+            <div class="bk-date-sep"></div>
+            <div class="bk-date-col" id="bkPickEnd" role="button" tabindex="0">
+              <span class="bk-dt-lbl">End Date</span>
+              <span class="bk-dt-val" id="bkEndVal">—</span>
+            </div>
+          </div>
+          <div class="bk-date-meta">
+            <span id="bookingTotalDaysDisplay">—</span>
+            <span id="bookingSlotDisplay">—</span>
+          </div>
+        </div>
+
+        <input type="hidden" id="bookingStartDate">
+        <input type="hidden" id="bookingEndDate">
+        <input type="hidden" id="bookingTotalDays">
+        <input type="hidden" id="bookingSlot">
+
+        <div class="bk-field bk-sel-wrap">
+          <select class="bk-inp bk-sel" id="campaignStatus">
+            <option value="" disabled></option>
+            <option value="BO Signed">BO Signed</option>
+            <option value="Pending">Pending</option>
+            <option value="Live">Live</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <label class="bk-lbl bk-lbl-fixed">Status</label>
+        </div>
+
+        <div class="bk-booked-bar">
+          <span>Booked by</span>
+          <strong id="bookingPersonLabel">—</strong>
+        </div>
+      </div><!-- /.bk-body -->
+
+      <div class="bk-footer">
+        <button class="bk-btn-clear" id="clearFormBtn">Clear</button>
+        <button class="bk-btn-save" id="confirmBookingBtn">Save Booking</button>
+      </div>
+    </div><!-- /.bk-view -->
+
+    <!-- ── Date picker (slides up over form) ── -->
+    <div class="bk-picker" id="bkPicker">
+      <div class="bk-picker-drag"></div>
+      <div class="bk-picker-top">
+        <div class="bk-picker-info" id="bkPickerInfo">Select a start date</div>
+        <button class="bk-picker-x" id="bkPickerClose"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="bk-picker-months" id="bkPickerMonths"></div>
+      <div class="bk-picker-foot">
+        <div class="bk-qpicks">
+          <button class="bk-qpick active" data-weeks="2">2 Weeks</button>
+          <button class="bk-qpick" data-weeks="4">4 Weeks</button>
+        </div>
+        <button class="bk-picker-ok" id="bkPickerOk">Confirm</button>
       </div>
     </div>
-    <div class="form-grid" style="margin-top:16px;">
-      <div>
-        <label class="field-label">Total Days</label>
-        <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
-      </div>
-      <div>
-        <label class="field-label">Slot</label>
-        <input class="field-input" type="text" id="bookingSlot" readonly placeholder="Assigned automatically">
-      </div>
-    </div>
-    <div style="margin-top:16px;">
-      <div class="filter-box">
-        <select id="campaignStatus" class="field-input" style="height:50px;">
-          <option value="">Select Status</option>
-          <option value="BO Signed">BO Signed</option>
-          <option value="Pending">Pending</option>
-          <option value="Completed">Completed</option>
-        </select>
-      </div>
-    </div>
-    <div class="booked-by-strip">
-      <span>Booked by</span>
-      <strong id="bookingPersonLabel">—</strong>
-    </div>
-    <div class="form-footer">
-      <button class="btn-form-cancel" id="clearFormBtn">Clear</button>
-      <button class="btn-form-save" id="confirmBookingBtn">Save Booking</button>
-    </div>
-  </div>
+
+  </div><!-- /.bk-modal -->
 </div>
 
 </body>

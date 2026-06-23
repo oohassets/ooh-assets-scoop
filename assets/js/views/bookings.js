@@ -1,13 +1,22 @@
 /* ── Bookings View Module ─────────────────────────────────── */
 import { rtdb } from "../../../firebase/firebase.js";
-import { ref, get, push, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 let currentUserName = "";
-let allCampaigns = [];
+let allCampaigns    = [];
 let drpStart = null, drpEnd = null;
 let calDrpStart = null, calDrpEnd = null;
 
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+// Date picker state
+let bkPickerStart = null;
+let bkPickerEnd   = null;
+let bkPickMode    = "start";
+let allCircuits   = [];
+let allClients    = [];
+let allBrands     = [];
+
+const MONTHS      = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const FULL_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 // ── HELPERS ───────────────────────────────────────────────
 function parseDate(v) {
@@ -36,6 +45,13 @@ function fmtShort(v) {
   if (p.length < 2) return "—";
   return `${p[1]} ${MONTHS[p[0]-1]||""}`;
 }
+function fmtPickDate(d) {
+  if (!d) return "—";
+  return d.toLocaleDateString("en-GB", { day:"numeric", month:"short" });
+}
+function addDays(d, n) {
+  const r = new Date(d); r.setDate(r.getDate() + n); return r;
+}
 function getStatusClass(s="") {
   s = s.toLowerCase();
   if (s.includes("live"))      return "live";
@@ -44,6 +60,10 @@ function getStatusClass(s="") {
   if (s.includes("completed")) return "completed";
   if (s.includes("cancel"))    return "cancelled";
   return "";
+}
+function setValue(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val ?? "";
 }
 
 async function loadAll() {
@@ -87,18 +107,13 @@ function renderTable(campaigns) {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">No campaigns found</td></tr>`;
     return;
   }
-
   tbody.innerHTML = campaigns.map(r => {
     const statusCls = getStatusClass(r.status);
     const isOwner = currentUserName && r.person &&
       r.person.trim().toLowerCase() === currentUserName.trim().toLowerCase();
-
     const editDateBtn = isOwner
-      ? `<button class="edit-row-btn" data-key="${r.key}" title="Edit booking">
-           <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
-         </button>`
+      ? `<button class="edit-row-btn" data-key="${r.key}" title="Edit booking"><span class="material-symbols-outlined" style="font-size:14px;">edit</span></button>`
       : "";
-
     const editStatusBtn = isOwner
       ? `<button class="edit-status-btn" data-key="${r.key}" title="Edit status">✎</button>
          <div class="inline-status-dropdown" id="statusDrop-${r.key}">
@@ -108,16 +123,12 @@ function renderTable(campaigns) {
            <button class="status-option" data-key="${r.key}" data-val="Completed">● Completed</button>
          </div>`
       : "";
-
     return `
       <tr>
         <td><div class="client-name">${r.client}</div><div class="brand-name">${r.brand}</div></td>
         <td style="color:var(--text-secondary);font-size:13px;">${r.asset}</td>
         <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span>${r.date}</span>
-            ${editDateBtn}
-          </div>
+          <div style="display:flex;align-items:center;gap:6px;"><span>${r.date}</span>${editDateBtn}</div>
         </td>
         <td style="position:relative;">
           <div class="status-cell">
@@ -126,106 +137,99 @@ function renderTable(campaigns) {
           </div>
         </td>
         <td style="color:var(--text-muted);font-size:12px;">${r.person}</td>
-      </tr>
-    `;
+      </tr>`;
   }).join("");
 
-  // Edit row (date edit) — opens modal pre-filled
   tbody.querySelectorAll(".edit-row-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", e => {
       e.stopPropagation();
-      const key = btn.dataset.key;
-      const campaign = allCampaigns.find(c => c.key === key);
-      if (!campaign) return;
-      openEditModal(campaign);
+      const campaign = allCampaigns.find(c => c.key === btn.dataset.key);
+      if (campaign) openEditModal(campaign);
     });
   });
 
-  // Status inline dropdown
   tbody.querySelectorAll(".edit-status-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", e => {
       e.stopPropagation();
-      const key = btn.dataset.key;
-      const drop = document.getElementById(`statusDrop-${key}`);
-      tbody.querySelectorAll(".inline-status-dropdown.open").forEach(d => {
-        if (d !== drop) d.classList.remove("open");
-      });
+      const drop = document.getElementById(`statusDrop-${btn.dataset.key}`);
+      tbody.querySelectorAll(".inline-status-dropdown.open").forEach(d => { if (d !== drop) d.classList.remove("open"); });
       drop.classList.toggle("open");
     });
   });
 
   tbody.querySelectorAll(".status-option").forEach(opt => {
-    opt.addEventListener("click", async (e) => {
+    opt.addEventListener("click", async e => {
       e.stopPropagation();
-      const key = opt.dataset.key;
-      const newStatus = opt.dataset.val;
       opt.textContent = "Saving…";
       try {
-        await update(ref(rtdb, `Campaigns_Booking/${key}`), { Status: newStatus });
+        await update(ref(rtdb, `Campaigns_Booking/${opt.dataset.key}`), { Status: opt.dataset.val });
         const tables = await loadAll();
         allCampaigns = getCampaigns(tables);
         applyFilters();
-      } catch(err) {
-        console.error(err);
-        opt.textContent = "Error";
-      }
+      } catch(err) { console.error(err); opt.textContent = "Error"; }
     });
   });
 }
 
-// ── EDIT MODAL ────────────────────────────────────────────
+// ── MODAL OPEN / RESET ────────────────────────────────────
 function openEditModal(campaign) {
-  const modal = document.getElementById("bookingModal");
   const title = document.getElementById("bookingModalTitle");
-  const sub   = document.getElementById("bookingModalSub");
   if (title) title.textContent = "Edit Campaign Booking";
-  if (sub)   sub.textContent   = "Update the booking details below.";
 
-  const editKey = document.getElementById("bookingEditKey");
-  if (editKey) editKey.value = campaign.key;
+  setValue("bookingEditKey",  campaign.key);
+  setValue("bookingOrder",    campaign.bo);
+  setValue("bookingClient",   campaign.client !== "—" ? campaign.client : "");
+  setValue("bookingBrand",    campaign.brand  !== "—" ? campaign.brand  : "");
+  setValue("bookingAsset",    campaign.asset  !== "—" ? campaign.asset  : "");
+  setValue("bookingAssetText",campaign.asset  !== "—" ? campaign.asset  : "");
 
-  const toISOfromMDY = (mdy) => {
+  const toISOfromMDY = mdy => {
     if (!mdy) return "";
     const p = mdy.split("/");
-    if (p.length < 3) return "";
-    return `${p[2]}-${p[0].padStart(2,"0")}-${p[1].padStart(2,"0")}`;
+    return p.length < 3 ? "" : `${p[2]}-${p[0].padStart(2,"0")}-${p[1].padStart(2,"0")}`;
   };
+  const startISO = toISOfromMDY(campaign.rawStartDate);
+  const endISO   = toISOfromMDY(campaign.rawEndDate);
+  setValue("bookingStartDate", startISO);
+  setValue("bookingEndDate",   endISO);
 
-  setValue("bookingOrder",     campaign.bo);
-  setValue("bookingClient",    campaign.client);
-  setValue("bookingBrand",     campaign.brand);
-  setValue("bookingStartDate", toISOfromMDY(campaign.rawStartDate));
-  setValue("bookingEndDate",   toISOfromMDY(campaign.rawEndDate));
-  setValue("bookingSlot",      campaign.slot ? `Slot ${campaign.slot}` : "");
-
-  const assetEl = document.getElementById("bookingAsset");
-  if (assetEl) assetEl.value = campaign.asset;
+  if (startISO) {
+    bkPickerStart = parseISOLocal(startISO);
+    const startEl = document.getElementById("bkStartVal");
+    if (startEl) startEl.textContent = fmtPickDate(bkPickerStart);
+  }
+  if (endISO) {
+    bkPickerEnd = parseISOLocal(endISO);
+    const endEl = document.getElementById("bkEndVal");
+    if (endEl) endEl.textContent = fmtPickDate(bkPickerEnd);
+  }
 
   const statusEl = document.getElementById("campaignStatus");
   if (statusEl) statusEl.value = campaign.status;
 
   calcDays();
-  modal?.classList.add("active");
+  autoAssignSlot();
+  document.getElementById("bookingModal")?.classList.add("active");
 }
 
 function resetModal() {
   const title = document.getElementById("bookingModalTitle");
-  const sub   = document.getElementById("bookingModalSub");
-  if (title) title.textContent = "Create Campaign Booking";
-  if (sub)   sub.textContent   = "Add a new booking to the schedule.";
-  const editKey = document.getElementById("bookingEditKey");
-  if (editKey) editKey.value = "";
-  ["bookingOrder","bookingClient","bookingBrand","bookingStartDate","bookingEndDate","bookingTotalDays","bookingSlot"].forEach(id => setValue(id, ""));
-  const a = document.getElementById("bookingAsset"); if (a) a.selectedIndex = 0;
+  if (title) title.textContent = "Let's start your booking";
+  setValue("bookingEditKey", "");
+  ["bookingOrder","bookingClient","bookingBrand","bookingAssetText","bookingAsset",
+   "bookingStartDate","bookingEndDate","bookingTotalDays","bookingSlot"].forEach(id => setValue(id, ""));
   const s = document.getElementById("campaignStatus"); if (s) s.selectedIndex = 0;
+
+  bkPickerStart = null; bkPickerEnd = null; bkPickMode = "start";
+  const sv = document.getElementById("bkStartVal"); if (sv) sv.textContent = "—";
+  const ev = document.getElementById("bkEndVal");   if (ev) ev.textContent = "—";
+  const td = document.getElementById("bookingTotalDaysDisplay"); if (td) td.textContent = "—";
+  const sl = document.getElementById("bookingSlotDisplay");      if (sl) sl.textContent = "—";
+  document.getElementById("bkPickStart")?.classList.remove("active");
+  document.getElementById("bkPickEnd")?.classList.remove("active");
 }
 
-function setValue(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.value = val ?? "";
-}
-
-// ── DATE FILTER ───────────────────────────────────────────
+// ── FILTERS ───────────────────────────────────────────────
 function getPresetRange(preset) {
   const n = new Date(); const y = n.getFullYear(), m = n.getMonth();
   switch(preset) {
@@ -237,7 +241,6 @@ function getPresetRange(preset) {
   }
 }
 
-// ── FILTERS ───────────────────────────────────────────────
 function applyFilters() {
   const search = (document.getElementById("campaignSearch")?.value||"").toLowerCase();
   const status = document.getElementById("campaignStatusFilter")?.value||"";
@@ -257,39 +260,93 @@ function applyFilters() {
   renderTable(f);
 }
 
-// ── ASSET DROPDOWN ────────────────────────────────────────
+// ── ASSET / AUTOCOMPLETE DATA ─────────────────────────────
 function populateAssets(tables) {
   const t = tables["oohassets"]; if (!t) return;
   const rows = Array.isArray(t) ? t : Object.values(t);
-  const circuits = [...new Set(rows.map(r=>r.Circuits).filter(Boolean))].sort();
-  const opts = `<option value="">Select Asset</option>${circuits.map(c=>`<option value="${c}">${c}</option>`).join("")}`;
-  const el = document.getElementById("bookingAsset"); if (el) el.innerHTML = opts;
+  allCircuits = [...new Set(rows.map(r => r.Circuits).filter(Boolean))].sort();
+  allClients  = [...new Set(allCampaigns.map(c => c.client).filter(c => c !== "—"))].sort();
+  allBrands   = [...new Set(allCampaigns.map(c => c.brand).filter(c  => c !== "—"))].sort();
+}
+
+function initAutoSuggest() {
+  setupSuggest("bookingClient",    "clientSuggestions", () => allClients,  null);
+  setupSuggest("bookingBrand",     "brandSuggestions",  () => allBrands,   null);
+  setupSuggest("bookingAssetText", "assetSuggestions",  () => allCircuits, val => {
+    setValue("bookingAsset", val);
+    autoAssignSlot();
+  });
+}
+
+function setupSuggest(inputId, dropId, getList, onSelect) {
+  const input = document.getElementById(inputId);
+  const drop  = document.getElementById(dropId);
+  if (!input || !drop) return;
+
+  input.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    const list = getList();
+    const matches = q ? list.filter(v => v.toLowerCase().includes(q)) : list.slice(0, 8);
+    if (!matches.length) { drop.classList.remove("open"); return; }
+    drop.innerHTML = matches.map(v => `<div class="bk-ac-item" data-val="${v}">${v}</div>`).join("");
+    drop.classList.add("open");
+  });
+
+  drop.addEventListener("mousedown", e => {
+    const item = e.target.closest(".bk-ac-item");
+    if (!item) return;
+    e.preventDefault();
+    input.value = item.dataset.val;
+    drop.classList.remove("open");
+    if (onSelect) onSelect(item.dataset.val);
+  });
+
+  input.addEventListener("blur", () => setTimeout(() => drop.classList.remove("open"), 150));
 }
 
 // ── DATE CALCULATOR ───────────────────────────────────────
 function calcDays() {
-  const s = document.getElementById("bookingStartDate");
-  const e = document.getElementById("bookingEndDate");
-  const t = document.getElementById("bookingTotalDays");
-  if (!s||!e||!t||!s.value||!e.value) { if (t) t.value = ""; return; }
-  const diff = Math.floor((new Date(e.value) - new Date(s.value)) / 86400000) + 1;
-  t.value = diff > 0 ? `${diff} Day${diff>1?"s":""}` : "Invalid dates";
+  const sVal = document.getElementById("bookingStartDate")?.value;
+  const eVal = document.getElementById("bookingEndDate")?.value;
+  const tEl  = document.getElementById("bookingTotalDays");
+  const disp = document.getElementById("bookingTotalDaysDisplay");
+  if (!sVal || !eVal) {
+    if (tEl)  tEl.value = "";
+    if (disp) disp.textContent = "—";
+    return;
+  }
+  const diff = Math.floor((new Date(eVal) - new Date(sVal)) / 86400000) + 1;
+  const txt  = diff > 0 ? `${diff} Day${diff>1?"s":""}` : "Invalid dates";
+  if (tEl)  tEl.value = txt;
+  if (disp) disp.textContent = txt;
 }
 
 // ── SLOT AUTO-ASSIGN ──────────────────────────────────────
 async function autoAssignSlot() {
-  const asset   = document.getElementById("bookingAsset")?.value;
-  const startEl = document.getElementById("bookingStartDate");
-  const endEl   = document.getElementById("bookingEndDate");
-  const slotEl  = document.getElementById("bookingSlot");
-  const editKey = document.getElementById("bookingEditKey")?.value;
+  const asset    = document.getElementById("bookingAsset")?.value;
+  const startVal = document.getElementById("bookingStartDate")?.value;
+  const endVal   = document.getElementById("bookingEndDate")?.value;
+  const slotEl   = document.getElementById("bookingSlot");
+  const slotDisp = document.getElementById("bookingSlotDisplay");
+  const editKey  = document.getElementById("bookingEditKey")?.value;
+
   if (!slotEl) return;
-  if (!asset || !startEl?.value || !endEl?.value) { slotEl.value = ""; return; }
+  if (!asset || !startVal || !endVal) {
+    slotEl.value = "";
+    if (slotDisp) slotDisp.textContent = "—";
+    return;
+  }
+  if (slotDisp) slotDisp.textContent = "Checking…";
   slotEl.value = "Checking…";
-  const newStart = parseISOLocal(startEl.value);
-  const newEnd   = parseISOLocal(endEl.value);
-  if (!newStart || !newEnd || newStart > newEnd) { slotEl.value = "Invalid dates"; return; }
+
+  const newStart = parseISOLocal(startVal); const newEnd = parseISOLocal(endVal);
+  if (!newStart || !newEnd || newStart > newEnd) {
+    slotEl.value = "Invalid dates";
+    if (slotDisp) slotDisp.textContent = "Invalid dates";
+    return;
+  }
   newStart.setHours(0,0,0,0); newEnd.setHours(0,0,0,0);
+
   try {
     const assetSnap = await get(ref(rtdb, "oohassets"));
     let maxSlots = 1;
@@ -302,35 +359,170 @@ async function autoAssignSlot() {
     const bookedSlots = new Set();
     if (bookSnap.exists()) {
       Object.entries(bookSnap.val()).forEach(([k, b]) => {
-        if (!b) return;
-        if (editKey && k === editKey) return; // skip self when editing
-        const bc = (b.Circuits || "").trim().toLowerCase();
-        if (bc !== asset.trim().toLowerCase()) return;
-        const bStart = parseDate(b["Start Date"]);
-        const bEnd   = parseDate(b["End Date"]);
-        if (!bStart || !bEnd) return;
-        bStart.setHours(0,0,0,0); bEnd.setHours(0,0,0,0);
-        if (newStart <= bEnd && newEnd >= bStart) bookedSlots.add(parseInt(b.Slot || 1, 10));
+        if (!b || (editKey && k === editKey)) return;
+        if ((b.Circuits||"").trim().toLowerCase() !== asset.trim().toLowerCase()) return;
+        const bS = parseDate(b["Start Date"]); const bE = parseDate(b["End Date"]);
+        if (!bS||!bE) return;
+        bS.setHours(0,0,0,0); bE.setHours(0,0,0,0);
+        if (newStart <= bE && newEnd >= bS) bookedSlots.add(parseInt(b.Slot||1,10));
       });
     }
     let assigned = null;
     for (let s = 1; s <= maxSlots; s++) { if (!bookedSlots.has(s)) { assigned = s; break; } }
-    slotEl.value = assigned !== null ? `Slot ${assigned}` : "No slots available";
-  } catch(e) { console.error("Slot check error:", e); slotEl.value = "Error"; }
+    const result = assigned !== null ? `Slot ${assigned}` : "No slots available";
+    slotEl.value = result;
+    if (slotDisp) slotDisp.textContent = result;
+  } catch(e) {
+    console.error(e);
+    slotEl.value = "Error";
+    if (slotDisp) slotDisp.textContent = "Error";
+  }
+}
+
+// ── DATE PICKER ───────────────────────────────────────────
+function openDatePicker(mode) {
+  bkPickMode = mode;
+  document.getElementById("bkPickStart")?.classList.toggle("active", mode === "start");
+  document.getElementById("bkPickEnd")?.classList.toggle("active",   mode === "end");
+  renderPickerMonths();
+  updatePickerInfo();
+  document.getElementById("bkPicker")?.classList.add("open");
+}
+
+function closeDatePicker() {
+  document.getElementById("bkPicker")?.classList.remove("open");
+  document.getElementById("bkPickStart")?.classList.remove("active");
+  document.getElementById("bkPickEnd")?.classList.remove("active");
+}
+
+function updatePickerInfo() {
+  const el = document.getElementById("bkPickerInfo");
+  if (!el) return;
+  if (!bkPickerStart) {
+    el.textContent = "Select a start date";
+  } else if (!bkPickerEnd) {
+    el.textContent = `${fmtPickDate(bkPickerStart)} — select end date`;
+  } else {
+    const days = Math.floor((bkPickerEnd - bkPickerStart) / 86400000) + 1;
+    el.textContent = `${fmtPickDate(bkPickerStart)} → ${fmtPickDate(bkPickerEnd)}  ·  ${days} days`;
+  }
+}
+
+function renderPickerMonths() {
+  const container = document.getElementById("bkPickerMonths");
+  if (!container) return;
+  container.innerHTML = "";
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  for (let mi = 0; mi < 6; mi++) {
+    const firstDay = new Date(today.getFullYear(), today.getMonth() + mi, 1);
+    const year  = firstDay.getFullYear();
+    const month = firstDay.getMonth();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    const monthEl = document.createElement("div");
+    monthEl.className = "bk-cal-month";
+    monthEl.innerHTML = `<div class="bk-cal-month-title">${FULL_MONTHS[month]} ${year}</div>`;
+
+    const grid = document.createElement("div");
+    grid.className = "bk-cal-grid";
+    ["S","M","T","W","T","F","S"].forEach(d => {
+      const dh = document.createElement("div");
+      dh.className = "bk-cal-dh"; dh.textContent = d;
+      grid.appendChild(dh);
+    });
+
+    const startDow = firstDay.getDay();
+    for (let i = 0; i < startDow; i++) {
+      const e = document.createElement("div");
+      e.className = "bk-cal-day bk-cal-empty";
+      grid.appendChild(e);
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+      const date = new Date(year, month, d); date.setHours(0,0,0,0);
+      const dayEl = document.createElement("div");
+      dayEl.className = "bk-cal-day";
+      dayEl.textContent = d;
+
+      if (date < today) {
+        dayEl.classList.add("bk-cal-past");
+      } else {
+        if (date.getTime() === today.getTime()) dayEl.classList.add("bk-cal-today");
+        applyPickerHighlight(dayEl, date);
+        dayEl.addEventListener("click", () => onPickerDayClick(new Date(date)));
+      }
+      grid.appendChild(dayEl);
+    }
+
+    monthEl.appendChild(grid);
+    container.appendChild(monthEl);
+  }
+
+  // Scroll to month containing start date
+  if (bkPickerStart) {
+    const months = container.querySelectorAll(".bk-cal-month");
+    months.forEach((m, i) => {
+      const title = m.querySelector(".bk-cal-month-title")?.textContent || "";
+      if (title.includes(FULL_MONTHS[bkPickerStart.getMonth()]) && title.includes(String(bkPickerStart.getFullYear()))) {
+        setTimeout(() => m.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }), 50);
+      }
+    });
+  }
+}
+
+function applyPickerHighlight(el, date) {
+  const t = date.getTime();
+  const s = bkPickerStart?.getTime();
+  const e = bkPickerEnd?.getTime();
+  if (s && e && t > s && t < e) el.classList.add("bk-sel-range");
+  if (s && t === s) el.classList.add("bk-sel-start");
+  if (e && t === e) el.classList.add("bk-sel-end");
+}
+
+function onPickerDayClick(date) {
+  date.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  if (date < today) return;
+
+  if (bkPickMode === "start" || !bkPickerStart || date <= bkPickerStart) {
+    bkPickerStart = date;
+    bkPickerEnd   = addDays(date, 13); // 2-week default
+    bkPickMode    = "end";
+    document.getElementById("bkPickStart")?.classList.remove("active");
+    document.getElementById("bkPickEnd")?.classList.add("active");
+    document.querySelectorAll(".bk-qpick").forEach(b => b.classList.toggle("active", b.dataset.weeks === "2"));
+  } else {
+    bkPickerEnd = date;
+  }
+
+  renderPickerMonths();
+  updatePickerInfo();
+}
+
+function applyPickerToForm() {
+  if (!bkPickerStart || !bkPickerEnd) return;
+  setValue("bookingStartDate", toISO(bkPickerStart));
+  setValue("bookingEndDate",   toISO(bkPickerEnd));
+  const sv = document.getElementById("bkStartVal"); if (sv) sv.textContent = fmtPickDate(bkPickerStart);
+  const ev = document.getElementById("bkEndVal");   if (ev) ev.textContent = fmtPickDate(bkPickerEnd);
+  calcDays();
+  autoAssignSlot();
+  closeDatePicker();
 }
 
 // ── SAVE BOOKING ──────────────────────────────────────────
 async function saveBooking() {
-  const booking  = document.getElementById("bookingOrder")?.value;
-  const client   = document.getElementById("bookingClient")?.value?.trim();
-  const brand    = document.getElementById("bookingBrand")?.value?.trim();
-  const asset    = document.getElementById("bookingAsset")?.value;
-  const start    = document.getElementById("bookingStartDate")?.value;
-  const end      = document.getElementById("bookingEndDate")?.value;
-  const slotRaw  = document.getElementById("bookingSlot")?.value || "";
-  const person   = document.getElementById("bookingPersonLabel")?.textContent?.trim();
-  const status   = document.getElementById("campaignStatus")?.value || "Pending";
-  const editKey  = document.getElementById("bookingEditKey")?.value;
+  const booking = document.getElementById("bookingOrder")?.value;
+  const client  = document.getElementById("bookingClient")?.value?.trim();
+  const brand   = document.getElementById("bookingBrand")?.value?.trim();
+  const asset   = document.getElementById("bookingAsset")?.value;
+  const start   = document.getElementById("bookingStartDate")?.value;
+  const end     = document.getElementById("bookingEndDate")?.value;
+  const slotRaw = document.getElementById("bookingSlot")?.value || "";
+  const person  = document.getElementById("bookingPersonLabel")?.textContent?.trim();
+  const status  = document.getElementById("campaignStatus")?.value || "Pending";
+  const editKey = document.getElementById("bookingEditKey")?.value;
 
   if (!client||!brand||!asset||!start||!end) { alert("Please fill in all required fields."); return; }
   const slotNum = parseInt(slotRaw.replace(/\D/g,""), 10);
@@ -374,7 +566,7 @@ async function saveBooking() {
   }
 }
 
-// ── CALENDAR ──────────────────────────────────────────────
+// ── CALENDAR (booking schedule view) ─────────────────────
 function setCalPresetRange(preset) {
   const n = new Date(), y = n.getFullYear(), m = n.getMonth();
   const ranges = {
@@ -439,7 +631,7 @@ function renderBars(bookings, dates, startD, endD) {
     const end   = parseDate(b["End Date"]||b.endDate);
     if (!start||!end) return;
     start.setHours(0,0,0,0); end.setHours(0,0,0,0);
-    const asset   = (b.Circuits||b.Circuit||"").toLowerCase().replace(/[_-]/g," ").trim();
+    const asset  = (b.Circuits||b.Circuit||"").toLowerCase().replace(/[_-]/g," ").trim();
     const slotVal = Number(b.Slot||b.slot||1);
     const client  = b.Client||"Booking";
     const brand   = b["Brand Campaign"]||"";
@@ -460,8 +652,7 @@ function renderBars(bookings, dates, startD, endD) {
       }
       const rc = rowCircuit.toLowerCase().replace(/[_-]/g," ").trim();
       if (!rc.includes(asset) && !asset.includes(rc)) return;
-      const rowSlot = parseInt(slotCell.textContent.replace("Slot","").trim(),10);
-      if (rowSlot !== slotVal) return;
+      if (parseInt(slotCell.textContent.replace("Slot","").trim(),10) !== slotVal) return;
       const cells = Array.from(row.querySelectorAll("td[data-date]"));
       let si = cells.findIndex(td => td.dataset.date === toISO(start));
       let ei = cells.findIndex(td => td.dataset.date === toISO(end));
@@ -498,16 +689,14 @@ async function loadBookings() {
 // ── INIT ──────────────────────────────────────────────────
 export async function init(userName) {
   currentUserName = userName || "User";
-
   const lbl = document.getElementById("bookingPersonLabel");
   if (lbl) lbl.textContent = currentUserName;
 
-  // Date filter
+  // ── Table date filter ─────────────────────────────────
   const dateFilterBtn      = document.getElementById("dateFilterBtn");
   const dateFilterDropdown = document.getElementById("dateFilterDropdown");
   const dateCustomInputs   = document.getElementById("dateCustomInputs");
   const dateFilterLabel    = document.getElementById("dateFilterLabel");
-
   [drpStart, drpEnd] = getPresetRange("this-month");
 
   dateFilterBtn?.addEventListener("click", e => {
@@ -559,16 +748,10 @@ export async function init(userName) {
   document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
   document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
 
-  // Date calc + slot auto-assign
-  ["bookingAsset","bookingStartDate","bookingEndDate"].forEach(id => {
-    document.getElementById(id)?.addEventListener("change", () => { calcDays(); autoAssignSlot(); });
-  });
-
-  // Booking modal open/close
+  // ── Booking modal ────────────────────────────────────
   const bookingModal = document.getElementById("bookingModal");
   document.getElementById("openBookingBtn")?.addEventListener("click", () => {
-    resetModal();
-    bookingModal?.classList.add("active");
+    resetModal(); bookingModal?.classList.add("active");
   });
   document.getElementById("closeBookingModal")?.addEventListener("click", () => {
     bookingModal?.classList.remove("active");
@@ -576,11 +759,29 @@ export async function init(userName) {
   document.getElementById("clearFormBtn")?.addEventListener("click", resetModal);
   document.getElementById("confirmBookingBtn")?.addEventListener("click", saveBooking);
 
-  // ── Tab switching ─────────────────────────────────────────
+  // ── Date picker wiring ────────────────────────────────
+  document.getElementById("bkPickStart")?.addEventListener("click", () => openDatePicker("start"));
+  document.getElementById("bkPickEnd")?.addEventListener("click",   () => openDatePicker("end"));
+  document.getElementById("bkPickerClose")?.addEventListener("click", closeDatePicker);
+
+  document.getElementById("bkPickerOk")?.addEventListener("click", applyPickerToForm);
+
+  document.querySelectorAll(".bk-qpick").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (!bkPickerStart) return;
+      const weeks = parseInt(btn.dataset.weeks, 10);
+      bkPickerEnd = addDays(bkPickerStart, weeks * 7 - 1);
+      document.querySelectorAll(".bk-qpick").forEach(b => b.classList.toggle("active", b === btn));
+      renderPickerMonths();
+      updatePickerInfo();
+    });
+  });
+
+  // ── Tab switching ────────────────────────────────────
   const scheduleSection = document.getElementById("scheduleSection");
   const calendarSection = document.getElementById("calendarSection");
-  const tabSchedule = document.getElementById("tabSchedule");
-  const tabCalendar = document.getElementById("tabCalendar");
+  const tabSchedule     = document.getElementById("tabSchedule");
+  const tabCalendar     = document.getElementById("tabCalendar");
 
   tabSchedule?.addEventListener("click", () => {
     scheduleSection.style.display = "block";
@@ -602,9 +803,8 @@ export async function init(userName) {
     await buildCalendar();
   });
 
-  // ── Calendar date filter ──────────────────────────────────
+  // ── Calendar filter ───────────────────────────────────
   [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
-
   const calDateFilterBtn      = document.getElementById("calDateFilterBtn");
   const calDateFilterDropdown = document.getElementById("calDateFilterDropdown");
 
@@ -633,10 +833,8 @@ export async function init(userName) {
       } else {
         document.getElementById("calDateCustomInputs")?.classList.remove("visible");
         [calDrpStart, calDrpEnd] = setCalPresetRange(preset);
-        const calFromEl = document.getElementById("calFrom");
-        const calToEl   = document.getElementById("calTo");
-        if (calFromEl) calFromEl.value = toISO(calDrpStart);
-        if (calToEl)   calToEl.value   = toISO(calDrpEnd);
+        const cfe = document.getElementById("calFrom"); if (cfe) cfe.value = toISO(calDrpStart);
+        const cte = document.getElementById("calTo");   if (cte) cte.value = toISO(calDrpEnd);
         const calLbl = document.getElementById("calDateFilterLabel");
         if (calLbl) calLbl.textContent = labels[preset];
         calDateFilterDropdown?.classList.remove("open");
@@ -659,15 +857,16 @@ export async function init(userName) {
     }
   });
 
-
-  // Load data
+  // ── Load data ─────────────────────────────────────────
   const tables = await loadAll();
   allCampaigns = getCampaigns(tables);
   applyFilters();
   populateAssets(tables);
+  initAutoSuggest();
 }
 
 export function cleanup() {
   drpStart = drpEnd = null;
   calDrpStart = calDrpEnd = null;
+  bkPickerStart = bkPickerEnd = null;
 }
