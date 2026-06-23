@@ -89,7 +89,13 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
         else if (diff < 0) className = "date-less-than-today";
       }
 
-      html += `<td class="${className}">${cellValue}</td>`;
+      if (field === "BO" && /free|filler/i.test(String(cellValue))) {
+        html += `<td><span class="bo-filler">${cellValue}</span></td>`;
+      } else if (className) {
+        html += `<td><span class="${className}">${cellValue}</span></td>`;
+      } else {
+        html += `<td>${cellValue}</td>`;
+      }
     });
 
     html += `</tr>`;
@@ -162,15 +168,16 @@ function createCard(title, data, columns, highlightColumns = []) {
       }
 
       const bo        = row["BO"] ?? "";
+      const boFiller  = bo && /free|filler/i.test(bo);
       const startCls  = getDateClass(start, false);
       const endCls    = getDateClass(end,   true);
       return `
         <div class="ml-row">
           ${snKey ? `<span class="ml-sn">${sn}</span>` : ""}
           <div class="ml-body">
-            <div class="ml-client">${client}</div>            
+            <div class="ml-client">${client}</div>
             <div class="ml-dates">
-              ${bo && bo !== "—" ? `<div class="ml-bo">${bo}</div>` : ""}
+              ${bo && bo !== "—" ? `<div class="ml-bo${boFiller ? " bo-filler" : ""}">${bo}</div>` : ""}
               <span class="ml-date ${startCls}">${fmtMobileDate(start)}</span>
               <span class="ml-arrow">→</span>
               <span class="ml-date ${endCls}">${fmtMobileDate(end)}</span>

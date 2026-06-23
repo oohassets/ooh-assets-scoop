@@ -102,9 +102,10 @@ export function setMap(key) {
   currentMapUrl = maps[key];
   updateInfoCard(key);
 
-  // Cleanup current view
+  // Cleanup current view and any page-specific inline styles
   if (currentView?.cleanup) currentView.cleanup();
   currentView = null;
+  document.querySelectorAll("style[data-page-style]").forEach(s => s.remove());
 
   const mapFrame   = document.getElementById("mapFrame");
   const appContent = document.getElementById("app-content");

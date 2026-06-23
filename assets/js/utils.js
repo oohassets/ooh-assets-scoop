@@ -35,6 +35,10 @@ export function loadCSS(href) {
  * Non-module scripts (inline + external) are re-executed in order.
  */
 export async function loadPage(url, cssHref) {
+  // Remove inline styles injected by the previous page so they don't bleed
+  // into the map view or other pages (e.g. vehicle-report body { padding:20px })
+  document.querySelectorAll("style[data-page-style]").forEach(s => s.remove());
+
   if (cssHref) loadCSS(cssHref);
 
   const text = await fetch(url).then(r => r.text());

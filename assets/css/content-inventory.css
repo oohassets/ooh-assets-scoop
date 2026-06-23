@@ -40,9 +40,7 @@
   margin: 0 auto;
 }
 .carousel > :last-child:nth-child(odd) {
-  grid-column: span 2;
-  justify-self: center;
-  width: 50%;
+  grid-column: 1;
 }
 
 .card {
@@ -73,7 +71,9 @@
 .json-table pre { white-space:pre-wrap; word-break:break-word; margin:0; font-size:12px; background:var(--bg-glass); padding:4px 6px; border-radius:6px; }
 
 .card-table-wrapper { max-height:65vh; overflow-y:auto; padding-right:10px; }
-.json-table th { background:var(--bg-tertiary); color:var(--text-secondary); position:sticky; top:0; padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); z-index:3; font-size:13px;}
+.json-table th { background:var(--bg-tertiary); color:var(--text-secondary); position:sticky; top:0; padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); z-index:3; font-size:13px; }
+.json-table th:first-child { border-radius: 10px 0 0 10px; }
+.json-table th:last-child  { border-radius: 0 10px 10px 0; }
 .json-table td.key { font-weight:bold; width:80px; }
 .json-table tr:last-child td { border-bottom:none; }
 
@@ -83,11 +83,31 @@
 .expanded-carousel .card { width:420px !important; flex:0 0 auto; margin:10px; }
 .no-data-message { color:var(--text-primary,#fff); padding:10px; font-size:12px; }
 
+/* ── BO "Free or Filler" highlight ───── */
+.bo-filler {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
 /* ── Date highlight cells ─────────────── */
-.date-today        { background-color:yellow; color:black}
-.date-tomorrow     { background-color:darkorange; color:white; }
-.date-week         { background-color:orange; }
-.date-less-than-today { background-color:red; color:white; }
+.date-today,
+.date-tomorrow,
+.date-week,
+.date-less-than-today {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 500;
+  display: inline-block;
+}
+.date-today            { background-color: yellow;     color: black; }
+.date-tomorrow         { background-color: darkorange;  color: white; }
+.date-week             { background-color: orange;      color: black; }
+.date-less-than-today  { background-color: red;         color: white; }
 
 /* ── Fullscreen overlay ───────────────── */
 #fullscreenOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); display:none; z-index:9999; overflow-y:auto; padding:1rem; }
@@ -149,12 +169,15 @@
   .carousel {
     grid-template-columns: 1fr;
   }
-  .carousel > :last-child:nth-child(odd) {
-    grid-column: span 1;
-    width: 100%;
-    justify-self: stretch;
+  .carousel-container { padding: 0 8px 20px; }
+  .container { padding: 12px 8px; }
+
+  /* Grid items must be allowed to shrink below content width */
+  .card {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
   }
-  .carousel-container { padding: 0 12px 20px; }
 
   /* Switch from desktop table to mobile list */
   .desk-view { display: none; }
@@ -220,6 +243,9 @@
     margin-right: 10px;
     display: inline-block;
   }
+  .ml-bo.bo-filler {
+    color: var(--accent-rose);
+  }
 
   .ml-dates {
     display: flex;
@@ -240,16 +266,19 @@
     display: inline-block;
   }
 
-  /* Reuse existing date classes; add token border+radius in mobile context */
+  /* Reuse existing date classes; override .ml-date color for highlighted tokens */
   .ml-date.date-today,
   .ml-date.date-tomorrow,
   .ml-date.date-week,
   .ml-date.date-less-than-today {
-    border: 1px solid var(--border-glass);
-    border-radius: var(--radius-lg);
-    padding: 1px 8px;
+    border-radius: 999px;
+    padding: 2px 8px;
     font-weight: 600;
   }
+  .ml-date.date-today           { background-color: yellow;     color: black; }
+  .ml-date.date-tomorrow        { background-color: darkorange;  color: white; }
+  .ml-date.date-week            { background-color: orange;      color: black; }
+  .ml-date.date-less-than-today { background-color: red;         color: white; }
 }
 
 @media(max-width:500px) {
