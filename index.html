@@ -54,6 +54,10 @@
         </div>
 
         <div class="nav-item">
+          <button class="nav-link" id="bookingsLink" onclick="openBookings()">Bookings</button>
+        </div>
+
+        <div class="nav-item">
           <button class="nav-link" id="contentInventoryLink" onclick="openContentInventory()">Content Inventory</button>
         </div>
 
@@ -238,6 +242,11 @@
       <button class="dock-item active" id="btnHome">
         <span class="material-symbols-outlined">home</span>
         <span class="dock-label">Dashboard</span>
+      </button>
+
+      <button class="dock-item" id="btnBookings">
+        <span class="material-symbols-outlined">event_note</span>
+        <span class="dock-label">Bookings</span>
       </button>
 
       <button class="dock-item" id="btnContentInventory">

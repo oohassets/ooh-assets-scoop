@@ -24,6 +24,7 @@ export function initDock(handlers) {
   const {
     openHome,
     openContentInventory,
+    openBookings,
     openVehicleReport,
     setMapAndClose,
   } = handlers;
@@ -46,6 +47,10 @@ export function initDock(handlers) {
 
   document.getElementById("btnVehicleTraffic")?.addEventListener("click", () => {
     closeAllPanels(); openVehicleReport();
+  });
+
+  document.getElementById("btnBookings")?.addEventListener("click", () => {
+    closeAllPanels(); openBookings();
   });
 
   document.getElementById("btnServices")?.addEventListener("click", (e) => {

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Campaign Bookings</title>
+</head>
+<body>
+
+<!-- TABS -->
+<div class="circuit-tabs bookings-tabs">
+  <button class="circuit-tab active" id="tabSchedule">Booking Schedule</button>
+  <button class="circuit-tab" id="tabCalendar">View Calendar</button>
+</div>
+
+<!-- SCHEDULE SECTION (default) -->
+<div id="scheduleSection">
+  <div class="bookings-content">
+
+    <div class="bookings-header">
+      <div class="section-title" style="font-size:22px;">Campaign Bookings</div>
+    </div>
+    <p class="section-sub">Manage and udpate your bookings</p>
+
+    <div class="bookings-action-row">
+        <button class="btn-bar-primary" id="openBookingBtn">
+          Add Booking
+        </button>
+    </div>
+
+    <div class="card">
+
+
+
+      <div class="toolbar">
+        <div class="search-box">
+          <span style="color:var(--text-muted);font-size:14px;">🔍</span>
+          <input type="text" id="campaignSearch" placeholder="Search campaign, client, circuit…">
+        </div>
+
+        <div class="date-filter-wrap">
+          <button class="date-filter-btn" id="dateFilterBtn">
+            <span class="cal-icon">📅</span>
+            <span id="dateFilterLabel">This Month</span>
+            <span class="chevron-icon">▾</span>
+          </button>
+          <div class="date-filter-dropdown" id="dateFilterDropdown">
+            <button class="date-preset selected" data-preset="this-month">This Month</button>
+            <button class="date-preset" data-preset="last-month">Last Month</button>
+            <button class="date-preset" data-preset="next-month">Next Month</button>
+            <button class="date-preset" data-preset="all-year">All Year</button>
+            <button class="date-preset" data-preset="custom">Custom Range…</button>
+            <div class="date-custom-inputs" id="dateCustomInputs">
+              <div><div class="date-custom-label">From</div><input type="date" class="date-custom-field" id="customDateFrom"></div>
+              <div><div class="date-custom-label">To</div><input type="date" class="date-custom-field" id="customDateTo"></div>
+              <button class="date-apply-btn" id="applyCustomDate">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-box">
+          <select id="campaignStatusFilter">
+            <option value="">All Status</option>
+            <option value="Live">Live</option>
+            <option value="BO Signed">BO Signed</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Client / Brand</th>
+              <th>Circuit</th>
+              <th>Dates</th>
+              <th>Status</th>
+              <th>Person</th>
+            </tr>
+          </thead>
+          <tbody id="campaignTableBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">Loading campaigns…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR SECTION -->
+<div id="calendarSection" style="display:none;">
+  <div class="bookings-cal-bar">
+    <div class="date-filter-wrap">
+      <button class="date-filter-btn" id="calDateFilterBtn">
+        <span class="cal-icon">📅</span>
+        <span id="calDateFilterLabel">This Month</span>
+        <span class="chevron-icon">▾</span>
+      </button>
+      <div class="date-filter-dropdown" id="calDateFilterDropdown">
+        <button class="date-preset selected" data-cal-preset="this-month">This Month</button>
+        <button class="date-preset" data-cal-preset="last-month">Last Month</button>
+        <button class="date-preset" data-cal-preset="next-month">Next Month</button>
+        <button class="date-preset" data-cal-preset="all-year">All Year</button>
+        <button class="date-preset" data-cal-preset="custom">Custom Range…</button>
+        <div class="date-custom-inputs" id="calDateCustomInputs">
+          <div><div class="date-custom-label">From</div><input type="date" class="date-custom-field" id="calFrom"></div>
+          <div><div class="date-custom-label">To</div><input type="date" class="date-custom-field" id="calTo"></div>
+          <button class="date-apply-btn" id="applyCalCustomDate">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bookings-cal-wrap">
+    <div class="cal-scroll">
+      <table id="bookingCalendar" class="booking-calendar"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ADD / EDIT BOOKING MODAL -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal-box">
+    <button class="modal-close" id="closeBookingModal">✕</button>
+    <div class="modal-title" id="bookingModalTitle">Create Campaign Booking</div>
+    <div class="modal-sub" style="margin-bottom:24px;" id="bookingModalSub">Add a new booking to the schedule.</div>
+    <input type="hidden" id="bookingEditKey">
+
+    <div class="field-group" style="margin-bottom:14px;">
+      <label class="field-label">Booking Order No</label>
+      <input class="field-input" type="text" id="bookingOrder" placeholder="BO-0000">
+    </div>
+    <div class="field-group" style="margin-bottom:14px;">
+      <label class="field-label">Client</label>
+      <input class="field-input" type="text" id="bookingClient" placeholder="Client name">
+    </div>
+    <div class="field-group" style="margin-bottom:14px;">
+      <label class="field-label">Brand Campaign</label>
+      <input class="field-input" type="text" id="bookingBrand" placeholder="Campaign name">
+    </div>
+    <div style="margin-top:16px;">
+      <label class="field-label">Asset / Circuit</label>
+      <select class="field-input" id="bookingAsset">
+        <option value="">Select Circuit</option>
+      </select>
+    </div>
+    <div class="form-grid" style="margin-top:16px;">
+      <div>
+        <label class="field-label">Start Date</label>
+        <input class="field-input" type="date" id="bookingStartDate">
+      </div>
+      <div>
+        <label class="field-label">End Date</label>
+        <input class="field-input" type="date" id="bookingEndDate">
+      </div>
+    </div>
+    <div class="form-grid" style="margin-top:16px;">
+      <div>
+        <label class="field-label">Total Days</label>
+        <input class="field-input" type="text" id="bookingTotalDays" readonly placeholder="Calculated automatically">
+      </div>
+      <div>
+        <label class="field-label">Slot</label>
+        <input class="field-input" type="text" id="bookingSlot" readonly placeholder="Assigned automatically">
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <div class="filter-box">
+        <select id="campaignStatus" class="field-input" style="height:50px;">
+          <option value="">Select Status</option>
+          <option value="BO Signed">BO Signed</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+    </div>
+    <div class="booked-by-strip">
+      <span>Booked by</span>
+      <strong id="bookingPersonLabel">—</strong>
+    </div>
+    <div class="form-footer">
+      <button class="btn-form-cancel" id="clearFormBtn">Clear</button>
+      <button class="btn-form-save" id="confirmBookingBtn">Save Booking</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,23 +1,14 @@
 /* ── Dashboard View Module ───────────────────────────────── */
 import { rtdb } from "../../../firebase/firebase.js";
-import { ref, get, push, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-// ── MODULE-LEVEL STATE ────────────────────────────────────
 export let currentUserName = "";
-
 export function setUser(name) { currentUserName = name; }
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-let allCampaigns = [];
-let allCampaignKeys = [];
 let chartInstance = null;
-
-// Date filter state
-let drpStart = null, drpEnd = null;
-
-// Calendar state
-let calDrpStart = null, calDrpEnd = null;
+let visitorsChartInstance = null;
 
 // ── HELPERS ───────────────────────────────────────────────
 function parseDate(v) {
@@ -27,31 +18,19 @@ function parseDate(v) {
   if (p.length === 2) return new Date(new Date().getFullYear(), p[0]-1, p[1]);
   return null;
 }
-function parseISOLocal(s) {
-  if (!s) return null;
-  const p = s.split("-").map(Number);
-  return new Date(p[0], p[1]-1, p[2]);
-}
-function toISO(d) {
-  if (!d) return "";
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
 function fmtShort(v) {
   if (!v) return "—";
   const p = v.trim().split("/").map(x => parseInt(x,10));
   if (p.length < 2) return "—";
   return `${p[1]} ${MONTHS[p[0]-1]||""}`;
 }
-function fmtCompact(n) {
-  return new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:1}).format(n);
-}
 function getStatusClass(s="") {
   s = s.toLowerCase();
-  if (s.includes("live")) return "live";
-  if (s.includes("signed")) return "signed";
-  if (s.includes("pending")) return "pending";
+  if (s.includes("live"))      return "live";
+  if (s.includes("signed"))    return "signed";
+  if (s.includes("pending"))   return "pending";
   if (s.includes("completed")) return "completed";
-  if (s.includes("cancel")) return "cancelled";
+  if (s.includes("cancel"))    return "cancelled";
   return "";
 }
 
@@ -62,7 +41,7 @@ async function loadAll() {
   } catch(e) { console.error(e); return {}; }
 }
 
-// ── GET CAMPAIGNS ─────────────────────────────────────────
+// ── CAMPAIGNS ─────────────────────────────────────────────
 function getCampaigns(tables) {
   const list = [];
   const tableData = tables["Campaigns_Booking"];
@@ -84,76 +63,6 @@ function getCampaigns(tables) {
     });
   });
   return list.sort((a,b) => b.sortDate - a.sortDate);
-}
-
-// ── RENDER TABLE ──────────────────────────────────────────
-function renderTable(campaigns) {
-  const tbody = document.getElementById("campaignTableBody");
-  if (!tbody) return;
-  if (!campaigns.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">No campaigns found</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = campaigns.map(r => {
-    const statusCls = getStatusClass(r.status);
-    const isOwner = currentUserName && r.person &&
-      r.person.trim().toLowerCase() === currentUserName.trim().toLowerCase();
-    const editBtn = isOwner
-      ? `<button class="edit-status-btn" data-key="${r.key}" title="Edit status">✎</button>
-         <div class="inline-status-dropdown" id="statusDrop-${r.key}">
-           <button class="status-option" data-key="${r.key}" data-val="Live">● Live</button>
-           <button class="status-option" data-key="${r.key}" data-val="BO Signed">● BO Signed</button>
-           <button class="status-option" data-key="${r.key}" data-val="Pending">● Pending</button>
-           <button class="status-option" data-key="${r.key}" data-val="Completed">● Completed</button>
-         </div>`
-      : "";
-    return `
-      <tr>
-        <td><div class="client-name">${r.client}</div><div class="brand-name">${r.brand}</div></td>
-        <td style="color:var(--text-secondary);font-size:13px;">${r.asset}</td>
-        <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">${r.date}</td>
-        <td style="position:relative;">
-          <div class="status-cell">
-            <span class="status-pill pill-${statusCls}">${r.status}</span>
-            ${editBtn}
-          </div>
-        </td>
-        <td style="color:var(--text-muted);font-size:12px;">${r.person}</td>
-      </tr>
-    `;
-  }).join("");
-
-  tbody.querySelectorAll(".edit-status-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const key = btn.dataset.key;
-      const drop = document.getElementById(`statusDrop-${key}`);
-      tbody.querySelectorAll(".inline-status-dropdown.open").forEach(d => {
-        if (d !== drop) d.classList.remove("open");
-      });
-      drop.classList.toggle("open");
-    });
-  });
-
-  tbody.querySelectorAll(".status-option").forEach(opt => {
-    opt.addEventListener("click", async (e) => {
-      e.stopPropagation();
-      const key = opt.dataset.key;
-      const newStatus = opt.dataset.val;
-      opt.textContent = "Saving…";
-      try {
-        await update(ref(rtdb, `Campaigns_Booking/${key}`), { Status: newStatus });
-        const tables = await loadAll();
-        allCampaigns = getCampaigns(tables);
-        applyFilters();
-        updateStats(allCampaigns, tables);
-      } catch(err) {
-        console.error(err);
-        opt.textContent = "Error";
-      }
-    });
-  });
 }
 
 // ── STATS ─────────────────────────────────────────────────
@@ -194,46 +103,7 @@ function animateCounter(id, target) {
   requestAnimationFrame(step);
 }
 
-// ── DATE FILTER HELPERS ───────────────────────────────────
-function getPresetRange(preset) {
-  const n = new Date();
-  const y = n.getFullYear(), m = n.getMonth();
-  switch(preset) {
-    case "this-month":
-      return [new Date(y,m,1), new Date(y,m+1,0)];
-    case "last-month":
-      return [new Date(y,m-1,1), new Date(y,m,0)];
-    case "next-month":
-      return [new Date(y,m+1,1), new Date(y,m+2,0)];
-    case "all-year":
-      return [new Date(y,0,1), new Date(y,11,31)];
-    default: return [null, null];
-  }
-}
-
-// ── FILTERS ───────────────────────────────────────────────
-function applyFilters() {
-  const search = (document.getElementById("campaignSearch")?.value||"").toLowerCase();
-  const status = document.getElementById("campaignStatusFilter")?.value||"";
-  let f = [...allCampaigns];
-  if (search) f = f.filter(c => [c.client,c.brand,c.asset,c.status,c.person].join(" ").toLowerCase().includes(search));
-  if (drpStart && drpEnd) {
-    const lo = drpStart < drpEnd ? drpStart : drpEnd;
-    const hi = drpStart < drpEnd ? drpEnd : drpStart;
-    f = f.filter(c => {
-      const d = parseDate(c.rawStartDate);
-      const e = parseDate(c.rawEndDate);
-      if (!d) return false;
-      d.setHours(0,0,0,0);
-      if (e) e.setHours(0,0,0,0);
-      return d <= hi && (!e || e >= lo);
-    });
-  }
-  if (status) f = f.filter(c => (c.status||"").toLowerCase().trim() === status.toLowerCase().trim());
-  renderTable(f);
-}
-
-// CAMPAIGN UPDATES
+// ── CAMPAIGN UPDATES ──────────────────────────────────────
 function renderUpdates(campaigns, tables) {
   const container = document.getElementById("campaignUpdatesContainer");
   if (!container) return;
@@ -257,7 +127,6 @@ function renderUpdates(campaigns, tables) {
     if (type==="add") groups.published.push({label:dateLabel(d,raw),brand:log.Client||"-",asset:log.Circuits||"-",sortDate:d});
     if (type==="removed") groups.removed.push({label:dateLabel(d,raw),brand:log.Client||"-",asset:log.Circuits||"-",sortDate:d});
   });
-
   campaigns.forEach(c => {
     const sd = parseDate(c.rawStartDate); const ed = parseDate(c.rawEndDate);
     if (!sd) return; sd.setHours(0,0,0,0); if (ed) ed.setHours(0,0,0,0);
@@ -265,7 +134,7 @@ function renderUpdates(campaigns, tables) {
     const ediff = ed ? Math.floor((ed-today)/86400000) : 999;
     const s = (c.status||"").toLowerCase();
     const isUpcoming = s.includes("signed") || s.includes("pending");
-    const isActive = isUpcoming || s.includes("live");
+    const isActive   = isUpcoming || s.includes("live");
     if (!isActive) return;
     if (isUpcoming && ((sdiff>=0&&sdiff<=30)||(sdiff<0&&ediff>=0))) {
       groups.upcoming.push({label:dateLabel(sd,c.rawStartDate),statusCls:getStatusClass(c.status),statusLabel:c.status,brand:c.brand||c.client,asset:c.asset,person:c.person,sortDate:sd});
@@ -274,7 +143,6 @@ function renderUpdates(campaigns, tables) {
       groups.ending.push({label:dateLabel(ed,c.rawEndDate),statusCls:getStatusClass(c.status),statusLabel:c.status,brand:c.brand||c.client,asset:c.asset,person:c.person,sortDate:ed});
     }
   });
-
   groups.published.sort((a,b) => b.sortDate - a.sortDate);
   groups.removed.sort((a,b) => b.sortDate - a.sortDate);
   groups.upcoming.sort((a,b) => a.sortDate - b.sortDate);
@@ -314,7 +182,7 @@ function renderUpdates(campaigns, tables) {
   `;
 }
 
-// ── CHART ─────────────────────────────────────────────────
+// ── CAMPAIGN TRENDS CHART ─────────────────────────────────
 function renderChart(campaigns) {
   const canvas = document.getElementById("trendChart");
   if (!canvas) return;
@@ -328,7 +196,7 @@ function renderChart(campaigns) {
     else if (s.includes("completed")) completed[m]++;
   });
   const isDark = document.documentElement.getAttribute("data-theme") !== "light";
-  const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
+  const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
   const labelColor = isDark ? "#5A6A8A" : "#6B7A99";
   chartInstance = new Chart(canvas.getContext("2d"), {
     type:"line",
@@ -356,220 +224,99 @@ function renderChart(campaigns) {
   });
 }
 
-// ── ASSET DROPDOWN ────────────────────────────────────────
-function populateAssets(tables) {
-  const t = tables["oohassets"]; if (!t) return;
-  const rows = Array.isArray(t) ? t : Object.values(t);
-  const circuits = [...new Set(rows.map(r=>r.Circuits).filter(Boolean))].sort();
-  const opts = `<option value="">Select Asset</option>${circuits.map(c=>`<option value="${c}">${c}</option>`).join("")}`;
-  const el = document.getElementById("bookingAsset"); if (el) el.innerHTML = opts;
-}
+// ── VISITORS CHART ────────────────────────────────────────
+function renderVisitorsChart(tables) {
+  const canvas = document.getElementById("visitorsChart");
+  if (!canvas) return;
+  if (visitorsChartInstance) { visitorsChartInstance.destroy(); visitorsChartInstance = null; }
 
-// ── DATE CALCULATOR ───────────────────────────────────────
-function initDateCalc() {
-  const s = document.getElementById("bookingStartDate");
-  const e = document.getElementById("bookingEndDate");
-  const t = document.getElementById("bookingTotalDays");
-  if (!s||!e||!t) return;
-  function calc() {
-    if (!s.value||!e.value) { t.value=""; return; }
-    const diff = Math.floor((new Date(e.value)-new Date(s.value))/86400000)+1;
-    t.value = diff>0 ? `${diff} Day${diff>1?"s":""}` : "Invalid dates";
-  }
-  s.addEventListener("change",calc); e.addEventListener("change",calc);
-}
-
-// ── SLOT AUTO-ASSIGN ──────────────────────────────────────
-async function autoAssignSlot() {
-  const asset   = document.getElementById("bookingAsset")?.value;
-  const startEl = document.getElementById("bookingStartDate");
-  const endEl   = document.getElementById("bookingEndDate");
-  const slotEl  = document.getElementById("bookingSlot");
-  if (!slotEl) return;
-  if (!asset || !startEl?.value || !endEl?.value) { slotEl.value = ""; return; }
-  slotEl.value = "Checking…";
-  const newStart = parseISOLocal(startEl.value);
-  const newEnd   = parseISOLocal(endEl.value);
-  if (!newStart || !newEnd || newStart > newEnd) { slotEl.value = "Invalid dates"; return; }
-  newStart.setHours(0,0,0,0); newEnd.setHours(0,0,0,0);
-  try {
-    const assetSnap = await get(ref(rtdb, "oohassets"));
-    let maxSlots = 1;
-    if (assetSnap.exists()) {
-      const rows = Object.values(assetSnap.val());
-      const match = rows.find(r => r && (r.Circuits||"").trim().toLowerCase() === asset.trim().toLowerCase());
-      if (match) maxSlots = parseInt(match.Slot || 1, 10);
-    }
-    const bookSnap = await get(ref(rtdb, "Campaigns_Booking"));
-    const bookedSlots = new Set();
-    if (bookSnap.exists()) {
-      const bookings = Object.values(bookSnap.val());
-      bookings.forEach(b => {
-        if (!b) return;
-        const bc = (b.Circuits || "").trim().toLowerCase();
-        if (bc !== asset.trim().toLowerCase()) return;
-        const bStart = parseDate(b["Start Date"]);
-        const bEnd   = parseDate(b["End Date"]);
-        if (!bStart || !bEnd) return;
-        bStart.setHours(0,0,0,0); bEnd.setHours(0,0,0,0);
-        if (newStart <= bEnd && newEnd >= bStart) bookedSlots.add(parseInt(b.Slot || 1, 10));
-      });
-    }
-    let assigned = null;
-    for (let s = 1; s <= maxSlots; s++) { if (!bookedSlots.has(s)) { assigned = s; break; } }
-    slotEl.value = assigned !== null ? `Slot ${assigned}` : "No slots available";
-  } catch(e) { console.error("Slot check error:", e); slotEl.value = "Error"; }
-}
-
-// ── CALENDAR ──────────────────────────────────────────────
-function setCalPresetRange(preset) {
-  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
-  const ranges = {
-    "this-month":  [new Date(y,m,1),   new Date(y,m+1,0)],
-    "last-month":  [new Date(y,m-1,1), new Date(y,m,0)],
-    "next-month":  [new Date(y,m+1,1), new Date(y,m+2,0)],
-    "all-year":    [new Date(y,0,1),   new Date(y,11,31)]
-  };
-  return ranges[preset] || [null, null];
-}
-
-async function buildCalendar() {
-  const table = document.getElementById("bookingCalendar"); if (!table) return;
-  const startD = calDrpStart || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const endD   = calDrpEnd   || new Date(new Date().getFullYear(), new Date().getMonth()+1, 0);
-  let [circuitSlots, bookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
-  if (!circuitSlots.length) { table.innerHTML = `<tr><td style="padding:20px;text-align:center;color:var(--text-muted);">No circuits found</td></tr>`; return; }
-  const dates = [], cur = new Date(startD);
-  while (cur <= endD) { dates.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
-  const today = new Date(); today.setHours(0,0,0,0);
-  table.innerHTML = "";
-  const thead = document.createElement("thead");
-  const hrow  = document.createElement("tr");
-  hrow.innerHTML = `<th class="circuit-col head">Circuit</th><th class="slot-col head">Slot</th>`;
-  dates.forEach(d => {
-    const th = document.createElement("th");
-    th.className = "date-head" + (d.toDateString()===today.toDateString() ? " today-head" : "");
-    th.innerHTML = `${d.toLocaleDateString("en",{month:"short"})}<br>${d.getDate()}`;
-    hrow.appendChild(th);
-  });
-  thead.appendChild(hrow); table.appendChild(thead);
-  const tbody = document.createElement("tbody");
-  circuitSlots.forEach(circuit => {
-    for (let slot=1; slot<=circuit.slots; slot++) {
-      const tr = document.createElement("tr");
-      if (slot===1) {
-        const td = document.createElement("td");
-        td.className="circuit-col"; td.rowSpan=circuit.slots; td.textContent=circuit.name;
-        tr.appendChild(td);
-      }
-      const st = document.createElement("td");
-      st.className="slot-col"; st.textContent=`Slot ${slot}`; tr.appendChild(st);
-      dates.forEach(d => {
-        const td = document.createElement("td");
-        td.dataset.date = toISO(d); tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    }
-  });
-  table.appendChild(tbody);
-  requestAnimationFrame(() => renderBars(bookings, dates, startD, endD));
-}
-
-function renderBars(bookings, dates, startD, endD) {
-  startD.setHours(0,0,0,0); endD.setHours(0,0,0,0);
-  const rows = document.querySelectorAll("#bookingCalendar tbody tr");
-  bookings.forEach(b => {
-    const start = parseDate(b["Start Date"]||b.startDate);
-    const end   = parseDate(b["End Date"]||b.endDate);
-    if (!start||!end) return;
-    start.setHours(0,0,0,0); end.setHours(0,0,0,0);
-    const asset   = (b.Circuits||b.Circuit||"").toLowerCase().replace(/[_-]/g," ").trim();
-    const slotVal = Number(b.Slot||b.slot||1);
-    const client  = b.Client||"Booking";
-    const brand   = b["Brand Campaign"]||"";
-    const status  = (b.Status||"").toLowerCase();
-    const person  = b.Person||"";
-    rows.forEach(row => {
-      const slotCell = row.querySelector(".slot-cell,.slot-col:not(.head)"); if (!slotCell) return;
-      let rowCircuit = "";
-      const cc = row.querySelector(".circuit-col:not(.head)");
-      if (cc) rowCircuit = cc.textContent.trim();
-      else {
-        let prev = row.previousElementSibling;
-        while (prev && !rowCircuit) { const c2=prev.querySelector(".circuit-col:not(.head)"); if (c2) rowCircuit=c2.textContent.trim(); prev=prev.previousElementSibling; }
-      }
-      const rc = rowCircuit.toLowerCase().replace(/[_-]/g," ").trim();
-      if (!rc.includes(asset) && !asset.includes(rc)) return;
-      const rowSlot = parseInt(slotCell.textContent.replace("Slot","").trim(),10);
-      if (rowSlot !== slotVal) return;
-      const cells = Array.from(row.querySelectorAll("td[data-date]"));
-      let si = cells.findIndex(td => td.dataset.date === toISO(start));
-      let ei = cells.findIndex(td => td.dataset.date === toISO(end));
-      if (si===-1 && start<startD) si=0;
-      if (ei===-1 && end>endD) ei=cells.length-1;
-      if (si===-1||ei===-1) return;
-      const bar = document.createElement("div");
-      bar.className = "booking-bar";
-      if (status.includes("live")) bar.classList.add("live");
-      else if (status.includes("signed")) bar.classList.add("signed");
-      else if (status.includes("pending")) bar.classList.add("pending");
-      else bar.classList.add("completed");
-      bar.style.width = `calc(${(ei-si+1)*100}% + ${ei-si}px)`;
-      bar.textContent = brand ? `${client} | ${brand} - ${person}` : client;
-      cells[si].style.position = "relative"; cells[si].appendChild(bar);
-    });
-  });
-}
-
-async function loadCircuitSlots() {
-  try {
-    const snap = await get(ref(rtdb,"oohassets")); if (!snap.exists()) return [];
-    const d = snap.val(), rows = Array.isArray(d) ? d : Object.values(d);
-    return rows.filter(r=>r&&r.Circuits).map(r=>({name:r.Circuits.trim(),slots:parseInt(r.Slot||1,10)}));
-  } catch(e) { return []; }
-}
-async function loadBookings() {
-  try {
-    const snap = await get(ref(rtdb,"Campaigns_Booking")); if (!snap.exists()) return [];
-    const d = snap.val(); return Array.isArray(d) ? d : Object.values(d);
-  } catch(e) { return []; }
-}
-
-// ── MISC ──────────────────────────────────────────────────
-function updateAssetOccupancy(tables) {
-  const t = tables["oohassets"]; if (!t) return;
-  const rows = Array.isArray(t) ? t : Object.values(t);
-  let total=0, booked=0;
-  rows.forEach(r => { if (!r) return; const c={}; Object.keys(r).forEach(k=>c[k.trim()]=r[k]); total+=Number(c.Slot||0); booked+=Number(c["Booked Slot"]||0); });
-}
-function updateMonthlyVisitors(tables) {
-  const vt = tables["vehiclecounts"]||tables["VehicleCounts"]||Object.values(tables).find((v,i,a)=>Object.keys(tables)[i]?.toLowerCase()==="vehiclecounts");
+  const vt = tables["vehiclecounts"] || tables["VehicleCounts"] ||
+    Object.values(tables).find((_,i) => Object.keys(tables)[i]?.toLowerCase() === "vehiclecounts");
   if (!vt) return;
+
+  const rows = Array.isArray(vt) ? vt : Object.values(vt);
+  const monthly = {};
+
+  rows.forEach(row => {
+    if (!row) return;
+    const dateStr = row.ContentDate;
+    const total   = Number(row.ContentTotal || 0);
+    const name    = (row.Name || "").toUpperCase();
+    if (!dateStr || !total) return;
+    const parts = dateStr.split("/").map(Number);
+    if (parts.length < 3) return;
+    const key = `${parts[2]}-${String(parts[0]).padStart(2,"0")}`;
+    if (!monthly[key]) monthly[key] = { tpi: 0, gewan: 0 };
+    if (name.includes("TPI"))   monthly[key].tpi   += total;
+    if (name.includes("GEWAN")) monthly[key].gewan += total;
+  });
+
+  const allKeys = Object.keys(monthly).sort();
+  if (!allKeys.length) return;
+  const latestKey = allKeys[allKeys.length - 1];
+  const [latestY, latestM] = latestKey.split("-").map(Number);
+
+  const labels = [], tpiData = [], gewanData = [];
+  for (let i = 11; i >= 0; i--) {
+    let m = latestM - i, y = latestY;
+    while (m <= 0) { m += 12; y--; }
+    const key = `${y}-${String(m).padStart(2,"0")}`;
+    labels.push(`${MONTHS[m-1]} '${String(y).slice(2)}`);
+    tpiData.push(monthly[key]?.tpi   || 0);
+    gewanData.push(monthly[key]?.gewan || 0);
+  }
+
+  const isDark     = document.documentElement.getAttribute("data-theme") !== "light";
+  const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
+  const labelColor = isDark ? "#5A6A8A" : "#6B7A99";
+
+  visitorsChartInstance = new Chart(canvas.getContext("2d"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        { label:"The Pearl Island", data:tpiData,   backgroundColor:"rgba(16,185,129,0.8)", borderRadius:6, borderSkipped:false },
+        { label:"Gewan Island",     data:gewanData, backgroundColor:"rgba(4,150,255,0.8)",  borderRadius:6, borderSkipped:false }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false,mode:"index"},
+      plugins:{
+        legend:{position:"top",align:"end",labels:{usePointStyle:true,pointStyle:"circle",padding:20,font:{family:"Space Grotesk",size:12,weight:"600"},color:labelColor}},
+        tooltip:{
+          backgroundColor:isDark?"#0A1628":"white",borderColor:"rgba(79,70,229,0.2)",borderWidth:1,padding:14,cornerRadius:14,
+          titleColor:isDark?"#F8FAFF":"#0A1628",bodyColor:isDark?"#94A3C0":"#3D4F6E",
+          titleFont:{family:"Space Grotesk",size:13,weight:"700"},bodyFont:{family:"DM Sans",size:12},
+          callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${new Intl.NumberFormat().format(ctx.raw)}` }
+        }
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:labelColor,font:{family:"Space Grotesk",weight:"600",size:11}}},
+        y:{beginAtZero:true,grid:{color:gridColor},ticks:{color:labelColor,font:{family:"DM Sans",size:11},callback:v=>new Intl.NumberFormat("en",{notation:"compact"}).format(v)}}
+      },
+      animation:{duration:1200,easing:"easeOutQuart"}
+    }
+  });
 }
 
-// ── PARTICLE / CANVAS / CURSOR ANIMATIONS ─────────────────
+// ── ANIMATIONS ────────────────────────────────────────────
 function initAnimations() {
-  // SCROLL PROGRESS
+  // Scroll progress
   window.addEventListener("scroll", () => {
     const p = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
     const el = document.getElementById("scroll-progress");
     if (el) el.style.width = p + "%";
   });
 
-  // CURSOR
+  // Cursor
   const cursor = document.getElementById("cursor");
   const cursorRing = document.getElementById("cursor-ring");
   let mouseX=0, mouseY=0, ringX=0, ringY=0;
   if (cursor && cursorRing) {
     if (window.innerWidth > 900) {
-      document.addEventListener("mousemove", e => {
-        mouseX = e.clientX; mouseY = e.clientY;
-        cursor.style.left = mouseX + "px"; cursor.style.top = mouseY + "px";
-      });
-      setInterval(() => {
-        ringX += (mouseX - ringX) * 0.15; ringY += (mouseY - ringY) * 0.15;
-        cursorRing.style.left = ringX + "px"; cursorRing.style.top = ringY + "px";
-      }, 16);
+      document.addEventListener("mousemove", e => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left=mouseX+"px"; cursor.style.top=mouseY+"px"; });
+      setInterval(() => { ringX+=(mouseX-ringX)*0.15; ringY+=(mouseY-ringY)*0.15; cursorRing.style.left=ringX+"px"; cursorRing.style.top=ringY+"px"; }, 16);
       document.querySelectorAll("button,a,input,select,.stat-card").forEach(el => {
         el.addEventListener("mouseenter", () => { cursor.style.width="24px"; cursor.style.height="24px"; cursorRing.style.width="52px"; cursorRing.style.height="52px"; });
         el.addEventListener("mouseleave", () => { cursor.style.width="16px"; cursor.style.height="16px"; cursorRing.style.width="36px"; cursorRing.style.height="36px"; });
@@ -577,7 +324,7 @@ function initAnimations() {
     } else { cursor.style.display="none"; cursorRing.style.display="none"; }
   }
 
-  // HERO CANVAS
+  // Hero canvas particles
   const canvas = document.getElementById("hero-canvas");
   if (canvas) {
     const ctx = canvas.getContext("2d");
@@ -601,253 +348,43 @@ function initAnimations() {
     drawParticles();
   }
 
-  // SCROLL REVEAL
+  // Scroll reveal
   const reveals = document.querySelectorAll(".reveal");
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
   }, {threshold:0.1,rootMargin:"0px 0px -40px 0px"});
-  reveals.forEach(el => observer.observe(el));
-
-  // Immediately reveal elements already in view
   reveals.forEach(el => {
     const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom > 0) {
-      el.classList.add("visible");
-      observer.unobserve(el);
-    }
+    if (rect.top < window.innerHeight && rect.bottom > 0) { el.classList.add("visible"); return; }
+    observer.observe(el);
   });
 }
 
-// ── INIT (called by router after HTML is injected) ────────
+// ── INIT ──────────────────────────────────────────────────
 export async function init(userName) {
   currentUserName = userName || "User";
 
-  // Set booking person label
-  const lbl = document.getElementById("bookingPersonLabel");
-  if (lbl) lbl.textContent = currentUserName;
-
-  // Date filter setup
-  const dateFilterBtn = document.getElementById("dateFilterBtn");
-  const dateFilterDropdown = document.getElementById("dateFilterDropdown");
-  const dateCustomInputs = document.getElementById("dateCustomInputs");
-  const dateFilterLabel = document.getElementById("dateFilterLabel");
-
-  [drpStart, drpEnd] = getPresetRange("this-month");
-
-  if (dateFilterBtn) {
-    dateFilterBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dateFilterDropdown.classList.toggle("open");
-      dateFilterBtn.classList.toggle("open");
-    });
-  }
-
-  document.addEventListener("click", (e) => {
-    if (dateFilterBtn && !dateFilterBtn.contains(e.target) && dateFilterDropdown && !dateFilterDropdown.contains(e.target)) {
-      dateFilterDropdown.classList.remove("open");
-      dateFilterBtn.classList.remove("open");
-    }
-    // Close inline status dropdowns
-    document.querySelectorAll(".inline-status-dropdown.open")
-      .forEach(d => d.classList.remove("open"));
+  // Hero CTA buttons → navigate to Bookings page
+  document.getElementById("openBookingBtnHero")?.addEventListener("click", () => {
+    window.openBookings?.();
+  });
+  document.getElementById("openCalBtnHero")?.addEventListener("click", () => {
+    window.openBookings?.();
   });
 
-  document.querySelectorAll(".date-preset").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".date-preset").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      const preset = btn.dataset.preset;
-      if (preset === "custom") {
-        dateCustomInputs?.classList.add("visible");
-        if (dateFilterLabel) dateFilterLabel.textContent = "Custom Range";
-      } else {
-        dateCustomInputs?.classList.remove("visible");
-        [drpStart, drpEnd] = getPresetRange(preset);
-        const labels = {"this-month":"This Month","last-month":"Last Month","next-month":"Next Month","all-year":"All Year"};
-        if (dateFilterLabel) dateFilterLabel.textContent = labels[preset] || "Custom";
-        applyFilters();
-        dateFilterDropdown?.classList.remove("open");
-        dateFilterBtn?.classList.remove("open");
-      }
-    });
-  });
-
-  document.getElementById("applyCustomDate")?.addEventListener("click", () => {
-    const f = document.getElementById("customDateFrom")?.value;
-    const t = document.getElementById("customDateTo")?.value;
-    if (f && t) {
-      drpStart = parseISOLocal(f);
-      drpEnd   = parseISOLocal(t);
-      if (dateFilterLabel) dateFilterLabel.textContent = `${f} → ${t}`;
-      applyFilters();
-      dateFilterDropdown?.classList.remove("open");
-      dateFilterBtn?.classList.remove("open");
-    }
-  });
-
-  // Campaign search/filter
-  document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
-  document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
-
-  // Slot auto-assign
-  ["bookingAsset","bookingStartDate","bookingEndDate"].forEach(id => {
-    document.getElementById(id)?.addEventListener("change", autoAssignSlot);
-  });
-
-  // Booking modal
-  const bookingModal = document.getElementById("bookingModal");
-  ["openBookingBtn","openBookingBtnHero"].forEach(id => {
-    document.getElementById(id)?.addEventListener("click", () => bookingModal?.classList.add("active"));
-  });
-  ["closeBookingModal"].forEach(id => {
-    document.getElementById(id)?.addEventListener("click", () => bookingModal?.classList.remove("active"));
-  });
-  document.getElementById("clearFormBtn")?.addEventListener("click", () => {
-    ["bookingOrder","bookingClient","bookingBrand","bookingStartDate","bookingEndDate","bookingTotalDays"].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value="";
-    });
-    const a = document.getElementById("bookingAsset"); if (a) a.selectedIndex=0;
-  });
-
-  document.getElementById("confirmBookingBtn")?.addEventListener("click", async () => {
-    const booking = document.getElementById("bookingOrder")?.value;
-    const client  = document.getElementById("bookingClient")?.value?.trim();
-    const brand   = document.getElementById("bookingBrand")?.value?.trim();
-    const asset   = document.getElementById("bookingAsset")?.value;
-    const start   = document.getElementById("bookingStartDate")?.value;
-    const end     = document.getElementById("bookingEndDate")?.value;
-    const slotRaw = document.getElementById("bookingSlot")?.value || "";
-    const person  = document.getElementById("bookingPersonLabel")?.textContent?.trim();
-    if (!client||!brand||!asset||!start||!end) { alert("Please fill in all required fields."); return; }
-    const slotNum = parseInt(slotRaw.replace(/\D/g,""), 10);
-    if (!slotRaw || isNaN(slotNum) || slotRaw.toLowerCase().includes("no slots")) {
-      alert("No available slot for the selected circuit and date range."); return;
-    }
-    const btn = document.getElementById("confirmBookingBtn");
-    btn.textContent = "Saving…"; btn.disabled = true;
-    function toMMDDYYYY(iso) { const p = iso.split("-"); return `${p[1]}/${p[2]}/${p[0]}`; }
-    try {
-      const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
-      let nextKey = 1;
-      if (existingSnap.exists()) {
-        const val = existingSnap.val();
-        nextKey = (Array.isArray(val) ? val.filter(Boolean).length : Object.keys(val).length);
-      }
-      await set(ref(rtdb, `Campaigns_Booking/${nextKey}`), {
-        BO: booking, Client: client, "Brand Campaign": brand,
-        Circuits: asset, Slot: slotNum,
-        "Start Date": toMMDDYYYY(start), "End Date": toMMDDYYYY(end),
-        Status: "Pending", Person: person
-      });
-      btn.textContent = "Saved! ✓";
-      const tables = await loadAll();
-      allCampaigns = getCampaigns(tables);
-      applyFilters(); renderChart(allCampaigns); updateStats(allCampaigns, tables);
-      setTimeout(() => {
-        btn.textContent = "Save Booking"; btn.disabled = false;
-        ["bookingClient","bookingBrand","bookingStartDate","bookingEndDate","bookingTotalDays","bookingSlot"].forEach(id => {
-          const el = document.getElementById(id); if (el) el.value = "";
-        });
-        const a = document.getElementById("bookingAsset"); if (a) a.selectedIndex = 0;
-        document.getElementById("bookingModal")?.classList.remove("active");
-      }, 1500);
-    } catch(e) {
-      console.error(e); btn.textContent = "Error — try again"; btn.disabled = false;
-    }
-  });
-
-  // Calendar modal
-  const calModal = document.getElementById("calendarModal");
-  [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
-
-  const calDateFilterBtn = document.getElementById("calDateFilterBtn");
-  const calDateFilterDropdown = document.getElementById("calDateFilterDropdown");
-
-  calDateFilterBtn?.addEventListener("click", e => {
-    e.stopPropagation();
-    calDateFilterDropdown?.classList.toggle("open");
-    calDateFilterBtn.classList.toggle("open");
-  });
-  document.addEventListener("click", e => {
-    if (!calDateFilterBtn?.contains(e.target) && !calDateFilterDropdown?.contains(e.target)) {
-      calDateFilterDropdown?.classList.remove("open");
-      calDateFilterBtn?.classList.remove("open");
-    }
-  });
-
-  document.querySelectorAll("[data-cal-preset]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      document.querySelectorAll("[data-cal-preset]").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      const preset = btn.dataset.calPreset;
-      const labels = {"this-month":"This Month","last-month":"Last Month","next-month":"Next Month","all-year":"All Year"};
-      if (preset === "custom") {
-        document.getElementById("calDateCustomInputs")?.classList.add("visible");
-        const lbl2 = document.getElementById("calDateFilterLabel");
-        if (lbl2) lbl2.textContent = "Custom Range";
-      } else {
-        document.getElementById("calDateCustomInputs")?.classList.remove("visible");
-        [calDrpStart, calDrpEnd] = setCalPresetRange(preset);
-        const calFromEl = document.getElementById("calFrom");
-        const calToEl = document.getElementById("calTo");
-        if (calFromEl) calFromEl.value = toISO(calDrpStart);
-        if (calToEl) calToEl.value = toISO(calDrpEnd);
-        const calLbl = document.getElementById("calDateFilterLabel");
-        if (calLbl) calLbl.textContent = labels[preset];
-        calDateFilterDropdown?.classList.remove("open");
-        calDateFilterBtn?.classList.remove("open");
-        await buildCalendar();
-      }
-    });
-  });
-
-  document.getElementById("applyCalCustomDate")?.addEventListener("click", async () => {
-    const f = document.getElementById("calFrom")?.value;
-    const t = document.getElementById("calTo")?.value;
-    if (f && t) {
-      calDrpStart = parseISOLocal(f); calDrpEnd = parseISOLocal(t);
-      const calLbl = document.getElementById("calDateFilterLabel");
-      if (calLbl) calLbl.textContent = `${f} → ${t}`;
-      calDateFilterDropdown?.classList.remove("open");
-      calDateFilterBtn?.classList.remove("open");
-      await buildCalendar();
-    }
-  });
-
-  ["openCalBtn","openCalBtnHero"].forEach(id => {
-    document.getElementById(id)?.addEventListener("click", async () => {
-      calModal?.classList.add("active");
-      if (!calDrpStart) [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
-      const calFromEl = document.getElementById("calFrom");
-      const calToEl = document.getElementById("calTo");
-      if (calFromEl) calFromEl.value = toISO(calDrpStart);
-      if (calToEl) calToEl.value = toISO(calDrpEnd);
-      await buildCalendar();
-    });
-  });
-  document.getElementById("closeCalModal")?.addEventListener("click", () => calModal?.classList.remove("active"));
-
-  // Initialize animations (particle canvas, cursor, scroll reveal)
   initAnimations();
 
-  // Load data
   const tables = await loadAll();
   window.__tables = tables;
-  allCampaigns = getCampaigns(tables);
-  applyFilters();
-  renderChart(allCampaigns);
-  updateStats(allCampaigns, tables);
-  renderUpdates(allCampaigns, tables);
-  updateAssetOccupancy(tables);
-  updateMonthlyVisitors(tables);
-  populateAssets(tables);
-  initDateCalc();
+  const campaigns = getCampaigns(tables);
+  updateStats(campaigns, tables);
+  renderUpdates(campaigns, tables);
+  renderChart(campaigns);
+  renderVisitorsChart(tables);
 }
 
-// ── CLEANUP (called by router before switching views) ─────
+// ── CLEANUP ───────────────────────────────────────────────
 export function cleanup() {
-  if (chartInstance) {
-    chartInstance.destroy();
-    chartInstance = null;
-  }
+  if (chartInstance)         { chartInstance.destroy();         chartInstance = null; }
+  if (visitorsChartInstance) { visitorsChartInstance.destroy(); visitorsChartInstance = null; }
 }

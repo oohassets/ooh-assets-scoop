@@ -51,6 +51,18 @@ export async function openHome() {
   markNavActive("homeLink");
 }
 
+export async function openBookings() {
+  await switchView(
+    BASE_PAGES + "bookings.html",
+    BASE_CSS + "dashboard.css",
+    "./views/bookings.js"
+  );
+  setURL({ map: null, page: "bookings" });
+  setDockActive(1);
+  closeAllPanels();
+  markNavActive("bookingsLink");
+}
+
 export async function openContentInventory() {
   await switchView(
     BASE_PAGES + "content-inventory.html",
@@ -58,7 +70,7 @@ export async function openContentInventory() {
     "./views/content-inventory.js"
   );
   setURL({ map: null, page: "content-inventory" });
-  setDockActive(1);
+  setDockActive(2);
   closeAllPanels();
   markNavActive("contentInventoryLink");
 }
@@ -70,7 +82,7 @@ export async function openVehicleReport() {
     "./views/vehicle-report.js"
   );
   setURL({ map: null, page: "vehicle" });
-  setDockActive(3);
+  setDockActive(4);
   closeAllPanels();
   markNavActive("vehicleTrafficLink");
 }
@@ -78,14 +90,14 @@ export async function openVehicleReport() {
 export async function openAssetDimensionChecker() {
   await switchView(BASE_PAGES + "asset-dimension-checker.html", null, null);
   setURL({ map: null, page: "asset-checker" });
-  setDockActive(4);
+  setDockActive(5);
   closeAllPanels();
 }
 
 export async function openImageCompressor() {
   await switchView(BASE_PAGES + "image-compressor.html", null, null);
   setURL({ map: null, page: "image-compressor" });
-  setDockActive(4);
+  setDockActive(5);
   closeAllPanels();
 }
 
@@ -116,7 +128,7 @@ export function setMap(key) {
   toggleOverlay(true);
 
   setURL({ map: key, page: null });
-  setDockActive(2);
+  setDockActive(3);
   markNavActive(null);
 }
 
@@ -131,6 +143,7 @@ export function loadFromURL() {
   const map  = params.get("map");
 
   if (page === "home")              return openHome();
+  if (page === "bookings")          return openBookings();
   if (page === "content-inventory") return openContentInventory();
   if (page === "vehicle")           return openVehicleReport();
   if (page === "asset-checker")     return openAssetDimensionChecker();

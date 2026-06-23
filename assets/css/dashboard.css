@@ -163,11 +163,11 @@ main { padding:0 2rem 4rem; max-width:1400px; margin:0 auto; }
 .date-apply-btn:hover { opacity:0.9; }
 
 /* ── Data table ───────────────────────── */
-.table-container { margin-top:20px; overflow:auto; border-radius:16px; max-height:420px; }
+.table-container { margin-top:30px; margin-bottom: 30px; overflow:auto; border-radius:16px; max-height:450px; }
 .table-container::-webkit-scrollbar { width:6px; height:6px; }
 .table-container::-webkit-scrollbar-thumb { background:var(--border-glass); border-radius:999px; }
 table.data-table { width:100%; border-collapse:separate; border-spacing:0 8px; min-width:700px; }
-table.data-table th { font-size:11px; font-weight:700; font-family:var(--font-display); color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; padding:0 16px 10px; text-align:left; position:sticky; top:0; background:var(--bg-card); z-index:5; }
+table.data-table th { font-size:13px; font-weight:700; font-family:var(--font-display); color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; padding:0 16px 10px; text-align:left; position:sticky; top:0; background:var(--bg-card); z-index:5; }
 table.data-table td { padding:16px; font-size:13px; background:var(--bg-glass); transition:background 0.2s; }
 table.data-table tr:hover td { background:var(--bg-glass-hover); }
 table.data-table td:first-child { border-radius:12px 0 0 12px; font-weight:600; }
@@ -230,7 +230,7 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
 [data-theme="light"] .booking-calendar td { border-color:rgba(79,70,229,0.08); }
 .circuit-col { position:sticky; left:0; z-index:11; width:200px; min-width:200px; background:var(--bg-secondary); font-weight:600; font-size:12px; color:var(--text-primary); text-align:left; padding:0 12px; }
 .slot-col    { position:sticky; z-index:12; width:70px; min-width:70px; background:var(--bg-tertiary); font-size:11px; color:var(--text-muted); }
-.circuit-col.head { z-index:100; background:var(--bg-tertiary); }
+.circuit-col.head { z-index:100; background:var(--bg-tertiary); border-radius: 15px 0 0 0;}
 .slot-col.head    { position:sticky; left:200px; z-index:101; background:var(--bg-tertiary); }
 td.circuit-col { position:sticky; left:0; z-index:99; }
 td.slot-col    { position:sticky; left:200px; z-index:98; }
@@ -245,6 +245,95 @@ td.slot-col    { position:sticky; left:200px; z-index:98; }
 
 [data-theme="light"] .circuit-col { background:#E8EEF8; }
 [data-theme="light"] .slot-col    { background:#DDE5F5; }
+
+/* ── Circuit tabs (shared with content-inventory) ── */
+.circuit-tabs {
+  display: flex; gap: 8px; padding: 10px 20px;
+  position: sticky; top: 0; z-index: 100;
+  background: transparent; border-radius: 10px;
+}
+.circuit-tab {
+  padding: 7px 20px; border-radius: 999px; border: 1px solid var(--border-glass);
+  background: var(--bg-primary); color: var(--text-secondary); cursor: pointer;
+  font-size: 13px; font-weight: 600; font-family: var(--font-display, inherit);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.circuit-tab:hover { background: var(--bg-glass); color: var(--text-primary); }
+.circuit-tab.active { background: var(--accent-indigo, #4f46e5); color: #fff; border-color: transparent; }
+
+/* ── Bookings page ────────────────────── */
+.bookings-tabs {
+  padding: 10px 2rem;
+}
+.bookings-header { display:flex; align-items:center;}
+.bookings-title  {
+  color: var(--text-primary, #000);
+  font-size: 20px;
+  font-weight: 600;
+  position: sticky;
+  top: 52px;   /* sits just below the 52px circuit-tabs bar */
+  z-index: 99;
+  background: transparent;
+}
+.bookings-bar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-bar-primary {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 22px; border-radius: 999px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+  color: white; font-family: var(--font-display); font-weight: 700; font-size: 13px;
+  box-shadow: 0 4px 14px var(--glow-indigo); transition: all 0.2s;
+}
+.btn-bar-primary .material-symbols-outlined { font-size: 16px; }
+.btn-bar-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--glow-indigo); }
+.btn-bar-secondary {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 22px; border-radius: 999px; cursor: pointer;
+  background: var(--bg-glass); border: 1px solid var(--border-glass);
+  color: var(--text-secondary); font-family: var(--font-display); font-weight: 600; font-size: 13px;
+  transition: all 0.2s;
+}
+.btn-bar-secondary .material-symbols-outlined { font-size: 16px; }
+.btn-bar-secondary:hover { border-color: var(--accent-indigo); color: var(--text-primary); }
+.bookings-content {
+  max-width: 1400px; margin: 24px auto; padding: 0 2rem 4rem;
+}
+
+/* Inline calendar (full-width) */
+.bookings-action-row {
+  display: flex; justify-content: flex-end; margin-bottom: 15px;
+}
+.bookings-cal-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 2rem;
+}
+.bookings-cal-wrap {
+  width: 100%;
+}
+.bookings-cal-wrap .cal-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  height: calc(100vh - 165px);
+  width: 100%;
+  border-radius: 10px;
+}
+.bookings-cal-wrap .booking-calendar { min-width: 100%; }
+
+/* Edit row button (dates column) */
+.edit-row-btn {
+  width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border-glass);
+  cursor: pointer; background: var(--bg-glass); color: var(--text-muted);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0; opacity: 0; pointer-events: none;
+}
+tr:hover .edit-row-btn { opacity: 1; pointer-events: auto; }
+.edit-row-btn:hover { border-color: var(--accent-indigo); color: var(--accent-indigo); background: rgba(79,70,229,0.1); }
+
+@media(max-width:768px) {
+  .bookings-bar { top: 56px; padding: 12px 1rem; }
+  .bookings-bar-title { font-size: 16px; }
+  .bookings-content { padding: 0 1rem 4rem; margin-top: 16px; }
+  .btn-bar-primary, .btn-bar-secondary { font-size: 12px; padding: 9px 16px; }
+}
 
 /* ── Responsive ───────────────────────── */
 @media(max-width:900px) {
