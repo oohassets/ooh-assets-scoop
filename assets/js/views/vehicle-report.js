@@ -123,49 +123,58 @@ function renderChart(tpiData, gewanData) {
   if (!canvas) return;
   if (chart) { chart.destroy(); chart = null; }
 
-  const labels = Array.from(new Set([
+  const rawLabels = Array.from(new Set([
     ...tpiData.map(d => d.ContentDate || d["Content.Date"]),
     ...gewanData.map(d => d.ContentDate || d["Content.Date"])
-  ])).sort((a, b) => new Date(a) - new Date(b))
-    .map(d => new Date(d).toLocaleDateString("en-GB", {weekday:"short", day:"2-digit", month:"short"}));
+  ])).sort((a, b) => new Date(a) - new Date(b));
 
-  const tpiCounts   = labels.map(l => { const r = tpiData.find(d => new Date(d.ContentDate||d["Content.Date"]).toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})===l); return r ? Number(r.ContentTotal||r["Content.Total"]||0) : 0; });
-  const gewanCounts = labels.map(l => { const r = gewanData.find(d => new Date(d.ContentDate||d["Content.Date"]).toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})===l); return r ? Number(r.ContentTotal||r["Content.Total"]||0) : 0; });
+  const fmt = d => new Date(d).toLocaleDateString("en-GB", {day:"2-digit", month:"short"});
+  const labels = rawLabels.map(fmt);
+
+  const tpiCounts   = rawLabels.map(l => { const r = tpiData.find(d => (d.ContentDate||d["Content.Date"]) === l); return r ? Number(r.ContentTotal||r["Content.Total"]||0) : 0; });
+  const gewanCounts = rawLabels.map(l => { const r = gewanData.find(d => (d.ContentDate||d["Content.Date"]) === l); return r ? Number(r.ContentTotal||r["Content.Total"]||0) : 0; });
 
   const totals = { tpi: tpiCounts.reduce((a,b)=>a+b,0), gewan: gewanCounts.reduce((a,b)=>a+b,0) };
   totals.all = totals.tpi + totals.gewan;
 
-  const isMobile = window.innerWidth < 768;
+  const isDark     = document.documentElement.getAttribute("data-theme") !== "light";
+  const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
+  const labelColor = isDark ? "#5A6A8A" : "#6B7A99";
+
   chart = new Chart(canvas.getContext("2d"), {
     type: "bar",
     data: {
       labels,
-      datasets: isMobile ? [
-        {label:"Gewan Vehicles", data:gewanCounts, backgroundColor:"rgba(33,150,243,0.6)", borderColor:"rgba(33,150,243,1)", borderWidth:1},
-        {label:"TPI Vehicles",   data:tpiCounts,   backgroundColor:"rgba(76,175,80,0.6)",  borderColor:"rgba(76,175,80,1)",  borderWidth:1}
-      ] : [
-        {label:"TPI Vehicles",   data:tpiCounts,   backgroundColor:"rgba(76,175,80,0.6)",  borderColor:"rgba(76,175,80,1)",  borderWidth:1},
-        {label:"Gewan Vehicles", data:gewanCounts, backgroundColor:"rgba(33,150,243,0.6)", borderColor:"rgba(33,150,243,1)", borderWidth:1}
+      datasets: [
+        { label:"The Pearl Island", data:tpiCounts,   backgroundColor:"rgba(16,185,129,0.8)", borderRadius:6, borderSkipped:false },
+        { label:"Gewan Island",     data:gewanCounts, backgroundColor:"rgba(4,150,255,0.8)",  borderRadius:6, borderSkipped:false }
       ]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
+      interaction:{ intersect:false, mode:"index" },
       animation: {
         duration:1200, easing:"easeOutQuart",
         onProgress: anim => { if (shouldAnimateKPI) animateKPI(anim.currentStep / anim.numSteps, totals); },
         onComplete:  ()   => { if (shouldAnimateKPI) { animateKPI(1, totals); shouldAnimateKPI = false; } }
       },
       plugins: {
-        legend: {position:"top"},
-        title:  {display:true, text:"Vehicle Traffic per Day"},
+        legend:{ position:"top", align:"end", labels:{ usePointStyle:true, pointStyle:"circle", padding:20, font:{family:"Space Grotesk", size:12, weight:"600"}, color:labelColor } },
+        title:{ display:false },
         tooltip:{
-          enabled:true, mode:"index", intersect:false,
-          callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} vehicles` }
+          backgroundColor: isDark ? "#0A1628" : "white",
+          borderColor:"rgba(79,70,229,0.2)", borderWidth:1,
+          padding:14, cornerRadius:14,
+          titleColor: isDark ? "#F8FAFF" : "#0A1628",
+          bodyColor:  isDark ? "#94A3C0" : "#3D4F6E",
+          titleFont:{ family:"Space Grotesk", size:13, weight:"700" },
+          bodyFont:{ family:"DM Sans", size:12 },
+          callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${new Intl.NumberFormat().format(ctx.raw)} vehicles` }
         }
       },
       scales: {
-        x: {stacked:false, ticks:{maxRotation:45, minRotation:45}},
-        y: {beginAtZero:true, ticks:{callback: v => v.toLocaleString()}, title:{display:true, text:"Vehicle Count"}}
+        x:{ grid:{display:false}, ticks:{ color:labelColor, font:{family:"Space Grotesk", weight:"600", size:11}, maxRotation:45, minRotation:45 } },
+        y:{ beginAtZero:true, grid:{color:gridColor}, ticks:{ color:labelColor, font:{family:"DM Sans", size:11}, callback: v => new Intl.NumberFormat("en",{notation:"compact"}).format(v) } }
       }
     }
   });
