@@ -259,11 +259,6 @@
         <span class="dock-label">Assets</span>
       </button>
 
-      <button class="dock-item" id="btnVehicleTraffic">
-        <span class="material-symbols-outlined">directions_car</span>
-        <span class="dock-label">Visitors</span>
-      </button>
-
       <button class="dock-item" id="btnServices">
         <span class="material-symbols-outlined">apps</span>
         <span class="dock-label">Services</span>
@@ -346,6 +341,7 @@
     <div class="dock-panel" id="servicesPanel">
       <div class="panel-header">Services</div>
       <div class="panel-content">
+        <button onclick="openVehicleReport()">Visitors</button>
         <button onclick="openAssetDimensionChecker()">Asset Dimension Checker</button>
         <button onclick="openImageCompressor()">Bulk Image Compressor</button>
         <button onclick="openViewScreen()">View Screen</button>

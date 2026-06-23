@@ -93,21 +93,21 @@ export async function openVehicleReport() {
 export async function openAssetDimensionChecker() {
   await switchView(BASE_PAGES + "asset-dimension-checker.html", null, null);
   setURL({ map: null, page: "asset-checker" });
-  setDockActive(5);
+  setDockActive(4);
   closeAllPanels();
 }
 
 export async function openImageCompressor() {
   await switchView(BASE_PAGES + "image-compressor.html", null, null);
   setURL({ map: null, page: "image-compressor" });
-  setDockActive(5);
+  setDockActive(4);
   closeAllPanels();
 }
 
 export async function openViewScreen() {
   await switchView(BASE_PAGES + "asset-digital-content.html", null, null);
   setURL({ map: null, page: "view-screen" });
-  setDockActive(5);
+  setDockActive(4);
   closeAllPanels();
 }
 

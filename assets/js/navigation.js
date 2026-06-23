@@ -36,7 +36,6 @@ export function initDock(handlers) {
     openHome,
     openContentInventory,
     openBookings,
-    openVehicleReport,
     setMapAndClose,
   } = handlers;
 
@@ -53,11 +52,7 @@ export function initDock(handlers) {
     const panel  = document.getElementById("assetsPanel");
     const isOpen = panel.classList.contains("show");
     closeAllPanels();
-    if (!isOpen) { panel.classList.add("show"); setDockActive(2); }
-  });
-
-  document.getElementById("btnVehicleTraffic")?.addEventListener("click", () => {
-    closeAllPanels(); openVehicleReport();
+    if (!isOpen) { panel.classList.add("show"); setDockActive(3); }
   });
 
   document.getElementById("btnBookings")?.addEventListener("click", () => {

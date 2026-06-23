@@ -83,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
     openHome,
     openContentInventory,
     openBookings,
-    openVehicleReport,
     setMapAndClose,
   });
 });
