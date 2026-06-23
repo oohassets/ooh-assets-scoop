@@ -9,8 +9,9 @@ export async function init() {
       document.querySelectorAll(".circuit-tab").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       const tab = btn.dataset.tab;
-      document.getElementById("digitalSection").style.display = tab === "digital" ? "block" : "none";
-      document.getElementById("staticSection").style.display  = tab === "static"  ? "block" : "none";
+      document.getElementById("digitalSection").style.display  = tab === "digital"  ? "block" : "none";
+      document.getElementById("staticSection").style.display   = tab === "static"   ? "block" : "none";
+      document.getElementById("activitySection").style.display = tab === "activity" ? "block" : "none";
     });
   });
 }

@@ -15,6 +15,7 @@
   <div class="circuit-tabs">
     <button class="circuit-tab active" data-tab="digital">Digital Circuits</button>
     <button class="circuit-tab" data-tab="static">Static Circuits</button>
+    <button class="circuit-tab" data-tab="activity">Campaign Activity</button>
   </div>
 
   <!-- Digital section (default visible) -->
@@ -40,16 +41,16 @@
     </div>
   </div>
 
-  <!-- Campaign Activity (always visible) -->
-  <div class="carousel-title">Campaign Activity</div>
-  <div class="carousel-container">
-    <div class="carousel" id="carouselPublishToday"></div>
-  </div>
-
-  <!-- Ending & Upcoming -->
-  <div class="carousel-title">Ending &amp; Upcoming Campaigns</div>
-  <div class="carousel-container">
-    <div class="carousel" id="carouselUpcoming"></div>
+  <!-- Campaign Activity section (hidden by default) -->
+  <div id="activitySection" style="display:none;">
+    <div class="carousel-title">Campaign Activity</div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselPublishToday"></div>
+    </div>
+    <div class="carousel-title">Ending &amp; Upcoming Campaigns</div>
+    <div class="carousel-container">
+      <div class="carousel" id="carouselUpcoming"></div>
+    </div>
   </div>
 
 </div>
