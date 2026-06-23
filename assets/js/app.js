@@ -8,7 +8,7 @@ import { auth }        from "../../firebase/firebase.js";
 import { signOut }     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 import { initTheme }   from "./theme.js";
-import { initDock }    from "./navigation.js";
+import { initDock, initNavScroll } from "./navigation.js";
 import { toggleInfoCard, updateInfoCard } from "./asset-rates.js";
 import { getCurrentMapUrl } from "./router.js";
 import {
@@ -58,6 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Theme
   initTheme();
+
+  // Transparent nav at scroll-top
+  initNavScroll();
 
   // Logout
   document.getElementById("logoutBtn")?.addEventListener("click", () => {

@@ -27,6 +27,10 @@ async function switchView(htmlPath, cssPath, viewModulePath) {
   if (pageOrbs)   pageOrbs.style.display   = "block"; // restore after map view
   toggleOverlay(false);
 
+  // Reset scroll to top so nav-at-top class is applied correctly
+  const appContent = document.getElementById("app-content");
+  if (appContent) appContent.scrollTop = 0;
+
   // Load HTML into container
   await loadPage(htmlPath, cssPath);
 
