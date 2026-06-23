@@ -1,95 +1,148 @@
 // ===== PWA Service Worker + Auto Update =====
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register("/ooh-assets-scoop/service-worker.js")
-      .then(registration => {
-        console.log('✅ Service Worker registered:', registration.scope);
+  let swRegistration = null;
+  let refreshing = false;
 
-        // --- Check for updates periodically ---
-        setInterval(() => {
-          registration.update();
-        }, 60 * 60 * 1000); // Every 1 hour
-
-        // --- Listen for updates ---
-        let refreshing = false;
-
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-
-          newWorker.addEventListener('statechange', () => {
-            if (
-              newWorker.state === 'installed' &&
-              navigator.serviceWorker.controller
-            ) {
-              showUpdatePopup(newWorker);
-            }
-          });
-        });
-
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (refreshing) return;
-          refreshing = true;
-          window.location.reload();
-        });
-
-      })
-      .catch(err => console.error('❌ SW registration failed:', err));
-  });
-}
-
-// ===== AUTO-UPDATE POPUP =====
-function showUpdatePopup(newWorker) {
-  // Create popup container
-  const popup = document.createElement('div');
-  popup.innerHTML = `
-    <div id="sw-update-popup" style="
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #222;
-      color: #ffffff;
-      font-family: sans-serif;
-      padding: 14px 18px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    ">
-      <span>🔄 A new version is available.</span>
-      <button id="refreshAppBtn" style="
-        background: #007bff;
-        border: none;
-        color: #ffffff;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-      ">Refresh</button>
-    </div>
-  `;
-  document.body.appendChild(popup);
-
-  document.getElementById('refreshAppBtn').addEventListener('click', () => {
-    newWorker.postMessage({ type: 'SKIP_WAITING' });
-  });
-
-  // Refresh automatically after SW is activated
+  // Reload once the new SW takes control
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
     window.location.reload();
   });
+
+  navigator.serviceWorker.register("/ooh-assets-scoop/service-worker.js")
+    .then(reg => {
+      swRegistration = reg;
+      console.log('✅ Service Worker registered:', reg.scope);
+      listenForUpdate(reg);
+
+      // Check for updates on page focus (catches deploys while tab was in background)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update();
+      });
+
+      // Periodic check every 5 minutes
+      setInterval(() => reg.update(), 5 * 60 * 1000);
+    })
+    .catch(err => console.error('❌ SW registration failed:', err));
+
+  function listenForUpdate(reg) {
+    reg.addEventListener('updatefound', () => {
+      const worker = reg.installing;
+      showUpdateToast('downloading');
+
+      worker.addEventListener('statechange', () => {
+        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+          showUpdateToast('ready', worker);
+        }
+      });
+    });
+  }
 }
 
-  // --- Floating "Install App" badge ---
+// ===== UPDATE TOAST =====
+let toastEl = null;
+
+function showUpdateToast(phase, worker) {
+  // Remove any existing toast
+  toastEl?.remove();
+
+  toastEl = document.createElement('div');
+  toastEl.id = 'sw-update-toast';
+
+  const isReady = phase === 'ready';
+
+  toastEl.innerHTML = `
+    <div class="sw-toast-icon">${isReady ? '✦' : ''}</div>
+    <div class="sw-toast-text">
+      <span class="sw-toast-title">${isReady ? 'Update ready' : 'Updating app…'}</span>
+      <span class="sw-toast-sub">${isReady ? 'Tap Refresh to load the latest version.' : 'Downloading new version in the background.'}</span>
+    </div>
+    ${isReady ? '<button class="sw-toast-btn" id="swRefreshBtn">Refresh</button>' : '<span class="sw-toast-spinner"></span>'}
+  `;
+
+  Object.assign(toastEl.style, {
+    position: 'fixed',
+    bottom: '80px',
+    right: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    background: 'var(--bg-secondary, #1a1a2e)',
+    border: '1px solid var(--border-glow, rgba(79,70,229,0.4))',
+    borderRadius: '14px',
+    padding: '14px 18px',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    zIndex: '99999',
+    maxWidth: '340px',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    fontFamily: 'var(--font-display, system-ui)',
+    color: 'var(--text-primary, #fff)',
+    opacity: '0',
+    transform: 'translateY(12px)',
+    transition: 'opacity 0.3s ease, transform 0.3s ease',
+  });
+
+  injectToastStyles();
+  document.body.appendChild(toastEl);
+
+  requestAnimationFrame(() => {
+    toastEl.style.opacity = '1';
+    toastEl.style.transform = 'translateY(0)';
+  });
+
+  if (isReady) {
+    document.getElementById('swRefreshBtn')?.addEventListener('click', () => {
+      toastEl.style.opacity = '0';
+      worker.postMessage({ type: 'SKIP_WAITING' });
+    });
+  }
+}
+
+function injectToastStyles() {
+  if (document.getElementById('sw-toast-styles')) return;
+  const s = document.createElement('style');
+  s.id = 'sw-toast-styles';
+  s.textContent = `
+    #sw-update-toast .sw-toast-icon {
+      font-size: 18px; color: var(--accent-indigo, #4f46e5); flex-shrink: 0;
+    }
+    #sw-update-toast .sw-toast-text {
+      display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;
+    }
+    #sw-update-toast .sw-toast-title {
+      font-size: 13px; font-weight: 700; color: var(--text-primary, #fff);
+    }
+    #sw-update-toast .sw-toast-sub {
+      font-size: 11px; color: var(--text-muted, rgba(255,255,255,0.5));
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #sw-update-toast .sw-toast-btn {
+      background: var(--accent-indigo, #4f46e5); color: #fff; border: none;
+      padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0; transition: opacity 0.2s;
+      font-family: var(--font-display, system-ui);
+    }
+    #sw-update-toast .sw-toast-btn:hover { opacity: 0.85; }
+    #sw-update-toast .sw-toast-spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.15);
+      border-top-color: var(--accent-indigo, #4f46e5); border-radius: 50%;
+      animation: sw-spin 0.8s linear infinite; flex-shrink: 0;
+    }
+    @keyframes sw-spin { to { transform: rotate(360deg); } }
+  `;
+  document.head.appendChild(s);
+}
+
+// ===== INSTALL BADGE =====
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  // Avoid duplicate buttons
   if (document.getElementById('installBadge')) return;
 
-  // Create floating badge
   const installBadge = document.createElement('div');
   installBadge.id = 'installBadge';
   installBadge.textContent = '⬇️ Install App';
@@ -113,20 +166,17 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
   document.body.appendChild(installBadge);
 
-  // Animate in
   requestAnimationFrame(() => {
     installBadge.style.opacity = '1';
     installBadge.style.transform = 'translateY(0)';
   });
 
-  // Adjust placement for mobile
   if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     installBadge.style.right = '50%';
     installBadge.style.transform = 'translateX(50%)';
     installBadge.style.bottom = '1.5rem';
   }
 
-  // Handle click → show browser install prompt
   installBadge.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     installBadge.textContent = 'Installing...';
@@ -138,10 +188,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
   });
 });
 
-// Hide badge when installed
 window.addEventListener('appinstalled', () => {
-  const badge = document.getElementById('installBadge');
-  if (badge) badge.remove();
+  document.getElementById('installBadge')?.remove();
   deferredPrompt = null;
   console.log('✅ App successfully installed!');
 });
