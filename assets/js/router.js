@@ -28,7 +28,6 @@ async function switchView(htmlPath, cssPath, viewModulePath) {
   toggleOverlay(false);
 
   // Reset scroll to top so nav-at-top class is applied correctly
-  const appContent = document.getElementById("app-content");
   if (appContent) appContent.scrollTop = 0;
 
   // Load HTML into container
