@@ -60,6 +60,19 @@ function markAllAsRead() {
   saveReadSet(read);
 }
 
+function getClearedAt() {
+  try { return parseInt(localStorage.getItem(`notif_cleared_${uid()}`) || "0", 10); }
+  catch { return 0; }
+}
+
+function clearAll() {
+  try { localStorage.setItem(`notif_cleared_${uid()}`, String(Date.now())); }
+  catch {}
+  allNotifs = [];
+  updateBadge();
+  renderList();
+}
+
 // ── Derive notifications from Firebase data ──────────────────
 function deriveNotifications(tables) {
   const notifs = [];
@@ -292,6 +305,11 @@ export async function initNotifications() {
     renderList();
   });
 
+  // Clear all button
+  document.getElementById("notifClearAll")?.addEventListener("click", () => {
+    clearAll();
+  });
+
   // Load Firebase data
   try {
     const snap   = await get(ref(rtdb, "/"));
@@ -313,6 +331,12 @@ export async function initNotifications() {
         date:     d
       });
     });
+
+    // Drop anything the user has already cleared
+    const clearedAt = getClearedAt();
+    if (clearedAt > 0) {
+      allNotifs = allNotifs.filter(n => n.date && n.date.getTime() > clearedAt);
+    }
 
     // Newest first, then apply per-user read state
     allNotifs.sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));

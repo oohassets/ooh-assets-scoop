@@ -84,7 +84,7 @@
 .date-apply-btn:hover { opacity:0.9; }
 
 /* ── Data table ───────────────────────── */
-.table-container { margin-top:30px; margin-bottom:30px; overflow:auto; border-radius:16px; max-height:450px; }
+.table-container { margin-top:30px; margin-bottom:30px; overflow:auto; border-radius:16px; max-height:550px; }
 .table-container::-webkit-scrollbar { width:6px; height:6px; }
 .table-container::-webkit-scrollbar-thumb { background:var(--border-glass); border-radius:999px; }
 table.data-table { width:100%; border-collapse:separate; border-spacing:0 8px; min-width:700px; }
