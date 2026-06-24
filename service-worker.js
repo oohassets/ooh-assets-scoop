@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v117.48';
+const CACHE_NAME = 'scoop-ooh-cache-v117.49';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -69,31 +69,40 @@ messaging.onBackgroundMessage(function(payload) {
 
 // ===== INSTALL EVENT =====
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installing new version...');
+  console.log(`[SW] 🔧 Installing ${CACHE_NAME}`);
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[Service Worker] Pre-caching essential assets...');
+      console.log(`[SW] 📦 Caching ${ASSETS_TO_CACHE.length} assets...`);
       return Promise.allSettled(
-        ASSETS_TO_CACHE.map(url => cache.add(url))
+        ASSETS_TO_CACHE.map(url =>
+          cache.add(url).catch(err => console.warn(`[SW] ⚠️ Failed to cache: ${url}`, err))
+        )
       );
-    }).then(() => self.skipWaiting())
+    }).then(results => {
+      const failed = results.filter(r => r.status === 'rejected').length;
+      console.log(`[SW] ✅ Install complete — ${ASSETS_TO_CACHE.length - failed} cached, ${failed} failed`);
+      console.log('[SW] ⏭️ Calling skipWaiting() — taking control immediately');
+      return self.skipWaiting();
+    })
   );
 });
 
 // ===== ACTIVATE EVENT =====
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activating...');
+  console.log(`[SW] ⚡ Activating ${CACHE_NAME}`);
   event.waitUntil(
     caches.keys().then(keys => {
-      return Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => {
-            console.log('[Service Worker] Removing old cache:', key);
-            return caches.delete(key);
-          })
-      );
-    }).then(() => self.clients.claim())
+      const old = keys.filter(k => k !== CACHE_NAME);
+      if (old.length) {
+        console.log(`[SW] 🗑️ Removing ${old.length} old cache(s):`, old);
+      } else {
+        console.log('[SW] ✨ No old caches to remove');
+      }
+      return Promise.all(old.map(k => caches.delete(k)));
+    }).then(() => {
+      console.log('[SW] 🎉 Activated and claiming clients');
+      return self.clients.claim();
+    })
   );
 });
 
@@ -130,10 +139,11 @@ self.addEventListener('fetch', event => {
 // ===== AUTO-UPDATE SUPPORT =====
 self.addEventListener('message', event => {
   if (event.data?.type === 'SKIP_WAITING') {
+    console.log('[SW] ⏭️ SKIP_WAITING received — activating now');
     self.skipWaiting();
   }
-  // Page asks which cache version is active — used for update detection
   if (event.data?.type === 'GET_VERSION') {
+    console.log(`[SW] 📋 Version requested — responding with ${CACHE_NAME}`);
     event.source?.postMessage({ type: 'SW_VERSION', version: CACHE_NAME });
   }
 });
