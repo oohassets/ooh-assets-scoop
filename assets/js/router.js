@@ -14,6 +14,8 @@ let currentMapUrl = maps["assets"];
 export function getCurrentMapUrl() { return currentMapUrl; }
 
 async function switchView(htmlPath, cssPath, viewModulePath) {
+  console.log(`[SCOOP] → ${htmlPath}`);
+
   // Cleanup previous view
   if (currentView?.cleanup) currentView.cleanup();
   currentView = null;

@@ -44,6 +44,8 @@ requireAuth((user) => {
   // Store globally for view modules
   window.__currentUser = { name: userName, email: user.email, uid: user.uid };
 
+  console.log(`[SCOOP] ✓ Auth — ${userName} (${user.email})`);
+
   // Identify signed-in user in Chatbase widget
   initScoopAI(user);
 
@@ -56,6 +58,8 @@ requireAuth((user) => {
 
 // ── DOMContentLoaded bootstrap ────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+
+  console.log("[SCOOP] DOM ready — bootstrapping app");
 
   // Theme
   initTheme();

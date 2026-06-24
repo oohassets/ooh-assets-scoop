@@ -218,7 +218,8 @@ async function checkSWUpdate() {
 
   try {
     const reg = await navigator.serviceWorker.getRegistration();
-    if (!reg) return;
+    if (!reg) { console.warn("[SCOOP SW] No registration found"); return; }
+    console.log(`[SCOOP SW] Active: ${reg.active?.state ?? "none"} | Waiting: ${!!reg.waiting} | Installing: ${!!reg.installing}`);
 
     // "Update Now" button: new SW already activated (skipWaiting in install),
     // so just flag + reload — no need to post SKIP_WAITING.
@@ -350,9 +351,12 @@ export async function initNotifications() {
       allNotifs.unshift(swNotif);
     }
 
+    const unread = allNotifs.filter(n => n.unread).length;
+    console.log(`[SCOOP Notifications] ${allNotifs.length} loaded, ${unread} unread`);
+
     updateBadge();
     renderList();
   } catch (err) {
-    console.error("[Notifications]", err);
+    console.error("[SCOOP Notifications] Load error:", err);
   }
 }
