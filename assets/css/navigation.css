@@ -307,13 +307,12 @@ nav.nav-at-top {
 .notif-mark-read:hover { opacity: 0.65; }
 
 .notif-clear-btn {
-  width: 26px; height: 26px; border-radius: 7px; border: none;
+  width: 32px; height: 32px; border-radius: 8px; border: none;
   background: none; color: var(--text-muted); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s, color 0.15s;
 }
 .notif-clear-btn:hover { background: rgba(244,63,94,0.12); color: var(--accent-rose); }
-.notif-clear-btn .material-symbols-outlined { font-size: 16px; }
 
 /* Scrollable list */
 .notif-list { flex: 1; overflow-y: auto; padding: 6px 0; }
