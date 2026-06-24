@@ -6,35 +6,34 @@
 <title>Vehicle Traffic Dashboard</title>
 
 <style>
-body{
-  font-family:'Segoe UI', Arial;
-  background:var(--bg-primary);
-  margin:0;
-  padding:20px;
+.vr-page {
+  font-family: 'Segoe UI', Arial;
+  background: var(--bg-primary);
+  padding: 20px;
 }
 
-h1{
-  text-align:center;
-  margin-bottom:20px;
-  font-weight:600;
-  color:var(--text-primary);
+.vr-page h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-.top-bar{
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:20px;
-  text-align:center;
+.vr-page .top-bar {
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-input,button{
-  padding:8px 12px;
-  border-radius:8px;
-  border:1px solid #ddd;
+.vr-page input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
-.date-modern {
+.vr-page .date-modern {
   width: 120px;
   padding: 10px;
   margin-bottom: 10px;
@@ -45,10 +44,10 @@ input,button{
   font-size: 13px;
   transition: 0.2s;
 }
-.date-modern:hover { border-color: #ff9f50; }
-.date-modern:focus { outline:none; border-color:#ff9f50; box-shadow:0 0 0 2px rgba(255,159,80,0.2); }
+.vr-page .date-modern:hover { border-color: #ff9f50; }
+.vr-page .date-modern:focus { outline: none; border-color: #ff9f50; box-shadow: 0 0 0 2px rgba(255,159,80,0.2); }
 
-button{
+.vr-page .vr-btn {
   background: linear-gradient(135deg, #ff9f50, #e26b20);
   padding: 10px 20px;
   cursor: pointer;
@@ -59,90 +58,92 @@ button{
   transition: 0.3s;
   font-size: 14px;
 }
-button:hover { opacity: 0.9; }
-button:disabled { opacity: 0.5; cursor: default; }
+.vr-page .vr-btn:hover { opacity: 0.9; }
+.vr-page .vr-btn:disabled { opacity: 0.5; cursor: default; }
 
-#daysCount{
-  font-weight:bold;
-  padding:8px 12px;
-  color:var(--text-primary);
+.vr-page #daysCount {
+  font-weight: bold;
+  padding: 8px 12px;
+  color: var(--text-primary);
 }
 
-.cards{
-  display:grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-  gap:20px; padding: 20px;
+.vr-page .cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px;
 }
 
-.card{
-  background:var(--bg-card);
-  border-radius:16px;
-  padding:18px;
-  box-shadow:var(--shadow-card);
-  transition:background 0.4s, border-color 0.3s, transform 0.3s;
-  position:relative;
-  border:1px solid var(--border-glass);
+.vr-page .card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+  transition: background 0.4s, border-color 0.3s, transform 0.3s;
+  position: relative;
+  border: 1px solid var(--border-glass);
 }
-.card:hover{ transform:translateY(-4px); border-bottom:2px solid #e26b20; }
+.vr-page .card:hover { transform: translateY(-4px); border-bottom: 2px solid #e26b20; }
 
-.card h3{
-  font-size:14px;
-  margin-top:5px;
-  margin-bottom:5px;
-  color:var(--text-secondary);
-  display:flex;
-  justify-content:space-between;
+.vr-page .card h3 {
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
 }
 
-.big{ font-size:22px; font-weight:700; color:var(--text-primary); margin-bottom:10px; }
+.vr-page .big { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
 
-.metric{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:13px;
-  margin:6px 0;
-  color:var(--text-secondary);
+.vr-page .metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin: 6px 0;
+  color: var(--text-secondary);
 }
-.metric .label{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
-.metric .value{ text-align:right; }
-.metric .material-symbols-outlined{ font-size:16px !important; opacity:0.7; width:16px !important; height:16px !important; }
+.vr-page .metric .label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.vr-page .metric .value { text-align: right; }
+.vr-page .metric .material-symbols-outlined { font-size: 16px !important; opacity: 0.7; width: 16px !important; height: 16px !important; }
 
-#chartContainer{
-  margin:30px;
-  background:var(--bg-card);
-  border-radius:16px;
-  padding:20px;
-  box-shadow:var(--shadow-card);
-  border:1px solid var(--border-glass);
-  transition:background 0.4s;
+.vr-page #chartContainer {
+  margin: 30px;
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-glass);
+  transition: background 0.4s;
 }
-#vehicleChart{ width:100% !important; height:400px !important; }
+.vr-page #vehicleChart { width: 100% !important; height: 400px !important; }
 
-#totalKPI{ display:flex; justify-content:center; margin-bottom:10px; }
-.kpi-box{
-  background:var(--bg-card);
-  padding:12px 18px;
-  border-radius:14px;
-  box-shadow:var(--shadow-card);
-  text-align:center;
-  border:1px solid var(--border-glass);
-  transition:background 0.4s;
+.vr-page #totalKPI { display: flex; justify-content: center; margin-bottom: 10px; }
+.vr-page .kpi-box {
+  background: var(--bg-card);
+  padding: 12px 18px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  border: 1px solid var(--border-glass);
+  transition: background 0.4s;
 }
-.kpi-title{ font-size:12px; color:var(--text-muted); margin-bottom:4px; }
-.kpi-values{ display:flex; gap:15px; font-size:13px; color:var(--text-primary); }
-.kpi-total{ font-size:13px; }
+.vr-page .kpi-title { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.vr-page .kpi-values { display: flex; gap: 15px; font-size: 13px; color: var(--text-primary); }
+.vr-page .kpi-total { font-size: 13px; }
 </style>
 </head>
 
 <body>
+<div class="vr-page">
 
 <h1>Vehicle Traffic Dashboard</h1>
 
 <div class="top-bar">
   From <input type="date" class="date-modern" id="dateFrom">
   To <input type="date" class="date-modern" id="dateTo">
-  <button id="loadBtn" disabled>Load</button>
+  <button class="vr-btn" id="loadBtn" disabled>Load</button>
   <div id="daysCount">Days: -</div>
 </div>
 
@@ -163,5 +164,6 @@ button:disabled { opacity: 0.5; cursor: default; }
   <canvas id="vehicleChart"></canvas>
 </div>
 
+</div>
 </body>
 </html>
