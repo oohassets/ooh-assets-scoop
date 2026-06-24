@@ -129,7 +129,11 @@ self.addEventListener('fetch', event => {
 
 // ===== AUTO-UPDATE SUPPORT =====
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
+  if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  // Page asks which cache version is active — used for update detection
+  if (event.data?.type === 'GET_VERSION') {
+    event.source?.postMessage({ type: 'SW_VERSION', version: CACHE_NAME });
   }
 });

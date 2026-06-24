@@ -206,58 +206,79 @@ function injectSWNotif(title, desc, icon, iconType) {
 async function checkSWUpdate() {
   if (!("serviceWorker" in navigator)) return;
 
-  // If this page load followed a SW-triggered reload, show "updated" notice
-  if (sessionStorage.getItem("scoop_sw_updated")) {
-    sessionStorage.removeItem("scoop_sw_updated");
-    injectSWNotif(
-      "SCOOP Updated",
-      "You're now on the latest version.",
-      "check_circle", "published"
-    );
-  }
-
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg) { console.warn("[SCOOP SW] No registration found"); return; }
     console.log(`[SCOOP SW] Active: ${reg.active?.state ?? "none"} | Waiting: ${!!reg.waiting} | Installing: ${!!reg.installing}`);
 
-    // "Update Now" button: new SW already activated (skipWaiting in install),
-    // so just flag + reload — no need to post SKIP_WAITING.
-    window.__swUpdate = () => {
-      sessionStorage.setItem("scoop_sw_updated", "1");
-      window.location.reload();
-    };
+    // ── 1. Version comparison — detects updates from previous sessions ────────
+    // Ask the active SW which cache version it is running.
+    if (reg.active) {
+      const version = await new Promise(resolve => {
+        let settled = false;
+        const handler = e => {
+          if (e.data?.type === "SW_VERSION" && !settled) {
+            settled = true;
+            navigator.serviceWorker.removeEventListener("message", handler);
+            resolve(e.data.version);
+          }
+        };
+        navigator.serviceWorker.addEventListener("message", handler);
+        reg.active.postMessage({ type: "GET_VERSION" });
+        setTimeout(() => {
+          if (!settled) { settled = true; navigator.serviceWorker.removeEventListener("message", handler); resolve(null); }
+        }, 1000);
+      });
 
-    // SW already waiting (rare, but handle it)
-    if (reg.waiting) {
-      injectSWNotif(
-        "App Update Available",
-        "A new version of SCOOP is ready to install.",
-        "system_update_alt", "update"
-      );
+      if (version) {
+        const prev = localStorage.getItem("scoop_sw_ver");
+        console.log(`[SCOOP SW] Version: ${version} (prev: ${prev ?? "none"})`);
+        if (prev && prev !== version) {
+          injectSWNotif("SCOOP Updated", "You're now on the latest version.", "check_circle", "published");
+        }
+        localStorage.setItem("scoop_sw_ver", version);
+      }
     }
 
-    // Catch a new SW that installs while the page is open.
-    // Because the SW calls skipWaiting() in its install event, it goes straight
-    // to active — we show the notification here and let the user decide to reload.
+    // ── 2. "Reload" is all that's needed — new SW already activated ──────────
+    window.__swUpdate = () => window.location.reload();
+
+    // ── 3. SW already waiting (rare with skipWaiting-in-install) ─────────────
+    if (reg.waiting) {
+      injectSWNotif("App Update Available", "A new version of SCOOP is ready.", "system_update_alt", "update");
+    }
+
+    // ── 4. Live detection: new SW found while the page is open ───────────────
+    // The SW goes installing → (skipWaiting) → activating fast; catch any state.
+    let notified = false;
     reg.addEventListener("updatefound", () => {
       const sw = reg.installing;
       if (!sw) return;
       sw.addEventListener("statechange", () => {
-        if (sw.state === "installed" && navigator.serviceWorker.controller) {
-          injectSWNotif(
-            "App Update Available",
-            "A new version of SCOOP is ready to install.",
-            "system_update_alt", "update"
-          );
+        if (notified) return;
+        if (sw.state === "installed" || sw.state === "activating" || sw.state === "activated") {
+          notified = true;
+          console.log(`[SCOOP SW] New SW detected via statechange: ${sw.state}`);
+          injectSWNotif("App Update Available", "A new version of SCOOP is ready.", "system_update_alt", "update");
         }
       });
     });
 
-    // Trigger a background check for new SW versions
+    // ── 5. Fallback: controllerchange fires when new SW takes control ─────────
+    // This catches the skipWaiting path that completes before statechange fires.
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hadController && !notified) {
+        notified = true;
+        console.log("[SCOOP SW] controllerchange — new SW took control");
+        injectSWNotif("App Update Available", "A new version of SCOOP is ready.", "system_update_alt", "update");
+      }
+    });
+
+    // Trigger a background fetch of the SW script to find pending updates
     reg.update().catch(() => {});
   } catch (err) {
-    console.error("[SW update check]", err);
+    console.error("[SCOOP SW] Update check error:", err);
   }
 }
 
