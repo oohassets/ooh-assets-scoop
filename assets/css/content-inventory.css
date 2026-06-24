@@ -71,7 +71,7 @@
 .json-table pre { white-space:pre-wrap; word-break:break-word; margin:0; font-size:12px; background:var(--bg-glass); padding:4px 6px; border-radius:6px; }
 
 .card-table-wrapper { max-height:65vh; overflow-y:auto; padding-right:10px; }
-.json-table th { background:var(--bg-tertiary); color:var(--text-secondary); position:sticky; top:0; padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); z-index:3; font-size:13px; }
+.json-table th { background:var(--bg-secondary); color:var(--text-secondary); position:sticky; top:0; padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); z-index:3; font-size:13px; }
 .json-table th:first-child { border-radius: 10px 0 0 10px; }
 .json-table th:last-child  { border-radius: 0 10px 10px 0; }
 .json-table td.key { font-weight:bold; width:80px; }
