@@ -275,8 +275,8 @@ function renderVisitorsChart(tables) {
     data: {
       labels,
       datasets: [
-        { label:"The Pearl Island", data:tpiData,   backgroundColor:"rgba(16,185,129,0.8)", borderRadius:6, borderSkipped:false },
-        { label:"Gewan Island",     data:gewanData, backgroundColor:"rgba(4,150,255,0.8)",  borderRadius:6, borderSkipped:false }
+        { label:"The Pearl Island", data:tpiData,   backgroundColor:"rgba(16,185,129,0.8)", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false },
+        { label:"Gewan Island",     data:gewanData, backgroundColor:"rgba(4,150,255,0.8)",  borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false }
       ]
     },
     options: {
@@ -295,7 +295,16 @@ function renderVisitorsChart(tables) {
         x:{grid:{display:false},ticks:{color:labelColor,font:{family:"Space Grotesk",weight:"600",size:11}}},
         y:{beginAtZero:true,grid:{color:gridColor},ticks:{color:labelColor,font:{family:"DM Sans",size:11},callback:v=>new Intl.NumberFormat("en",{notation:"compact"}).format(v)}}
       },
-      animation:{duration:1200,easing:"easeOutQuart"}
+      animation: {
+        duration: 900,
+        easing: "easeOutQuart",
+        delay(ctx) {
+          return ctx.type === "data" ? ctx.dataIndex * 60 : 0;
+        }
+      },
+      animations: {
+        y: { from: 0 }
+      }
     }
   });
 }

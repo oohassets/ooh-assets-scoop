@@ -288,4 +288,7 @@ td.slot-col    { position:sticky; left:200px; z-index:98; }
   .bookings-bar-title { font-size: 16px; }
   .bookings-content { padding: 0 1rem 4rem; margin-top: 16px; }
   .btn-bar-primary, .btn-bar-secondary { font-size: 12px; padding: 9px 16px; }
+  .toolbar    {gap: 10px; align-items:center; margin-top:0; flex-wrap:wrap; }
+  .table-container { margin-top:10px; margin-bottom:10px;  max-height:380px; }
+
 }
