@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v117.34';
+const CACHE_NAME = 'scoop-ooh-cache-v117.35';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -23,6 +23,7 @@ const ASSETS_TO_CACHE = [
   './assets/js/navigation.js',
   './assets/js/utils.js',
   './assets/js/scoop-ai.js',
+  './assets/js/notifications.js',
   // Firebase
   './firebase/firebase.js',
   // Pages

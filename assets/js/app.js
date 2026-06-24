@@ -19,6 +19,7 @@ import {
 } from "./router.js";
 import { copyGoogleMapLink } from "./utils.js";
 import { initScoopAI } from "./scoop-ai.js";
+import { initNotifications } from "./notifications.js";
 
 // ── Expose globals that inline onclick="" attributes need ──
 window.openHome                = openHome;
@@ -61,6 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Transparent nav at scroll-top
   initNavScroll();
+
+  // Notification bell
+  initNotifications();
 
   // Logout
   document.getElementById("logoutBtn")?.addEventListener("click", () => {
