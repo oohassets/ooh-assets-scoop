@@ -57,7 +57,7 @@ export async function openHome() {
 export async function openBookings() {
   await switchView(
     BASE_PAGES + "bookings.html",
-    BASE_CSS + "dashboard.css",
+    BASE_CSS + "bookings.css",
     "./views/bookings.js"
   );
   setURL({ map: null, page: "bookings" });
