@@ -6,6 +6,22 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
+  "screenshots": [
+    {
+      "src": "./images/screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "SCOOP OOH Assets — Dashboard"
+    },
+    {
+      "src": "./images/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "SCOOP OOH Assets — Mobile"
+    }
+  ],
   "icons": [
     {
       "src": "https://oohassets.github.io/ooh-assets-scoop/images/scooplogo_black_192x192.png",

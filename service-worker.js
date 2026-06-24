@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v117.51';
+const CACHE_NAME = 'scoop-ooh-cache-v117.52';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -40,6 +40,8 @@ const ASSETS_TO_CACHE = [
   './images/scooplogo_black_180x180.png',
   './images/scooplogo_black_192x192.png',
   './images/scooplogo_black_512x512.png',
+  './images/screenshot-desktop.png',
+  './images/screenshot-mobile.png',
 ];
 
 importScripts("https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js");
