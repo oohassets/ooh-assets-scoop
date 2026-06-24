@@ -66,6 +66,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Notification bell
   initNotifications();
 
+  // Logo → manual page refresh with spin animation
+  document.querySelector(".nav-logo")?.addEventListener("click", () => {
+    const mark = document.querySelector(".nav-logo-mark");
+    if (!mark || mark.classList.contains("spinning")) return;
+    mark.classList.add("spinning");
+    mark.addEventListener("animationend", () => {
+      window.location.reload();
+    }, { once: true });
+  });
+
   // Logout
   document.getElementById("logoutBtn")?.addEventListener("click", () => {
     signOut(auth)

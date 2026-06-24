@@ -207,13 +207,14 @@ async function checkSWUpdate() {
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg) return;
 
-    // Expose for the "Update Now" button in the notification
+    // "Update Now" button: new SW already activated (skipWaiting in install),
+    // so just flag + reload — no need to post SKIP_WAITING.
     window.__swUpdate = () => {
-      if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
-      else window.location.reload();
+      sessionStorage.setItem("scoop_sw_updated", "1");
+      window.location.reload();
     };
 
-    // SW is already waiting (rare — SW normally calls skipWaiting itself)
+    // SW already waiting (rare, but handle it)
     if (reg.waiting) {
       injectSWNotif(
         "App Update Available",
@@ -222,7 +223,9 @@ async function checkSWUpdate() {
       );
     }
 
-    // Catch updates that arrive while the page is open
+    // Catch a new SW that installs while the page is open.
+    // Because the SW calls skipWaiting() in its install event, it goes straight
+    // to active — we show the notification here and let the user decide to reload.
     reg.addEventListener("updatefound", () => {
       const sw = reg.installing;
       if (!sw) return;
@@ -235,17 +238,6 @@ async function checkSWUpdate() {
           );
         }
       });
-    });
-
-    // When the new SW takes control: flag the reload so next load shows notice
-    const hadController = !!navigator.serviceWorker.controller;
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (hadController && !refreshing) {
-        refreshing = true;
-        sessionStorage.setItem("scoop_sw_updated", "1");
-        window.location.reload();
-      }
     });
 
     // Trigger a background check for new SW versions

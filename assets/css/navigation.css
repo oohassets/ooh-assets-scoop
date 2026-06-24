@@ -27,9 +27,13 @@ nav.nav-at-top {
 }
 
 /* Logo */
-.nav-logo       { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-.nav-logo-mark  { width:40px; height:40px; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-.nav-logo-mark img { width:100%; height:100%; object-fit:contain; }
+.nav-logo       { display:flex; align-items:center; gap:10px; flex-shrink:0; cursor:pointer; user-select:none; }
+.nav-logo-mark  { width:40px; height:40px; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; transition:box-shadow 0.2s; }
+.nav-logo:hover .nav-logo-mark { box-shadow:0 0 0 2px var(--accent-indigo); }
+.nav-logo-mark img { width:100%; height:100%; object-fit:contain; transition:transform 0.2s; }
+.nav-logo:hover .nav-logo-mark img { transform:scale(1.08); }
+.nav-logo-mark.spinning img { animation:logoSpin 0.55s cubic-bezier(0.4,0,0.2,1) forwards; }
+@keyframes logoSpin { to { transform:rotate(360deg); } }
 .nav-brand      { font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--text-primary); white-space:nowrap; }
 
 /* Center links */
