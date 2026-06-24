@@ -1,7 +1,7 @@
 // ===== PWA Service Worker + Auto Update =====
 if ('serviceWorker' in navigator) {
 
-  navigator.serviceWorker.register("/ooh-assets-scoop/service-worker.js")
+  navigator.serviceWorker.register("/ooh-assets-scoop/service-worker.js", { updateViaCache: 'none' })
     .then(reg => {
       // Expose globally so notifications.js can access it immediately
       window.__swReg = reg;
