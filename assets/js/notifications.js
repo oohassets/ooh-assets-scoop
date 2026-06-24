@@ -1,14 +1,15 @@
 /* ══════════════════════════════════════════
    SCOOP OOH — Notification Bell
-   Derives notifications from campaign data
-   and reads manual entries from /notifications
+   Derives notifications from campaign data,
+   reads manual entries from /notifications,
+   and detects service-worker updates.
 ══════════════════════════════════════════ */
 import { rtdb } from "../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-let allNotifs  = [];
+let allNotifs = [];
 
-// ── Helpers ──────────────────────────────────────────────────
+// ── Date helpers ─────────────────────────────────────────────
 function parseDate(v) {
   if (!v) return null;
   const p = v.toString().trim().split("/").map(Number);
@@ -30,7 +31,36 @@ function relTime(d) {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-// ── Derive from Firebase data ─────────────────────────────────
+// ── Per-user read state (localStorage) ──────────────────────
+function uid() { return window.__currentUser?.uid || "anon"; }
+
+function notifKey(n) {
+  const ds = n.date ? n.date.toISOString().slice(0, 10) : "nd";
+  return `${n.iconType}:${n.title}:${ds}`;
+}
+
+function getReadSet() {
+  try { return new Set(JSON.parse(localStorage.getItem(`notif_read_${uid()}`) || "[]")); }
+  catch { return new Set(); }
+}
+
+function saveReadSet(set) {
+  try { localStorage.setItem(`notif_read_${uid()}`, JSON.stringify([...set])); }
+  catch {}
+}
+
+function applyReadState() {
+  const read = getReadSet();
+  allNotifs.forEach(n => { n.unread = !read.has(notifKey(n)); });
+}
+
+function markAllAsRead() {
+  const read = getReadSet();
+  allNotifs.forEach(n => { n.unread = false; read.add(notifKey(n)); });
+  saveReadSet(read);
+}
+
+// ── Derive notifications from Firebase data ──────────────────
 function deriveNotifications(tables) {
   const notifs = [];
   const today  = new Date(); today.setHours(0, 0, 0, 0);
@@ -50,23 +80,17 @@ function deriveNotifications(tables) {
     const circuit = log.Circuits || "—";
 
     if (type === "add") {
-      notifs.push({
-        icon: "campaign", iconType: "published",
-        title: "Campaign Published",
-        desc:  `${client} · ${circuit}`,
-        time:  relTime(d), date: d, unread: true
-      });
+      notifs.push({ icon: "campaign", iconType: "published",
+        title: "Campaign Published", desc: `${client} · ${circuit}`,
+        time: relTime(d), date: d });
     } else if (type === "removed") {
-      notifs.push({
-        icon: "remove_circle", iconType: "removed",
-        title: "Campaign Removed",
-        desc:  `${client} · ${circuit}`,
-        time:  relTime(d), date: d, unread: true
-      });
+      notifs.push({ icon: "remove_circle", iconType: "removed",
+        title: "Campaign Removed", desc: `${client} · ${circuit}`,
+        time: relTime(d), date: d });
     }
   });
 
-  // Campaigns_Booking → upcoming start / ending soon (within 7 days)
+  // Campaigns_Booking → starting soon / ending soon (within 7 days)
   const bookings = tables?.Campaigns_Booking || {};
   const entries  = Array.isArray(bookings)
     ? bookings.map((r, i) => [i, r])
@@ -83,14 +107,11 @@ function deriveNotifications(tables) {
       sd.setHours(0, 0, 0, 0);
       const dts = Math.floor((sd - today) / 86400000);
       if (dts >= 0 && dts <= 7) {
-        notifs.push({
-          icon: "event", iconType: "upcoming",
+        notifs.push({ icon: "event", iconType: "upcoming",
           title: "Campaign Starting Soon",
-          desc:  `${brand} · ${circuit}`,
-          time:  dts === 0 ? "Today" : `In ${dts}d`,
-          date:  new Date(sd),
-          unread: dts <= 2
-        });
+          desc: `${brand} · ${circuit}`,
+          time: dts === 0 ? "Today" : `In ${dts}d`,
+          date: new Date(sd) });
       }
     }
 
@@ -99,14 +120,11 @@ function deriveNotifications(tables) {
       const dte     = Math.floor((ed - today) / 86400000);
       const started = sd ? new Date(sd) <= today : true;
       if (dte >= 0 && dte <= 7 && started) {
-        notifs.push({
-          icon: "event_busy", iconType: "ending",
+        notifs.push({ icon: "event_busy", iconType: "ending",
           title: "Campaign Ending Soon",
-          desc:  `${brand} · ${circuit}`,
-          time:  dte === 0 ? "Today" : `In ${dte}d`,
-          date:  new Date(ed),
-          unread: dte <= 2
-        });
+          desc: `${brand} · ${circuit}`,
+          time: dte === 0 ? "Today" : `In ${dte}d`,
+          date: new Date(ed) });
       }
     }
   });
@@ -160,18 +178,13 @@ function renderList() {
 }
 
 // ── SW update detection ──────────────────────────────────────
-function injectUpdateNotif() {
-  // Deduplicate — replace any existing update card
-  const i = allNotifs.findIndex(n => n.iconType === "update");
+function injectSWNotif(title, desc, icon, iconType) {
+  const i = allNotifs.findIndex(n => n._sw);
   if (i !== -1) allNotifs.splice(i, 1);
   allNotifs.unshift({
-    icon: "system_update_alt",
-    iconType: "update",
-    title: "App Update Available",
-    desc: "A new version of SCOOP is ready to install.",
-    time: "Just now",
-    date: new Date(),
-    unread: true
+    icon, iconType, title, desc,
+    time: "Just now", date: new Date(),
+    unread: true, _sw: true
   });
   updateBadge();
   renderList();
@@ -179,40 +192,63 @@ function injectUpdateNotif() {
 
 async function checkSWUpdate() {
   if (!("serviceWorker" in navigator)) return;
+
+  // If this page load followed a SW-triggered reload, show "updated" notice
+  if (sessionStorage.getItem("scoop_sw_updated")) {
+    sessionStorage.removeItem("scoop_sw_updated");
+    injectSWNotif(
+      "SCOOP Updated",
+      "You're now on the latest version.",
+      "check_circle", "published"
+    );
+  }
+
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     if (!reg) return;
 
-    // Expose update trigger for the "Update Now" button
+    // Expose for the "Update Now" button in the notification
     window.__swUpdate = () => {
-      if (reg.waiting) {
-        reg.waiting.postMessage({ type: "SKIP_WAITING" });
-      } else {
-        window.location.reload();
-      }
+      if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+      else window.location.reload();
     };
 
-    // SW already waiting when the page loaded
-    if (reg.waiting) injectUpdateNotif();
+    // SW is already waiting (rare — SW normally calls skipWaiting itself)
+    if (reg.waiting) {
+      injectSWNotif(
+        "App Update Available",
+        "A new version of SCOOP is ready to install.",
+        "system_update_alt", "update"
+      );
+    }
 
-    // SW update found while page is open
+    // Catch updates that arrive while the page is open
     reg.addEventListener("updatefound", () => {
       const sw = reg.installing;
       if (!sw) return;
       sw.addEventListener("statechange", () => {
         if (sw.state === "installed" && navigator.serviceWorker.controller) {
-          injectUpdateNotif();
+          injectSWNotif(
+            "App Update Available",
+            "A new version of SCOOP is ready to install.",
+            "system_update_alt", "update"
+          );
         }
       });
     });
 
-    // Reload automatically once the new SW takes control
+    // When the new SW takes control: flag the reload so next load shows notice
+    const hadController = !!navigator.serviceWorker.controller;
     let refreshing = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (!refreshing) { refreshing = true; window.location.reload(); }
+      if (hadController && !refreshing) {
+        refreshing = true;
+        sessionStorage.setItem("scoop_sw_updated", "1");
+        window.location.reload();
+      }
     });
 
-    // Trigger a background update check
+    // Trigger a background check for new SW versions
     reg.update().catch(() => {});
   } catch (err) {
     console.error("[SW update check]", err);
@@ -225,55 +261,53 @@ export async function initNotifications() {
   const panel = document.getElementById("notifPanel");
   if (!btn || !panel) return;
 
-  // SW update check (sets window.__swUpdate too)
+  // SW update check runs immediately (independent of Firebase)
   checkSWUpdate();
 
-  // Toggle panel
+  function closePanel() {
+    panel.classList.remove("open");
+    btn.classList.remove("active");
+    // Persist read state when the panel closes
+    markAllAsRead();
+    updateBadge();
+    renderList();
+  }
+
+  // Toggle
   btn.addEventListener("click", e => {
     e.stopPropagation();
     const open = panel.classList.toggle("open");
     btn.classList.toggle("active", open);
-    if (open) {
-      // Mark visible items read after a short delay
-      setTimeout(() => {
-        allNotifs.forEach(n => { n.unread = false; });
-        updateBadge();
-        renderList();
-      }, 2000);
-    }
   });
 
   // Close on outside click
   document.addEventListener("click", e => {
-    if (!document.getElementById("notifBell")?.contains(e.target)) {
-      panel.classList.remove("open");
-      btn.classList.remove("active");
+    if (panel.classList.contains("open") &&
+        !document.getElementById("notifBell")?.contains(e.target)) {
+      closePanel();
     }
   });
 
   // Close on Escape
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape") {
-      panel.classList.remove("open");
-      btn.classList.remove("active");
-    }
+    if (e.key === "Escape" && panel.classList.contains("open")) closePanel();
   });
 
   // Mark all read button
   document.getElementById("notifMarkRead")?.addEventListener("click", () => {
-    allNotifs.forEach(n => { n.unread = false; });
+    markAllAsRead();
     updateBadge();
     renderList();
   });
 
-  // Load data
+  // Load Firebase data
   try {
     const snap   = await get(ref(rtdb, "/"));
     const tables = snap.exists() ? snap.val() : {};
 
     allNotifs = deriveNotifications(tables);
 
-    // Manual notifications from /notifications in RTDB
+    // Manual entries from /notifications in RTDB
     const sysRaw = tables?.notifications || {};
     Object.values(sysRaw).forEach(n => {
       if (!n) return;
@@ -284,13 +318,21 @@ export async function initNotifications() {
         title:    n.title       || "",
         desc:     n.description || "",
         time:     d ? relTime(d) : (n.time || ""),
-        date:     d,
-        unread:   n.unread !== false
+        date:     d
       });
     });
 
-    // Newest first
+    // Newest first, then apply per-user read state
     allNotifs.sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
+    applyReadState();
+
+    // Re-inject any SW notif that was added before Firebase finished
+    // (it was unshifted to index 0, sort may have moved it — restore it)
+    const swNotif = allNotifs.find(n => n._sw);
+    if (swNotif) {
+      allNotifs.splice(allNotifs.indexOf(swNotif), 1);
+      allNotifs.unshift(swNotif);
+    }
 
     updateBadge();
     renderList();
