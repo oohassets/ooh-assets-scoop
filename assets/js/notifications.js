@@ -207,15 +207,18 @@ async function checkSWUpdate() {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    // pwa.js registers the SW and exposes it as window.__swReg.
-    // Poll briefly for it rather than racing navigator.serviceWorker.ready,
-    // which can return before pwa.js has called .register().
+    // pwa.js loads as a regular script before app.js and registers the SW,
+    // setting window.__swReg once the registration promise resolves.
+    // Poll for it; fall back to navigator.serviceWorker.ready if needed.
     const reg = await new Promise(resolve => {
       if (window.__swReg) return resolve(window.__swReg);
       const t = setInterval(() => {
         if (window.__swReg) { clearInterval(t); resolve(window.__swReg); }
       }, 100);
-      setTimeout(() => { clearInterval(t); resolve(null); }, 5000);
+      setTimeout(() => {
+        clearInterval(t);
+        navigator.serviceWorker.ready.then(resolve).catch(() => resolve(null));
+      }, 2000);
     });
     if (!reg) { console.warn("[SCOOP SW] Registration not available"); return; }
     console.log(`[SCOOP SW] Active: ${reg.active?.state ?? "none"} | Waiting: ${!!reg.waiting} | Installing: ${!!reg.installing}`);
