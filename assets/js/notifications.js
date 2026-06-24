@@ -159,19 +159,74 @@ function renderList() {
   `).join("");
 }
 
+// ── SW update detection ──────────────────────────────────────
+function injectUpdateNotif() {
+  // Deduplicate — replace any existing update card
+  const i = allNotifs.findIndex(n => n.iconType === "update");
+  if (i !== -1) allNotifs.splice(i, 1);
+  allNotifs.unshift({
+    icon: "system_update_alt",
+    iconType: "update",
+    title: "App Update Available",
+    desc: "A new version of SCOOP is ready to install.",
+    time: "Just now",
+    date: new Date(),
+    unread: true
+  });
+  updateBadge();
+  renderList();
+}
+
+async function checkSWUpdate() {
+  if (!("serviceWorker" in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) return;
+
+    // Expose update trigger for the "Update Now" button
+    window.__swUpdate = () => {
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: "SKIP_WAITING" });
+      } else {
+        window.location.reload();
+      }
+    };
+
+    // SW already waiting when the page loaded
+    if (reg.waiting) injectUpdateNotif();
+
+    // SW update found while page is open
+    reg.addEventListener("updatefound", () => {
+      const sw = reg.installing;
+      if (!sw) return;
+      sw.addEventListener("statechange", () => {
+        if (sw.state === "installed" && navigator.serviceWorker.controller) {
+          injectUpdateNotif();
+        }
+      });
+    });
+
+    // Reload automatically once the new SW takes control
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!refreshing) { refreshing = true; window.location.reload(); }
+    });
+
+    // Trigger a background update check
+    reg.update().catch(() => {});
+  } catch (err) {
+    console.error("[SW update check]", err);
+  }
+}
+
 // ── Public init ──────────────────────────────────────────────
 export async function initNotifications() {
   const btn   = document.getElementById("notifBtn");
   const panel = document.getElementById("notifPanel");
   if (!btn || !panel) return;
 
-  // Expose SW update trigger for "Update Now" button
-  window.__swUpdate = () => {
-    navigator.serviceWorker?.getRegistration?.().then(reg => {
-      if (reg?.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
-      else window.location.reload();
-    });
-  };
+  // SW update check (sets window.__swUpdate too)
+  checkSWUpdate();
 
   // Toggle panel
   btn.addEventListener("click", e => {

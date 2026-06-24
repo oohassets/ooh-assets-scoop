@@ -372,4 +372,18 @@ nav.nav-at-top {
 
   /* Hide Chatbase default floating bubble — nav bar button replaces it */
   #chatbase-bubble-button { display: none !important; }
+
+  /* Notification panel — full-width sheet below nav bar.
+     Setting .notif-bell to static lets the absolutely-positioned panel
+     climb up to nav (position:fixed, full viewport width) as its
+     containing block, so left/right are relative to the screen edges. */
+  .notif-bell { position: static; }
+  .notif-panel {
+    top: 72px;        /* nav height (64px) + 8px gap */
+    left: 12px;
+    right: 12px;
+    width: auto;
+    border-radius: 16px;
+    max-height: calc(100dvh - 160px); /* nav + gap + dock room */
+  }
 }
