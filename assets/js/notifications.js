@@ -207,8 +207,9 @@ async function checkSWUpdate() {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    const reg = await navigator.serviceWorker.getRegistration();
-    if (!reg) { console.warn("[SCOOP SW] No registration found"); return; }
+    // ready resolves once a SW is active — getRegistration() can return null
+    // if called before the SW registration completes in the same page load.
+    const reg = await navigator.serviceWorker.ready;
     console.log(`[SCOOP SW] Active: ${reg.active?.state ?? "none"} | Waiting: ${!!reg.waiting} | Installing: ${!!reg.installing}`);
 
     // ── 1. Version comparison — detects updates from previous sessions ────────
