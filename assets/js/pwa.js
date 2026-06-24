@@ -1,19 +1,11 @@
 // ===== PWA Service Worker + Auto Update =====
 if ('serviceWorker' in navigator) {
-  let swRegistration = null;
-  let refreshing = false;
-
-  // Reload once the new SW takes control
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
-  });
 
   navigator.serviceWorker.register("/ooh-assets-scoop/service-worker.js")
     .then(reg => {
-      swRegistration = reg;
-      console.log('✅ Service Worker registered:', reg.scope);
+      // Expose globally so notifications.js can access it immediately
+      window.__swReg = reg;
+      console.log('[SCOOP SW] Registered:', reg.scope);
       listenForUpdate(reg);
 
       // Check for updates on page focus (catches deploys while tab was in background)
@@ -24,7 +16,7 @@ if ('serviceWorker' in navigator) {
       // Periodic check every 5 minutes
       setInterval(() => reg.update(), 5 * 60 * 1000);
     })
-    .catch(err => console.error('❌ SW registration failed:', err));
+    .catch(err => console.error('[SCOOP SW] Registration failed:', err));
 
   function listenForUpdate(reg) {
     reg.addEventListener('updatefound', () => {
@@ -32,8 +24,11 @@ if ('serviceWorker' in navigator) {
       showUpdateToast('downloading');
 
       worker.addEventListener('statechange', () => {
-        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateToast('ready', worker);
+        // SW calls skipWaiting() in its install event, so it goes straight to
+        // activating/activated — catch any post-install state, not just 'installed'.
+        if ((worker.state === 'installed' || worker.state === 'activating' || worker.state === 'activated')
+            && navigator.serviceWorker.controller) {
+          showUpdateToast('ready');
         }
       });
     });
@@ -43,7 +38,7 @@ if ('serviceWorker' in navigator) {
 // ===== UPDATE TOAST =====
 let toastEl = null;
 
-function showUpdateToast(phase, worker) {
+function showUpdateToast(phase) {
   // Remove any existing toast
   toastEl?.remove();
 
@@ -95,7 +90,8 @@ function showUpdateToast(phase, worker) {
   if (isReady) {
     document.getElementById('swRefreshBtn')?.addEventListener('click', () => {
       toastEl.style.opacity = '0';
-      worker.postMessage({ type: 'SKIP_WAITING' });
+      // New SW already activated via skipWaiting in install event — just reload.
+      window.location.reload();
     });
   }
 }

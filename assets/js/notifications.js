@@ -207,9 +207,17 @@ async function checkSWUpdate() {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    // ready resolves once a SW is active — getRegistration() can return null
-    // if called before the SW registration completes in the same page load.
-    const reg = await navigator.serviceWorker.ready;
+    // pwa.js registers the SW and exposes it as window.__swReg.
+    // Poll briefly for it rather than racing navigator.serviceWorker.ready,
+    // which can return before pwa.js has called .register().
+    const reg = await new Promise(resolve => {
+      if (window.__swReg) return resolve(window.__swReg);
+      const t = setInterval(() => {
+        if (window.__swReg) { clearInterval(t); resolve(window.__swReg); }
+      }, 100);
+      setTimeout(() => { clearInterval(t); resolve(null); }, 5000);
+    });
+    if (!reg) { console.warn("[SCOOP SW] Registration not available"); return; }
     console.log(`[SCOOP SW] Active: ${reg.active?.state ?? "none"} | Waiting: ${!!reg.waiting} | Installing: ${!!reg.installing}`);
 
     // ── 1. Version comparison — detects updates from previous sessions ────────
@@ -265,8 +273,7 @@ async function checkSWUpdate() {
       });
     });
 
-    // ── 5. Fallback: controllerchange fires when new SW takes control ─────────
-    // This catches the skipWaiting path that completes before statechange fires.
+    // ── 5. Fallback: controllerchange fires when skipWaiting completes ───────
     const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (hadController && !notified) {
@@ -275,9 +282,6 @@ async function checkSWUpdate() {
         injectSWNotif("App Update Available", "A new version of SCOOP is ready.", "system_update_alt", "update");
       }
     });
-
-    // Trigger a background fetch of the SW script to find pending updates
-    reg.update().catch(() => {});
   } catch (err) {
     console.error("[SCOOP SW] Update check error:", err);
   }
