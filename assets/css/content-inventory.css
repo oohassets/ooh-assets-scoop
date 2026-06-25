@@ -169,8 +169,8 @@
   .carousel {
     grid-template-columns: 1fr;
   }
-  .carousel-container { padding: 0 8px 96px; } /* 96px clears the fixed mobile dock */
-  .ci-page { padding: 12px 8px; }
+  .carousel-container { padding: 0 8px 20px; }
+  .ci-page { padding: 12px 8px 96px; } /* 96px bottom clears the fixed mobile dock */
 
   /* Grid items must be allowed to shrink below content width */
   .ci-page .card {
