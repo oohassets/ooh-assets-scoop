@@ -372,11 +372,17 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 
 /* ── Responsive ───────────────────────── */
 @media(max-width:768px) {
+  .card{margin-bottom: 90px;}
   .bookings-sticky-header { padding: 10px 1rem; }
   .bookings-hdr-inner { flex-wrap: wrap; gap: 8px; }
   .bookings-hdr-btns { gap: 8px; }
-  #scheduleSection, #calendarSection { padding: 8px; }
+  #scheduleSection{ padding: 8px; }
+  #calendarSection { padding: 0; }
   .btn-bar-primary, .btn-bar-secondary { font-size: 12px; padding: 9px 16px; }
   .toolbar { gap: 8px; margin-top: 0; }
   #scheduleSection .table-container { margin-top: 10px; }
+  .cal-section-hdr {display:grid; gap:20px;}
+  .bookings-cal-bar {margin: 0;}
+  .cal-close-btn {margin-left: 140px;}
+
 }

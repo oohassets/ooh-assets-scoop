@@ -94,12 +94,12 @@
   <div id="calendarSection" style="display:none;">
     <div class="calendar-content">
       <div class="card">
-
         <div class="cal-section-hdr">
-      <div class="bookings-hdr-text">
-        <div class="section-title" style="font-size:22px;">Campaign Calendar</div>
-        <p class="section-sub">Track active, upcoming, and completed campaigns</p>
-      </div>
+          <div class="bookings-hdr-text">
+            <div class="section-title" style="font-size:22px;">Campaign Calendar</div>
+            <p class="section-sub">Track active, upcoming, and completed campaigns</p>
+          </div>
+
           <div class="bookings-cal-bar">
             <div class="date-filter-wrap">
               <button class="date-filter-btn" id="calDateFilterBtn">
@@ -120,18 +120,20 @@
                 </div>
               </div>
             </div>
+
+            <button class="cal-close-btn" id="tabSchedule">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+
           </div>
-          <button class="cal-close-btn" id="tabSchedule">
-            <span class="material-symbols-outlined">close</span>
-          </button>
+
         </div>
 
         <div class="bookings-cal-wrap">
           <div class="cal-scroll">
             <table id="bookingCalendar" class="booking-calendar"></table>
-          </div>
+          </div>          
         </div>
-
       </div>
     </div>
   </div>

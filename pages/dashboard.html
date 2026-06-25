@@ -48,7 +48,7 @@
 
   <!-- STATS GRID -->
   <div class="stats-grid reveal">
-    <div class="stat-card" style="--card-accent:var(--accent-emerald);">
+    <div class="stat-card" data-stat="live" style="--card-accent:var(--accent-emerald);">
         <div class="stat-card-glow"></div>
         <div class="stat-label">Paid Campaigns</div>
         <div class="stat-value" id="statActive">0</div>
@@ -56,7 +56,7 @@
         <div class="stat-trend trend-up">↑ Live</div>
     </div>
 
-    <div class="stat-card" style="--card-accent:var(--accent-rose);">
+    <div class="stat-card" data-stat="signed" style="--card-accent:var(--accent-rose);">
       <div class="stat-card-glow"></div>
       <div class="stat-label">Booked Assets</div>
       <div class="stat-value" id="statBooked">0</div>
@@ -64,7 +64,7 @@
       <div class="stat-trend trend-down">📌 BO Signed</div>
     </div>
 
-    <div class="stat-card" style="--card-accent:var(--accent-amber);">
+    <div class="stat-card" data-stat="pending" style="--card-accent:var(--accent-amber);">
       <div class="stat-card-glow"></div>
       <div class="stat-label">Pending Approvals</div>
       <div class="stat-value" id="statPending">0</div>
@@ -72,7 +72,7 @@
       <div class="stat-trend trend-pending">⏳ Pending</div>
     </div>
 
-    <div class="stat-card" style="--card-accent:var(--accent-cyan);">
+    <div class="stat-card" data-stat="free" style="--card-accent:var(--accent-cyan);">
       <div class="stat-card-glow"></div>
       <div class="stat-label">Free Campaigns</div>
       <div class="stat-value" id="statFree">0</div>
@@ -117,6 +117,22 @@
   </div>
 
 </main>
+
+<!-- STAT DETAIL MODAL -->
+<div class="stat-overlay" id="statOverlay">
+  <div class="stat-panel" id="statPanel">
+    <div class="stat-panel-hdr">
+      <div>
+        <div class="stat-panel-title" id="statPanelTitle"></div>
+        <div class="stat-panel-count" id="statPanelCount"></div>
+      </div>
+      <button class="stat-panel-close" id="statPanelClose">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="stat-panel-body" id="statPanelBody"></div>
+  </div>
+</div>
 
 <footer>
   <div class="footer-brand">Scoop Media &amp; Communication Co.</div>

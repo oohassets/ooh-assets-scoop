@@ -59,6 +59,7 @@ function getCampaigns(tables) {
       client: row.Client||"—", brand: row["Brand Campaign"]||"—",
       asset: row.Circuits||"—", status: row.Status||"BO Signed",
       person: row.Person||"—", rawStartDate: sd, rawEndDate: ed,
+      bo: row.BO||row["BO No"]||row["BO NO"]||"",
       date: `${fmtShort(sd)} → ${fmtShort(ed)}`, sortDate
     });
   });
@@ -309,6 +310,101 @@ function renderVisitorsChart(tables) {
   });
 }
 
+// ── STAT DETAIL PANEL ────────────────────────────────────
+function initStatPanel(campaigns, tables) {
+  const overlay  = document.getElementById("statOverlay");
+  const panel    = document.getElementById("statPanel");
+  const titleEl  = document.getElementById("statPanelTitle");
+  const countEl  = document.getElementById("statPanelCount");
+  const bodyEl   = document.getElementById("statPanelBody");
+  const closeBtn = document.getElementById("statPanelClose");
+  if (!overlay) return;
+
+  const accentMap = {
+    live: "var(--accent-emerald)", signed: "var(--accent-rose)",
+    pending: "var(--accent-amber)", free: "var(--accent-cyan)"
+  };
+
+  function buildItems(items) {
+    if (!items.length) return `<p class="sp-empty">No data available</p>`;
+    return items.map((item, i) => {
+      const label   = item.brand && item.brand !== "—"
+        ? `${item.client} (${item.brand})` : item.client;
+      const circuit = item.circuit && item.circuit !== "—"
+        ? `<div class="sp-circuit">${item.circuit}</div>` : "";
+      const bo      = item.bo   && item.bo   !== "—" ? `<span class="sp-bo">${item.bo}</span>`   : "";
+      const dates   = item.date && item.date !== "— → —" ? `<span class="sp-dates">${item.date}</span>` : "";
+      return `
+        <div class="sp-item" style="animation-delay:${i * 0.04}s">
+          <span class="sp-num">${i + 1}</span>
+          <div class="sp-body">
+            <div class="sp-client">${label}</div>
+            ${circuit}
+            <div class="sp-meta">${bo}${dates}</div>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function openPanel(type) {
+    let items = [];
+    const titleMap = { live: "Paid Campaigns", signed: "Booked Assets", pending: "Pending Approvals", free: "Free / Filler" };
+    const statusKey = { live: "live", signed: "signed", pending: "pending" };
+
+    if (statusKey[type]) {
+      items = campaigns
+        .filter(c => c.status.toLowerCase().includes(statusKey[type]))
+        .map(c => ({ client: c.client, brand: c.brand, circuit: c.asset, bo: c.bo, date: c.date }));
+    } else if (type === "free") {
+      Object.entries(tables).forEach(([tName, tData]) => {
+        if (!tName.startsWith("d_") && !tName.startsWith("s_")) return;
+        if (!tData) return;
+        const tLabel = tName.replace(/^[ds]_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        const rows   = Array.isArray(tData) ? tData : Object.values(tData);
+        rows.forEach(r => {
+          if (!r) return;
+          const bo = (r.BO || "").toString();
+          if (!/free|filler/i.test(bo)) return;
+          items.push({
+            client:  r.Client && r.Client !== "—" ? r.Client : "—",
+            brand:   "",
+            circuit: r.Circuit ? `${tLabel} – ${r.Circuit}` : tLabel,
+            bo,
+            date: `${fmtShort(r["Start Date"])} → ${fmtShort(r["End Date"])}`
+          });
+        });
+      });
+    }
+
+    titleEl.textContent = titleMap[type] || "";
+    countEl.textContent = `${items.length} campaign${items.length !== 1 ? "s" : ""}`;
+    bodyEl.innerHTML    = buildItems(items);
+    panel.style.setProperty("--sp-accent", accentMap[type] || "var(--accent-indigo)");
+    overlay.dataset.active = type;
+    overlay.classList.add("open");
+  }
+
+  function closePanel() {
+    overlay.classList.remove("open");
+    overlay.dataset.active = "";
+  }
+
+  document.querySelectorAll(".stat-card[data-stat]").forEach(card => {
+    card.style.cursor = "pointer";
+    card.addEventListener("click", () => {
+      const type = card.dataset.stat;
+      if (overlay.classList.contains("open") && overlay.dataset.active === type) {
+        closePanel();
+      } else {
+        openPanel(type);
+      }
+    });
+  });
+
+  closeBtn?.addEventListener("click", closePanel);
+  overlay?.addEventListener("click", e => { if (e.target === overlay) closePanel(); });
+}
+
 // ── ANIMATIONS ────────────────────────────────────────────
 function initAnimations() {
   // Scroll progress
@@ -388,6 +484,7 @@ export async function init(userName) {
   const campaigns = getCampaigns(tables);
   updateStats(campaigns, tables);
   renderUpdates(campaigns, tables);
+  initStatPanel(campaigns, tables);
   renderChart(campaigns);
   renderVisitorsChart(tables);
 }

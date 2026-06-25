@@ -145,8 +145,28 @@ function createCard(title, data, columns, highlightColumns = []) {
   const hasClient = columns.includes("Client");
   const snKey     = columns.includes("SN") ? "SN" : columns.includes("Circuit") ? "Circuit" : null;
 
+  const hasCircuits = columns.includes("Circuits");
+
   let mobileHtml = "";
-  if (hasDates && hasClient) {
+  if (hasClient && !hasDates && hasCircuits) {
+    // Simple client+circuits list (e.g. Published/Removed Today)
+    const items = Object.values(data).map(row => {
+      const client   = row["Client"]   ?? "—";
+      const circuits = row["Circuits"] ?? "—";
+      return `
+        <div class="ml-row">
+          <div class="ml-body">
+            <div class="ml-client">${client}</div>
+            <div class="ml-dates">${circuits}</div>
+          </div>
+        </div>`;
+    }).join("");
+    mobileHtml = `
+      <div class="mobile-list">
+        <div class="ml-header"><span>Client</span><span>Circuit</span></div>
+        ${items}
+      </div>`;
+  } else if (hasDates && hasClient) {
     const rows = Object.values(data);
     const isStaticCard = snKey === "Circuit";
     const items = rows.map(row => {
@@ -207,14 +227,35 @@ function createCard(title, data, columns, highlightColumns = []) {
 }
 
 // ===============================
-function appendActivityMsg(container, text, cardClass) {
+function createActivityCard(title, items, headClass, dotClass) {
   const card = document.createElement("div");
-  card.className = `card ${cardClass}`;
+  card.className = "update-card";
+  const count = items.length;
+  const rows = items.map((item, i) => `
+    <div class="update-item" style="animation-delay:${i * 0.05}s">
+      <div>
+        <div class="update-item-label">${item.Client ?? "—"}</div>
+        <div class="update-item-sub">${item.Circuits ?? "—"}</div>
+      </div>
+    </div>`).join("");
+  card.innerHTML = `
+    <div class="update-card-head ${headClass}">
+      <div>
+        <div class="update-title">${title}</div>
+        <div class="update-count">${count} campaign${count !== 1 ? "s" : ""}</div>
+      </div>
+      <div class="update-dot ${dotClass}"></div>
+    </div>
+    <div class="update-body">${rows}</div>`;
+  return card;
+}
+
+// ===============================
+function appendActivityMsg(container, text) {
   const p = document.createElement("p");
   p.className = "no-data-message";
   p.textContent = text;
-  card.appendChild(p);
-  container.appendChild(card);
+  container.appendChild(p);
 }
 
 // ===============================
@@ -249,8 +290,8 @@ function publishCampaignToday(allTables) {
 
     const logs = allTables["Campaign_Logs"];
     if (!logs) {
-      appendActivityMsg(todayCarousel, "No Campaign Published Today", "published-card");
-      appendActivityMsg(todayCarousel, "No Campaign Removed Today",   "removed-card");
+      appendActivityMsg(todayCarousel, "No Campaign Published Today");
+      appendActivityMsg(todayCarousel, "No Campaign Removed Today");
       return;
     }
 
@@ -284,31 +325,19 @@ function publishCampaignToday(allTables) {
     });
 
     // Published
-    if (publishedSet.size > 0) {
-      const sorted = [...publishedSet.values()].sort((a, b) => a.Client.localeCompare(b.Client));
-      const card = createCard(
-        "Campaign Published Today",
-        Object.fromEntries(sorted.map((r, i) => [i, r])),
-        ["Client", "Circuits"]
-      );
-      card.classList.add("published-card");
-      todayCarousel.appendChild(card);
+    const pubItems = [...publishedSet.values()].sort((a, b) => a.Client.localeCompare(b.Client));
+    if (pubItems.length > 0) {
+      todayCarousel.appendChild(createActivityCard("Campaign Published Today", pubItems, "published", "dot-green"));
     } else {
-      appendActivityMsg(todayCarousel, "No Campaign Published Today", "published-card");
+      appendActivityMsg(todayCarousel, "No Campaign Published Today");
     }
 
     // Removed
-    if (removedSet.size > 0) {
-      const sorted = [...removedSet.values()].sort((a, b) => a.Client.localeCompare(b.Client));
-      const card = createCard(
-        "Campaign Removed Today",
-        Object.fromEntries(sorted.map((r, i) => [i, r])),
-        ["Client", "Circuits"]
-      );
-      card.classList.add("removed-card");
-      todayCarousel.appendChild(card);
+    const remItems = [...removedSet.values()].sort((a, b) => a.Client.localeCompare(b.Client));
+    if (remItems.length > 0) {
+      todayCarousel.appendChild(createActivityCard("Campaign Removed Today", remItems, "removed", "dot-red"));
     } else {
-      appendActivityMsg(todayCarousel, "No Campaign Removed Today", "removed-card");
+      appendActivityMsg(todayCarousel, "No Campaign Removed Today");
     }
 }
 
