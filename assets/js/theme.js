@@ -20,7 +20,11 @@ export function initTheme() {
 
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
-    if (btn) btn.textContent = theme === "dark" ? "☀" : "☽";
+    if (btn) {
+      const icon = btn.querySelector(".material-symbols-outlined");
+      if (icon) icon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
+      else btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:20px;">${theme === "dark" ? "light_mode" : "dark_mode"}</span>`;
+    }
     if (logo) {
       const base = window.location.pathname.includes("/pages/") ? "../" : "";
       logo.src = theme === "dark"

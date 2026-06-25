@@ -784,7 +784,7 @@ export async function init(userName) {
   const tabCalendar     = document.getElementById("tabCalendar");
 
   tabSchedule?.addEventListener("click", () => {
-    scheduleSection.style.display = "block";
+    scheduleSection.style.display = "";
     calendarSection.style.display = "none";
     tabSchedule.classList.add("active");
     tabCalendar.classList.remove("active");
@@ -792,7 +792,7 @@ export async function init(userName) {
 
   tabCalendar?.addEventListener("click", async () => {
     scheduleSection.style.display = "none";
-    calendarSection.style.display = "block";
+    calendarSection.style.display = "";
     tabCalendar.classList.add("active");
     tabSchedule.classList.remove("active");
     if (!calDrpStart) [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
