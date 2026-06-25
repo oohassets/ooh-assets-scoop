@@ -3,7 +3,7 @@
    Carousel cards, table, overlay styles
 ══════════════════════════════════════════ */
 
-.container {
+.ci-page {
   max-width: 1400px;
   margin: 0 auto;
   padding: 24px 20px;
@@ -43,7 +43,7 @@
   grid-column: 1;
 }
 
-.container .card {
+.ci-page .card {
   background: var(--bg-card);
   padding: 15px;
   border-radius: 16px;
@@ -55,14 +55,14 @@
   border: 1px solid var(--border-glass);
   transition: background 0.4s, border-color 0.3s;
 }
-.container .card h2 { font-size:16px; padding-top:5px; margin-top:0; margin-bottom:10px; color:var(--text-primary); }
+.ci-page .card h2 { font-size:16px; padding-top:5px; margin-top:0; margin-bottom:10px; color:var(--text-primary); }
 #carouselPublishToday .card { width: 100%; }
 #carouselUpcoming .card     { width: 100%; }
 .published-card h2 { color:var(--accent-emerald); }
 .removed-card h2   { color:var(--accent-rose); }
 
 /* ── Scrollable table ─────────────────── */
-.container .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; }
+.ci-page .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; }
 
 .json-table { white-space: nowrap;width:100%; border-collapse:collapse; font-size:13px; color:var(--text-primary); }
 .json-table td { padding:6px; border-bottom:1px solid var(--border-glass); }
@@ -170,10 +170,10 @@
     grid-template-columns: 1fr;
   }
   .carousel-container { padding: 0 8px 96px; } /* 96px clears the fixed mobile dock */
-  .container { padding: 12px 8px; }
+  .ci-page { padding: 12px 8px; }
 
   /* Grid items must be allowed to shrink below content width */
-  .container .card {
+  .ci-page .card {
     min-width: 0;
     max-width: 100%;
     overflow: hidden;
@@ -282,7 +282,7 @@
 }
 
 @media(max-width:500px) {
-  .container .table-container { max-height:250px; }
+  .ci-page .table-container { max-height:250px; }
   .carousel-title  { font-size:18px !important; }
 }
 
