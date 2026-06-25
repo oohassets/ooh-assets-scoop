@@ -169,7 +169,7 @@
   .carousel {
     grid-template-columns: 1fr;
   }
-  .carousel-container { padding: 0 8px 20px; margin-bottom: 70px; }
+  .carousel-container { padding: 0 8px 96px; } /* 96px clears the fixed mobile dock */
   .container { padding: 12px 8px; }
 
   /* Grid items must be allowed to shrink below content width */
