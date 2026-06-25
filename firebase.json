@@ -1,8 +1,11 @@
 {
-  "functions": {
-    "source": "functions",
-    "runtime": "nodejs18"
-  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs18"
+    }
+  ],
   "hosting": {
     "public": ".",
     "ignore": [
