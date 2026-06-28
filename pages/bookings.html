@@ -33,13 +33,13 @@
       <div class="card">
         <div class="toolbar">
           <div class="search-box">
-            <span style="color:var(--text-muted);font-size:14px;">🔍</span>
+            <span class="cal-icon material-symbols-outlined">search</span>
             <input type="text" id="campaignSearch" placeholder="Search campaign, client, circuit…">
           </div>
 
           <div class="date-filter-wrap">
             <button class="date-filter-btn" id="dateFilterBtn">
-              <span class="cal-icon">📅</span>
+              <span class="cal-icon material-symbols-outlined">calendar_month</span>
               <span id="dateFilterLabel">This Month</span>
               <span class="chevron-icon">▾</span>
             </button>
@@ -98,6 +98,13 @@
           <div class="bookings-hdr-text">
             <div class="section-title" style="font-size:22px;">Campaign Calendar</div>
             <p class="section-sub">Track active, upcoming, and completed campaigns</p>
+          </div>
+
+          <div class="cal-search-wrap">
+            <div class="search-box">
+              <span class="material-symbols-outlined cal-icon">search</span>
+              <input type="text" id="calSearch" placeholder="Search campaign, client, circuit…">
+            </div>
           </div>
 
           <div class="bookings-cal-bar">
@@ -204,15 +211,15 @@
         <input type="hidden" id="bookingSlot">
 
         <div class="bk-field bk-sel-wrap">
-          <select class="bk-inp bk-sel" id="campaignStatus">
-            <option value="" disabled></option>
+          <select class="bk-inp bk-sel" id="campaignStatus" required>
+            <option value="" disabled selected></option>
             <option value="BO Signed">BO Signed</option>
             <option value="Pending">Pending</option>
             <option value="Live">Live</option>
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
           </select>
-          <label class="bk-lbl bk-lbl-fixed">Status</label>
+          <label class="bk-lbl">Status</label>
         </div>
 
         <div class="bk-booked-bar">
@@ -222,7 +229,7 @@
       </div><!-- /.bk-body -->
 
       <div class="bk-footer">
-        <button class="bk-btn-clear" id="clearFormBtn">Clear</button>
+        <button class="bk-btn-clear" id="clearFormBtn">Reset</button>
         <button class="bk-btn-save" id="confirmBookingBtn">Save Booking</button>
       </div>
     </div><!-- /.bk-view -->
@@ -231,14 +238,19 @@
     <div class="bk-picker" id="bkPicker">
       <div class="bk-picker-drag"></div>
       <div class="bk-picker-top">
-        <div class="bk-picker-info" id="bkPickerInfo">Select a start date</div>
+        <span class="bk-picker-title">Booking dates</span>
         <button class="bk-picker-x" id="bkPickerClose"><span class="material-symbols-outlined">close</span></button>
       </div>
+      <div class="bk-picker-hint" id="bkPickerInfo">Select the campaign start date</div>
       <div class="bk-picker-months" id="bkPickerMonths"></div>
       <div class="bk-picker-foot">
         <div class="bk-qpicks">
-          <button class="bk-qpick active" data-weeks="2">2 Weeks</button>
-          <button class="bk-qpick" data-weeks="4">4 Weeks</button>
+          <button class="bk-qpick" data-weeks="2" disabled>2 Weeks</button>
+          <button class="bk-qpick" data-weeks="4" disabled>4 Weeks</button>
+        </div>
+        <div class="bk-picker-summary">
+          <span class="bk-picker-range" id="bkPickerRange">—</span>
+          <button class="bk-picker-reset" id="bkPickerReset">Reset</button>
         </div>
         <button class="bk-picker-ok" id="bkPickerOk">Confirm</button>
       </div>

@@ -6,6 +6,7 @@ let currentUserName = "";
 let allCampaigns    = [];
 let drpStart = null, drpEnd = null;
 let calDrpStart = null, calDrpEnd = null;
+let calBookings = [], calDates = [], calRangeStart = null, calRangeEnd = null;
 
 // Date picker state
 let bkPickerStart = null;
@@ -107,7 +108,16 @@ function renderTable(campaigns) {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">No campaigns found</td></tr>`;
     return;
   }
-  tbody.innerHTML = campaigns.map(r => {
+  const mobHeader = `<tr class="mob-thead-row">
+    <td class="td-mobile" colspan="5">
+      <div class="mob-row mob-hdr">
+        <div class="mob-col">Client</div>
+        <div class="mob-col">Circuits</div>
+        <div class="mob-col mob-col-right">Person</div>
+      </div>
+    </td>
+  </tr>`;
+  tbody.innerHTML = mobHeader + campaigns.map(r => {
     const statusCls = getStatusClass(r.status);
     const isOwner = currentUserName && r.person &&
       r.person.trim().toLowerCase() === currentUserName.trim().toLowerCase();
@@ -125,18 +135,38 @@ function renderTable(campaigns) {
       : "";
     return `
       <tr>
-        <td><div class="client-name">${r.client}</div><div class="brand-name">${r.brand}</div></td>
-        <td style="color:var(--text-secondary);font-size:13px;">${r.asset}</td>
-        <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
+        <td class="td-desk"><div class="client-name">${r.client}</div><div class="brand-name">${r.brand}</div>${r.bo ? `<div class="bo-name">${r.bo}</div>` : ""}</td>
+        <td class="td-desk" style="color:var(--text-secondary);font-size:13px;">${r.asset}</td>
+        <td class="td-desk" style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
           <div style="display:flex;align-items:center;gap:6px;"><span>${r.date}</span>${editDateBtn}</div>
         </td>
-        <td style="position:relative;">
+        <td class="td-desk" style="position:relative;">
           <div class="status-cell">
             <span class="status-pill pill-${statusCls}">${r.status}</span>
             ${editStatusBtn}
           </div>
         </td>
-        <td style="color:var(--text-muted);font-size:12px;">${r.person}</td>
+        <td class="td-desk" style="color:var(--text-muted);font-size:12px;">${r.person}</td>
+        <td class="td-mobile" colspan="5">
+          <div class="mob-row">
+            <div class="mob-col mob-col-left">
+              <div class="client-name">${r.client}</div>
+              <div class="brand-name">${r.brand}</div>
+              ${r.bo ? `<div class="bo-name">${r.bo}</div>` : ""}
+            </div>
+            <div class="mob-col mob-col-mid">
+              <div class="mob-circuit">${r.asset}</div>
+              <div class="mob-date"><div style="display:flex;align-items:center;gap:5px;">${r.date}${editDateBtn}</div></div>
+              <div class="status-cell">
+                <span class="status-pill pill-${statusCls}">${r.status}</span>
+                ${editStatusBtn}
+              </div>
+            </div>
+            <div class="mob-col mob-col-right">
+              <div class="mob-person">${r.person}</div>
+            </div>
+          </div>
+        </td>
       </tr>`;
   }).join("");
 
@@ -209,7 +239,19 @@ function openEditModal(campaign) {
 
   calcDays();
   autoAssignSlot();
+  checkFormComplete();
   document.getElementById("bookingModal")?.classList.add("active");
+}
+
+function checkFormComplete() {
+  const client = document.getElementById("bookingClient")?.value?.trim();
+  const brand  = document.getElementById("bookingBrand")?.value?.trim();
+  const asset  = document.getElementById("bookingAsset")?.value?.trim();
+  const start  = document.getElementById("bookingStartDate")?.value;
+  const end    = document.getElementById("bookingEndDate")?.value;
+  const status = document.getElementById("campaignStatus")?.value;
+  const complete = !!(client && brand && asset && start && end && status);
+  document.getElementById("confirmBookingBtn")?.classList.toggle("visible", complete);
 }
 
 function resetModal() {
@@ -227,6 +269,7 @@ function resetModal() {
   const sl = document.getElementById("bookingSlotDisplay");      if (sl) sl.textContent = "—";
   document.getElementById("bkPickStart")?.classList.remove("active");
   document.getElementById("bkPickEnd")?.classList.remove("active");
+  checkFormComplete();
 }
 
 // ── FILTERS ───────────────────────────────────────────────
@@ -299,6 +342,7 @@ function setupSuggest(inputId, dropId, getList, onSelect) {
     input.value = item.dataset.val;
     drop.classList.remove("open");
     if (onSelect) onSelect(item.dataset.val);
+    checkFormComplete();
   });
 
   input.addEventListener("blur", () => setTimeout(() => drop.classList.remove("open"), 150));
@@ -396,15 +440,27 @@ function closeDatePicker() {
 }
 
 function updatePickerInfo() {
-  const el = document.getElementById("bkPickerInfo");
-  if (!el) return;
+  const hint  = document.getElementById("bkPickerInfo");
+  const range = document.getElementById("bkPickerRange");
+  const foot  = document.querySelector(".bk-picker-foot");
+  const qpicks = document.querySelectorAll(".bk-qpick");
+
   if (!bkPickerStart) {
-    el.textContent = "Select a start date";
+    if (hint)  { hint.textContent = "Select the campaign start date"; hint.classList.remove("bk-hint-small"); }
+    if (range) range.textContent = "—";
+    foot?.classList.remove("show");
+    qpicks.forEach(b => { b.disabled = true; b.classList.remove("active"); });
   } else if (!bkPickerEnd) {
-    el.textContent = `${fmtPickDate(bkPickerStart)} — select end date`;
+    if (hint)  { hint.textContent = "Now select the end date"; hint.classList.add("bk-hint-small"); }
+    if (range) range.textContent = `${fmtPickDate(bkPickerStart)} → ?`;
+    foot?.classList.add("show");
+    qpicks.forEach(b => b.disabled = false);
   } else {
     const days = Math.floor((bkPickerEnd - bkPickerStart) / 86400000) + 1;
-    el.textContent = `${fmtPickDate(bkPickerStart)} → ${fmtPickDate(bkPickerEnd)}  ·  ${days} days`;
+    if (hint)  { hint.textContent = `${days} days selected`; hint.classList.add("bk-hint-small"); }
+    if (range) range.textContent = `${fmtPickDate(bkPickerStart)} → ${fmtPickDate(bkPickerEnd)}`;
+    foot?.classList.add("show");
+    qpicks.forEach(b => b.disabled = false);
   }
 }
 
@@ -444,6 +500,7 @@ function renderPickerMonths() {
       const dayEl = document.createElement("div");
       dayEl.className = "bk-cal-day";
       dayEl.textContent = d;
+      dayEl.dataset.dow = date.getDay();
 
       if (date < today) {
         dayEl.classList.add("bk-cal-past");
@@ -465,7 +522,7 @@ function renderPickerMonths() {
     months.forEach((m, i) => {
       const title = m.querySelector(".bk-cal-month-title")?.textContent || "";
       if (title.includes(FULL_MONTHS[bkPickerStart.getMonth()]) && title.includes(String(bkPickerStart.getFullYear()))) {
-        setTimeout(() => m.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }), 50);
+        setTimeout(() => m.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
       }
     });
   }
@@ -491,7 +548,10 @@ function onPickerDayClick(date) {
     bkPickMode    = "end";
     document.getElementById("bkPickStart")?.classList.remove("active");
     document.getElementById("bkPickEnd")?.classList.add("active");
-    document.querySelectorAll(".bk-qpick").forEach(b => b.classList.toggle("active", b.dataset.weeks === "2"));
+    document.querySelectorAll(".bk-qpick").forEach(b => {
+      b.disabled = false;
+      b.classList.toggle("active", b.dataset.weeks === "2");
+    });
   } else {
     bkPickerEnd = date;
   }
@@ -508,6 +568,7 @@ function applyPickerToForm() {
   const ev = document.getElementById("bkEndVal");   if (ev) ev.textContent = fmtPickDate(bkPickerEnd);
   calcDays();
   autoAssignSlot();
+  checkFormComplete();
   closeDatePicker();
 }
 
@@ -620,7 +681,23 @@ async function buildCalendar() {
     }
   });
   table.appendChild(tbody);
-  requestAnimationFrame(() => renderBars(bookings, dates, startD, endD));
+  calBookings   = bookings;
+  calDates      = dates;
+  calRangeStart = new Date(startD);
+  calRangeEnd   = new Date(endD);
+  requestAnimationFrame(filterAndRenderBars);
+}
+
+function filterAndRenderBars() {
+  const q = (document.getElementById("calSearch")?.value || "").toLowerCase().trim();
+  const filtered = q
+    ? calBookings.filter(b => [
+        b.Client || "", b["Brand Campaign"] || "",
+        b.Circuits || b.Circuit || "", b.Status || "", b.Person || ""
+      ].join(" ").toLowerCase().includes(q))
+    : calBookings;
+  document.querySelectorAll("#bookingCalendar .booking-bar").forEach(el => el.remove());
+  renderBars(filtered, calDates, new Date(calRangeStart), new Date(calRangeEnd));
 }
 
 function renderBars(bookings, dates, startD, endD) {
@@ -692,6 +769,15 @@ export async function init(userName) {
   const lbl = document.getElementById("bookingPersonLabel");
   if (lbl) lbl.textContent = currentUserName;
 
+  // Move overlays to <body> so they escape the app-frame stacking context
+  // and render above the nav bar and mobile dock on all browsers / iOS Safari.
+  {
+    const bkModal = document.getElementById("bookingModal");
+    if (bkModal && bkModal.parentNode !== document.body) document.body.appendChild(bkModal);
+    const calSec = document.getElementById("calendarSection");
+    if (calSec && calSec.parentNode !== document.body) document.body.appendChild(calSec);
+  }
+
   // ── Table date filter ─────────────────────────────────
   const dateFilterBtn      = document.getElementById("dateFilterBtn");
   const dateFilterDropdown = document.getElementById("dateFilterDropdown");
@@ -747,6 +833,7 @@ export async function init(userName) {
 
   document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
   document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
+  document.getElementById("calSearch")?.addEventListener("input", filterAndRenderBars);
 
   // ── Booking modal ────────────────────────────────────
   const bookingModal = document.getElementById("bookingModal");
@@ -759,12 +846,27 @@ export async function init(userName) {
   document.getElementById("clearFormBtn")?.addEventListener("click", resetModal);
   document.getElementById("confirmBookingBtn")?.addEventListener("click", saveBooking);
 
+  ["bookingClient","bookingBrand","bookingAssetText"].forEach(id =>
+    document.getElementById(id)?.addEventListener("input", checkFormComplete)
+  );
+  document.getElementById("campaignStatus")?.addEventListener("change", checkFormComplete);
+
   // ── Date picker wiring ────────────────────────────────
   document.getElementById("bkPickStart")?.addEventListener("click", () => openDatePicker("start"));
   document.getElementById("bkPickEnd")?.addEventListener("click",   () => openDatePicker("end"));
   document.getElementById("bkPickerClose")?.addEventListener("click", closeDatePicker);
 
   document.getElementById("bkPickerOk")?.addEventListener("click", applyPickerToForm);
+
+  document.getElementById("bkPickerReset")?.addEventListener("click", () => {
+    bkPickerStart = null;
+    bkPickerEnd   = null;
+    bkPickMode    = "start";
+    document.getElementById("bkPickStart")?.classList.add("active");
+    document.getElementById("bkPickEnd")?.classList.remove("active");
+    renderPickerMonths();
+    updatePickerInfo();
+  });
 
   document.querySelectorAll(".bk-qpick").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -794,6 +896,8 @@ export async function init(userName) {
     scheduleSection.style.display = "none";
     calendarSection.style.display = "";
     tabCalendar.classList.add("active");
+    const calSearchEl = document.getElementById("calSearch");
+    if (calSearchEl) calSearchEl.value = "";
     tabSchedule.classList.remove("active");
     if (!calDrpStart) [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
     const calFromEl = document.getElementById("calFrom");
@@ -869,4 +973,7 @@ export function cleanup() {
   drpStart = drpEnd = null;
   calDrpStart = calDrpEnd = null;
   bkPickerStart = bkPickerEnd = null;
+  // Remove overlays moved to body during init
+  document.getElementById("bookingModal")?.remove();
+  document.getElementById("calendarSection")?.remove();
 }
