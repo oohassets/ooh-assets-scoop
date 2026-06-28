@@ -329,7 +329,7 @@ function initStatPanel(campaigns, tables) {
     if (!items.length) return `<p class="sp-empty">No data available</p>`;
     return items.map((item, i) => {
       const label   = item.brand && item.brand !== "—"
-        ? `${item.client} (${item.brand})` : item.client;
+        ? `${item.client} - ${item.brand}` : item.client;
       const circuit = item.circuit && item.circuit !== "—"
         ? `<div class="sp-circuit">${item.circuit}</div>` : "";
       const bo      = item.bo   && item.bo   !== "—" ? `<span class="sp-bo">${item.bo}</span>`   : "";
