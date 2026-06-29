@@ -6,9 +6,49 @@
 .ci-page {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 0 0 24px;
   box-sizing: border-box;
 }
+
+/* ── Sticky page header ───────────────── */
+.ci-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 101;
+  padding: 14px 20px 12px;
+}
+.bookings-hdr-text .section-sub { margin-top: 2px; }
+
+/* ── Download button (mirrors bookings.css) ───────── */
+.download-wrap { position: relative; display: inline-flex; }
+.download-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-glass); background: var(--bg-primary);
+  color: var(--text-secondary); cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.download-btn .material-symbols-outlined { font-size: 20px; transition: transform 0.2s; }
+.download-btn:hover, .download-btn.open {
+  border-color: var(--accent-indigo); color: var(--accent-indigo);
+  background: rgba(79,70,229,0.08);
+}
+.download-btn.loading .material-symbols-outlined { animation: ci-dl-spin 0.8s linear infinite; }
+@keyframes ci-dl-spin { to { transform: rotate(360deg); } }
+.download-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 500;
+  background: var(--nav-bg); border: 1px solid var(--border-glass);
+  border-radius: 14px; padding: 8px; min-width: 150px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px); display: none;
+}
+.download-dropdown.open { display: block; }
+.dl-opt {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  padding: 9px 12px; border-radius: 8px; border: none; background: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); transition: all 0.15s;
+}
+.dl-opt .material-symbols-outlined { font-size: 16px; }
+.dl-opt:hover { background: var(--bg-glass); color: var(--text-primary); }
 
 .carousel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding: 0 20px; }
 .carousel-title  {
@@ -18,9 +58,9 @@
   margin: 20px 0 10px;
   padding: 8px 20px;
   position: sticky;
-  top: 52px;   /* sits just below the 52px circuit-tabs bar */
+  top: 132px;  /* 80px ci-sticky-header + 52px circuit-tabs */
   z-index: 99;
-  background: transparent;
+  background: var(--bg-primary);
 }
 
 .expand-btn   { margin-top:20px; }
@@ -132,11 +172,9 @@
   gap: 8px;
   padding: 10px 20px;
   position: sticky;
-  top: 0;
+  top: 80px;   /* sits below the 80px ci-sticky-header */
   z-index: 100;
-  background: transparent;
   border-radius: 10px;
- 
 }
 .circuit-tab {
   padding: 7px 20px;
@@ -170,7 +208,11 @@
     grid-template-columns: 1fr;
   }
   .carousel-container { padding: 0 8px 20px; }
-  .ci-page { padding: 12px 8px 96px; } /* 96px bottom clears the fixed mobile dock */
+  .ci-page { padding: 0 0 96px; } /* 96px bottom clears the fixed mobile dock */
+  .ci-sticky-header { padding: 10px 12px 10px; }
+  .ci-hdr-inner { gap: 10px; }
+  .circuit-tabs { top: 68px; }   /* smaller header on mobile */
+  .carousel-title { top: 120px; }
 
   /* Grid items must be allowed to shrink below content width */
   .ci-page .card {

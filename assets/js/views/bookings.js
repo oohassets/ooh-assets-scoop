@@ -785,6 +785,12 @@ function getDateRangeStr() {
   return `${fmtDateHeader(drpStart)} - ${fmtDateHeader(drpEnd)}`;
 }
 
+function filenameDateRange(start, end) {
+  if (!start || !end) return "";
+  const fmt = d => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+  return ` (${fmt(start)}-${fmt(end)})`;
+}
+
 async function downloadAsPDF() {
   const btn = document.getElementById("downloadBtn");
   if (btn) btn.classList.add("loading");
@@ -792,7 +798,7 @@ async function downloadAsPDF() {
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js");
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
     // ── Header ───────────────────────────────
     doc.setFont("helvetica", "bold");
@@ -811,8 +817,9 @@ async function downloadAsPDF() {
     doc.text(`Dates: ${getDateRangeStr()}`, 15, 35);
 
     // ── Table ────────────────────────────────
-    const PAD       = 4;
-    const COL1_W    = 68;               // Client/Brand column width (mm)
+    // Portrait A4 usable width: 210 - 2×15 = 180mm
+    const PAD       = 3;
+    const COL1_W    = 52;               // Client/Brand column width (mm)
     const TEXT_W    = COL1_W - PAD * 2; // usable text width inside padding
     const CLIENT_LH = 3.5;             // line height mm at 8.5pt
     const BRAND_LH  = 4.8;             // line height mm at 10.5pt
@@ -850,16 +857,16 @@ async function downloadAsPDF() {
       },
       headStyles: {
         fillColor: [79, 70, 229], textColor: 255,
-        fontStyle: "bold", fontSize: 10.5, cellPadding: PAD
+        fontStyle: "bold", fontSize: 9.5, cellPadding: PAD
       },
       alternateRowStyles: { fillColor: [245, 245, 255] },
       columnStyles: {
-        0: { cellWidth: 33, valign: "middle" },
+        0: { cellWidth: 28, valign: "middle" },
         1: { cellWidth: COL1_W },
-        2: { cellWidth: 58, valign: "middle", fontSize: 9.5 },
-        3: { cellWidth: 40, valign: "middle" },
-        4: { cellWidth: 34, valign: "middle" },
-        5: { cellWidth: 26, valign: "middle" }
+        2: { cellWidth: 40, valign: "middle", fontSize: 8.5 },
+        3: { cellWidth: 28, valign: "middle" },
+        4: { cellWidth: 20, valign: "middle" },
+        5: { cellWidth: 12, valign: "middle" }
       },
       margin: { left: 15, right: 15 },
 
@@ -916,7 +923,7 @@ async function downloadAsPDF() {
       }
     });
 
-    doc.save("SCOOP_OOH_Campaign_Bookings.pdf");
+    doc.save(`SCOOP_OOH_Campaign_Bookings${filenameDateRange(drpStart, drpEnd)}.pdf`);
   } finally {
     if (btn) btn.classList.remove("loading");
   }
@@ -949,7 +956,7 @@ async function downloadAsExcel() {
       { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }
     ];
     XLSX.utils.book_append_sheet(wb, ws, "Campaign Bookings");
-    XLSX.writeFile(wb, "SCOOP_OOH_Campaign_Bookings.xlsx");
+    XLSX.writeFile(wb, `SCOOP_OOH_Campaign_Bookings${filenameDateRange(drpStart, drpEnd)}.xlsx`);
   } finally {
     if (btn) btn.classList.remove("loading");
   }
@@ -1068,7 +1075,7 @@ async function downloadCalendarAsPDF() {
       }
     }
 
-    doc.save("SCOOP_OOH_Campaign_Calendar.pdf");
+    doc.save(`SCOOP_OOH_Campaign_Calendar${filenameDateRange(calRangeStart, calRangeEnd)}.pdf`);
   } finally {
     if (btn) btn.classList.remove("loading");
   }
@@ -1281,7 +1288,7 @@ async function downloadCalendarAsExcel() {
     });
     const url = URL.createObjectURL(blob);
     const a   = document.createElement("a");
-    a.href = url; a.download = "SCOOP_OOH_Campaign_Calendar.xlsx"; a.click();
+    a.href = url; a.download = `SCOOP_OOH_Campaign_Calendar${filenameDateRange(calRangeStart, calRangeEnd)}.xlsx`; a.click();
     URL.revokeObjectURL(url);
   } finally {
     if (btn) btn.classList.remove("loading");

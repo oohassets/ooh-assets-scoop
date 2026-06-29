@@ -11,11 +11,32 @@
 
 <div class="ci-page">
 
-  <!-- Circuit tab buttons -->
+  <!-- Sticky page header -->
+  <div class="ci-sticky-header">
+    <div class="bookings-hdr-text">
+      <div class="section-title" style="font-size:22px;">Content Inventory</div>
+      <p class="section-sub">Keep track of all active content displayed throughout your OOH Assets</p>
+    </div>
+  </div>
+
+  <!-- Circuit tab buttons + download button on the same sticky bar -->
   <div class="circuit-tabs">
     <button class="circuit-tab active" data-tab="digital">Digital</button>
     <button class="circuit-tab" data-tab="static">Static</button>
     <button class="circuit-tab" data-tab="activity">Activity</button>
+    <div class="download-wrap" style="margin-left:auto;">
+      <button class="download-btn" id="ciDownloadBtn" title="Download report">
+        <span class="material-symbols-outlined">download</span>
+      </button>
+      <div class="download-dropdown" id="ciDownloadDropdown">
+        <button class="dl-opt" id="ciDownloadPDF">
+          <span class="material-symbols-outlined">picture_as_pdf</span>PDF
+        </button>
+        <button class="dl-opt" id="ciDownloadExcel">
+          <span class="material-symbols-outlined">table_view</span>Excel
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Digital section (default visible) -->
