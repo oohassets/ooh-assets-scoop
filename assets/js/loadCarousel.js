@@ -407,8 +407,8 @@ export async function loadCarousel() {
   const getTPIOrder = (name) => {
     name = name.toLowerCase().replace(/_/g, " ");
 
-    if (name.includes("underpass in")) return 1;
-    if (name.includes("underpass out")) return 2;
+    if (name.includes("underpass entrance")) return 1;
+    if (name.includes("underpass exit")) return 2;
 
     if (name.includes("mupi") && name.includes("circuit 1")) return 3;
     if (name.includes("mupi") && name.includes("circuit 2")) return 4;
