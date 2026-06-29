@@ -135,6 +135,40 @@
 .filter-box select { border:none; outline:none; background:transparent; color:var(--text-secondary); font-family:var(--font-body); font-size:14px; cursor:pointer; width:100%; }
 .filter-box select option { background:var(--bg-secondary); color:var(--text-primary); }
 
+/* ── Download button ────────────────────── */
+.download-wrap { position: relative; display: inline-flex; }
+.download-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-glass); background: var(--bg-glass);
+  color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+  flex-shrink: 0;
+}
+.download-btn .material-symbols-outlined { font-size: 20px; transition: transform 0.2s; }
+.download-btn:hover, .download-btn.open {
+  border-color: var(--accent-indigo); color: var(--accent-indigo);
+  background: rgba(79,70,229,0.08);
+}
+.download-btn.loading .material-symbols-outlined { animation: dl-spin 0.8s linear infinite; }
+@keyframes dl-spin { to { transform: rotate(360deg); } }
+.download-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 500;
+  background: var(--nav-bg); border: 1px solid var(--border-glass);
+  border-radius: 14px; padding: 8px; min-width: 150px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px);
+  display: none;
+}
+.download-dropdown.open { display: block; }
+.dl-opt {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; text-align: left; padding: 9px 12px;
+  border-radius: 8px; border: none; background: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); transition: all 0.15s;
+}
+.dl-opt .material-symbols-outlined { font-size: 16px; }
+.dl-opt:hover { background: var(--bg-glass); color: var(--text-primary); }
+
 /* ── Date range filter ────────────────── */
 .date-filter-wrap { position:relative; display:inline-flex; }
 .date-filter-btn { display:flex; align-items:center; gap:8px; padding:0 16px; height:44px; background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer; transition:all 0.2s; white-space:nowrap; }

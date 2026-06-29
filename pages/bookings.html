@@ -67,6 +67,20 @@
               <option value="Cancelled">Cancelled</option>
             </select>
           </div>
+
+          <div class="download-wrap">
+            <button class="download-btn" id="downloadBtn" title="Download report">
+              <span class="material-symbols-outlined">download</span>
+            </button>
+            <div class="download-dropdown" id="downloadDropdown">
+              <button class="dl-opt" id="downloadPDF">
+                <span class="material-symbols-outlined">picture_as_pdf</span>PDF
+              </button>
+              <button class="dl-opt" id="downloadExcel">
+                <span class="material-symbols-outlined">table_view</span>Excel
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="table-container">
@@ -125,6 +139,20 @@
                   <div><div class="date-custom-label">To</div><input type="date" class="date-custom-field" id="calTo"></div>
                   <button class="date-apply-btn" id="applyCalCustomDate">Apply</button>
                 </div>
+              </div>
+            </div>
+
+            <div class="download-wrap">
+              <button class="download-btn" id="calDownloadBtn" title="Download calendar report">
+                <span class="material-symbols-outlined">download</span>
+              </button>
+              <div class="download-dropdown" id="calDownloadDropdown">
+                <button class="dl-opt" id="calDownloadPDF">
+                  <span class="material-symbols-outlined">picture_as_pdf</span>PDF
+                </button>
+                <button class="dl-opt" id="calDownloadExcel">
+                  <span class="material-symbols-outlined">table_view</span>Excel
+                </button>
               </div>
             </div>
 

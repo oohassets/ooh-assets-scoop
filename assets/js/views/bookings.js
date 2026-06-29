@@ -4,6 +4,7 @@ import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1
 
 let currentUserName = "";
 let allCampaigns    = [];
+let currentFiltered = [];
 let drpStart = null, drpEnd = null;
 let calDrpStart = null, calDrpEnd = null;
 let calBookings = [], calDates = [], calRangeStart = null, calRangeEnd = null;
@@ -300,6 +301,7 @@ function applyFilters() {
     });
   }
   if (status) f = f.filter(c => (c.status||"").toLowerCase().trim() === status.toLowerCase().trim());
+  currentFiltered = f;
   renderTable(f);
 }
 
@@ -763,6 +765,529 @@ async function loadBookings() {
   } catch(e) { return []; }
 }
 
+// ── DOWNLOAD ──────────────────────────────────────────────
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement("script");
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function fmtDateHeader(d) {
+  if (!d) return "—";
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function getDateRangeStr() {
+  if (!drpStart || !drpEnd) return "All dates";
+  return `${fmtDateHeader(drpStart)} - ${fmtDateHeader(drpEnd)}`;
+}
+
+async function downloadAsPDF() {
+  const btn = document.getElementById("downloadBtn");
+  if (btn) btn.classList.add("loading");
+  try {
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+
+    // ── Header ───────────────────────────────
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(79, 70, 229);
+    doc.text("SCOOP OOH", 15, 18);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(20, 20, 50);
+    doc.text("Campaign Bookings", 15, 27);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(110, 120, 150);
+    doc.text(`Dates: ${getDateRangeStr()}`, 15, 35);
+
+    // ── Table ────────────────────────────────
+    const PAD       = 4;
+    const COL1_W    = 68;               // Client/Brand column width (mm)
+    const TEXT_W    = COL1_W - PAD * 2; // usable text width inside padding
+    const CLIENT_LH = 3.5;             // line height mm at 8.5pt
+    const BRAND_LH  = 4.8;             // line height mm at 10.5pt
+    const BLOCK_GAP = 2;               // gap between client block and brand block
+
+    // Pre-compute wrapped lines per row so didParseCell can set the exact row height
+    const cellLines = currentFiltered.map(c => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      const clientLines = c.client !== "—" ? doc.splitTextToSize(c.client, TEXT_W) : [];
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      const brandLines = c.brand !== "—" ? doc.splitTextToSize(c.brand, TEXT_W) : [];
+
+      return { clientLines, brandLines };
+    });
+
+    const rows = currentFiltered.map(c => [
+      c.bo || "—",
+      "",             // placeholder — custom-drawn in didDrawCell
+      c.asset !== "—" ? c.asset : "",
+      c.date.replace("→", "-"),
+      c.status,
+      c.person
+    ]);
+
+    doc.autoTable({
+      startY: 41,
+      head: [["Booking Order", "Client / Brand", "Circuits", "Dates", "Status", "Person"]],
+      body: rows,
+      styles: {
+        font: "helvetica", fontSize: 10, cellPadding: PAD,
+        valign: "middle", overflow: "linebreak"
+      },
+      headStyles: {
+        fillColor: [79, 70, 229], textColor: 255,
+        fontStyle: "bold", fontSize: 10.5, cellPadding: PAD
+      },
+      alternateRowStyles: { fillColor: [245, 245, 255] },
+      columnStyles: {
+        0: { cellWidth: 33, valign: "middle" },
+        1: { cellWidth: COL1_W },
+        2: { cellWidth: 58, valign: "middle", fontSize: 9.5 },
+        3: { cellWidth: 40, valign: "middle" },
+        4: { cellWidth: 34, valign: "middle" },
+        5: { cellWidth: 26, valign: "middle" }
+      },
+      margin: { left: 15, right: 15 },
+
+      didParseCell: (data) => {
+        if (data.section !== "body" || data.column.index !== 1) return;
+        const { clientLines = [], brandLines = [] } = cellLines[data.row.index] || {};
+
+        // Compute exact block height so autoTable sizes this row correctly
+        const clientBlockH = clientLines.length * CLIENT_LH;
+        const brandBlockH  = brandLines.length  * BRAND_LH;
+        const hasGap = clientLines.length && brandLines.length ? BLOCK_GAP : 0;
+        const neededH = clientBlockH + hasGap + brandBlockH + PAD * 2;
+
+        data.cell.text = [];                              // suppress default drawing
+        data.cell.minCellHeight = Math.max(16, neededH); // force correct row height
+      },
+
+      didDrawCell: (data) => {
+        if (data.section !== "body" || data.column.index !== 1) return;
+        const { clientLines = [], brandLines = [] } = cellLines[data.row.index] || {};
+        if (!clientLines.length && !brandLines.length) return;
+
+        const cx = data.cell.x + PAD;
+        const cy = data.cell.y;
+        const ch = data.cell.height;
+
+        // Vertically centre the whole block
+        const clientBlockH = clientLines.length * CLIENT_LH;
+        const brandBlockH  = brandLines.length  * BRAND_LH;
+        const hasGap = clientLines.length && brandLines.length ? BLOCK_GAP : 0;
+        const totalH = clientBlockH + hasGap + brandBlockH;
+        let curY = cy + (ch - totalH) / 2;
+
+        // Client lines — small, muted
+        if (clientLines.length) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8.5);
+          doc.setTextColor(140, 150, 175);
+          clientLines.forEach((line, i) => {
+            doc.text(line, cx, curY + CLIENT_LH * (i + 1) - 0.5);
+          });
+          curY += clientBlockH + hasGap;
+        }
+
+        // Brand lines — bold, dark
+        if (brandLines.length) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(10.5);
+          doc.setTextColor(20, 20, 50);
+          brandLines.forEach((line, i) => {
+            doc.text(line, cx, curY + BRAND_LH * (i + 1) - 0.8);
+          });
+        }
+      }
+    });
+
+    doc.save("SCOOP_OOH_Campaign_Bookings.pdf");
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
+async function downloadAsExcel() {
+  const btn = document.getElementById("downloadBtn");
+  if (btn) btn.classList.add("loading");
+  try {
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+    const XLSX = window.XLSX;
+    const wb = XLSX.utils.book_new();
+    const wsData = [
+      ["SCOOP OOH"],
+      ["Campaign Bookings"],
+      [`Dates: ${getDateRangeStr()}`],
+      [],
+      ["BO No", "Client", "Brand Campaign", "Circuit", "Start Date", "End Date", "Status", "Person"],
+      ...currentFiltered.map(c => [
+        c.bo || "", c.client, c.brand !== "—" ? c.brand : "",
+        c.asset,
+        c.rawStartDate, c.rawEndDate, c.status, c.person
+      ])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [15, 25, 40, 36, 14, 14, 14, 10].map(w => ({ wch: w }));
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, "Campaign Bookings");
+    XLSX.writeFile(wb, "SCOOP_OOH_Campaign_Bookings.xlsx");
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
+// ── CALENDAR DOWNLOAD ─────────────────────────────────────
+function getCalDateRangeStr() {
+  if (!calRangeStart || !calRangeEnd) return "All dates";
+  return `${fmtDateHeader(calRangeStart)} - ${fmtDateHeader(calRangeEnd)}`;
+}
+
+function getCalFilteredBookings() {
+  if (!calBookings.length) return [];
+  const lo = calRangeStart ? new Date(calRangeStart) : null;
+  const hi = calRangeEnd   ? new Date(calRangeEnd)   : null;
+  if (lo) lo.setHours(0, 0, 0, 0);
+  if (hi) hi.setHours(0, 0, 0, 0);
+  return calBookings
+    .filter(b => {
+      if (!b) return false;
+      const s = parseDate(b["Start Date"]); const e = parseDate(b["End Date"]);
+      if (!s || !e) return false;
+      s.setHours(0,0,0,0); e.setHours(0,0,0,0);
+      return (!lo || s <= hi) && (!hi || e >= lo);
+    })
+    .sort((a, b) => {
+      const ad = parseDate(a["Start Date"]); const bd = parseDate(b["Start Date"]);
+      return (ad || 0) - (bd || 0);
+    });
+}
+
+async function downloadCalendarAsPDF() {
+  const btn = document.getElementById("calDownloadBtn");
+  if (btn) btn.classList.add("loading");
+  try {
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+    const { jsPDF } = window.jspdf;
+
+    const table = document.getElementById("bookingCalendar");
+    if (!table) return;
+
+    const M        = 12.7;  // 0.5 inch margin (mm)
+    const HEADER_H = 28;    // space reserved for title block (mm)
+    const doc      = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const PAGE_W   = doc.internal.pageSize.getWidth();   // 297mm
+    const PAGE_H   = doc.internal.pageSize.getHeight();  // 210mm
+    const AVAIL_W  = PAGE_W - M * 2;
+
+    // ── Header ────────────────────────────────────────────
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(79, 70, 229);
+    doc.text("SCOOP OOH", M, M + 7);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(20, 20, 50);
+    doc.text("Campaign Calendar", M, M + 15);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(110, 120, 150);
+    doc.text(`Dates: ${getCalDateRangeStr()}`, M, M + 22);
+
+    // ── Screenshot the live calendar table ────────────────
+    const bgColor = getComputedStyle(document.body).backgroundColor || "#ffffff";
+    const canvas  = await window.html2canvas(table, {
+      scale: 2, useCORS: true, allowTaint: true,
+      backgroundColor: bgColor, logging: false,
+    });
+
+    const imgData  = canvas.toDataURL("image/png");
+    const drawW    = AVAIL_W;
+    const drawH    = (canvas.height / canvas.width) * drawW;
+    const pxPerMm  = canvas.width / drawW;
+
+    // Measure the thead height so we can repeat it on subsequent pages
+    const theadEl  = table.querySelector("thead");
+    const theadPxH = theadEl ? theadEl.offsetHeight * 2 : 0; // ×2 for canvas scale:2
+    const theadMmH = theadPxH / pxPerMm;
+
+    const firstH = PAGE_H - M - HEADER_H - M;  // image height available on page 1
+    const otherH = PAGE_H - M * 2;              // image height available on pages 2+
+
+    if (drawH <= firstH) {
+      // Entire Gantt fits on page 1
+      doc.addImage(imgData, "PNG", M, M + HEADER_H, drawW, drawH);
+    } else {
+      // Page 1: top slice (includes the column header row naturally)
+      const firstStripPx  = Math.min(firstH * pxPerMm, canvas.height);
+      const firstStripMm  = firstStripPx / pxPerMm;
+      const strip1 = document.createElement("canvas");
+      strip1.width = canvas.width; strip1.height = firstStripPx;
+      strip1.getContext("2d").drawImage(canvas, 0, 0, canvas.width, firstStripPx, 0, 0, canvas.width, firstStripPx);
+      doc.addImage(strip1.toDataURL("image/png"), "PNG", M, M + HEADER_H, drawW, firstStripMm);
+
+      // Subsequent pages: repeat thead at top, then next body chunk below it
+      let bodyYPx = firstStripPx;
+      while (bodyYPx < canvas.height) {
+        doc.addPage();
+        const bodyChunkPx  = Math.min((otherH * pxPerMm) - theadPxH, canvas.height - bodyYPx);
+        const totalStripPx = theadPxH + bodyChunkPx;
+        const totalStripMm = totalStripPx / pxPerMm;
+
+        const strip = document.createElement("canvas");
+        strip.width = canvas.width; strip.height = totalStripPx;
+        const ctx   = strip.getContext("2d");
+        // thead repeated at top
+        ctx.drawImage(canvas, 0, 0, canvas.width, theadPxH, 0, 0, canvas.width, theadPxH);
+        // body chunk below thead
+        ctx.drawImage(canvas, 0, bodyYPx, canvas.width, bodyChunkPx, 0, theadPxH, canvas.width, bodyChunkPx);
+
+        doc.addImage(strip.toDataURL("image/png"), "PNG", M, M, drawW, totalStripMm);
+        bodyYPx += bodyChunkPx;
+      }
+    }
+
+    doc.save("SCOOP_OOH_Campaign_Calendar.pdf");
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
+async function downloadCalendarAsExcel() {
+  const btn = document.getElementById("calDownloadBtn");
+  if (btn) btn.classList.add("loading");
+  try {
+    await loadScript("https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js");
+
+    // Use the already-rendered date range; fall back to computing it
+    const dates = calDates.length ? calDates : (() => {
+      const out = [], cur = new Date(calRangeStart || new Date());
+      const end = calRangeEnd || cur;
+      while (cur <= end) { out.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+      return out;
+    })();
+
+    // Fetch same data sources as buildCalendar
+    const [circuitSlots, allBookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
+    const bookings = getCalFilteredBookings().length ? getCalFilteredBookings() : allBookings;
+
+    // Deduplicate by circuit name, keeping max slot count (mirrors calendar row structure)
+    const circuitMap = new Map();
+    circuitSlots.forEach(c => {
+      const prev = circuitMap.get(c.name);
+      if (!prev || prev.slots < c.slots) circuitMap.set(c.name, c);
+    });
+    const circuits = [...circuitMap.values()];
+
+    // Same fuzzy circuit match as renderBars
+    function circuitMatch(b, name) {
+      const asset = (b.Circuits || b.Circuit || "").toLowerCase().replace(/[_-]/g, " ").trim();
+      const rc    = name.toLowerCase().replace(/[_-]/g, " ").trim();
+      return rc.includes(asset) || asset.includes(rc);
+    }
+
+    function bookingOn(circuitName, slot, date) {
+      const d = new Date(date); d.setHours(0, 0, 0, 0);
+      return bookings.find(b => {
+        if (!circuitMatch(b, circuitName)) return false;
+        if (parseInt(b.Slot || b.slot || 1) !== slot) return false;
+        const s = parseDate(b["Start Date"] || b.startDate);
+        const e = parseDate(b["End Date"]   || b.endDate);
+        if (!s || !e) return false;
+        s.setHours(0,0,0,0); e.setHours(0,0,0,0);
+        return d >= s && d <= e;
+      }) || null;
+    }
+
+    // Same label format as the booking bar in the HTML calendar
+    function barLabel(b) {
+      const client = b.Client || "Booking";
+      const brand  = b["Brand Campaign"] || "";
+      const person = b.Person || "";
+      return brand ? `${client} | ${brand} - ${person}` : client;
+    }
+
+    // Unique key to detect booking span boundaries
+    function bKey(b) {
+      return b
+        ? `${b.Circuits || b.Circuit}|${b.Slot}|${b["Start Date"]}|${b["End Date"]}`
+        : null;
+    }
+
+    // Status → ARGB fill (matches UI bar colors)
+    function statusFill(status) {
+      const s = (status || "").toLowerCase();
+      let argb = "FF6366F1";
+      if (s.includes("live"))        argb = "FF10B981";
+      else if (s.includes("signed"))     argb = "FFF43F5E";
+      else if (s.includes("pending"))    argb = "FFF59E0B";
+      else if (s.includes("completed"))  argb = "FF0496FF";
+      else if (s.includes("cancel"))     argb = "FF6B7A99";
+      return { type: "pattern", pattern: "solid", fgColor: { argb } };
+    }
+
+    const ExcelJS   = window.ExcelJS;
+    const wb        = new ExcelJS.Workbook();
+    wb.creator      = "SCOOP OOH"; wb.created = new Date();
+    const totalCols = 2 + dates.length;
+
+    const ws = wb.addWorksheet("Campaign Calendar", {
+      views: [{ state: "frozen", xSplit: 2, ySplit: 5 }]
+    });
+
+    // ── Header rows ───────────────────────────────────────
+    const addHdrRow = (text, rowNum, font, height) => {
+      ws.addRow([text]);
+      ws.mergeCells(rowNum, 1, rowNum, totalCols);
+      const c = ws.getCell(rowNum, 1);
+      c.font = font; c.alignment = { vertical: "middle", horizontal: "left" };
+      ws.getRow(rowNum).height = height;
+    };
+    addHdrRow("SCOOP OOH",         1, { bold: true, size: 18, color: { argb: "FF4F46E5" } }, 28);
+    addHdrRow("Campaign Calendar", 2, { bold: true, size: 13, color: { argb: "FF141432" } }, 22);
+    addHdrRow(`Dates: ${getCalDateRangeStr()}`, 3, { size: 10, color: { argb: "FF6E7A99" } }, 18);
+    ws.addRow([]); ws.getRow(4).height = 6;
+
+    // ── Column header row (row 5) ─────────────────────────
+    const dateLabels = dates.map(d =>
+      d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+    );
+    ws.addRow(["Circuit", "Slot", ...dateLabels]);
+    const hdr = ws.getRow(5); hdr.height = 22;
+    hdr.eachCell(cell => {
+      cell.font      = { bold: true, size: 9, color: { argb: "FFFFFFFF" } };
+      cell.fill      = { type: "pattern", pattern: "solid", fgColor: { argb: "FF4F46E5" } };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border    = { bottom: { style: "medium", color: { argb: "FF3730A3" } } };
+    });
+
+    // ── Data rows ─────────────────────────────────────────
+    const ALT_FILL  = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF5F3FF" } };
+    let   nextRow   = 6;   // first data row in Excel (1-indexed)
+    let   globalIdx = 0;   // for alternating row tint
+
+    circuits.forEach(circuit => {
+      const circuitFirstRow = nextRow;
+
+      // Iterate exactly like buildCalendar: slot 1 … circuit.slots
+      for (let slot = 1; slot <= circuit.slots; slot++) {
+        const excelRow = nextRow++;
+
+        // Pre-compute which booking covers each date for this slot
+        const dateBks = dates.map(date => bookingOn(circuit.name, slot, date));
+
+        // Compute consecutive booking spans
+        const spans = [];
+        let curKey = null, curStart = 0, curBk = null;
+        for (let i = 0; i < dateBks.length; i++) {
+          const key = bKey(dateBks[i]);
+          if (key !== curKey) {
+            if (curKey && curBk) spans.push({ start: curStart, end: i - 1, bk: curBk });
+            curKey = key; curStart = i; curBk = dateBks[i];
+          }
+        }
+        if (curKey && curBk) spans.push({ start: curStart, end: dateBks.length - 1, bk: curBk });
+
+        // Add row — circuit name only on first slot (rest left blank for the merge)
+        ws.addRow([slot === 1 ? circuit.name : "", `Slot ${slot}`, ...new Array(dates.length).fill("")]);
+        const row = ws.getRow(excelRow); row.height = 22;
+
+        // Style circuit name cell on first slot
+        if (slot === 1) {
+          const cc      = row.getCell(1);
+          cc.font       = { bold: true, size: 10 };
+          cc.alignment  = { vertical: "middle", horizontal: "left", wrapText: true };
+        }
+
+        // Slot cell
+        const sc      = row.getCell(2);
+        sc.font       = { size: 9, color: { argb: "FF6E7A99" } };
+        sc.alignment  = { vertical: "middle", horizontal: "center" };
+
+        // Track which date columns have a booking fill
+        const bookedCols = new Set();
+
+        // Apply booking spans: fill → label → merge
+        spans.forEach(({ start, end, bk }) => {
+          const c1   = 3 + start;   // ExcelJS 1-indexed
+          const c2   = 3 + end;
+          const fill = statusFill(bk.Status);
+          const label = barLabel(bk);
+
+          // Fill all cells in the span (colour shows on every cell before merge)
+          for (let c = c1; c <= c2; c++) {
+            row.getCell(c).fill = fill;
+            bookedCols.add(c);
+          }
+
+          // Label + white text on the first (visible) cell
+          const fc     = row.getCell(c1);
+          fc.value     = label;
+          fc.font      = { bold: true, size: 8.5, color: { argb: "FFFFFFFF" } };
+          fc.alignment = { vertical: "middle", horizontal: "left", wrapText: false };
+
+          // Merge across the span
+          if (c2 > c1) ws.mergeCells(excelRow, c1, excelRow, c2);
+        });
+
+        // Alternate-row tint on empty date cells
+        if (globalIdx % 2 === 1) {
+          for (let c = 3; c <= totalCols; c++) {
+            if (!bookedCols.has(c)) row.getCell(c).fill = ALT_FILL;
+          }
+        }
+        globalIdx++;
+      }
+
+      // Merge the Circuit column vertically across all slot rows (rowspan equivalent)
+      if (circuit.slots > 1) {
+        ws.mergeCells(circuitFirstRow, 1, circuitFirstRow + circuit.slots - 1, 1);
+        const mc     = ws.getCell(circuitFirstRow, 1);
+        mc.font      = { bold: true, size: 10 };
+        mc.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+      }
+    });
+
+    // ── Column widths ─────────────────────────────────────
+    ws.getColumn(1).width = 36;
+    ws.getColumn(2).width = 8;
+    for (let c = 3; c <= totalCols; c++) ws.getColumn(c).width = 9;
+
+    // ── Write and trigger browser download ────────────────
+    const buf  = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement("a");
+    a.href = url; a.download = "SCOOP_OOH_Campaign_Calendar.xlsx"; a.click();
+    URL.revokeObjectURL(url);
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────────
 export async function init(userName) {
   currentUserName = userName || "User";
@@ -834,6 +1359,56 @@ export async function init(userName) {
   document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
   document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
   document.getElementById("calSearch")?.addEventListener("input", filterAndRenderBars);
+
+  // ── Download ──────────────────────────────────────────
+  const downloadBtn      = document.getElementById("downloadBtn");
+  const downloadDropdown = document.getElementById("downloadDropdown");
+  downloadBtn?.addEventListener("click", e => {
+    e.stopPropagation();
+    downloadDropdown?.classList.toggle("open");
+    downloadBtn.classList.toggle("open");
+  });
+  document.addEventListener("click", e => {
+    if (!downloadBtn?.contains(e.target) && !downloadDropdown?.contains(e.target)) {
+      downloadDropdown?.classList.remove("open");
+      downloadBtn?.classList.remove("open");
+    }
+  });
+  document.getElementById("downloadPDF")?.addEventListener("click", () => {
+    downloadDropdown?.classList.remove("open");
+    downloadBtn?.classList.remove("open");
+    downloadAsPDF();
+  });
+  document.getElementById("downloadExcel")?.addEventListener("click", () => {
+    downloadDropdown?.classList.remove("open");
+    downloadBtn?.classList.remove("open");
+    downloadAsExcel();
+  });
+
+  // ── Calendar download ─────────────────────────────────
+  const calDownloadBtn      = document.getElementById("calDownloadBtn");
+  const calDownloadDropdown = document.getElementById("calDownloadDropdown");
+  calDownloadBtn?.addEventListener("click", e => {
+    e.stopPropagation();
+    calDownloadDropdown?.classList.toggle("open");
+    calDownloadBtn.classList.toggle("open");
+  });
+  document.addEventListener("click", e => {
+    if (!calDownloadBtn?.contains(e.target) && !calDownloadDropdown?.contains(e.target)) {
+      calDownloadDropdown?.classList.remove("open");
+      calDownloadBtn?.classList.remove("open");
+    }
+  });
+  document.getElementById("calDownloadPDF")?.addEventListener("click", () => {
+    calDownloadDropdown?.classList.remove("open");
+    calDownloadBtn?.classList.remove("open");
+    downloadCalendarAsPDF();
+  });
+  document.getElementById("calDownloadExcel")?.addEventListener("click", () => {
+    calDownloadDropdown?.classList.remove("open");
+    calDownloadBtn?.classList.remove("open");
+    downloadCalendarAsExcel();
+  });
 
   // ── Booking modal ────────────────────────────────────
   const bookingModal = document.getElementById("bookingModal");
