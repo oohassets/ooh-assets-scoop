@@ -342,6 +342,123 @@ function publishCampaignToday(allTables) {
 }
 
 // ===============================
+function renderActivityGrid(allTables, container) {
+  if (!container) return;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+
+  function dateLabel(d) {
+    const diff = Math.floor((d - today) / 86400000);
+    if (diff === 0)  return "Today";
+    if (diff === 1)  return "Tomorrow";
+    if (diff === -1) return "Yesterday";
+    if (diff > 1)    return `In ${diff}d`;
+    return `${Math.abs(diff)}d ago`;
+  }
+
+  function parseMMDDYYYY(v) {
+    if (!v) return null;
+    const p = v.toString().trim().split("/").map(x => parseInt(x, 10));
+    return p.length >= 2 ? new Date(p[2] || today.getFullYear(), p[0] - 1, p[1]) : null;
+  }
+
+  function getStatusCls(s = "") {
+    s = s.toLowerCase();
+    if (s.includes("live"))    return "live";
+    if (s.includes("signed"))  return "signed";
+    if (s.includes("pending")) return "pending";
+    return "";
+  }
+
+  const groups = { published: [], removed: [], upcoming: [], ending: [] };
+
+  // Published / Removed — from Campaign_Logs (last 3 days)
+  const logs = allTables["Campaign_Logs"] || {};
+  Object.values(logs).forEach(log => {
+    const raw = log.Date; const type = (log.Type || "").toLowerCase();
+    if (!raw || !type) return;
+    const d = parseDDMMMYYYY(formatDateDDMMMYYYY(raw));
+    if (!d) return;
+    d.setHours(0, 0, 0, 0);
+    const diff = Math.floor((d - today) / 86400000);
+    if (diff < -3 || diff > 0) return;
+    const entry = { label: dateLabel(d), brand: log.Client || "—", asset: log.Circuits || "—", sortDate: d };
+    if (type === "add" || type === "added")          groups.published.push(entry);
+    if (type === "removed" || type === "remove")     groups.removed.push(entry);
+  });
+
+  // Upcoming / Ending — from Campaigns_Booking
+  const bookings = allTables["Campaigns_Booking"];
+  if (bookings) {
+    const rows = Array.isArray(bookings) ? bookings : Object.values(bookings);
+    rows.forEach(row => {
+      if (!row) return;
+      const status = (row.Status || "").toLowerCase();
+      const sd = parseMMDDYYYY(row["Start Date"]);
+      const ed = parseMMDDYYYY(row["End Date"]);
+      if (!sd) return;
+      sd.setHours(0, 0, 0, 0);
+      if (ed) ed.setHours(0, 0, 0, 0);
+      const sdiff = Math.floor((sd - today) / 86400000);
+      const ediff = ed ? Math.floor((ed - today) / 86400000) : 999;
+      const isUpcoming = status.includes("signed") || status.includes("pending");
+      const isActive   = isUpcoming || status.includes("live");
+      if (!isActive) return;
+      const brand       = row["Brand Campaign"] || row.Client || "—";
+      const asset       = row.Circuits || "—";
+      const statusCls   = getStatusCls(row.Status);
+      const statusLabel = row.Status || "—";
+      if (isUpcoming && ((sdiff >= 0 && sdiff <= 30) || (sdiff < 0 && ediff >= 0))) {
+        groups.upcoming.push({ label: dateLabel(sd), brand, asset, statusCls, statusLabel, sortDate: sd });
+      }
+      if (ed && ediff >= 0 && ediff <= 7 && sdiff < 0) {
+        groups.ending.push({ label: dateLabel(ed), brand, asset, statusCls, statusLabel, sortDate: ed });
+      }
+    });
+  }
+
+  groups.published.sort((a, b) => b.sortDate - a.sortDate);
+  groups.removed.sort((a, b) => b.sortDate - a.sortDate);
+  groups.upcoming.sort((a, b) => a.sortDate - b.sortDate);
+  groups.ending.sort((a, b) => a.sortDate - b.sortDate);
+
+  function buildCard(id, title, dotCls, items) {
+    const body = items.length
+      ? items.map((u, i) => `
+          <div class="update-item" style="animation-delay:${i * 0.05}s">
+            <div>
+              <div class="update-item-label">${u.brand}</div>
+              <div class="update-item-sub">${u.asset}</div>
+              ${id === "upcoming" && u.statusLabel
+                ? `<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`
+                : ""}
+            </div>
+            <div class="update-date-badge">${u.label}</div>
+          </div>`).join("")
+      : `<div style="padding:14px 0;font-size:12px;color:var(--text-muted);">No updates</div>`;
+
+    return `
+      <div class="update-card">
+        <div class="update-card-head ${id}">
+          <div>
+            <div class="update-title">${title}</div>
+            <div class="update-count">${items.length} campaign${items.length !== 1 ? "s" : ""}</div>
+          </div>
+          <div class="update-dot ${dotCls}"></div>
+        </div>
+        <div class="update-body">${body}</div>
+      </div>`;
+  }
+
+  container.innerHTML = `
+    <div class="update-cards-grid">
+      ${buildCard("published", "Published",  "dot-green", groups.published)}
+      ${buildCard("removed",   "Removed",    "dot-red",   groups.removed)}
+      ${buildCard("upcoming",  "Upcoming",   "dot-amber", groups.upcoming)}
+      ${buildCard("ending",    "Ending",     "dot-cyan",  groups.ending)}
+    </div>`;
+}
+
+// ===============================
 export async function loadCarousel() {
   const tpiCarousel = document.getElementById("carouselTPI");
   const gewanCarousel = document.getElementById("carouselGewan");
@@ -350,7 +467,12 @@ export async function loadCarousel() {
 
   const allTables = await loadAllTables();
 
-  publishCampaignToday(allTables);
+  const ciActivityGrid = document.getElementById("ciActivityGrid");
+  if (ciActivityGrid) {
+    renderActivityGrid(allTables, ciActivityGrid);
+  } else {
+    publishCampaignToday(allTables);
+  }
 
   const digitalTables = [];
   const staticTables = [];
@@ -458,18 +580,19 @@ export async function loadCarousel() {
   staticTables.sort((a, b) => getStaticOrder(a) - getStaticOrder(b));
 
   // Clear before rendering
-  tpiCarousel.innerHTML = "";
-  gewanCarousel.innerHTML = "";
+  if (tpiCarousel)   tpiCarousel.innerHTML   = "";
+  if (gewanCarousel) gewanCarousel.innerHTML = "";
 
   // Render TPI in its own carousel
-  tpiTables.forEach(t => renderCard(t, tpiCarousel));
+  if (tpiCarousel)   tpiTables.forEach(t => renderCard(t, tpiCarousel));
 
   // Render Gewan in its own carousel
-  gewanTables.forEach(t => renderCard(t, gewanCarousel));
+  if (gewanCarousel) gewanTables.forEach(t => renderCard(t, gewanCarousel));
 
   // ===============================
   // STATIC
   // ===============================
+  if (!staticCarousel) return;
   staticCarousel.innerHTML = "";
 
   staticTables.forEach(tableName => {
@@ -511,8 +634,9 @@ export async function loadCarousel() {
   });
 
   // ===============================
-  // CLEAR UPCOMING
+  // UPCOMING CAROUSEL (legacy — skipped when ciActivityGrid is present)
   // ===============================
+  if (!upcomingCarousel) return;
   upcomingCarousel.innerHTML = "";
 
   // ===============================
@@ -592,8 +716,8 @@ export async function loadCarousel() {
         Circuits: row.Circuits ?? "—",
         "Start Date": formatDateDDMMMYYYY(row["Start Date"]),
         "End Date": formatDateDDMMMYYYY(row["End Date"]) ?? "—",
-        Status: row.Status ?? "—",  
-        Person: row.Person ?? "—" 
+        Status: row.Status ?? "—",
+        Person: row.Person ?? "—"
       });
     });
   }

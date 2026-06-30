@@ -10,12 +10,26 @@
   box-sizing: border-box;
 }
 
-/* ── Sticky page header ───────────────── */
+/* ── Combined sticky header (title + circuit tabs) ───────── */
 .ci-sticky-header {
   position: sticky;
   top: 0;
   z-index: 101;
-  padding: 14px 20px 12px;
+  background: transparent;
+  transition: background 0.25s, box-shadow 0.25s, border-color 0.25s;
+  border-bottom: 1px solid transparent;
+}
+.ci-sticky-header.ci-scrolled {
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border-bottom-color: var(--border-glass);
+}
+/* inner wrapper aligns content to the same grid as .ci-page */
+.ci-header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 14px 20px 0;
 }
 .bookings-hdr-text .section-sub { margin-top: 2px; }
 
@@ -23,7 +37,7 @@
 .download-wrap { position: relative; display: inline-flex; }
 .download-btn {
   display: flex; align-items: center; justify-content: center;
-  width: 44px; border-radius: var(--radius-sm);
+  width: 44px; height: 34px; border-radius: var(--radius-sm);
   border: 1px solid var(--border-glass); background: var(--bg-primary);
   color: var(--text-secondary); cursor: pointer; transition: all 0.2s; flex-shrink: 0;
 }
@@ -32,8 +46,7 @@
   border-color: var(--accent-indigo); color: var(--accent-indigo);
   background: rgba(79,70,229,0.08);
 }
-.download-btn.loading .material-symbols-outlined { animation: ci-dl-spin 0.8s linear infinite; }
-@keyframes ci-dl-spin { to { transform: rotate(360deg); } }
+
 .download-dropdown {
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 500;
   background: var(--nav-bg); border: 1px solid var(--border-glass);
@@ -58,9 +71,8 @@
   margin: 20px 0 10px;
   padding: 8px 20px;
   position: sticky;
-  top: 132px;  /* 80px ci-sticky-header + 52px circuit-tabs */
+  top: 132px;  /* combined ci-sticky-header height */
   z-index: 99;
-  background: var(--bg-primary);
 }
 
 .expand-btn   { margin-top:20px; }
@@ -171,10 +183,7 @@
   display: flex;
   gap: 8px;
   padding: 10px 20px;
-  position: sticky;
-  top: 80px;   /* sits below the 80px ci-sticky-header */
-  z-index: 100;
-  border-radius: 10px;
+  /* no longer sticky — lives inside .ci-sticky-header */
 }
 .circuit-tab {
   padding: 7px 20px;
@@ -329,17 +338,23 @@
 }
 
 /* ── Activity update cards (mirrors dashboard style) ─── */
+.ci-activity-grid { padding: 20px; }
+.update-cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
 .update-card { border-radius:var(--radius-md); border:1px solid var(--border-glass); overflow:hidden; background:var(--bg-glass); transition:all 0.3s; }
 .update-card:hover { border-color:var(--border-glow); transform:translateY(-3px); }
 .update-card-head { padding:16px; display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid; }
 .update-card-head.published { border-color:var(--accent-emerald); }
 .update-card-head.removed   { border-color:var(--accent-rose); }
+.update-card-head.upcoming  { border-color:var(--accent-amber); }
+.update-card-head.ending    { border-color:var(--accent-cyan); }
 .update-title { font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--text-primary); }
 .update-count { font-size:11px; color:var(--text-muted); margin-top:3px; }
 .update-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
 .dot-green { background:var(--accent-emerald); }
 .dot-red   { background:var(--accent-rose); }
-.update-body { max-height:280px; overflow-y:auto; padding:0 16px; }
+.dot-amber { background:var(--accent-amber); }
+.dot-cyan  { background:var(--accent-cyan); }
+.update-body { max-height:320px; overflow-y:auto; padding:0 16px; }
 .update-body::-webkit-scrollbar { width:4px; }
 .update-body::-webkit-scrollbar-thumb { background:var(--border-glass); border-radius:999px; }
 .update-item {
@@ -350,3 +365,8 @@
 @keyframes itemFadeIn { from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);} }
 .update-item-label { font-size:13px; font-weight:500; color:var(--text-primary); }
 .update-item-sub   { font-size:12px; color:var(--text-muted); margin-top:2px; }
+.update-date-badge {
+  font-size:11px; font-weight:600; font-family:var(--font-display);
+  color:var(--text-muted); white-space:nowrap; flex-shrink:0;
+  padding:3px 8px; border-radius:6px; background:var(--bg-glass); border:1px solid var(--border-glass);
+}

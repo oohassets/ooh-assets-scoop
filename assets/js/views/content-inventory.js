@@ -10,6 +10,33 @@ function loadScript(src) {
   });
 }
 
+function loadImageForPDF(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      resolve({ dataUrl: canvas.toDataURL("image/png"), w: img.naturalWidth, h: img.naturalHeight });
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+
+function buildColStyles(columns, tableW) {
+  const fixedW = { "SN": 7, "Circuit": 22, "BO": 14, "Start Date": 18, "End Date": 18 };
+  let used = 0, autoCols = 0;
+  columns.forEach(col => { if (fixedW[col]) used += fixedW[col]; else autoCols++; });
+  const autoW = autoCols > 0 ? (tableW - used) / autoCols : 0;
+  const styles = {};
+  columns.forEach((col, i) => {
+    styles[i] = { cellWidth: fixedW[col] || autoW, valign: "middle" };
+  });
+  return styles;
+}
+
 function activeTabLabel() {
   const active = document.querySelector(".circuit-tab.active");
   return active ? active.textContent.trim() : "Content";
@@ -34,70 +61,143 @@ async function downloadAsPDF() {
     const section = activeSection();
     if (!section) return;
 
-    const M   = 15;
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const M      = 5;
+    const GAP    = 3;
+    const doc    = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const PAGE_W = doc.internal.pageSize.getWidth();
+    const PAGE_H = doc.internal.pageSize.getHeight();
+    const AVAIL_W = PAGE_W - M * 2;
+    const CARD_W  = (AVAIL_W - GAP) / 2;
+
+    // ── Logo ─────────────────────────────────────────────
+    let logoData = null;
+    try { logoData = await loadImageForPDF("images/scooplogo.png"); } catch (_) {}
+    const LOGO_H = 10;
+    const logoW  = logoData ? (LOGO_H * logoData.w) / logoData.h : 0;
 
     // ── Header ────────────────────────────────────────────
-    doc.setFont("helvetica", "bold"); doc.setFontSize(20); doc.setTextColor(79, 70, 229);
-    doc.text("SCOOP OOH", M, M + 6);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(20, 20, 50);
-    doc.text("Content Inventory", M, M + 14);
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(110, 120, 150);
-    doc.text(activeTabLabel(), M, M + 21);
+    let y = M + 2;
 
-    // ── Extract card data as text rows ────────────────────
-    // Each card: h2 = circuit/slot title; td.key/sibling = field/value pairs;
-    // or plain table rows if no .key cells.
-    const tableRows = [];
-    let lastTitle = "";
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(20, 20, 50);
+    doc.text("SCOOP Media and Communication Co.", M, y + 5);
 
-    section.querySelectorAll(".card").forEach(card => {
-      const title = card.querySelector("h2")?.textContent.trim() || "";
+    if (logoData) {
+      doc.addImage(logoData.dataUrl, "PNG", PAGE_W - M - logoW, y, logoW, LOGO_H);
+    }
+    y += 10;
 
-      const keyTds = card.querySelectorAll("td.key");
-      if (keyTds.length) {
-        keyTds.forEach(kTd => {
-          const field = kTd.textContent.trim();
-          const value = kTd.nextElementSibling?.textContent.trim() || "";
-          // Show title only on first row of each card
-          tableRows.push([title !== lastTitle ? title : "", field, value]);
-          lastTitle = title;
-        });
-      } else {
-        // Generic: read all non-empty table rows
-        card.querySelectorAll("tr").forEach(tr => {
-          const cells = Array.from(tr.querySelectorAll("td, th")).map(c => c.textContent.trim());
-          const nonempty = cells.filter(Boolean);
-          if (!nonempty.length) return;
-          const [field = "", ...rest] = nonempty;
-          tableRows.push([title !== lastTitle ? title : "", field, rest.join("  ·  ")]);
-          lastTitle = title;
-        });
-      }
-    });
+    const now = new Date();
+    const MONTH_NAMES = ["January","February","March","April","May","June",
+                         "July","August","September","October","November","December"];
+    const dateStr = `Date: ${now.getDate()} ${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`;
 
-    // ── Table ─────────────────────────────────────────────
-    doc.autoTable({
-      startY: M + 27,
-      head: [["Circuit / Slot", "Field", "Value"]],
-      body: tableRows,
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(20, 20, 50);
+    doc.text("Content Inventory", M, y + 3.5);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(20, 20, 50);
+    doc.text(dateStr, PAGE_W - M - doc.getTextWidth(dateStr), y + 3.5);
+
+    y += 7;
+
+    // ── Shared table style (font 7 to prevent wrapping) ──
+    const tblStyles = {
       styles: {
-        font: "helvetica", fontSize: 9,
-        cellPadding: { top: 3, bottom: 3, left: 4, right: 4 },
+        font: "helvetica", fontSize: 7,
+        cellPadding: { top: 1, bottom: 1, left: 1.5, right: 1.5 },
         overflow: "linebreak", valign: "middle",
       },
       headStyles: {
-        fillColor: [79, 70, 229], textColor: 255,
-        fontStyle: "bold", fontSize: 9.5,
+        fillColor: [100, 116, 139], textColor: 255,
+        fontStyle: "bold", fontSize: 6.5,
+        cellPadding: { top: 1.5, bottom: 1.5, left: 1.5, right: 1.5 },
       },
       alternateRowStyles: { fillColor: [245, 245, 255] },
-      columnStyles: {
-        0: { cellWidth: 52, fontStyle: "bold", textColor: [20, 20, 50] },
-        1: { cellWidth: 38, textColor: [80, 90, 120] },
-        2: { cellWidth: "auto" },
-      },
-      margin: { left: M, right: M },
-    });
+    };
+
+    const TITLE_H    = 4;
+    const CARD_GAP_V = 2;
+    const GROUP_GAP  = 3;
+    const rightX     = M + CARD_W + GAP;
+
+    const drawCardTitle = (title, x, ty) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(20, 20, 50);
+      doc.text(title, x, ty);
+    };
+
+    const extractCards = (container) => {
+      const cards = [];
+      container?.querySelectorAll(".card").forEach(card => {
+        const title   = card.querySelector("h2")?.textContent.trim() || "";
+        const tbl     = card.querySelector("table");
+        if (!tbl) return;
+        const columns = Array.from(tbl.querySelectorAll("thead th")).map(th => th.textContent.trim());
+        const rows    = Array.from(tbl.querySelectorAll("tbody tr")).map(tr =>
+          Array.from(tr.querySelectorAll("td")).map(td => td.textContent.trim())
+        ).filter(r => r.some(Boolean));
+        if (columns.length) cards.push({ title, columns, rows });
+      });
+      return cards;
+    };
+
+    const renderCardPair = (left, right, startY) => {
+      const tableY = startY + TITLE_H;
+      drawCardTitle(left.title, M, startY + 3.2);
+      doc.autoTable({
+        startY: tableY, tableWidth: CARD_W,
+        head: [left.columns], body: left.rows,
+        ...tblStyles,
+        columnStyles: buildColStyles(left.columns, CARD_W),
+        margin: { top: 0, left: M, bottom: 0, right: PAGE_W - M - CARD_W },
+      });
+      const leftFinalY = doc.lastAutoTable.finalY;
+
+      let rightFinalY = leftFinalY;
+      if (right) {
+        drawCardTitle(right.title, rightX, startY + 3.2);
+        doc.autoTable({
+          startY: tableY, tableWidth: CARD_W,
+          head: [right.columns], body: right.rows,
+          ...tblStyles,
+          columnStyles: buildColStyles(right.columns, CARD_W),
+          margin: { top: 0, left: rightX, bottom: 0, right: M },
+        });
+        rightFinalY = doc.lastAutoTable.finalY;
+      }
+
+      return Math.max(leftFinalY, rightFinalY) + CARD_GAP_V;
+    };
+
+    // ── Render based on active tab ────────────────────────
+    const tab = document.querySelector(".circuit-tab.active")?.dataset.tab || "digital";
+
+    if (tab === "digital") {
+      // TPI group then Gewan group — keeps Monoprix solo before Gewan starts
+      const tpiCards   = extractCards(document.getElementById("carouselTPI"));
+      const gewanCards = extractCards(document.getElementById("carouselGewan"));
+
+      for (let i = 0; i < tpiCards.length; i += 2) {
+        y = renderCardPair(tpiCards[i], tpiCards[i + 1] || null, y);
+      }
+      if (gewanCards.length) {
+        y += GROUP_GAP;
+        for (let i = 0; i < gewanCards.length; i += 2) {
+          y = renderCardPair(gewanCards[i], gewanCards[i + 1] || null, y);
+        }
+      }
+    } else {
+      const cards = extractCards(section);
+      for (let i = 0; i < cards.length; i += 2) {
+        y = renderCardPair(cards[i], cards[i + 1] || null, y);
+      }
+    }
 
     doc.save(`SCOOP_OOH_Content_Inventory_${activeTabLabel()}.pdf`);
   } finally {
@@ -186,7 +286,21 @@ export async function init() {
     downloadAsExcel();
   });
 
-  _cleanupFns = [() => document.removeEventListener("click", closeDropdown)];
+  // ── Sticky header background on scroll ────────────────
+  const appContent   = document.getElementById("app-content");
+  const stickyHeader = document.querySelector(".ci-sticky-header");
+
+  const onScroll = () => {
+    stickyHeader?.classList.toggle("ci-scrolled", appContent.scrollTop > 10);
+  };
+
+  appContent?.addEventListener("scroll", onScroll, { passive: true });
+
+  _cleanupFns = [
+    () => document.removeEventListener("click", closeDropdown),
+    () => appContent?.removeEventListener("scroll", onScroll),
+  ];
+
 }
 
 export function cleanup() {

@@ -7,37 +7,35 @@
 </head>
 <body>
 
-
-
-<div class="ci-page">
-
-  <!-- Sticky page header -->
-  <div class="ci-sticky-header">
+<!-- Combined sticky header: title + circuit tabs in one bar -->
+<div class="ci-sticky-header">
+  <div class="ci-header-inner">
     <div class="bookings-hdr-text">
       <div class="section-title" style="font-size:22px;">Content Inventory</div>
       <p class="section-sub">Keep track of all active content displayed throughout your OOH Assets</p>
     </div>
-  </div>
-
-  <!-- Circuit tab buttons + download button on the same sticky bar -->
-  <div class="circuit-tabs">
-    <button class="circuit-tab active" data-tab="digital">Digital</button>
-    <button class="circuit-tab" data-tab="static">Static</button>
-    <button class="circuit-tab" data-tab="activity">Activity</button>
-    <div class="download-wrap" style="margin-left:auto;">
-      <button class="download-btn" id="ciDownloadBtn" title="Download report">
-        <span class="material-symbols-outlined">download</span>
-      </button>
-      <div class="download-dropdown" id="ciDownloadDropdown">
-        <button class="dl-opt" id="ciDownloadPDF">
-          <span class="material-symbols-outlined">picture_as_pdf</span>PDF
+    <div class="circuit-tabs">
+      <button class="circuit-tab active" data-tab="digital">Digital</button>
+      <button class="circuit-tab" data-tab="static">Static</button>
+      <button class="circuit-tab" data-tab="activity">Activity</button>
+      <div class="download-wrap" style="margin-left:auto;">
+        <button class="download-btn" id="ciDownloadBtn" title="Download report">
+          <span class="material-symbols-outlined">download</span>
         </button>
-        <button class="dl-opt" id="ciDownloadExcel">
-          <span class="material-symbols-outlined">table_view</span>Excel
-        </button>
+        <div class="download-dropdown" id="ciDownloadDropdown">
+          <button class="dl-opt" id="ciDownloadPDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span>PDF
+          </button>
+          <button class="dl-opt" id="ciDownloadExcel">
+            <span class="material-symbols-outlined">table_view</span>Excel
+          </button>
+        </div>
       </div>
     </div>
   </div>
+</div>
+
+<div class="ci-page">
 
   <!-- Digital section (default visible) -->
   <div id="digitalSection">
@@ -64,14 +62,7 @@
 
   <!-- Campaign Activity section (hidden by default) -->
   <div id="activitySection" style="display:none;">
-    <div class="carousel-title">Campaign Activity</div>
-    <div class="carousel-container">
-      <div class="carousel" id="carouselPublishToday"></div>
-    </div>
-    <div class="carousel-title">Ending &amp; Upcoming Campaigns</div>
-    <div class="carousel-container">
-      <div class="carousel" id="carouselUpcoming"></div>
-    </div>
+    <div class="ci-activity-grid" id="ciActivityGrid"></div>
   </div>
 
 </div>
