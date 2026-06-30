@@ -183,14 +183,12 @@
       </div>
 
       <div class="nav-actions">
-        <div class="nav-badge">
-          <span class="dot"></span>
-          <span id="navUser">User</span>
-        </div>
+        <!-- Chatbase — desktop only -->
         <button class="btn-theme btn-scoop-agent" id="chatbaseNavBtn" title="Scoop Agent"
           onclick="window.chatbase && window.chatbase('open')">
           <span class="material-symbols-outlined" style="font-size:20px;">quickreply</span>
         </button>
+
         <!-- Notification bell -->
         <div class="notif-bell" id="notifBell">
           <button class="btn-theme notif-btn" id="notifBtn" title="Notifications">
@@ -216,12 +214,32 @@
           </div>
         </div>
 
-        <button class="btn-theme" id="themeToggle" title="Toggle theme">
-          <span class="material-symbols-outlined" style="font-size:20px;">dark_mode</span>
-        </button>
-        <button class="btn-theme" id="logoutBtn" title="Logout">
-          <span class="material-symbols-outlined" style="font-size:20px;">logout</span>
-        </button>
+        <!-- User profile avatar + dropdown -->
+        <div class="user-avatar-wrap" id="userAvatarWrap">
+          <button class="user-avatar" id="userAvatarBtn" title="My Account">
+            <span id="navAvatarInitials">U</span>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="user-dropdown-profile">
+              <div class="user-dropdown-avatar-lg">
+                <span id="userDropdownInitials">U</span>
+              </div>
+              <div class="user-dropdown-info">
+                <div class="user-dropdown-name" id="userDropdownName">User</div>
+                <div class="user-dropdown-email" id="userDropdownEmail"></div>
+              </div>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" id="userThemeToggle">
+              <span class="material-symbols-outlined" id="userThemeIcon">dark_mode</span>
+              <span id="userThemeLabel">Dark Mode</span>
+            </button>
+            <button class="user-dropdown-item user-dropdown-item--signout" id="userSignOutBtn">
+              <span class="material-symbols-outlined">logout</span>
+              Sign Out
+            </button>
+          </div>
+        </div>
       </div>
 
     </nav>

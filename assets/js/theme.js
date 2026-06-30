@@ -4,14 +4,13 @@
    Listens for parent postMessage if in iframe.
 ─────────────────────────────────────────── */
 export function initTheme() {
-  const btn  = document.getElementById("themeToggle");
   const logo = document.getElementById("loginLogo");
   const root = document.documentElement;
 
   const saved = localStorage.getItem("scoop-theme") || "light";
   applyTheme(saved);
 
-  btn?.addEventListener("click", () => {
+  document.getElementById("userThemeToggle")?.addEventListener("click", () => {
     const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     applyTheme(next);
     localStorage.setItem("scoop-theme", next);
@@ -20,11 +19,10 @@ export function initTheme() {
 
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
-    if (btn) {
-      const icon = btn.querySelector(".material-symbols-outlined");
-      if (icon) icon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
-      else btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:20px;">${theme === "dark" ? "light_mode" : "dark_mode"}</span>`;
-    }
+    const themeIcon  = document.getElementById("userThemeIcon");
+    const themeLabel = document.getElementById("userThemeLabel");
+    if (themeIcon)  themeIcon.textContent  = theme === "dark" ? "light_mode" : "dark_mode";
+    if (themeLabel) themeLabel.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
     if (logo) {
       const base = window.location.pathname.includes("/pages/") ? "../" : "";
       logo.src = theme === "dark"

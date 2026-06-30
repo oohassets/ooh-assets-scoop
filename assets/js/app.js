@@ -34,12 +34,30 @@ window.setMapAndClose          = setMapAndClose;
 window.toggleInfoCard          = toggleInfoCard;
 window.copyGoogleMapLink       = () => copyGoogleMapLink(getCurrentMapUrl());
 
+// ── Helpers ───────────────────────────────────────────────
+function getInitials(name) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
 // ── Auth guard ────────────────────────────────────────────
 let firstLoad = true;
 requireAuth((user) => {
   const userName = user.displayName || user.email.split("@")[0];
-  const userEl = document.getElementById("navUser");
-  if (userEl) userEl.textContent = userName;
+  const initials = getInitials(userName);
+
+  // Avatar initials (nav button + dropdown header)
+  const navInitEl  = document.getElementById("navAvatarInitials");
+  const dropInitEl = document.getElementById("userDropdownInitials");
+  if (navInitEl)  navInitEl.textContent  = initials;
+  if (dropInitEl) dropInitEl.textContent = initials;
+
+  // Dropdown profile info
+  const dropNameEl  = document.getElementById("userDropdownName");
+  const dropEmailEl = document.getElementById("userDropdownEmail");
+  if (dropNameEl)  dropNameEl.textContent  = userName;
+  if (dropEmailEl) dropEmailEl.textContent = user.email;
 
   // Store globally for view modules
   window.__currentUser = { name: userName, email: user.email, uid: user.uid };
@@ -80,8 +98,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { once: true });
   });
 
-  // Logout
-  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+  // User avatar dropdown
+  const userAvatarWrap = document.getElementById("userAvatarWrap");
+  const userAvatarBtn  = document.getElementById("userAvatarBtn");
+  const userDropdown   = document.getElementById("userDropdown");
+
+  userAvatarBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = userDropdown.classList.toggle("open");
+    userAvatarBtn.classList.toggle("open", isOpen);
+    // Close notification panel when avatar opens
+    if (isOpen) {
+      document.getElementById("notifPanel")?.classList.remove("open");
+      document.getElementById("notifBtn")?.classList.remove("active");
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!userAvatarWrap?.contains(e.target)) {
+      userDropdown?.classList.remove("open");
+      userAvatarBtn?.classList.remove("open");
+    }
+  });
+
+  // Sign out from dropdown
+  document.getElementById("userSignOutBtn")?.addEventListener("click", () => {
     signOut(auth)
       .then(() => { window.location.href = "./login.html"; })
       .catch(err => { console.error("Logout error:", err); alert("Failed to logout"); });

@@ -372,8 +372,95 @@ nav.nav-at-top {
 .notif-empty .material-symbols-outlined { font-size: 38px; opacity: 0.35; }
 .notif-empty p { font-size: 12px; font-family: var(--font-display); font-weight: 600; margin: 0; }
 
-/* ── Scoop Agent nav button — mobile only ── */
+/* ── Scoop Agent nav button — mobile only (desktop uses floating bubble) ── */
 .btn-scoop-agent { display: none; }
+
+/* ══════════════════════════════════════════
+   USER AVATAR + PROFILE DROPDOWN
+══════════════════════════════════════════ */
+.user-avatar-wrap { position: relative; }
+
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1.5px solid var(--accent-indigo); cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 12px; font-weight: 800;
+  color: var(--accent-indigo); letter-spacing: 0.5px;
+  text-transform: uppercase; user-select: none;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.2);
+}
+.user-avatar:hover {
+  transform: scale(1.07);
+  background: rgba(16,185,129,0.1);
+  box-shadow: 0 4px 16px rgba(16,185,129,0.35);
+}
+.user-avatar.open {
+  background: rgba(16,185,129,0.12);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.25), 0 4px 12px rgba(16,185,129,0.3);
+}
+
+/* Dropdown panel */
+.user-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 260px;
+  background: var(--nav-bg); border: 1px solid var(--border-glass);
+  border-radius: 18px; box-shadow: 0 16px 48px rgba(0,0,0,0.28);
+  backdrop-filter: blur(24px); z-index: 4000;
+  display: none; flex-direction: column;
+  overflow: hidden; padding: 6px;
+  animation: userDropAnim 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.user-dropdown.open { display: flex; }
+@keyframes userDropAnim {
+  from { opacity:0; transform:translateY(-8px) scale(0.97); }
+  to   { opacity:1; transform:translateY(0)     scale(1);   }
+}
+
+/* Profile header */
+.user-dropdown-profile {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 10px 14px;
+}
+.user-dropdown-avatar-lg {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 16px; font-weight: 800;
+  color: #fff; letter-spacing: 0.5px;
+  box-shadow: 0 3px 10px var(--accent-indigo);
+}
+.user-dropdown-info { flex: 1; min-width: 0; }
+.user-dropdown-name {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  color: var(--text-primary); margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.user-dropdown-email {
+  font-size: 11px; color: var(--text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Divider */
+.user-dropdown-divider {
+  height: 1px; background: var(--border-glass); margin: 0 4px 6px;
+}
+
+/* Menu items */
+.user-dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; border: none; background: none; text-align: left;
+  padding: 9px 10px; border-radius: 10px;
+  font-family: var(--font-display); font-size: 13px; font-weight: 400;
+  color: var(--text-secondary); cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.user-dropdown-item .material-symbols-outlined { font-size: 18px; flex-shrink: 0; }
+.user-dropdown-item:hover { background: var(--bg-glass); color: var(--text-primary); }
+.user-dropdown-item--signout:hover {
+  background: rgba(244,63,94,0.10); color: var(--accent-rose);
+}
 
 /* ── Responsive breakpoints ─────────── */
 @media(max-width:900px) {
@@ -382,20 +469,25 @@ nav.nav-at-top {
   .nav-badge, .btn-nav-outline { display:none; }
   .btn-scoop-agent { display: flex; }
 
-  /* Hide Chatbase default floating bubble — nav bar button replaces it */
+  /* Hide Chatbase floating bubble on mobile — nav icon replaces it */
   #chatbase-bubble-button { display: none !important; }
 
-  /* Notification panel — full-width sheet below nav bar.
-     Setting .notif-bell to static lets the absolutely-positioned panel
-     climb up to nav (position:fixed, full viewport width) as its
-     containing block, so left/right are relative to the screen edges. */
+  /* Notification panel — full-width sheet below nav bar */
   .notif-bell { position: static; }
   .notif-panel {
-    top: 72px;        /* nav height (64px) + 8px gap */
+    top: 72px;
     left: 12px;
     right: 12px;
     width: auto;
     border-radius: 16px;
-    max-height: calc(100dvh - 160px); /* nav + gap + dock room */
+    max-height: calc(100dvh - 160px);
+  }
+
+  /* User dropdown — sheet below nav bar */
+  .user-avatar-wrap { position: static; }
+  .user-dropdown {
+    position: fixed;
+    top: 72px; right: 12px; left: 12px;
+    width: auto; border-radius: 16px;
   }
 }
