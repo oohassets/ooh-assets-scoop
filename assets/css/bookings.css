@@ -149,8 +149,7 @@
   border-color: var(--accent-indigo); color: var(--accent-indigo);
   background: rgba(79,70,229,0.08);
 }
-.download-btn.loading .material-symbols-outlined { animation: dl-spin 0.8s linear infinite; }
-@keyframes dl-spin { to { transform: rotate(360deg); } }
+
 .download-dropdown {
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 500;
   background: var(--nav-bg); border: 1px solid var(--border-glass);

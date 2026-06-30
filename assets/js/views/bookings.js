@@ -791,6 +791,21 @@ function filenameDateRange(start, end) {
   return ` (${fmt(start)}-${fmt(end)})`;
 }
 
+function loadImageForPDF(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      resolve({ dataUrl: canvas.toDataURL("image/png"), w: img.naturalWidth, h: img.naturalHeight });
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
 async function downloadAsPDF() {
   const btn = document.getElementById("downloadBtn");
   if (btn) btn.classList.add("loading");
@@ -798,126 +813,234 @@ async function downloadAsPDF() {
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js");
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+
+    const M      = 12.7;  // 0.5 inch margin
+    const PAGE_W = doc.internal.pageSize.getWidth();  // 297mm landscape
+
+    // ── Load logo ─────────────────────────────
+    let logoData = null;
+    try { logoData = await loadImageForPDF("images/scooplogo.png"); } catch (_) {}
 
     // ── Header ───────────────────────────────
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(79, 70, 229);
-    doc.text("SCOOP OOH", 15, 18);
+    const LOGO_H = 12;  // desired logo height in mm
+    const logoW  = logoData ? (LOGO_H * logoData.w) / logoData.h : 0;
 
+    let y = M + 4;  // header top (margin + small top padding)
+
+    // "SCOOP OOH" brand title — baseline at y + 5.5
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(20, 20, 50);
+    doc.text("SCOOP Media and Communication Co.", M, y + 5.5);
+
+    // Logo — top-right, vertically aligned with SCOOP OOH line
+    if (logoData) {
+      doc.addImage(logoData.dataUrl, "PNG", PAGE_W - M - logoW, y, logoW, LOGO_H);
+    }
+    y += LOGO_H;  // advance past the logo block height
+
+    // "Campaign Bookings" subtitle
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
     doc.setTextColor(20, 20, 50);
-    doc.text("Campaign Bookings", 15, 27);
+    doc.text("Campaign Bookings", M, y + 4);
+    y += 7;
 
+    // Date range (left)
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(110, 120, 150);
-    doc.text(`Dates: ${getDateRangeStr()}`, 15, 35);
+    doc.text(`Dates: ${getDateRangeStr()}`, M, y + 2);
 
-    // ── Table ────────────────────────────────
-    // Portrait A4 usable width: 210 - 2×15 = 180mm
-    const PAD       = 3;
-    const COL1_W    = 52;               // Client/Brand column width (mm)
-    const TEXT_W    = COL1_W - PAD * 2; // usable text width inside padding
-    const CLIENT_LH = 3.5;             // line height mm at 8.5pt
-    const BRAND_LH  = 4.8;             // line height mm at 10.5pt
-    const BLOCK_GAP = 2;               // gap between client block and brand block
+    // Status totals (right, same baseline)
+    const statusOrder  = ["Live", "BO Signed", "Pending", "Completed", "Cancelled"];
+    const statusCounts = {};
+    currentFiltered.forEach(c => {
+      const s = c.status || "Other";
+      statusCounts[s] = (statusCounts[s] || 0) + 1;
+    });
+    const parts = statusOrder.filter(s => statusCounts[s]).map(s => ({ count: statusCounts[s], label: s }));
 
-    // Pre-compute wrapped lines per row so didParseCell can set the exact row height
+    if (parts.length) {
+      const SEP = "   •   ";
+      doc.setFontSize(10);
+
+      // Measure total width first for right-alignment
+      let totalW = 0;
+      parts.forEach((p, i) => {
+        doc.setFont("helvetica", "normal");   totalW += doc.getTextWidth(String(p.count));
+        doc.setFont("helvetica", "normal"); totalW += doc.getTextWidth(": " + p.label);
+        if (i < parts.length - 1) { doc.setFont("helvetica", "normal"); totalW += doc.getTextWidth(SEP); }
+      });
+
+      let tx = PAGE_W - M - totalW;
+      const ty = y + 2;
+
+      parts.forEach((p, i) => {
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(20, 20, 50);
+        const numStr = String(p.count);
+        doc.text(numStr, tx, ty);
+        tx += doc.getTextWidth(numStr);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(110, 120, 150);
+        const lblStr = ": " + p.label;
+        doc.text(lblStr, tx, ty);
+        tx += doc.getTextWidth(lblStr);
+
+        if (i < parts.length - 1) {
+          const sepStr = SEP;
+          doc.text(sepStr, tx, ty);
+          tx += doc.getTextWidth(sepStr);
+        }
+      });
+    }
+
+    y += 6;
+
+    const startY = y;  // table begins immediately after header content
+
+    // ── Column layout ─────────────────────────
+    // Landscape A4: 297mm - 2×12.7mm = 271.6mm available
+    const PAD      = 2;
+    const COL1_W   = 75;                   // Client/Brand
+    const COL2_W   = 70;                   // Circuits
+    const TEXT_W1  = COL1_W - PAD * 4;
+    const TEXT_W2  = COL2_W - PAD * 2;
+    const BLOCK_GAP = 1.5;
+
+    // Real line heights from jsPDF font metrics
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    const CLIENT_LH  = doc.getLineHeight() / doc.internal.scaleFactor;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    const BRAND_LH   = doc.getLineHeight() / doc.internal.scaleFactor;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10.5);
+    const CIRCUIT_LH = doc.getLineHeight() / doc.internal.scaleFactor;
+
+    // Pre-compute wrapped lines for col 1 (Client/Brand) and col 2 (Circuits)
     const cellLines = currentFiltered.map(c => {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
-      const clientLines = c.client !== "—" ? doc.splitTextToSize(c.client, TEXT_W) : [];
+      const clientLines = c.client !== "—" ? doc.splitTextToSize(c.client, TEXT_W1) : [];
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10.5);
-      const brandLines = c.brand !== "—" ? doc.splitTextToSize(c.brand, TEXT_W) : [];
+      const brandLines = c.brand !== "—" ? doc.splitTextToSize(c.brand, TEXT_W1) : [];
 
-      return { clientLines, brandLines };
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10.5);
+      const circuitLines = c.asset !== "—" ? doc.splitTextToSize(c.asset, TEXT_W2) : [];
+
+      return { clientLines, brandLines, circuitLines };
     });
 
     const rows = currentFiltered.map(c => [
       c.bo || "—",
-      "",             // placeholder — custom-drawn in didDrawCell
-      c.asset !== "—" ? c.asset : "",
+      "",   // col 1 — custom-drawn
+      "",   // col 2 — custom-drawn
       c.date.replace("→", "-"),
       c.status,
       c.person
     ]);
 
     doc.autoTable({
-      startY: 41,
+      startY,
       head: [["Booking Order", "Client / Brand", "Circuits", "Dates", "Status", "Person"]],
       body: rows,
       styles: {
-        font: "helvetica", fontSize: 10, cellPadding: PAD,
+        font: "helvetica", fontSize: 10.5, cellPadding: PAD,
         valign: "middle", overflow: "linebreak"
       },
       headStyles: {
         fillColor: [79, 70, 229], textColor: 255,
-        fontStyle: "bold", fontSize: 9.5, cellPadding: PAD
+        fontStyle: "bold", fontSize: 11, cellPadding: PAD        
       },
       alternateRowStyles: { fillColor: [245, 245, 255] },
       columnStyles: {
-        0: { cellWidth: 28, valign: "middle" },
+        0: { cellWidth: 40,   valign: "middle" },
         1: { cellWidth: COL1_W },
-        2: { cellWidth: 40, valign: "middle", fontSize: 8.5 },
-        3: { cellWidth: 28, valign: "middle" },
-        4: { cellWidth: 20, valign: "middle" },
-        5: { cellWidth: 12, valign: "middle" }
+        2: { cellWidth: COL2_W },
+        3: { cellWidth: 42,   valign: "middle" },
+        4: { cellWidth: 28,   valign: "middle" },
+        5: { cellWidth: 22.6, valign: "middle" }
       },
-      margin: { left: 15, right: 15 },
+      margin: { left: M, right: M },
 
       didParseCell: (data) => {
-        if (data.section !== "body" || data.column.index !== 1) return;
-        const { clientLines = [], brandLines = [] } = cellLines[data.row.index] || {};
+        if (data.section !== "body") return;
+        const row = cellLines[data.row.index] || {};
 
-        // Compute exact block height so autoTable sizes this row correctly
-        const clientBlockH = clientLines.length * CLIENT_LH;
-        const brandBlockH  = brandLines.length  * BRAND_LH;
-        const hasGap = clientLines.length && brandLines.length ? BLOCK_GAP : 0;
-        const neededH = clientBlockH + hasGap + brandBlockH + PAD * 2;
+        if (data.column.index === 1) {
+          const { clientLines = [], brandLines = [] } = row;
+          const clientBlockH = clientLines.length * CLIENT_LH;
+          const brandBlockH  = brandLines.length  * BRAND_LH;
+          const hasGap       = clientLines.length && brandLines.length ? BLOCK_GAP : 0;
+          data.cell.text = [];
+          data.cell.styles.minCellHeight = Math.max(10, clientBlockH + hasGap + brandBlockH + PAD * 2);
+        }
 
-        data.cell.text = [];                              // suppress default drawing
-        data.cell.minCellHeight = Math.max(16, neededH); // force correct row height
+        if (data.column.index === 2) {
+          const { circuitLines = [] } = row;
+          data.cell.text = [];
+          data.cell.styles.minCellHeight = Math.max(10, circuitLines.length * CIRCUIT_LH + PAD * 2);
+        }
       },
 
       didDrawCell: (data) => {
-        if (data.section !== "body" || data.column.index !== 1) return;
-        const { clientLines = [], brandLines = [] } = cellLines[data.row.index] || {};
-        if (!clientLines.length && !brandLines.length) return;
+        if (data.section !== "body") return;
+        const row = cellLines[data.row.index] || {};
+        const cx  = data.cell.x + PAD;
+        const cy  = data.cell.y;
+        const ch  = data.cell.height;
 
-        const cx = data.cell.x + PAD;
-        const cy = data.cell.y;
-        const ch = data.cell.height;
+        if (data.column.index === 1) {
+          const { clientLines = [], brandLines = [] } = row;
+          if (!clientLines.length && !brandLines.length) return;
 
-        // Vertically centre the whole block
-        const clientBlockH = clientLines.length * CLIENT_LH;
-        const brandBlockH  = brandLines.length  * BRAND_LH;
-        const hasGap = clientLines.length && brandLines.length ? BLOCK_GAP : 0;
-        const totalH = clientBlockH + hasGap + brandBlockH;
-        let curY = cy + (ch - totalH) / 2;
+          const clientBlockH = clientLines.length * CLIENT_LH;
+          const brandBlockH  = brandLines.length  * BRAND_LH;
+          const hasGap       = clientLines.length && brandLines.length ? BLOCK_GAP : 0;
+          const totalH       = clientBlockH + hasGap + brandBlockH;
+          let curY = cy + (ch - totalH) / 2;
 
-        // Client lines — small, muted
-        if (clientLines.length) {
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(8.5);
-          doc.setTextColor(140, 150, 175);
-          clientLines.forEach((line, i) => {
-            doc.text(line, cx, curY + CLIENT_LH * (i + 1) - 0.5);
-          });
-          curY += clientBlockH + hasGap;
+          if (clientLines.length) {
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8.5);
+            doc.setTextColor(140, 150, 175);
+            clientLines.forEach((line, i) => {
+              doc.text(line, cx, curY + CLIENT_LH * (i + 1) - CLIENT_LH * 0.15);
+            });
+            curY += clientBlockH + hasGap;
+          }
+          if (brandLines.length) {
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10.5);
+            doc.setTextColor(20, 20, 50);
+            brandLines.forEach((line, i) => {
+              doc.text(line, cx, curY + BRAND_LH * (i + 1) - BRAND_LH * 0.15);
+            });
+          }
         }
 
-        // Brand lines — bold, dark
-        if (brandLines.length) {
-          doc.setFont("helvetica", "bold");
+        if (data.column.index === 2) {
+          const { circuitLines = [] } = row;
+          if (!circuitLines.length) return;
+
+          const totalH = circuitLines.length * CIRCUIT_LH;
+          let curY = cy + (ch - totalH) / 2;
+
+          doc.setFont("helvetica", "normal");
           doc.setFontSize(10.5);
-          doc.setTextColor(20, 20, 50);
-          brandLines.forEach((line, i) => {
-            doc.text(line, cx, curY + BRAND_LH * (i + 1) - 0.8);
+          doc.setTextColor(80, 90, 120);
+          circuitLines.forEach((line, i) => {
+            doc.text(line, cx, curY + CIRCUIT_LH * (i + 1) - CIRCUIT_LH * 0.15);
           });
         }
       }
@@ -999,28 +1122,87 @@ async function downloadCalendarAsPDF() {
     const table = document.getElementById("bookingCalendar");
     if (!table) return;
 
-    const M        = 12.7;  // 0.5 inch margin (mm)
-    const HEADER_H = 28;    // space reserved for title block (mm)
-    const doc      = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-    const PAGE_W   = doc.internal.pageSize.getWidth();   // 297mm
-    const PAGE_H   = doc.internal.pageSize.getHeight();  // 210mm
-    const AVAIL_W  = PAGE_W - M * 2;
+    const M      = 12.7;  // 0.5 inch margin (mm)
+    const doc    = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const PAGE_W = doc.internal.pageSize.getWidth();   // 297mm
+    const PAGE_H = doc.internal.pageSize.getHeight();  // 210mm
+    const AVAIL_W = PAGE_W - M * 2;
 
-    // ── Header ────────────────────────────────────────────
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(79, 70, 229);
-    doc.text("SCOOP OOH", M, M + 7);
+    // ── Load logo ─────────────────────────────
+    let logoData = null;
+    try { logoData = await loadImageForPDF("images/scooplogo.png"); } catch (_) {}
+
+    // ── Header ───────────────────────────────
+    const LOGO_H = 12;
+    const logoW  = logoData ? (LOGO_H * logoData.w) / logoData.h : 0;
+
+    let y = M + 4;
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(16);
     doc.setTextColor(20, 20, 50);
-    doc.text("Campaign Calendar", M, M + 15);
+    doc.text("SCOOP Media and Communication Co.", M, y + 5.5);
 
+    if (logoData) {
+      doc.addImage(logoData.dataUrl, "PNG", PAGE_W - M - logoW, y, logoW, LOGO_H);
+    }
+    y += LOGO_H;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(20, 20, 50);
+    doc.text("Campaign Calendar", M, y + 4);
+    y += 7;
+
+    // Date range (left)
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.setTextColor(110, 120, 150);
-    doc.text(`Dates: ${getCalDateRangeStr()}`, M, M + 22);
+    doc.text(`Dates: ${getCalDateRangeStr()}`, M, y + 2);
+
+    // Status totals (right, same baseline)
+    const calFiltered   = getCalFilteredBookings();
+    const calStatusOrder  = ["Live", "BO Signed", "Pending", "Completed", "Cancelled"];
+    const calStatusCounts = {};
+    calFiltered.forEach(b => {
+      const s = b.Status || "Other";
+      calStatusCounts[s] = (calStatusCounts[s] || 0) + 1;
+    });
+    const calParts = calStatusOrder.filter(s => calStatusCounts[s]).map(s => ({ count: calStatusCounts[s], label: s }));
+
+    if (calParts.length) {
+      const SEP = "   •   ";
+      doc.setFontSize(10);
+      let totalW = 0;
+      calParts.forEach((p, i) => {
+        doc.setFont("helvetica", "bold");   totalW += doc.getTextWidth(String(p.count));
+        doc.setFont("helvetica", "normal"); totalW += doc.getTextWidth(": " + p.label);
+        if (i < calParts.length - 1) totalW += doc.getTextWidth(SEP);
+      });
+      let tx = PAGE_W - M - totalW;
+      const ty = y + 2;
+      calParts.forEach((p, i) => {
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(20, 20, 50);
+        const numStr = String(p.count);
+        doc.text(numStr, tx, ty);
+        tx += doc.getTextWidth(numStr);
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(110, 120, 150);
+        const lblStr = ": " + p.label;
+        doc.text(lblStr, tx, ty);
+        tx += doc.getTextWidth(lblStr);
+
+        if (i < calParts.length - 1) {
+          doc.text(SEP, tx, ty);
+          tx += doc.getTextWidth(SEP);
+        }
+      });
+    }
+
+    y += 6;
+    const HEADER_H = y - M;  // dynamic — actual space used by header block
 
     // ── Screenshot the live calendar table ────────────────
     const bgColor = getComputedStyle(document.body).backgroundColor || "#ffffff";
