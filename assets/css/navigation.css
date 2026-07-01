@@ -65,7 +65,7 @@ nav.nav-at-top {
 
 /* ── Mega dropdown ────────────────────── */
 .mega-dropdown {
-  position:absolute; top:calc(100% + 12px); left:50%; transform:translateX(-50%);
+  position:absolute; top:calc(100% + 1px); left:50%; transform:translateX(-50%);
   background:var(--nav-bg); border:1px solid var(--border-glass);
   border-radius:var(--radius-md); padding:20px;
   display:none; gap:24px; min-width:560px;
