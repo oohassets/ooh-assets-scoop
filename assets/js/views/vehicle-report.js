@@ -169,7 +169,7 @@ function renderCircuitRankChart() {
       labels: rows.map(r => r.name),
       datasets: [{
         data: rows.map(r => r.totalImp),
-        backgroundColor: rows.map(r => r.category === "static" ? "rgba(4,150,255,0.8)" : "rgba(16,185,129,0.8)"),
+        backgroundColor: rows.map(r => r.category === "static" ? "rgba(200,58,80,0.85)" : "rgba(152,30,50,0.85)"),
         borderRadius: 6,
         borderSkipped: "left"
       }]
