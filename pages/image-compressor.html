@@ -6,179 +6,14 @@
 <title>Bulk Image Compressor</title>
 <link rel="icon" href="../images/scooplogo_black_192x192.png">
 <link rel="stylesheet" href="../assets/css/theme.css">
+<link rel="stylesheet" href="../assets/css/image-compressor.css">
 <script>(function(){const t=localStorage.getItem("scoop-theme");if(t)document.documentElement.setAttribute("data-theme",t);window.addEventListener("message",function(e){if(e.data&&e.data.type==="scoop-theme"){document.documentElement.setAttribute("data-theme",e.data.theme);localStorage.setItem("scoop-theme",e.data.theme);}});})();</script>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  overflow: hidden;
-}
-
-.gradient-background {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(250deg,#d70886,#57a7b0,#fa916e,#c3632a,#e482b1,#3cfdbd);
-  background-size: 400% 400%;
-  animation: gradient-animation 20s ease infinite;
-  z-index: -2;
-}
-
-@keyframes gradient-animation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.particles {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: rgba(255,255,255,0.6);
-  border-radius: 50%;
-  animation: float linear infinite;
-}
-
-@keyframes float {
-  from { transform: translateY(100vh); opacity: 0; }
-  10% { opacity: 1; }
-  to { transform: translateY(-10vh); opacity: 0; }
-}
-
-.container {
-  position: relative;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(15px);
-  padding: 30px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 700px;
-  text-align: center;
-  z-index: 1;
-}
-
-.container::before,
-.container::after { pointer-events: none; }
-
-.container::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 20px;
-  background: linear-gradient(120deg,#00c6ff,#ff00cc,#00ffcc);
-  filter: blur(20px);
-  opacity: 0.6;
-  z-index: -1;
-}
-
-.container::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  padding: 2px;
-  background: linear-gradient(270deg,#00c6ff,#ff00cc,#00ffcc,#00c6ff);
-  background-size: 300% 300%;
-  animation: borderMove 6s linear infinite;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);   
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-@keyframes borderMove {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 300% 50%; }
-}
-
-.upload-btn, .download-all {
-  display: inline-block;
-  padding: 12px 25px;
-  border-radius: 30px;
-  background: #fff;
-  color: #333;
-  cursor: pointer;
-  margin: 8px;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.upload-btn:hover,
-.download-all:hover {
-  box-shadow: 0 0 15px rgba(255,255,255,0.8);
-  transform: translateY(-2px);
-}
-
-.download-all {
-  background: #00c6ff;
-  display: none;
-  border: none;
-  color: #fff;
-}
-
-input[type="file"] { display: none; }
-
-.images {
-  max-height: 320px;
-  overflow-y: auto;
-  margin-top: 20px;
-  text-align: left;
-}
-
-.image-item {
-  background: rgba(255,255,255,0.1);
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-}
-
-.progress-bar {
-  height: 8px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 10px;
-  margin-top: 8px;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: #00c6ff;
-}
-
-.image-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.download-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  background: #00c6ff;
-  border: none;
-  color: #fff;
-
-}
-</style>
 </head>
 
 <body>
 
-<div class="gradient-background"></div>
-<div class="particles" id="particles"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
 
 <div class="container">
   <h1>Bulk Image Compressor</h1>
@@ -199,16 +34,6 @@ input[type="file"] { display: none; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
-// particles
-const pBox = document.getElementById('particles');
-for (let i = 0; i < 30; i++) {
-  const p = document.createElement('div');
-  p.className = 'particle';
-  p.style.left = Math.random() * 100 + 'vw';
-  p.style.animationDuration = (5 + Math.random() * 10) + 's';
-  pBox.appendChild(p);
-}
-
 let compressed = [];
 let completed = 0;
 let total = 0;

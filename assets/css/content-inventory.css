@@ -44,7 +44,7 @@
 .download-btn .material-symbols-outlined { font-size: 20px; transition: transform 0.2s; }
 .download-btn:hover, .download-btn.open {
   border-color: var(--accent-indigo); color: var(--accent-indigo);
-  background: rgba(79,70,229,0.08);
+  background: rgba(152,30,50,0.08);
 }
 
 .download-dropdown {
@@ -77,7 +77,7 @@
 
 .expand-btn   { margin-top:20px; }
 .expand-btn a { color:var(--text-primary,#fff); text-decoration:none; }
-.expand-btn a:hover { color:#FF5F15; cursor:pointer; text-decoration:underline; }
+.expand-btn a:hover { color:var(--brand-300); cursor:pointer; text-decoration:underline; }
 
 .carousel-container {
   width: 100%;
@@ -137,7 +137,7 @@
 
 /* ── BO "Free or Filler" highlight ───── */
 .bo-filler {
-  background: rgba(244, 63, 94, 0.15);
+  background: rgba(229, 72, 77, 0.15);
   color: var(--accent-rose);
   border-radius: 999px;
   padding: 2px 8px;
@@ -172,11 +172,11 @@
 #overlayCloseBtn { position:fixed; top:0.5rem; right:1rem; font-size:1.5rem; cursor:pointer; color:#fff; z-index:10000; }
 
 /* ── Inventory tab bar ────────────────── */
-.inventory-btn { padding:8px 16px; font-size:14px; background:#f47c2c; color:#fff; border:none; cursor:pointer; font-weight:bold; }
-.inventory-btn:hover { background:#d9651c; }
+.inventory-btn { padding:8px 16px; font-size:14px; background:var(--brand-500); color:#fff; border:none; cursor:pointer; font-weight:bold; }
+.inventory-btn:hover { background:var(--brand-600); }
 .inventory-tabs { margin-top:6px; text-align:center; }
 .inventory-tabs .tab { display:inline-block; margin:0 10px; font-size:13px; cursor:pointer; font-weight:bold; color:#666; padding-bottom:2px; }
-.inventory-tabs .tab.active { color:#000; border-bottom:2px solid #f47c2c; }
+.inventory-tabs .tab.active { color:#000; border-bottom:2px solid var(--brand-500); }
 
 /* ── Circuit section tabs — sticky ───────── */
 .circuit-tabs {
@@ -194,7 +194,7 @@
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--font-display, inherit);
+  font-family: var(--font-body, inherit);
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 .circuit-tab:hover {
@@ -202,7 +202,7 @@
   color: var(--text-primary);
 }
 .circuit-tab.active {
-  background: var(--accent-indigo, #4f46e5);
+  background: var(--accent-indigo, #981E32);
   color: #fff;
   border-color: transparent;
 }
@@ -347,7 +347,7 @@
 .update-card-head.removed   { border-color:var(--accent-rose); }
 .update-card-head.upcoming  { border-color:var(--accent-amber); }
 .update-card-head.ending    { border-color:var(--accent-cyan); }
-.update-title { font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--text-primary); }
+.update-title { font-family:var(--font-body); font-weight:700; font-size:14px; color:var(--text-primary); }
 .update-count { font-size:11px; color:var(--text-muted); margin-top:3px; }
 .update-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
 .dot-green { background:var(--accent-emerald); }
@@ -366,7 +366,7 @@
 .update-item-label { font-size:13px; font-weight:500; color:var(--text-primary); }
 .update-item-sub   { font-size:12px; color:var(--text-muted); margin-top:2px; }
 .update-date-badge {
-  font-size:11px; font-weight:600; font-family:var(--font-display);
+  font-size:11px; font-weight:600; font-family:var(--font-body);
   color:var(--text-muted); white-space:nowrap; flex-shrink:0;
   padding:3px 8px; border-radius:6px; background:var(--bg-glass); border:1px solid var(--border-glass);
 }

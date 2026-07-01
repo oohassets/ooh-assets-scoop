@@ -91,7 +91,7 @@
 .cal-close-btn .material-symbols-outlined { font-size: 18px; }
 .cal-close-btn:hover {
   border-color: var(--accent-indigo); color: var(--accent-indigo);
-  background: rgba(79, 70, 229, 0.1);
+  background: rgba(152, 30, 50, 0.1);
 }
 .bookings-cal-wrap {
   flex: 1; min-height: 0;
@@ -147,7 +147,7 @@
 .download-btn .material-symbols-outlined { font-size: 20px; transition: transform 0.2s; }
 .download-btn:hover, .download-btn.open {
   border-color: var(--accent-indigo); color: var(--accent-indigo);
-  background: rgba(79,70,229,0.08);
+  background: rgba(152,30,50,0.08);
 }
 
 .download-dropdown {
@@ -178,7 +178,7 @@
 .date-filter-dropdown.open { display:block; }
 .date-preset { display:block; width:100%; text-align:left; padding:9px 12px; border-radius:8px; border:none; background:none; cursor:pointer; font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--text-secondary); transition:all 0.15s; }
 .date-preset:hover { background:var(--bg-glass); color:var(--text-primary); }
-.date-preset.selected { background:rgba(79,70,229,0.15); color:var(--accent-indigo); }
+.date-preset.selected { background:rgba(152,30,50,0.15); color:var(--accent-indigo); }
 .date-custom-inputs { border-top:1px solid var(--border-glass); margin-top:8px; padding-top:10px; display:none; flex-direction:column; gap:8px; }
 .date-custom-inputs.visible { display:flex; }
 .date-custom-label { font-size:11px; font-weight:600; color:var(--text-muted); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:2px; }
@@ -205,7 +205,7 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
 /* Inline status edit */
 .status-cell { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .edit-status-btn { width:26px; height:26px; border-radius:8px; border:none; cursor:pointer; background:var(--bg-glass); color:var(--text-muted); font-size:13px; display:inline-flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
-.edit-status-btn:hover { border-color:var(--accent-indigo); color:var(--accent-indigo); background:rgba(79,70,229,0.1); }
+.edit-status-btn:hover { border-color:var(--accent-indigo); color:var(--accent-indigo); background:rgba(152,30,50,0.1); }
 .inline-status-dropdown { position:absolute; z-index:400; background:var(--nav-bg); border:1px solid var(--border-glass); border-radius:12px; padding:8px; min-width:160px; box-shadow:0 12px 32px rgba(0,0,0,0.3); backdrop-filter:blur(20px); display:none; }
 .inline-status-dropdown.open { display:block; }
 .status-option { display:block; width:100%; text-align:left; padding:8px 10px; border-radius:8px; border:none; background:none; cursor:pointer; font-family:var(--font-body); font-size:12px; font-weight:600; color:var(--text-secondary); transition:all 0.15s; }
@@ -219,7 +219,7 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
   transition:all 0.2s; flex-shrink:0; opacity:0; pointer-events:none;
 }
 tr:hover .edit-row-btn { opacity:1; pointer-events:auto; }
-.edit-row-btn:hover { border-color:var(--accent-indigo); color:var(--accent-indigo); background:rgba(79,70,229,0.1); }
+.edit-row-btn:hover { border-color:var(--accent-indigo); color:var(--accent-indigo); background:rgba(152,30,50,0.1); }
 
 /* ── Calendar (inline, full-width) ───── */
 .cal-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); display:none; align-items:center; justify-content:center; z-index:2000; padding:20px; }
@@ -243,7 +243,7 @@ tr:hover .edit-row-btn { opacity:1; pointer-events:auto; }
 }
 [data-theme="light"] .booking-calendar th { background:#dde5f5; }
 .booking-calendar td { border:1px solid rgba(255,255,255,0.04); height:42px; text-align:center; position:relative; overflow:visible; }
-[data-theme="light"] .booking-calendar td { border-color:rgba(79,70,229,0.08); }
+[data-theme="light"] .booking-calendar td { border-color:rgba(152,30,50,0.08); }
 
 /* Circuit column — sticky left in both th and td */
 .circuit-col {
@@ -275,7 +275,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .booking-bar.live      { background:var(--accent-emerald); }
 .booking-bar.signed    { background:var(--accent-rose); color:white; }
 .booking-bar.pending   { background:var(--accent-amber); }
-.booking-bar.completed { background:var(--accent-cyan); color:white; }
+.booking-bar.completed { background:var(--accent-cyan); color:#fff; }
 
 [data-theme="light"] .circuit-col { background:#E8EEF8; }
 [data-theme="light"] .slot-col    { background:#DDE5F5; }
@@ -332,7 +332,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   border-color:transparent;
   background:
     linear-gradient(var(--bk-input-bg-focus), var(--bk-input-bg-focus)) padding-box,
-    linear-gradient(135deg, #818CF8, #4F46E5, #06B6D4) border-box;
+    linear-gradient(135deg, #C83A50, #981E32, #7C1728) border-box;
 }
 .bk-lbl {
   position:absolute; left:14px; top:50%; transform:translateY(-50%);
@@ -356,7 +356,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   border-color:transparent;
   background:
     linear-gradient(var(--bk-input-bg-focus), var(--bk-input-bg-focus)) padding-box,
-    linear-gradient(135deg, #818CF8, #4F46E5, #06B6D4) border-box;
+    linear-gradient(135deg, #C83A50, #981E32, #7C1728) border-box;
 }
 
 /* Autocomplete dropdown */
@@ -378,7 +378,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-date-cols { display:flex; }
 .bk-date-col { flex:1; padding:12px 16px; cursor:pointer; transition:background 0.15s; text-align:left; }
 .bk-date-cols .bk-date-col:last-child { text-align:right; }
-.bk-date-col:hover, .bk-date-col.active { background:rgba(79,70,229,0.07); }
+.bk-date-col:hover, .bk-date-col.active { background:rgba(152,30,50,0.07); }
 .bk-date-sep { width:1px; background:var(--border-glass); flex-shrink:0; }
 .bk-dt-lbl { display:block; font-size:12px; font-weight:500; color:var(--text-muted); font-family:var(--font-body); margin-bottom:5px; }
 .bk-dt-val { display:block; font-size:15px; font-weight:600; color:var(--text-primary); font-family:var(--font-body); }
@@ -473,7 +473,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 
 /* Selection — seamless band */
 .bk-cal-day.bk-sel-range {
-  background:rgba(79,70,229,0.1);
+  background:rgba(152,30,50,0.1);
   border-radius:0;
   color:var(--text-primary);
 }
@@ -518,7 +518,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   font-size:13px; font-weight:600; font-family:var(--font-body);
   cursor:pointer; transition:all 0.15s;
 }
-.bk-qpick.active { background:rgba(79,70,229,0.15); border-color:var(--accent-indigo); color:var(--accent-indigo); }
+.bk-qpick.active { background:rgba(152,30,50,0.15); border-color:var(--accent-indigo); color:var(--accent-indigo); }
 .bk-qpick:disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
 
 /* Summary row: dates left, reset right */

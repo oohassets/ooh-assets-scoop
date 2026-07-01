@@ -7,30 +7,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
 
 :root {
-  --bg-primary:    #050A1A;
-  --bg-secondary:  #0A1628;
-  --bg-tertiary:   #0F1E38;
-  --bg-card:       rgba(15,28,56,0.7);
+  --bg-base:     #0B0C0E;
+  --bg-surface:  #141619;
+  --bg-elevated: #1C1F23;
+  --bg-overlay:  rgba(11,12,14,.72);
+
+  --bg-primary:    var(--bg-base);
+  --bg-secondary:  var(--bg-surface);
+  --bg-tertiary:   var(--bg-elevated);
+  --bg-card:       rgba(28,31,35,0.7);
   --bg-glass:      rgba(255,255,255,0.04);
   --bg-glass-hover:rgba(255,255,255,0.07);
+
+  --border-subtle: #24272B;
+  --border:         #33373C;
+  --border-strong:  #474B51;
   --border-glass:  rgba(255,255,255,0.1);
-  --border-glow:   rgba(79,70,229,0.4);
+  --border-glow:   var(--focus-ring);
 
-  --text-primary:  #F8FAFF;
-  --text-secondary:#94A3C0;
-  --text-muted:    #5A6A8A;
+  --text-primary:  #F3F4F5;
+  --text-secondary:#ADAFB2;
+  --text-muted:    #75787C;
+  --text-disabled: #45484C;
 
-  --accent-indigo: #4F46E5;
-  --accent-cyan:   #0496ff;
-  --accent-violet: #7C3AED;
-  --accent-emerald:#10B981;
-  --accent-amber:  #F59E0B;
-  --accent-rose:   #F43F5E;
+  --brand-300: #C83A50;
+  --brand-400: #B12A42;
+  --brand-500: #981E32;
+  --brand-600: #7C1728;
+  --brand-700: #61111F;
+  --brand-wash: rgba(152,30,50,.12);
 
-  --glow-indigo:   rgba(79,70,229,0.25);
-  --glow-cyan:     rgba(4,150,255,0.2);
+  --accent-indigo: var(--brand-500);
+  --accent-cyan:   var(--brand-300);
+  --accent-violet: var(--brand-400);
+  --accent-emerald:var(--success);
+  --accent-amber:  var(--warning);
+  --accent-rose:   var(--error);
 
-  --nav-bg:        rgba(5,10,26,0.95);
+  --success: #35B37E;
+  --warning: #E0A13A;
+  --error:   #E5484D;
+  --info:    #5B8FB5;
+  --focus-ring: rgba(152,30,50,.55);
+
+  --glow-indigo:   var(--focus-ring);
+  --glow-cyan:     var(--focus-ring);
+
+  --nav-bg:        rgba(11,12,14,0.95);
   --shadow-card:   0 8px 32px rgba(0,0,0,0.4);
 
   --radius-sm: 12px;
@@ -49,16 +72,16 @@
   --bg-card:       rgba(255,255,255,0.85);
   --bg-glass:      rgba(255,255,255,0.7);
   --bg-glass-hover:rgba(255,255,255,0.9);
-  --border-glass:  rgba(79,70,229,0.15);
-  --border-glow:   rgba(79,70,229,0.3);
+  --border-glass:  rgba(152,30,50,0.15);
+  --border-glow:   rgba(152,30,50,0.3);
 
   --text-primary:  #0A1628;
   --text-secondary:#3D4F6E;
   --text-muted:    #6B7A99;
 
   --nav-bg:        rgba(240,244,255,0.97);
-  --shadow-card:   0 8px 32px rgba(79,70,229,0.1);
-  --glow-indigo:   rgba(79,70,229,0.1);
+  --shadow-card:   0 8px 32px rgba(152,30,50,0.1);
+  --glow-indigo:   rgba(152,30,50,0.1);
 }
 
 /* ── Global reset ─────────────────────── */

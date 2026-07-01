@@ -17,108 +17,155 @@
 
 <style>
 body {
-    font-family:'Segoe UI', Arial;
-    margin: 20px;
-    background: #f5f5f5;
-    color: #333;
+    font-family: var(--font-body);
+    margin: 0;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
+
+.ac-page {
+    padding: 24px 2rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+h3 {
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+}
+
 .header {
     display: grid;
     grid-template-columns: 180px 1fr 180px 1fr;
-    gap: 40px;
+    gap: 24px 40px;
     align-items: center;
     margin-bottom: 20px;
-    background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(20px);
 }
 
-.header label { 
-    font-weight: bold; 
+.header label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-secondary);
 }
 
 .header input[type="text"] {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-sm);
+    background: var(--bg-glass);
+    color: var(--text-primary);
+    font-family: var(--font-body);
     cursor: pointer;
     width: auto;
+    transition: border-color 0.2s, background 0.2s;
 }
-.header input:hover { 
-    border-color: #ff9f50; 
+.header input::placeholder { color: var(--text-muted); }
+.header input:hover {
+    border-color: var(--accent-indigo);
+    background: var(--bg-glass-hover);
 }
 
 .header button {
     padding: 10px 20px;
     cursor: pointer;
     border: none;
-    border-radius: 6px;
+    border-radius: 999px;
     color: #fff;
-    font-weight: bold;
-    transition: 0.3s;
-    font-size: 14px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    transition: 0.25s;
+    font-size: 13px;
 }
 
 #downloadBtn {
     display: none;
     margin-top: 10px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg,#ff9f50,#e26b20);
+    padding: 10px 22px;
+    background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
     border: none;
-    border-radius: 6px;
+    border-radius: 999px;
     color: #fff;
-    font-weight: bold;
-    font-size: 14px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 13px;
     cursor: pointer;
+    box-shadow: 0 4px 14px var(--glow-indigo);
+    transition: all 0.2s;
 }
 
-#downloadBtn:hover { 
-    opacity: 0.9; 
+#downloadBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--glow-indigo);
 }
 
-.tables { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; 
+.tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.tables > div {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    backdrop-filter: blur(20px);
+    overflow-x: auto;
 }
 
 table {
     border-collapse: collapse;
     width: 100%;
+    min-width: 420px;
     font-size: 13px;
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    font-family: var(--font-body);
+    color: var(--text-primary);
     table-layout: auto;
 }
 
 thead th {
-    background: #444;
-    color: #fff;
-    font-weight: bold;
-    padding: 10px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 10px 12px;
     text-align: left;
+    position: sticky;
+    top: 0;
 }
 tbody td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #eee;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-glass);
 }
 
-tbody tr:hover { 
-    background: #f0f8ff; 
+tbody tr:hover {
+    background: var(--bg-glass-hover);
 }
 
-.filter-header { 
-    position: relative; 
-    cursor: pointer; 
+.filter-header {
+    position: relative;
+    cursor: pointer;
 }
 
-.filter-btn { 
-    float: right; 
-    font-size: 13px; 
-    margin-left: 6px; 
+.filter-btn {
+    float: right;
+    font-size: 12px;
+    margin-left: 6px;
+    opacity: 0.7;
 }
 
 .filter-dropdown {
@@ -126,65 +173,60 @@ tbody tr:hover {
     position: absolute;
     top: 100%;
     left: 0;
-    background: #fff;
-    color: #333;
-    border-radius: 6px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    background: var(--nav-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    backdrop-filter: blur(24px);
     padding: 10px;
     z-index: 999;
     min-width: 180px;
     max-height: 220px;
     overflow-y: auto;
 }
-.filter-dropdown label { 
-    display: block; 
-    margin-bottom: 4px; 
-    cursor: pointer; 
-    font-size: 12px; 
-    font-weight: 500; 
+.filter-dropdown label {
+    display: block;
+    margin-bottom: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
-.filter-dropdown input { 
-    margin-right: 6px; 
+.filter-dropdown input {
+    margin-right: 6px;
 }
 
-.bad { 
-    background: #ffc8c8 !important; 
-    color: #900; 
+.bad {
+    background: var(--brand-wash) !important;
+    color: var(--error);
 }
 
-tfoot th { 
-    background: #f0f0f0; 
-    font-weight: bold; 
-    text-align: left; 
-    padding: 8px 10px; 
+tfoot th {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-weight: 700;
+    text-align: left;
+    padding: 10px 12px;
 }
 
-.total { 
-    margin-top:12px; 
-    font-weight:bold; 
-    font-size:14px; 
-    padding:8px 10px; 
+.total {
+    margin-top: 12px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 8px 10px;
 }
 
-#pathDisplay { 
-    background-color: #fafafa; 
+#pathDisplay {
+    background: var(--bg-glass);
 }
 
-#pathDisplay:hover { 
-    border-color:#ff9f50; 
-}
-
-@media (max-width:900px) {
-    .header { grid-template-columns: 1fr; gap:10px; }
-    .header label, .header input, .header button { width:100%; }
-    .tables { grid-template-columns:1fr; }
-    #downloadBtn { width:100%; }
-}
-@media (max-width:480px) {
-    .header { grid-template-columns:1fr; gap:10px; }
-    .tables { grid-template-columns:1fr; gap:10px; }
-    .header input, .header button, #downloadBtn { width:100%; }
+#pathDisplay:hover {
+    border-color: var(--accent-indigo);
 }
 
 @keyframes spin {
@@ -192,9 +234,30 @@ tfoot th {
     to { transform: rotate(360deg); }
 }
 
+/* ── Responsive ───────────────────────── */
+@media (max-width: 1024px) {
+    .header { grid-template-columns: repeat(2, 1fr); gap: 16px 24px; }
+}
+@media (max-width: 900px) {
+    .ac-page { padding: 16px 1.25rem 3rem; }
+    .tables { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .header { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
+    .header label, .header input, .header button { width: 100%; }
+    #downloadBtn { width: 100%; }
+}
+@media (max-width: 480px) {
+    .ac-page { padding: 12px 1rem 3rem; }
+    .header { padding: 14px; }
+    table { min-width: 340px; font-size: 12px; }
+    thead th, tbody td { padding: 8px; }
+}
 </style>
 </head>
 <body>
+
+<div class="ac-page">
 
 <!-- HEADER -->
 
@@ -261,6 +324,8 @@ Remarks <span class="filter-btn">▼</span>
 
 <button id="downloadBtn">Download Files</button>
 </div>
+</div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -424,8 +489,8 @@ function addResultRow(id, name, dim, dur, size, valid) {
     tr.dataset.fileId = id;
 
     let remarks = valid
-        ? `<span style="color:green;font-weight:bold;">✔</span> Correct Dimension`
-        : `<span style="color:red;font-weight:bold;">✖</span> Wrong Dimension`;
+        ? `<span style="color:var(--success);font-weight:bold;">✔</span> Correct Dimension`
+        : `<span style="color:var(--error);font-weight:bold;">✖</span> Wrong Dimension`;
 
     tr.innerHTML = `
         <td>${name}</td>
@@ -548,7 +613,7 @@ downloadBtn.onclick = async () => {
 
         if (!item.valid) {
             row.cells[4].innerHTML =
-                `<span style="color:red;font-weight:bold;">✖</span> Skipped`;
+                `<span style="color:var(--error);font-weight:bold;">✖</span> Skipped`;
             continue;
         }
 
@@ -559,7 +624,7 @@ downloadBtn.onclick = async () => {
         usedNames.add(newName);
 
         row.cells[4].innerHTML =
-            `<span style="color:green;font-weight:bold;">✔</span> ${newName}`;
+            `<span style="color:var(--success);font-weight:bold;">✔</span> ${newName}`;
 
         const data = await item.file.arrayBuffer();
         zip.file(newName, data);
@@ -579,17 +644,17 @@ downloadBtn.onclick = async () => {
     display:none;
     position: fixed;
     inset: 0;
-    background: rgba(255,255,255,0.7);
+    background: var(--bg-overlay);
     backdrop-filter: blur(3px);
     z-index: 9999;
     justify-content: center;
     align-items: center;
 ">
     <div style="
-        width: 60px; 
-        height: 60px; 
-        border: 6px solid #e26b20; 
-        border-top: 6px solid transparent; 
+        width: 60px;
+        height: 60px;
+        border: 6px solid var(--accent-indigo);
+        border-top: 6px solid transparent;
         border-radius: 50%;
         animation: spin 1s linear infinite;
     "></div>

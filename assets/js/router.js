@@ -2,7 +2,7 @@
 import { loadPage, toggleOverlay, setURL } from "./utils.js";
 import { maps }        from "./maps.js";
 import { updateInfoCard } from "./asset-rates.js";
-import { setDockActive, closeAllPanels } from "./navigation.js";
+import { setDockActive, closeAllPanels, updateNavAtTop } from "./navigation.js";
 
 const BASE_PAGES = "./pages/";
 const BASE_CSS = "./assets/css/";
@@ -29,8 +29,11 @@ async function switchView(htmlPath, cssPath, viewModulePath) {
   if (pageOrbs)   pageOrbs.style.display   = "block"; // restore after map view
   toggleOverlay(false);
 
-  // Reset scroll to top so nav-at-top class is applied correctly
+  // Reset scroll to top and sync nav-at-top directly — resetting scrollTop
+  // is a no-op (fires no 'scroll' event) when the frame was already at 0,
+  // so the passive scroll listener alone can't be relied on here.
   if (appContent) appContent.scrollTop = 0;
+  updateNavAtTop();
 
   // Load HTML into container
   await loadPage(htmlPath, cssPath);
@@ -83,7 +86,7 @@ export async function openContentInventory() {
 export async function openVehicleReport() {
   await switchView(
     BASE_PAGES + "vehicle-report.html",
-    null,
+    BASE_CSS + "vehicle-report.css",
     "./views/vehicle-report.js"
   );
   setURL({ map: null, page: "vehicle" });
@@ -100,7 +103,7 @@ export async function openAssetDimensionChecker() {
 }
 
 export async function openImageCompressor() {
-  await switchView(BASE_PAGES + "image-compressor.html", null, null);
+  await switchView(BASE_PAGES + "image-compressor.html", BASE_CSS + "image-compressor.css", null);
   setURL({ map: null, page: "image-compressor" });
   setDockActive(4);
   closeAllPanels();

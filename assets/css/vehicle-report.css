@@ -1,0 +1,442 @@
+/* ══════════════════════════════════════════
+   SCOOP OOH — VEHICLE TRAFFIC
+   Date range bar, KPI cards, chart container
+══════════════════════════════════════════ */
+
+.vr-page {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  padding: 20px;
+}
+
+/* ── Sticky page title ─────────────────────────────────── */
+.vr-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-primary);
+  padding-top: 4px;
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+}
+
+/* ── Top row: toolbar + slicer + KPI donut + circuit rank ─ */
+.vr-top-row {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.vr-top-row .vr-toolbar             { flex: 0 0 240px; margin-bottom: 0; }
+.vr-top-row .vr-slicer              { flex: 1 1 340px; max-width: 620px; margin: 0; min-width: 0; }
+.vr-top-row .kpi-box                { flex: 0 0 260px; margin-bottom: 0; }
+.vr-top-row .kpi-box.circuit-rank-box { flex: 1 1 300px; max-width: 420px; }
+
+/* ── Toolbar: date range + total days ─────────────────── */
+.vr-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 18px 20px;
+  backdrop-filter: blur(20px);
+}
+
+.vr-daterange {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vr-daterange-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.vr-daterange-label .material-symbols-outlined {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  line-height: 1 !important;
+}
+
+.vr-select-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.vr-select-row[hidden] { display: none; }
+.vr-select-row .vr-select-group { flex: 1; min-width: 0; }
+
+.vr-select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vr-select-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vr-range-arrow {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-bottom: 9px;
+}
+
+.vr-page .date-modern {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.vr-page .date-modern:hover { border-color: var(--accent-indigo); }
+.vr-page .date-modern:focus {
+  outline: none;
+  border-color: var(--accent-indigo);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.vr-toolbar-actions {
+  display: flex;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-glass);
+}
+
+.vr-days-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  width: 100%;
+}
+.vr-days-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.vr-days-value { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text-primary); }
+
+/* ── Circuit slicer (excel-style toggle filter) ───────── */
+.vr-slicer {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  min-width: 0;
+}
+
+.vr-slicer-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.vr-slicer-columns {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.vr-slicer-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.vr-slicer-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.vr-slicer-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.vr-slicer-btns::-webkit-scrollbar { width: 4px; }
+.vr-slicer-btns::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 999px; }
+
+.vr-slicer-btn {
+  width: 100%;
+  text-align: left;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.vr-slicer-btn:hover { border-color: var(--accent-indigo); color: var(--text-primary); }
+.vr-slicer-btn.active {
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+  border-color: transparent;
+  color: #fff;
+}
+
+.vr-page .cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.vr-page .card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+  transition: background 0.4s, border-color 0.3s, transform 0.3s;
+  position: relative;
+  border: 1px solid var(--border-glass);
+}
+.vr-page .card:hover { transform: translateY(-4px); border-color: var(--border-glow); }
+
+.vr-page .card h3 {
+  font-size: 14px;
+  font-family: var(--font-body);
+  margin-top: 5px;
+  margin-bottom: 5px;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+}
+
+.vr-page .big { font-size: 22px; font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+
+.vr-page .metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin: 6px 0;
+  color: var(--text-secondary);
+}
+.vr-page .metric .label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.vr-page .metric .value { text-align: right; }
+.vr-page .metric .material-symbols-outlined { font-size: 16px !important; opacity: 0.7; width: 16px !important; height: 16px !important; }
+
+.vr-page #chartContainer {
+  margin: 0 0 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-glass);
+  transition: background 0.4s;
+}
+.vr-page #vehicleChart { width: 100% !important; height: 400px !important; }
+
+.vr-page .kpi-box {
+  background: var(--bg-card);
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  border: 1px solid var(--border-glass);
+  transition: background 0.4s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.vr-page .kpi-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.vr-page .kpi-title .material-symbols-outlined {
+  font-size: 15px !important;
+  width: 15px !important;
+  height: 15px !important;
+  line-height: 1 !important;
+}
+
+.kpi-donut-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 16px;
+}
+.kpi-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.kpi-donut-total {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.kpi-donut-sublabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.kpi-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.kpi-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.kpi-legend-item strong {
+  margin-left: auto;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.kpi-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.kpi-dot-tpi   { background: rgba(16,185,129,0.9); }
+.kpi-dot-gewan { background: rgba(4,150,255,0.9); }
+
+.kpi-avg-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-glass);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.kpi-avg-row .material-symbols-outlined {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  line-height: 1 !important;
+  color: var(--accent-indigo);
+  flex-shrink: 0;
+}
+.kpi-avg-label { white-space: nowrap; }
+.kpi-avg-value {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ── Circuit rank chart (impressions for the selected circuits) ─ */
+.circuit-rank-box {
+  align-items: stretch;
+  text-align: left;
+}
+.circuit-rank-box .kpi-title { margin-bottom: 12px; }
+
+.circuit-rank-wrap {
+  position: relative;
+  height: 220px;
+}
+.circuit-rank-wrap canvas { width: 100% !important; height: 220px !important; }
+
+.circuit-rank-total {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-glass);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.circuit-rank-total-label { white-space: nowrap; }
+.circuit-rank-total-value {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ── Responsive ───────────────────────── */
+@media (max-width: 1400px) {
+  .vr-top-row { flex-direction: column; }
+  .vr-top-row .vr-toolbar,
+  .vr-top-row .kpi-box,
+  .vr-top-row .vr-slicer { flex: none; width: 100%; max-width: none; }
+  .vr-slicer-btns { max-height: 160px; }
+}
+@media (max-width: 768px) {
+  .vr-page { padding: 14px; }
+  .vr-toolbar { padding: 16px; }
+  .vr-range-arrow { display: none; }
+  .vr-page #chartContainer { margin-bottom: 16px; padding: 14px; }
+  .vr-page .cards { margin-bottom: 12px; gap: 12px; }
+}
+@media (max-width: 480px) {
+  .kpi-donut-wrap { width: 110px; height: 110px; }
+  .vr-slicer-columns { grid-template-columns: 1fr; }
+  .vr-slicer-btns { max-height: 140px; }
+}

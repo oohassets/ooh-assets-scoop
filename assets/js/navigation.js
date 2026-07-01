@@ -1,14 +1,19 @@
 /* ── Navigation / Dock controller ───────────────────────── */
 
-/** Make the nav transparent at scroll-top, solid when scrolled. */
-export function initNavScroll() {
+/** Toggle the nav's transparent-at-top state to match #app-content's current scroll position. */
+export function updateNavAtTop() {
   const nav   = document.querySelector('nav');
   const frame = document.getElementById('app-content');
   if (!nav || !frame) return;
+  nav.classList.toggle('nav-at-top', frame.scrollTop < 4);
+}
 
-  const update = () => nav.classList.toggle('nav-at-top', frame.scrollTop < 4);
-  frame.addEventListener('scroll', update, { passive: true });
-  update();
+/** Make the nav transparent at scroll-top, solid when scrolled. */
+export function initNavScroll() {
+  const frame = document.getElementById('app-content');
+  if (!frame) return;
+  frame.addEventListener('scroll', updateNavAtTop, { passive: true });
+  updateNavAtTop();
 }
 
 /** Set the active dock item by index (0-based). */

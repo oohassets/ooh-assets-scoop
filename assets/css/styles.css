@@ -1,8 +1,8 @@
 
 :root {
   --max-width: 1400px;
-  --brand: #1f6feb;
-  --brand-hover: #0056b3;
+  --brand: #981E32;
+  --brand-hover: #7C1728;
   --text: #FFFFFF;
 }
 
@@ -72,7 +72,7 @@
 
 /* Focus effect */
 #loginScreen input:focus {
-  border-bottom-color: #1f6feb;
+  border-bottom-color: #981E32;
 }
 
 
@@ -82,7 +82,7 @@
   padding: 0.75rem 1rem;
   border-radius: 10px;
   border: none;
-  background: #1f6feb;
+  background: #981E32;
   color: #fff;
   font-weight: 600;
   cursor: pointer;
@@ -92,7 +92,7 @@
 }
 
 #loginBtn:hover {
-  background: #155bc4;
+  background: #7C1728;
   cursor: pointer;
 }
 
@@ -376,7 +376,7 @@ body {
 }
 
 .asset-links a:hover, .asset-links a.active {
-  color:#FF5F15;
+  color:#C83A50;
   text-decoration:underline;
 }
 
@@ -406,7 +406,7 @@ body {
 
 /* ACTIVE CATEGORY */
 .main-link.active {
-  background: #007bff;
+  background: #981E32;
 }
 
 /* SUB MENU */
@@ -442,7 +442,7 @@ body {
 
 /* ACTIVE SUBLINK */
 .sub-links button.active {
-  background: #007bff;
+  background: #981E32;
   color: #fff;
 }
 
@@ -628,7 +628,7 @@ body.no-scroll {
 
 .logout-link a:hover,
 .logout-link span:hover {
-  color: #FF5F15;
+  color: #C83A50;
 }
 
 
@@ -652,11 +652,11 @@ body.no-scroll {
 }
 
 .useful-links a:hover {
-  color: #FF5F15;
+  color: #C83A50;
 }
 
 #installBadge:hover {
-    background: #155bc4;
+    background: #7C1728;
     transform: scale(1.05);
 }
 
@@ -689,7 +689,7 @@ body.no-scroll {
 }
 
 .expand-btn a:hover {
-  color: #FF5F15;
+  color: #C83A50;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -932,7 +932,7 @@ body.no-scroll {
 .inventory-btn {
   padding: 8px 16px;
   font-size: 14px;
-  background: #f47c2c;
+  background: #981E32;
   color: #fff;
   border: none;
   cursor: pointer;
@@ -940,7 +940,7 @@ body.no-scroll {
 }
 
 .inventory-btn:hover {
-  background: #d9651c;
+  background: #7C1728;
 }
 
 .inventory-tabs {
@@ -960,5 +960,5 @@ body.no-scroll {
 
 .inventory-tabs .tab.active {
   color: #000;
-  border-bottom: 2px solid #f47c2c;
+  border-bottom: 2px solid #981E32;
 }

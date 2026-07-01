@@ -4,156 +4,79 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vehicle Traffic Dashboard</title>
-
-<style>
-.vr-page {
-  font-family: 'Segoe UI', Arial;
-  background: var(--bg-primary);
-  padding: 20px;
-}
-
-.vr-page h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.vr-page .top-bar {
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.vr-page input {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-.vr-page .date-modern {
-  width: 120px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  font-size: 13px;
-  transition: 0.2s;
-}
-.vr-page .date-modern:hover { border-color: #ff9f50; }
-.vr-page .date-modern:focus { outline: none; border-color: #ff9f50; box-shadow: 0 0 0 2px rgba(255,159,80,0.2); }
-
-.vr-page .vr-btn {
-  background: linear-gradient(135deg, #ff9f50, #e26b20);
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  font-weight: bold;
-  transition: 0.3s;
-  font-size: 14px;
-}
-.vr-page .vr-btn:hover { opacity: 0.9; }
-.vr-page .vr-btn:disabled { opacity: 0.5; cursor: default; }
-
-.vr-page #daysCount {
-  font-weight: bold;
-  padding: 8px 12px;
-  color: var(--text-primary);
-}
-
-.vr-page .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
-
-.vr-page .card {
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: var(--shadow-card);
-  transition: background 0.4s, border-color 0.3s, transform 0.3s;
-  position: relative;
-  border: 1px solid var(--border-glass);
-}
-.vr-page .card:hover { transform: translateY(-4px); border-bottom: 2px solid #e26b20; }
-
-.vr-page .card h3 {
-  font-size: 14px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  color: var(--text-secondary);
-  display: flex;
-  justify-content: space-between;
-}
-
-.vr-page .big { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
-
-.vr-page .metric {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  margin: 6px 0;
-  color: var(--text-secondary);
-}
-.vr-page .metric .label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.vr-page .metric .value { text-align: right; }
-.vr-page .metric .material-symbols-outlined { font-size: 16px !important; opacity: 0.7; width: 16px !important; height: 16px !important; }
-
-.vr-page #chartContainer {
-  margin: 30px;
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border-glass);
-  transition: background 0.4s;
-}
-.vr-page #vehicleChart { width: 100% !important; height: 400px !important; }
-
-.vr-page #totalKPI { display: flex; justify-content: center; margin-bottom: 10px; }
-.vr-page .kpi-box {
-  background: var(--bg-card);
-  padding: 12px 18px;
-  border-radius: 14px;
-  box-shadow: var(--shadow-card);
-  text-align: center;
-  border: 1px solid var(--border-glass);
-  transition: background 0.4s;
-}
-.vr-page .kpi-title { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-.vr-page .kpi-values { display: flex; gap: 15px; font-size: 13px; color: var(--text-primary); }
-.vr-page .kpi-total { font-size: 13px; }
-</style>
 </head>
 
 <body>
 <div class="vr-page">
 
-<h1>Vehicle Traffic Dashboard</h1>
-
-<div class="top-bar">
-  From <input type="date" class="date-modern" id="dateFrom">
-  To <input type="date" class="date-modern" id="dateTo">
-  <button class="vr-btn" id="loadBtn" disabled>Load</button>
-  <div id="daysCount">Days: -</div>
+<div class="vr-sticky-header">
+  <div class="section-title" style="font-size:22px;">Vehicle Traffic Dashboard</div>
+  <p class="section-sub">Track daily vehicle counts and estimated impressions across The Pearl Island and Gewan Island circuits</p>
 </div>
 
-<div id="totalKPI">
-  <div class="kpi-box">
-    <div class="kpi-title">Total Vehicles</div>
-    <div class="kpi-values">
-      <div>The Pearl Island: <span id="kpiTPI">0</span></div>
-      <div>Gewan Island: <span id="kpiGewan">0</span></div>
-      <div class="kpi-total">Combined: <span id="kpiAll">0</span></div>
+<div class="vr-top-row">
+  <div class="vr-toolbar">
+    <div class="vr-daterange">
+      <div class="vr-daterange-label">
+        <span class="material-symbols-outlined">calendar_month</span> Date Range
+      </div>
+
+      <div class="vr-select-group">
+        <label for="monthSelect">Month</label>
+        <select class="date-modern" id="monthSelect"></select>
+      </div>
+
+      <div class="vr-select-row" id="rangeRow" hidden>
+        <div class="vr-select-group">
+          <label for="dateFrom">From</label>
+          <input type="date" class="date-modern" id="dateFrom">
+        </div>
+        <span class="vr-range-arrow material-symbols-outlined">arrow_forward</span>
+        <div class="vr-select-group">
+          <label for="dateTo">To</label>
+          <input type="date" class="date-modern" id="dateTo">
+        </div>
+      </div>
+    </div>
+
+    <div class="vr-toolbar-actions">
+      <div class="vr-days-chip">
+        <span class="vr-days-label">Total Days</span>
+        <span class="vr-days-value" id="daysCount">-</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="vr-slicer" id="circuitSlicer"></div>
+
+  <div class="kpi-box" id="totalKPI">
+    <div class="kpi-title"><span class="material-symbols-outlined">directions_car</span> Total Vehicles</div>
+    <div class="kpi-donut-wrap">
+      <canvas id="kpiDonut"></canvas>
+      <div class="kpi-donut-center">
+        <span class="kpi-donut-total" id="kpiAll">0</span>
+        <span class="kpi-donut-sublabel">Combined</span>
+      </div>
+    </div>
+    <div class="kpi-legend">
+      <div class="kpi-legend-item"><span class="kpi-dot kpi-dot-tpi"></span> The Pearl Island <strong id="kpiTPI">0</strong></div>
+      <div class="kpi-legend-item"><span class="kpi-dot kpi-dot-gewan"></span> Gewan Island <strong id="kpiGewan">0</strong></div>
+    </div>
+    <div class="kpi-avg-row">
+      <span class="material-symbols-outlined">speed</span>
+      <span class="kpi-avg-label">Avg / Day</span>
+      <span class="kpi-avg-value" id="kpiAvgDay">0</span>
+    </div>
+  </div>
+
+  <div class="kpi-box circuit-rank-box" id="circuitRankBox">
+    <div class="kpi-title">Impressions by Circuit</div>
+    <div class="circuit-rank-wrap">
+      <canvas id="circuitRankChart"></canvas>
+    </div>
+    <div class="circuit-rank-total">
+      <span class="circuit-rank-total-label">Total Impressions</span>
+      <span class="circuit-rank-total-value" id="circuitRankTotal">0</span>
     </div>
   </div>
 </div>
