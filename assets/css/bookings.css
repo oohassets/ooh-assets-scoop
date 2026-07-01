@@ -275,7 +275,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .booking-bar.live      { background:var(--accent-emerald); }
 .booking-bar.signed    { background:var(--accent-rose); color:white; }
 .booking-bar.pending   { background:var(--accent-amber); }
-.booking-bar.completed { background:var(--accent-cyan); color:#fff; }
+.booking-bar.completed { background:var(--info); color:#fff; }
 
 [data-theme="light"] .circuit-col { background:#E8EEF8; }
 [data-theme="light"] .slot-col    { background:#DDE5F5; }

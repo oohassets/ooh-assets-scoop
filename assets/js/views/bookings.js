@@ -660,6 +660,7 @@ async function buildCalendar() {
   dates.forEach(d => {
     const th = document.createElement("th");
     th.className = "date-head" + (d.toDateString()===today.toDateString() ? " today-head" : "");
+    th.dataset.date = toISO(d);
     th.innerHTML = `${d.toLocaleDateString("en",{month:"short"})}<br>${d.getDate()}`;
     hrow.appendChild(th);
   });
@@ -1091,6 +1092,26 @@ function getCalDateRangeStr() {
   return `${fmtDateHeader(calRangeStart)} - ${fmtDateHeader(calRangeEnd)}`;
 }
 
+/**
+ * Shrinks an export to the span that actually has booking data instead of
+ * the full selected calendar window (e.g. "All Year" = 365 columns).
+ * Exporting the full window regardless of data is what was silently
+ * breaking the PDF export (html2canvas/canvas can't produce a canvas wider
+ * than ~32,767px, which a 365-day table at scale:2 comes right up against).
+ */
+function getPopulatedDateRange(bookings, fallbackStart, fallbackEnd) {
+  let min = null, max = null;
+  bookings.forEach(b => {
+    const s = parseDate(b["Start Date"]); const e = parseDate(b["End Date"]);
+    if (s && (!min || s < min)) min = s;
+    if (e && (!max || e > max)) max = e;
+  });
+  if (!min || !max) return { start: fallbackStart, end: fallbackEnd };
+  const start = fallbackStart && fallbackStart > min ? fallbackStart : min;
+  const end   = fallbackEnd   && fallbackEnd   < max ? fallbackEnd   : max;
+  return { start, end };
+}
+
 function getCalFilteredBookings() {
   if (!calBookings.length) return [];
   const lo = calRangeStart ? new Date(calRangeStart) : null;
@@ -1114,6 +1135,8 @@ function getCalFilteredBookings() {
 async function downloadCalendarAsPDF() {
   const btn = document.getElementById("calDownloadBtn");
   if (btn) btn.classList.add("loading");
+  const hiddenEls = [];
+  let expStart = null, expEnd = null;
   try {
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
@@ -1121,6 +1144,22 @@ async function downloadCalendarAsPDF() {
 
     const table = document.getElementById("bookingCalendar");
     if (!table) return;
+
+    // Hide date columns outside the range that actually has booking data —
+    // exporting the full selected window (e.g. "All Year" = 365 columns)
+    // regardless of data pushes the screenshot past the browser's max
+    // canvas width and silently fails to produce a PDF at all.
+    const filteredForExport = getCalFilteredBookings();
+    ({ start: expStart, end: expEnd } = getPopulatedDateRange(filteredForExport, calRangeStart, calRangeEnd));
+    if (expStart && expEnd) {
+      table.querySelectorAll("[data-date]").forEach(el => {
+        const d = new Date(el.dataset.date);
+        if (d < expStart || d > expEnd) {
+          hiddenEls.push(el);
+          el.style.display = "none";
+        }
+      });
+    }
 
     const M      = 12.7;  // 0.5 inch margin (mm)
     const doc    = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
@@ -1158,10 +1197,11 @@ async function downloadCalendarAsPDF() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(110, 120, 150);
-    doc.text(`Dates: ${getCalDateRangeStr()}`, M, y + 2);
+    const expRangeStr = expStart && expEnd ? `${fmtDateHeader(expStart)} - ${fmtDateHeader(expEnd)}` : getCalDateRangeStr();
+    doc.text(`Dates: ${expRangeStr}`, M, y + 2);
 
     // Status totals (right, same baseline)
-    const calFiltered   = getCalFilteredBookings();
+    const calFiltered   = filteredForExport;
     const calStatusOrder  = ["Live", "BO Signed", "Pending", "Completed", "Cancelled"];
     const calStatusCounts = {};
     calFiltered.forEach(b => {
@@ -1257,8 +1297,12 @@ async function downloadCalendarAsPDF() {
       }
     }
 
-    doc.save(`SCOOP_OOH_Campaign_Calendar${filenameDateRange(calRangeStart, calRangeEnd)}.pdf`);
+    doc.save(`SCOOP_OOH_Campaign_Calendar${filenameDateRange(expStart, expEnd)}.pdf`);
+  } catch (err) {
+    console.error("Calendar PDF export failed:", err);
+    alert("Couldn't generate the calendar PDF. Please try again.");
   } finally {
+    hiddenEls.forEach(el => { el.style.display = ""; });
     if (btn) btn.classList.remove("loading");
   }
 }
@@ -1269,17 +1313,21 @@ async function downloadCalendarAsExcel() {
   try {
     await loadScript("https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js");
 
-    // Use the already-rendered date range; fall back to computing it
-    const dates = calDates.length ? calDates : (() => {
-      const out = [], cur = new Date(calRangeStart || new Date());
-      const end = calRangeEnd || cur;
-      while (cur <= end) { out.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
-      return out;
-    })();
-
     // Fetch same data sources as buildCalendar
     const [circuitSlots, allBookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
-    const bookings = getCalFilteredBookings().length ? getCalFilteredBookings() : allBookings;
+    const filtered  = getCalFilteredBookings();
+    const bookings  = filtered.length ? filtered : allBookings;
+
+    // Trim to the range that actually has booking data instead of the full
+    // selected calendar window (e.g. "All Year" = 365 mostly-empty columns).
+    const { start: expStart, end: expEnd } = getPopulatedDateRange(bookings, calRangeStart, calRangeEnd);
+    const dates = [];
+    if (expStart && expEnd) {
+      const cur = new Date(expStart);
+      while (cur <= expEnd) { dates.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+    } else if (calDates.length) {
+      dates.push(...calDates);
+    }
 
     // Deduplicate by circuit name, keeping max slot count (mirrors calendar row structure)
     const circuitMap = new Map();
@@ -1355,7 +1403,8 @@ async function downloadCalendarAsExcel() {
     };
     addHdrRow("SCOOP OOH",         1, { bold: true, size: 18, color: { argb: "FF4F46E5" } }, 28);
     addHdrRow("Campaign Calendar", 2, { bold: true, size: 13, color: { argb: "FF141432" } }, 22);
-    addHdrRow(`Dates: ${getCalDateRangeStr()}`, 3, { size: 10, color: { argb: "FF6E7A99" } }, 18);
+    const expRangeStr = expStart && expEnd ? `${fmtDateHeader(expStart)} - ${fmtDateHeader(expEnd)}` : getCalDateRangeStr();
+    addHdrRow(`Dates: ${expRangeStr}`, 3, { size: 10, color: { argb: "FF6E7A99" } }, 18);
     ws.addRow([]); ws.getRow(4).height = 6;
 
     // ── Column header row (row 5) ─────────────────────────
@@ -1470,8 +1519,11 @@ async function downloadCalendarAsExcel() {
     });
     const url = URL.createObjectURL(blob);
     const a   = document.createElement("a");
-    a.href = url; a.download = `SCOOP_OOH_Campaign_Calendar${filenameDateRange(calRangeStart, calRangeEnd)}.xlsx`; a.click();
+    a.href = url; a.download = `SCOOP_OOH_Campaign_Calendar${filenameDateRange(expStart, expEnd)}.xlsx`; a.click();
     URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Calendar Excel export failed:", err);
+    alert("Couldn't generate the calendar spreadsheet. Please try again.");
   } finally {
     if (btn) btn.classList.remove("loading");
   }
