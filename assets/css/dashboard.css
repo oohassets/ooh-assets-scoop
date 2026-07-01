@@ -51,6 +51,7 @@
 }
 .hero-headline .grad  { background:linear-gradient(135deg,#C83A50,#981E32,#7C1728); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; white-space:nowrap; }
 .hero-headline .grad2 { background:linear-gradient(135deg,#7C1728,#B12A42);          -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.mobile-break { display:none; }
 
 .hero-sub { font-size:15px; line-height:1.7; color:var(--text-secondary); max-width:580px; margin:0 auto 2.5rem; font-weight:400; animation:fadeInUp 0.6s 0.2s ease both; }
 
@@ -237,9 +238,7 @@ main { padding:0 2rem 4rem; max-width:1400px; margin:0 auto; }
 /* ── Responsive ───────────────────────── */
 @media(max-width:900px) {
   main { padding:0 1rem 4rem; }
-  /* Keep "Manage OOH Assets, / Inventory, Campaigns and Schedules / in One Platform"
-     on exactly these 3 lines — shrink to fit instead of letting .grad wrap. */
-  .hero-headline { font-size:clamp(15px,4.2vw,34px); }
+  .hero-headline { font-size:clamp(22px,5vw,34px); }
   .stats-grid { grid-template-columns:1fr 1fr; }
 }
 @media(max-width:1100px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
@@ -251,6 +250,15 @@ main { padding:0 2rem 4rem; max-width:1400px; margin:0 auto; }
   .stat-sub   { font-size:11px; }
   .stat-trend { font-size:11px; }
   .hero       { min-height:auto; padding-top:20px; padding-bottom:60px; }
+}
+@media(max-width:480px) {
+  /* "Inventory, Campaigns and Schedules" no longer fits a proper hero size
+     on one line at this width — split it into two shorter lines instead
+     of shrinking the font down to body-text size. */
+  .hero-headline { font-size:clamp(18px,6.5vw,24px); }
+  .mobile-break { display:inline; }
+  .btn-cta-primary, .btn-cta-secondary { padding:13px 26px; font-size:13px; }
+  .btn-arrow { width:18px; height:18px; font-size:11px; }
 }
 @media(max-width:400px) {
   .stats-grid { gap:10px; }
