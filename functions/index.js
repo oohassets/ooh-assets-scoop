@@ -17,6 +17,23 @@ const corsMiddleware = corsLib({
 });
 
 // ═══════════════════════════════════════════════════════════
+// AUTH HELPER — verifies a Firebase ID token from the
+// Authorization header. CORS only stops browser cross-origin
+// calls; it does nothing against a direct curl/server request,
+// so every callable HTTP function below must check this itself.
+// ═══════════════════════════════════════════════════════════
+async function verifyAuth(req) {
+  const match = (req.headers.authorization || "").match(/^Bearer (.+)$/);
+  if (!match) return null;
+  try {
+    return await admin.auth().verifyIdToken(match[1]);
+  } catch (err) {
+    console.error("ID token verification failed:", err.message);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // SCOOP AI  — HTTP proxy to Anthropic Claude API
 // POST { system, messages } → { content: [{ text }] }
 // ═══════════════════════════════════════════════════════════
@@ -25,6 +42,9 @@ exports.scoopAI = functions
   .https.onRequest((req, res) => {
     corsMiddleware(req, res, async () => {
     if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
+
+    const decoded = await verifyAuth(req);
+    if (!decoded) { res.status(401).json({ error: "Unauthorized" }); return; }
 
     const { system, messages } = req.body || {};
 
@@ -95,22 +115,24 @@ exports.scoopAI = functions
 
 // ═══════════════════════════════════════════════════════════
 // CHATBASE TOKEN  — signs a JWT so Chatbase can identify the user
-// POST { userId, email } → { token }
+// POST (Authorization: Bearer <Firebase ID token>) → { token }
+// uid/email come from the verified token, never from the request
+// body, so a caller can't mint an identity token for someone else.
 // Requires CHATBOT_IDENTITY_SECRET in Firebase Secrets Manager
 // ═══════════════════════════════════════════════════════════
 exports.chatbaseToken = functions
   .runWith({ secrets: ["CHATBOT_IDENTITY_SECRET"] })
   .https.onRequest((req, res) => {
-    corsMiddleware(req, res, () => {
+    corsMiddleware(req, res, async () => {
       if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
+
+      const decoded = await verifyAuth(req);
+      if (!decoded) { res.status(401).json({ error: "Unauthorized" }); return; }
 
       const secret = process.env.CHATBOT_IDENTITY_SECRET;
       if (!secret) { res.status(500).json({ error: "Secret not configured" }); return; }
 
-      const { userId, email } = req.body || {};
-      if (!userId) { res.status(400).json({ error: "userId is required" }); return; }
-
-      const token = jwt.sign({ user_id: userId, email }, secret, { expiresIn: "1h" });
+      const token = jwt.sign({ user_id: decoded.uid, email: decoded.email }, secret, { expiresIn: "1h" });
       res.status(200).json({ token });
     });
   });
