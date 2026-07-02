@@ -47,10 +47,15 @@ export function cleanup() { /* remove listeners, teardown */ }
 
 **Map mode** is an alternative to page mode: `setMap(key)` hides `#app-content`, shows the `#mapFrame` iframe, and updates the info card with asset rates. Navigating to any page restores content and hides the map.
 
+**Splash is the default landing page** — `loadFromURL()` falls back to `openSplash()` (not `openHome()`) when there's no `?page=`/`?map=` param, i.e. right after login. `pages/splash.html` is the marketing hero (Pearl Island photo background, brand-tinted glass panel, "Get Started Booking" / "View Media Contents" CTAs) that used to live at the top of `dashboard.html`; `dashboard.html` now starts directly at the stats grid. `openHome()` still means "go to the Dashboard" (nav-center's "Dashboard" link, dock's home icon) — it does not mean splash.
+
+**Nav right-side swap** — `navigation.js`'s `setNavPageTitle(title, sub)` toggles what's shown on the right side of the top nav: on Dashboard/Splash it's the chatbot/notification/avatar icon cluster (`.nav-actions`); on every other page (Bookings, Content Inventory, Vehicle Traffic, map views, etc.) it's replaced by that page's title + subtitle (`#navPageTitle`, absolutely positioned over the same spot). Every `open*()`/`setMap()` function in `router.js` calls this — call it with `(null)` for icon mode, or `(title, sub)` for title mode when adding a new page.
+
 **Gotchas when adding/editing a page loaded via the router:**
 - A page's own `<link rel="stylesheet">` tags are **ignored** in SPA mode — `loadPage()` only auto-injects `<style>` blocks. Any external page CSS file must be registered as the `cssPath` argument to `switchView()` in `router.js` (see `openContentInventory()`).
 - CSS rules on `body` don't apply in SPA mode — only the page's `<body>` *children* get injected into `#app-content`, not a literal `<body>` element. Page-level padding/centering/background must be scoped to a wrapper div instead (see `.vr-page` in `vehicle-report.css`).
 - Pages meant to also work opened standalone (outside the SPA — e.g. `pages/asset-dimension-checker.html`, `pages/image-compressor.html`) need to keep their own `<link>`/theme-sync `<script>` for that context *in addition to* being registered with the router for SPA mode.
+- New pages need a `setNavPageTitle(...)` call in their `router.js` `open*()` function (see above), or the nav will keep showing whatever the previous page set.
 
 ### Key modules
 
@@ -61,7 +66,8 @@ export function cleanup() { /* remove listeners, teardown */ }
 | `assets/js/utils.js` | `loadPage()` (HTML + CSS injection), `setURL()`, iframe helpers |
 | `assets/js/asset-rates.js` | Fetches the `assetrate` RTDB table (cached, re-keyed by each record's own `id`), renders the map info-card |
 | `assets/js/maps.js` | Google Maps embed URLs keyed by asset location |
-| `assets/js/navigation.js` | Nav bar transparent-at-top scroll sync (`updateNavAtTop()`), mobile dock, dropdown panels |
+| `assets/js/navigation.js` | Nav bar transparent-at-top + hide-on-scroll (`updateNavAtTop()`, `updateScrollDirection()`), icon/title swap (`setNavPageTitle()`), mobile dock, dropdown panels |
+| `assets/js/views/splash.js` | Landing page — wires the two hero CTA buttons to Bookings / Content Inventory |
 | `assets/js/views/dashboard.js` | Live campaigns, stats charts, activity log (Firebase RTDB) |
 | `assets/js/views/bookings.js` | Booking CRUD, date filters, status management |
 | `assets/js/views/vehicle-report.js` | Vehicle traffic dashboard — month/date-range picker, circuit slicer sourced from `assetrate`, Chart.js bar/doughnut/horizontal-bar charts |
@@ -99,7 +105,7 @@ Four exported functions, all in `functions/index.js`. `scoopAI` and `chatbaseTok
 
 - **Frontend:** `firebase deploy --only hosting` — deploys everything in the repo root except `functions/`, `firebase.json`, and dotfiles
 - **Functions:** GitHub Actions (`.github/workflows/deploy-functions.yml`) auto-deploys on push to `main` when files under `functions/` change. Requires `FIREBASE_SERVICE_ACCOUNT` GitHub secret.
-- **Service worker** (`service-worker.js`) is versioned (currently `v139`). Bump `CACHE_NAME` on every significant frontend change — the fetch handler is cache-first with no revalidation, so an unbumped change is silently invisible to any returning user until the version changes.
+- **Service worker** (`service-worker.js`) is versioned (currently `v143`). Bump `CACHE_NAME` on every significant frontend change — the fetch handler is cache-first with no revalidation, so an unbumped change is silently invisible to any returning user until the version changes.
 
 ## Asset Location Naming Conventions
 

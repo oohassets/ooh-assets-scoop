@@ -18,9 +18,8 @@
 }
 .bookings-hdr-inner {
   max-width: 1400px; margin: 0 auto;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  display: flex; align-items: center; justify-content: flex-end; gap: 16px;
 }
-.bookings-hdr-text .section-sub { margin-top: 2px; }
 .bookings-hdr-btns { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
 /* ── Schedule section — fills remaining height ── */
@@ -170,21 +169,18 @@
 
 /* ── Date range filter ────────────────── */
 .date-filter-wrap { position:relative; display:inline-flex; }
-.date-filter-btn { display:flex; align-items:center; gap:8px; padding:0 16px; height:44px; background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
-.date-filter-btn:hover, .date-filter-btn.active { border-color:var(--accent-indigo); color:var(--text-primary); }
-.date-filter-btn .chevron-icon { font-size:10px; opacity:0.5; transition:transform 0.2s; }
-.date-filter-btn.open .chevron-icon { transform:rotate(180deg); }
-.date-filter-dropdown { position:absolute; top:calc(100% + 8px); left:0; z-index:500; background:var(--nav-bg); border:1px solid var(--border-glass); border-radius:16px; padding:12px; min-width:220px; box-shadow:0 16px 40px rgba(0,0,0,0.3); backdrop-filter:blur(20px); display:none; }
-.date-filter-dropdown.open { display:block; }
-.date-preset { display:block; width:100%; text-align:left; padding:9px 12px; border-radius:8px; border:none; background:none; cursor:pointer; font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--text-secondary); transition:all 0.15s; }
-.date-preset:hover { background:var(--bg-glass); color:var(--text-primary); }
-.date-preset.selected { background:rgba(152,30,50,0.15); color:var(--accent-indigo); }
-.date-custom-inputs { border-top:1px solid var(--border-glass); margin-top:8px; padding-top:10px; display:none; flex-direction:column; gap:8px; }
-.date-custom-inputs.visible { display:flex; }
-.date-custom-label { font-size:11px; font-weight:600; color:var(--text-muted); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:2px; }
-.date-custom-field { width:100%; padding:8px 10px; border-radius:8px; background:var(--bg-glass); border:1px solid var(--border-glass); color:var(--text-primary); font-family:var(--font-body); font-size:13px; outline:none; transition:all 0.2s; }
-.date-custom-field:focus { border-color:var(--accent-indigo); }
-.date-apply-btn { width:100%; margin-top:8px; padding:9px; border-radius:8px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet)); color:white; font-family:var(--font-body); font-weight:700; font-size:13px; transition:all 0.2s; }
+.date-modern {
+  height:44px; padding:0 14px; border-radius:var(--radius-sm);
+  border:1px solid var(--border-glass); background:var(--bg-glass);
+  color:var(--text-primary); font-family:var(--font-body); font-size:13px; font-weight:600;
+  cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s;
+}
+.date-modern:hover { border-color:var(--accent-indigo); }
+.date-modern:focus { outline:none; border-color:var(--accent-indigo); box-shadow:0 0 0 3px var(--focus-ring); }
+.date-range-inputs { display:flex; align-items:center; gap:8px; }
+.date-range-inputs[hidden] { display:none; }
+.date-range-arrow { font-size:16px; color:var(--text-muted); }
+.date-apply-btn { padding:0 16px; height:44px; border-radius:var(--radius-sm); border:none; cursor:pointer; background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet)); color:white; font-family:var(--font-body); font-weight:700; font-size:13px; transition:all 0.2s; white-space:nowrap; }
 .date-apply-btn:hover { opacity:0.9; }
 
 /* ── Data table ───────────────────────── */
@@ -571,7 +567,6 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
     display: flex; flex-direction: column; gap: 8px;
     padding: 14px 52px 10px 16px; position: relative;
   }
-  .cal-section-hdr .section-sub { display: none; }
   .cal-search-wrap { position: static; transform: none; width: 100%; }
   .bookings-cal-bar { margin: 0; padding-right: 0; }
   .cal-close-btn { position: absolute; top: 12px; right: 12px; margin-left: 0; }

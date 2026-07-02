@@ -31,7 +31,6 @@
   margin: 0 auto;
   padding: 14px 20px 0;
 }
-.bookings-hdr-text .section-sub { margin-top: 2px; }
 
 /* ── Download button (mirrors bookings.css) ───────── */
 .download-wrap { position: relative; display: inline-flex; }
@@ -63,13 +62,13 @@
 .dl-opt .material-symbols-outlined { font-size: 16px; }
 .dl-opt:hover { background: var(--bg-glass); color: var(--text-primary); }
 
-.carousel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding: 0 20px; }
+.carousel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding: 10px 20px; }
 .carousel-title  {
   color: var(--text-primary, #000);
   font-size: 20px;
   font-weight: 600;
-  margin: 20px 0 10px;
-  padding: 8px 20px;
+  margin: 20px 0 10px 0 0;
+  padding: 0 10px;
   position: sticky;
   top: 132px;  /* combined ci-sticky-header height */
   z-index: 99;

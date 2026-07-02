@@ -274,15 +274,45 @@ function resetModal() {
 }
 
 // ── FILTERS ───────────────────────────────────────────────
-function getPresetRange(preset) {
-  const n = new Date(); const y = n.getFullYear(), m = n.getMonth();
-  switch(preset) {
-    case "this-month":  return [new Date(y,m,1),   new Date(y,m+1,0)];
-    case "last-month":  return [new Date(y,m-1,1), new Date(y,m,0)];
-    case "next-month":  return [new Date(y,m+1,1), new Date(y,m+2,0)];
-    case "all-year":    return [new Date(y,0,1),   new Date(y,11,31)];
-    default:            return [null, null];
+function monthKeyFromDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+function monthRangeFromKey(key) {
+  const [y,m] = key.split("-").map(Number);
+  return [new Date(y, m-1, 1), new Date(y, m, 0)];
+}
+function monthLabel(key) {
+  const [y,m] = key.split("-").map(Number);
+  return `${FULL_MONTHS[m-1]} ${y}`;
+}
+/** Contiguous list of "YYYY-MM" keys spanning every campaign date, always including the current month. */
+function buildMonthRange(campaigns) {
+  const now = new Date();
+  let min = new Date(now.getFullYear(), now.getMonth(), 1);
+  let max = new Date(now.getFullYear(), now.getMonth(), 1);
+  campaigns.forEach(c => {
+    [parseDate(c.rawStartDate), parseDate(c.rawEndDate)].forEach(d => {
+      if (!d) return;
+      const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+      if (monthStart < min) min = monthStart;
+      if (monthStart > max) max = monthStart;
+    });
+  });
+  const keys = [];
+  const cur = new Date(min);
+  while (cur <= max) {
+    keys.push(monthKeyFromDate(cur));
+    cur.setMonth(cur.getMonth()+1);
   }
+  return keys;
+}
+/** Fills a <select> with "Select Date Range" + every month key (ascending), selecting defaultKey. */
+function populateDateSelect(select, monthKeys, defaultKey) {
+  if (!select) return;
+  select.innerHTML =
+    `<option value="range">Select Date Range</option>` +
+    monthKeys.map(k => `<option value="${k}">${monthLabel(k)}</option>`).join("");
+  select.value = defaultKey;
 }
 
 function applyFilters() {
@@ -630,17 +660,6 @@ async function saveBooking() {
 }
 
 // ── CALENDAR (booking schedule view) ─────────────────────
-function setCalPresetRange(preset) {
-  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
-  const ranges = {
-    "this-month":  [new Date(y,m,1),   new Date(y,m+1,0)],
-    "last-month":  [new Date(y,m-1,1), new Date(y,m,0)],
-    "next-month":  [new Date(y,m+1,1), new Date(y,m+2,0)],
-    "all-year":    [new Date(y,0,1),   new Date(y,11,31)]
-  };
-  return ranges[preset] || [null, null];
-}
-
 async function buildCalendar() {
   const table = document.getElementById("bookingCalendar"); if (!table) return;
   const startD = calDrpStart || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -1545,44 +1564,20 @@ export async function init(userName) {
   }
 
   // ── Table date filter ─────────────────────────────────
-  const dateFilterBtn      = document.getElementById("dateFilterBtn");
-  const dateFilterDropdown = document.getElementById("dateFilterDropdown");
-  const dateCustomInputs   = document.getElementById("dateCustomInputs");
-  const dateFilterLabel    = document.getElementById("dateFilterLabel");
-  [drpStart, drpEnd] = getPresetRange("this-month");
+  const dateFilterSelect = document.getElementById("dateFilterSelect");
+  const dateRangeInputs  = document.getElementById("dateRangeInputs");
 
-  dateFilterBtn?.addEventListener("click", e => {
-    e.stopPropagation();
-    dateFilterDropdown.classList.toggle("open");
-    dateFilterBtn.classList.toggle("open");
-  });
-
-  document.addEventListener("click", e => {
-    if (!dateFilterBtn?.contains(e.target) && !dateFilterDropdown?.contains(e.target)) {
-      dateFilterDropdown?.classList.remove("open");
-      dateFilterBtn?.classList.remove("open");
-    }
+  document.addEventListener("click", () => {
     document.querySelectorAll(".inline-status-dropdown.open").forEach(d => d.classList.remove("open"));
   });
 
-  document.querySelectorAll(".date-preset[data-preset]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".date-preset[data-preset]").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      const preset = btn.dataset.preset;
-      if (preset === "custom") {
-        dateCustomInputs?.classList.add("visible");
-        if (dateFilterLabel) dateFilterLabel.textContent = "Custom Range";
-      } else {
-        dateCustomInputs?.classList.remove("visible");
-        [drpStart, drpEnd] = getPresetRange(preset);
-        const labels = {"this-month":"This Month","last-month":"Last Month","next-month":"Next Month","all-year":"All Year"};
-        if (dateFilterLabel) dateFilterLabel.textContent = labels[preset] || "Custom";
-        applyFilters();
-        dateFilterDropdown?.classList.remove("open");
-        dateFilterBtn?.classList.remove("open");
-      }
-    });
+  dateFilterSelect?.addEventListener("change", () => {
+    const isRange = dateFilterSelect.value === "range";
+    if (dateRangeInputs) dateRangeInputs.hidden = !isRange;
+    if (!isRange) {
+      [drpStart, drpEnd] = monthRangeFromKey(dateFilterSelect.value);
+      applyFilters();
+    }
   });
 
   document.getElementById("applyCustomDate")?.addEventListener("click", () => {
@@ -1590,10 +1585,7 @@ export async function init(userName) {
     const t = document.getElementById("customDateTo")?.value;
     if (f && t) {
       drpStart = parseISOLocal(f); drpEnd = parseISOLocal(t);
-      if (dateFilterLabel) dateFilterLabel.textContent = `${f} → ${t}`;
       applyFilters();
-      dateFilterDropdown?.classList.remove("open");
-      dateFilterBtn?.classList.remove("open");
     }
   });
 
@@ -1715,7 +1707,7 @@ export async function init(userName) {
     const calSearchEl = document.getElementById("calSearch");
     if (calSearchEl) calSearchEl.value = "";
     tabSchedule.classList.remove("active");
-    if (!calDrpStart) [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
+    if (!calDrpStart) [calDrpStart, calDrpEnd] = monthRangeFromKey(monthKeyFromDate(new Date()));
     const calFromEl = document.getElementById("calFrom");
     const calToEl   = document.getElementById("calTo");
     if (calFromEl) calFromEl.value = toISO(calDrpStart);
@@ -1724,44 +1716,18 @@ export async function init(userName) {
   });
 
   // ── Calendar filter ───────────────────────────────────
-  [calDrpStart, calDrpEnd] = setCalPresetRange("this-month");
-  const calDateFilterBtn      = document.getElementById("calDateFilterBtn");
-  const calDateFilterDropdown = document.getElementById("calDateFilterDropdown");
+  const calDateFilterSelect = document.getElementById("calDateFilterSelect");
+  const calDateRangeInputs  = document.getElementById("calDateRangeInputs");
 
-  calDateFilterBtn?.addEventListener("click", e => {
-    e.stopPropagation();
-    calDateFilterDropdown?.classList.toggle("open");
-    calDateFilterBtn.classList.toggle("open");
-  });
-  document.addEventListener("click", e => {
-    if (!calDateFilterBtn?.contains(e.target) && !calDateFilterDropdown?.contains(e.target)) {
-      calDateFilterDropdown?.classList.remove("open");
-      calDateFilterBtn?.classList.remove("open");
+  calDateFilterSelect?.addEventListener("change", async () => {
+    const isRange = calDateFilterSelect.value === "range";
+    if (calDateRangeInputs) calDateRangeInputs.hidden = !isRange;
+    if (!isRange) {
+      [calDrpStart, calDrpEnd] = monthRangeFromKey(calDateFilterSelect.value);
+      const cfe = document.getElementById("calFrom"); if (cfe) cfe.value = toISO(calDrpStart);
+      const cte = document.getElementById("calTo");   if (cte) cte.value = toISO(calDrpEnd);
+      await buildCalendar();
     }
-  });
-
-  document.querySelectorAll("[data-cal-preset]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      document.querySelectorAll("[data-cal-preset]").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      const preset = btn.dataset.calPreset;
-      const labels = {"this-month":"This Month","last-month":"Last Month","next-month":"Next Month","all-year":"All Year"};
-      if (preset === "custom") {
-        document.getElementById("calDateCustomInputs")?.classList.add("visible");
-        const lbl2 = document.getElementById("calDateFilterLabel");
-        if (lbl2) lbl2.textContent = "Custom Range";
-      } else {
-        document.getElementById("calDateCustomInputs")?.classList.remove("visible");
-        [calDrpStart, calDrpEnd] = setCalPresetRange(preset);
-        const cfe = document.getElementById("calFrom"); if (cfe) cfe.value = toISO(calDrpStart);
-        const cte = document.getElementById("calTo");   if (cte) cte.value = toISO(calDrpEnd);
-        const calLbl = document.getElementById("calDateFilterLabel");
-        if (calLbl) calLbl.textContent = labels[preset];
-        calDateFilterDropdown?.classList.remove("open");
-        calDateFilterBtn?.classList.remove("open");
-        await buildCalendar();
-      }
-    });
   });
 
   document.getElementById("applyCalCustomDate")?.addEventListener("click", async () => {
@@ -1769,10 +1735,6 @@ export async function init(userName) {
     const t = document.getElementById("calTo")?.value;
     if (f && t) {
       calDrpStart = parseISOLocal(f); calDrpEnd = parseISOLocal(t);
-      const calLbl = document.getElementById("calDateFilterLabel");
-      if (calLbl) calLbl.textContent = `${f} → ${t}`;
-      calDateFilterDropdown?.classList.remove("open");
-      calDateFilterBtn?.classList.remove("open");
       await buildCalendar();
     }
   });
@@ -1780,7 +1742,18 @@ export async function init(userName) {
   // ── Load data ─────────────────────────────────────────
   const tables = await loadAll();
   allCampaigns = getCampaigns(tables);
+
+  const monthKeys  = buildMonthRange(allCampaigns);
+  const currentKey = monthKeyFromDate(new Date());
+  const defaultKey = monthKeys.includes(currentKey) ? currentKey : monthKeys[monthKeys.length - 1];
+
+  populateDateSelect(dateFilterSelect, monthKeys, defaultKey);
+  [drpStart, drpEnd] = monthRangeFromKey(defaultKey);
   applyFilters();
+
+  populateDateSelect(calDateFilterSelect, monthKeys, defaultKey);
+  [calDrpStart, calDrpEnd] = monthRangeFromKey(defaultKey);
+
   populateAssets(tables);
   initAutoSuggest();
 }

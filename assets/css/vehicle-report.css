@@ -5,19 +5,7 @@
 
 .vr-page {
   font-family: var(--font-body);
-  background: var(--bg-primary);
   padding: 20px;
-}
-
-/* ── Sticky page title ─────────────────────────────────── */
-.vr-sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--bg-primary);
-  padding-top: 4px;
-  padding-bottom: 16px;
-  margin-bottom: 8px;
 }
 
 /* ── Top row: toolbar + slicer + KPI donut + circuit rank ─ */

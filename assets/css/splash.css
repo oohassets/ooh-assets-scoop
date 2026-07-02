@@ -1,0 +1,145 @@
+/* ══════════════════════════════════════════
+   SCOOP OOH — SPLASH
+   Landing hero: Pearl Island photo background,
+   brand-red tint, glass panel with moving shine
+══════════════════════════════════════════ */
+
+.splash-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.splash-bg {
+  position: absolute;
+  inset: 0;
+  background: url('../../images/thepearlisland.jpg') center/cover no-repeat;
+  z-index: 0;
+}
+
+/* Brand-red tint over the photo — also what keeps hero text legible */
+.splash-tint {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(160deg, rgba(97,17,31,0.90) 0%, rgba(152,30,50,0.55) 45%, rgba(11,12,14,0.88) 100%);
+  z-index: 1;
+}
+
+/* ── Glass panel ───────────────────────── */
+.splash-glass {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  width: 100%;
+  padding: 48px 44px;
+  border-radius: 32px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.22);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+  text-align: center;
+  overflow: hidden;
+  animation: splashIn 0.7s ease both;
+}
+
+/* Moving glass shine sweep */
+.splash-glass-shine {
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 55%;
+  height: 220%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: rotate(15deg);
+  animation: shineMove 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes shineMove {
+  0%   { left: -60%; }
+  55%  { left: 130%; }
+  100% { left: 130%; }
+}
+
+@keyframes splashIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Hero content (eyebrow / headline / sub / CTAs) ───── */
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;
+  border-radius: 999px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.28);
+  font-size: 12px; font-weight: 600; font-family: var(--font-body);
+  color: #fff; letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 2rem; animation: fadeInUp 0.6s ease both;
+  position: relative; z-index: 1;
+}
+.hero-eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+
+.hero-headline {
+  font-family: var(--font-display); font-size: clamp(36px,3.8vw,60px);
+  font-weight: 800; line-height: 1.05; letter-spacing: -0.02em;
+  color: #fff; margin-bottom: 1.5rem; animation: fadeInUp 0.6s 0.1s ease both;
+  position: relative; z-index: 1;
+}
+.hero-headline .grad  { background: linear-gradient(135deg,#F3B6BF,#E5697F,#C83A50); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; }
+.hero-headline .grad2 { background: linear-gradient(135deg,#C83A50,#F3B6BF);         -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.mobile-break { display: none; }
+
+.hero-sub {
+  font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.85); max-width: 560px;
+  margin: 0 auto 2.5rem; font-weight: 400; animation: fadeInUp 0.6s 0.2s ease both;
+  position: relative; z-index: 1;
+}
+
+.hero-cta {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  animation: fadeInUp 0.6s 0.3s ease both;
+  position: relative; z-index: 1;
+}
+.btn-cta-primary {
+  padding: 16px 36px; border-radius: 999px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  color: white; font-family: var(--font-body); font-weight: 700; font-size: 15px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35); transition: all 0.25s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-cta-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+.btn-cta-secondary {
+  padding: 16px 36px; border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
+  color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 15px;
+  transition: all 0.25s; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(12px);
+}
+.btn-cta-secondary:hover { border-color: #fff; transform: translateY(-3px); background: rgba(255,255,255,0.18); }
+.btn-arrow {
+  width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.22);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; transition: transform 0.2s;
+}
+.btn-cta-primary:hover .btn-arrow, .btn-cta-secondary:hover .btn-arrow { transform: translateX(4px); }
+
+/* ── Responsive ───────────────────────── */
+@media(max-width: 900px) {
+  .splash-glass { padding: 40px 30px; border-radius: 26px; }
+  .hero-headline { font-size: clamp(22px,5vw,34px); }
+}
+@media(max-width: 480px) {
+  .splash-hero { padding: 24px 14px; }
+  .splash-glass { padding: 32px 22px; }
+  /* "Inventory, Campaigns and Schedules" no longer fits a proper hero size
+     on one line at this width — split it into two shorter lines instead
+     of shrinking the font down to body-text size. */
+  .hero-headline { font-size: clamp(18px,6.5vw,24px); }
+  .mobile-break { display: inline; }
+  .btn-cta-primary, .btn-cta-secondary { padding: 13px 26px; font-size: 13px; width: 100%; justify-content: center; }
+  .hero-cta { flex-direction: column; }
+  .btn-arrow { width: 18px; height: 18px; font-size: 11px; }
+}

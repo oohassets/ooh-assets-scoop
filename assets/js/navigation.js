@@ -8,12 +8,70 @@ export function updateNavAtTop() {
   nav.classList.toggle('nav-at-top', frame.scrollTop < 4);
 }
 
-/** Make the nav transparent at scroll-top, solid when scrolled. */
+// Minimum scroll delta (px) before flipping hide/show state — avoids
+// flicker from tiny/inertial scroll jitter.
+const SCROLL_HIDE_THRESHOLD = 8;
+let lastScrollTop = 0;
+
+/** Hides the nav + mobile dock on scroll-down, reveals them on scroll-up. */
+export function updateScrollDirection() {
+  const frame = document.getElementById('app-content');
+  const nav   = document.querySelector('nav');
+  const dock  = document.getElementById('mobileDock');
+  if (!frame) return;
+
+  const st    = frame.scrollTop;
+  const delta = st - lastScrollTop;
+
+  if (st < 4) {
+    nav?.classList.remove('nav-hidden');
+    dock?.classList.remove('dock-hidden');
+    lastScrollTop = st;
+  } else if (delta > SCROLL_HIDE_THRESHOLD) {
+    nav?.classList.add('nav-hidden');
+    dock?.classList.add('dock-hidden');
+    lastScrollTop = st;
+  } else if (delta < -SCROLL_HIDE_THRESHOLD) {
+    nav?.classList.remove('nav-hidden');
+    dock?.classList.remove('dock-hidden');
+    lastScrollTop = st;
+  }
+}
+
+/** Make the nav transparent at scroll-top, solid when scrolled, and
+ *  fade the nav + mobile dock away on scroll-down / back in on scroll-up. */
 export function initNavScroll() {
   const frame = document.getElementById('app-content');
   if (!frame) return;
-  frame.addEventListener('scroll', updateNavAtTop, { passive: true });
+  frame.addEventListener('scroll', () => {
+    updateNavAtTop();
+    updateScrollDirection();
+  }, { passive: true });
   updateNavAtTop();
+}
+
+/**
+ * Swap the nav's right-side content: on Dashboard/Splash it shows the
+ * chatbot/notification/avatar icon cluster; on every other page it shows
+ * that page's title + subtitle instead. Pass no args (or null) to go
+ * back to icon mode.
+ */
+export function setNavPageTitle(title, sub) {
+  const wrap    = document.getElementById('navPageTitle');
+  const titleEl = document.getElementById('navPageTitleText');
+  const subEl   = document.getElementById('navPageTitleSub');
+  const actions = document.querySelector('.nav-actions');
+  if (!wrap) return;
+
+  if (title) {
+    if (titleEl) titleEl.textContent = title;
+    if (subEl)   subEl.textContent   = sub || '';
+    wrap.hidden = false;
+    actions?.classList.add('nav-actions-hidden');
+  } else {
+    wrap.hidden = true;
+    actions?.classList.remove('nav-actions-hidden');
+  }
 }
 
 /** Set the active dock item by index (0-based). */

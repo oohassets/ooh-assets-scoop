@@ -13,7 +13,7 @@ import { toggleInfoCard, updateInfoCard } from "./asset-rates.js";
 import { getCurrentMapUrl } from "./router.js";
 import {
   loadFromURL,
-  openHome, openContentInventory, openBookings, openVehicleReport,
+  openSplash, openHome, openContentInventory, openBookings, openVehicleReport,
   openAssetDimensionChecker, openImageCompressor, openViewScreen,
   setMap, setMapAndClose,
 } from "./router.js";
@@ -22,6 +22,7 @@ import { initScoopAI } from "./scoop-ai.js";
 import { initNotifications } from "./notifications.js";
 
 // ── Expose globals that inline onclick="" attributes need ──
+window.openSplash              = openSplash;
 window.openHome                = openHome;
 window.openContentInventory    = openContentInventory;
 window.openBookings            = openBookings;

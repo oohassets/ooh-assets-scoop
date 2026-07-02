@@ -16,61 +16,6 @@
 #cursor { position:fixed; width:16px; height:16px; border-radius:50%; background:var(--accent-indigo); pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:transform 0.1s,width 0.2s,height 0.2s,opacity 0.2s; mix-blend-mode:screen; opacity:0.7; }
 #cursor-ring { position:fixed; width:36px; height:36px; border-radius:50%; border:1.5px solid var(--accent-cyan); pointer-events:none; z-index:9997; transform:translate(-50%,-50%); transition:transform 0.15s ease-out,width 0.2s,height 0.2s; opacity:0.4; }
 
-/* ── Hero section ─────────────────────── */
-.hero {
-  position:relative; display:flex; align-items:center; justify-content:center;
-  overflow:hidden; padding-bottom:80px; min-height:100vh;
-}
-.hero-content {
-  position:relative; z-index:10; max-width:1400px; width:100%;
-  padding:0 2rem; display:flex; flex-direction:column; align-items:center; text-align:center;
-}
-#hero-canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-.hero-grid-overlay {
-  position:absolute; inset:0;
-  background-image:linear-gradient(rgba(152,30,50,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(152,30,50,0.06) 1px,transparent 1px);
-  background-size:60px 60px;
-  mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 30%,transparent 100%);
-  pointer-events:none;
-}
-[data-theme="light"] .hero-grid-overlay { background-image:linear-gradient(rgba(152,30,50,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(152,30,50,0.08) 1px,transparent 1px); }
-
-.hero-eyebrow {
-  display:inline-flex; align-items:center; gap:8px; padding:8px 18px;
-  border-radius:999px; background:var(--bg-glass); border:1px solid var(--border-glass);
-  font-size:12px; font-weight:600; font-family:var(--font-body);
-  color:var(--accent-cyan); letter-spacing:0.1em; text-transform:uppercase;
-  margin-bottom:2rem; animation:fadeInUp 0.6s ease both;
-}
-.hero-eyebrow::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--accent-cyan); }
-
-.hero-headline {
-  font-family:var(--font-display); font-size:clamp(36px,3.8vw,60px);
-  font-weight:800; line-height:1.05; letter-spacing:-0.02em;
-  color:var(--text-primary); margin-bottom:1.5rem; animation:fadeInUp 0.6s 0.1s ease both;
-}
-.hero-headline .grad  { background:linear-gradient(135deg,#C83A50,#981E32,#7C1728); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; white-space:nowrap; }
-.hero-headline .grad2 { background:linear-gradient(135deg,#7C1728,#B12A42);          -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-.mobile-break { display:none; }
-
-.hero-sub { font-size:15px; line-height:1.7; color:var(--text-secondary); max-width:580px; margin:0 auto 2.5rem; font-weight:400; animation:fadeInUp 0.6s 0.2s ease both; }
-
-.hero-cta { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:2rem; animation:fadeInUp 0.6s 0.3s ease both; }
-.btn-cta-primary  { padding:16px 36px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(135deg,var(--accent-indigo),var(--accent-violet)); color:white; font-family:var(--font-body); font-weight:700; font-size:15px; box-shadow:0 8px 30px var(--glow-indigo); transition:all 0.25s; display:flex; align-items:center; gap:8px; }
-.btn-cta-primary:hover  { transform:translateY(-3px); box-shadow:0 16px 40px var(--glow-indigo); }
-.btn-cta-secondary { padding:16px 36px; border-radius:999px; cursor:pointer; background:var(--bg-glass); border:1px solid var(--border-glass); color:var(--text-primary); font-family:var(--font-body); font-weight:600; font-size:15px; transition:all 0.25s; display:flex; align-items:center; gap:8px; backdrop-filter:blur(12px); }
-.btn-cta-secondary:hover { border-color:var(--accent-cyan); transform:translateY(-3px); background:var(--bg-glass-hover); }
-.btn-arrow { width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:12px; transition:transform 0.2s; }
-.btn-cta-primary:hover .btn-arrow, .btn-cta-secondary:hover .btn-arrow { transform:translateX(4px); }
-
-/* Decorative orbs */
-.orb { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; animation:orbFloat 8s ease-in-out infinite; }
-.orb1 { width:500px; height:500px; background:rgba(152,30,50,0.12);  top:-100px;  right:-100px; animation-delay:0s;  }
-.orb2 { width:400px; height:400px; background:rgba(200,58,80,0.08);  bottom:-50px; left:-80px;  animation-delay:-3s; }
-.orb3 { width:300px; height:300px; background:rgba(177,42,66,0.1);  top:30%;      left:10%;    animation-delay:-6s; }
-[data-theme="light"] .orb1 { background:rgba(152,30,50,0.08); }
-[data-theme="light"] .orb2 { background:rgba(200,58,80,0.06);  }
-
 /* ── Stats grid ───────────────────────── */
 .stats-grid {
   max-width:1300px;
@@ -98,7 +43,7 @@
 [data-theme="light"] .stat-card { background:rgba(255,255,255,0.8) !important; }
 
 /* ── Main content area ────────────────── */
-main { padding:0 2rem 4rem; max-width:1400px; margin:0 auto; }
+main { padding:2rem 2rem 4rem; max-width:1400px; margin:0 auto; }
 
 /* ── Campaign update cards ────────────── */
 .update-cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:20px; }
@@ -225,8 +170,7 @@ main { padding:0 2rem 4rem; max-width:1400px; margin:0 auto; }
   .stats-grid { grid-template-columns:repeat(2,1fr); }
 }
 @media(max-width:900px) {
-  main { padding:0 1rem 4rem; }
-  .hero-headline { font-size:clamp(22px,5vw,34px); }
+  main { padding:1.5rem 1rem 4rem; }
 }
 @media(max-width:768px) {
   .stat-overlay {
@@ -248,16 +192,6 @@ main { padding:0 2rem 4rem; max-width:1400px; margin:0 auto; }
   .stat-value { font-size:clamp(24px,5vw,32px); }
   .stat-sub   { font-size:11px; }
   .stat-trend { font-size:11px; }
-  .hero       { min-height:auto; padding-top:20px; padding-bottom:60px; }
-}
-@media(max-width:480px) {
-  /* "Inventory, Campaigns and Schedules" no longer fits a proper hero size
-     on one line at this width — split it into two shorter lines instead
-     of shrinking the font down to body-text size. */
-  .hero-headline { font-size:clamp(18px,6.5vw,24px); }
-  .mobile-break { display:inline; }
-  .btn-cta-primary, .btn-cta-secondary { padding:13px 26px; font-size:13px; }
-  .btn-arrow { width:18px; height:18px; font-size:11px; }
 }
 @media(max-width:400px) {
   .stats-grid { gap:10px; }

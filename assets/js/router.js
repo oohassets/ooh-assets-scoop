@@ -2,7 +2,7 @@
 import { loadPage, toggleOverlay, setURL } from "./utils.js";
 import { maps }        from "./maps.js";
 import { updateInfoCard } from "./asset-rates.js";
-import { setDockActive, closeAllPanels, updateNavAtTop } from "./navigation.js";
+import { setDockActive, closeAllPanels, updateNavAtTop, updateScrollDirection, setNavPageTitle } from "./navigation.js";
 
 const BASE_PAGES = "./pages/";
 const BASE_CSS = "./assets/css/";
@@ -29,11 +29,14 @@ async function switchView(htmlPath, cssPath, viewModulePath) {
   if (pageOrbs)   pageOrbs.style.display   = "block"; // restore after map view
   toggleOverlay(false);
 
-  // Reset scroll to top and sync nav-at-top directly — resetting scrollTop
-  // is a no-op (fires no 'scroll' event) when the frame was already at 0,
-  // so the passive scroll listener alone can't be relied on here.
+  // Reset scroll to top and sync nav-at-top / hide-on-scroll state directly
+  // — resetting scrollTop is a no-op (fires no 'scroll' event) when the
+  // frame was already at 0, so the passive scroll listener alone can't be
+  // relied on here. Without this, a nav/dock hidden by scrolling down on
+  // the previous page would stay hidden on the new page.
   if (appContent) appContent.scrollTop = 0;
   updateNavAtTop();
+  updateScrollDirection();
 
   // Load HTML into container
   await loadPage(htmlPath, cssPath);
@@ -47,6 +50,19 @@ async function switchView(htmlPath, cssPath, viewModulePath) {
   }
 }
 
+export async function openSplash() {
+  await switchView(
+    BASE_PAGES + "splash.html",
+    BASE_CSS + "splash.css",
+    "./views/splash.js"
+  );
+  setURL({ map: null, page: "splash" });
+  setDockActive(0);
+  closeAllPanels();
+  markNavActive(null);
+  setNavPageTitle(null); // icon mode
+}
+
 export async function openHome() {
   await switchView(
     BASE_PAGES + "dashboard.html",
@@ -57,6 +73,7 @@ export async function openHome() {
   setDockActive(0);
   closeAllPanels();
   markNavActive("homeLink");
+  setNavPageTitle(null); // icon mode
 }
 
 export async function openBookings() {
@@ -69,6 +86,7 @@ export async function openBookings() {
   setDockActive(1);
   closeAllPanels();
   markNavActive("bookingsLink");
+  setNavPageTitle("Campaign Bookings", "Manage and update your bookings");
 }
 
 export async function openContentInventory() {
@@ -81,6 +99,7 @@ export async function openContentInventory() {
   setDockActive(2);
   closeAllPanels();
   markNavActive("contentInventoryLink");
+  setNavPageTitle("Content Inventory", "Keep track of all active content displayed throughout your OOH Assets");
 }
 
 export async function openVehicleReport() {
@@ -93,6 +112,7 @@ export async function openVehicleReport() {
   setDockActive(4);
   closeAllPanels();
   markNavActive("vehicleTrafficLink");
+  setNavPageTitle("Vehicle Traffic Dashboard", "Track daily vehicle counts and estimated impressions across The Pearl Island and Gewan Island circuits");
 }
 
 export async function openAssetDimensionChecker() {
@@ -100,6 +120,7 @@ export async function openAssetDimensionChecker() {
   setURL({ map: null, page: "asset-checker" });
   setDockActive(4);
   closeAllPanels();
+  setNavPageTitle("Artwork Dimension Checker", "Scan and validate artwork file dimensions before upload");
 }
 
 export async function openImageCompressor() {
@@ -107,6 +128,7 @@ export async function openImageCompressor() {
   setURL({ map: null, page: "image-compressor" });
   setDockActive(4);
   closeAllPanels();
+  setNavPageTitle("Bulk Image Compressor", "Resize and compress images for faster uploads");
 }
 
 export async function openViewScreen() {
@@ -114,6 +136,7 @@ export async function openViewScreen() {
   setURL({ map: null, page: "view-screen" });
   setDockActive(4);
   closeAllPanels();
+  setNavPageTitle("View Screen", "Live preview of digital OOH asset content");
 }
 
 export function setMap(key) {
@@ -131,13 +154,19 @@ export function setMap(key) {
   const appContent = document.getElementById("app-content");
   const pageOrbs   = document.getElementById("page-orbs");
   if (mapFrame)   { mapFrame.style.display = "block"; mapFrame.src = currentMapUrl; }
-  if (appContent) appContent.style.display = "none";
+  if (appContent) { appContent.style.display = "none"; appContent.scrollTop = 0; }
   if (pageOrbs)   pageOrbs.style.display   = "none";
   toggleOverlay(true);
+
+  // Map views don't scroll #app-content, so a nav/dock left hidden by
+  // scrolling on the previous page would otherwise stay hidden here too.
+  updateNavAtTop();
+  updateScrollDirection();
 
   setURL({ map: key, page: null });
   setDockActive(3);
   markNavActive(null);
+  setNavPageTitle("Assets Location", "Browse digital and static OOH asset locations on the map");
 }
 
 export function setMapAndClose(key) {
@@ -150,6 +179,7 @@ export function loadFromURL() {
   const page = params.get("page");
   const map  = params.get("map");
 
+  if (page === "splash")            return openSplash();
   if (page === "home")              return openHome();
   if (page === "bookings")          return openBookings();
   if (page === "content-inventory") return openContentInventory();
@@ -159,7 +189,7 @@ export function loadFromURL() {
   if (page === "view-screen")       return openViewScreen();
   if (map && maps[map])             return setMap(map);
 
-  openHome(); // default
+  openSplash(); // default landing
 }
 
 function markNavActive(id) {

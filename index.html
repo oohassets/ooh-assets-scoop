@@ -242,6 +242,12 @@
         </div>
       </div>
 
+      <!-- Shown instead of the icon cluster on every page except Dashboard/Splash -->
+      <div class="nav-page-title" id="navPageTitle" hidden>
+        <div class="nav-page-title-text" id="navPageTitleText"></div>
+        <p class="nav-page-title-sub" id="navPageTitleSub"></p>
+      </div>
+
     </nav>
 
     <!-- ══════════════════════════════════════════
@@ -287,29 +293,24 @@
     ══════════════════════════════════════════ -->
     <div class="mobile-dock" id="mobileDock">
 
-      <button class="dock-item active" id="btnHome">
+      <button class="dock-item active" id="btnHome" title="Dashboard">
         <span class="material-symbols-outlined">home</span>
-        <span class="dock-label">Dashboard</span>
       </button>
 
-      <button class="dock-item" id="btnBookings">
+      <button class="dock-item" id="btnBookings" title="Bookings">
         <span class="material-symbols-outlined">event_note</span>
-        <span class="dock-label">Bookings</span>
       </button>
 
-      <button class="dock-item" id="btnContentInventory">
+      <button class="dock-item" id="btnContentInventory" title="Contents">
         <span class="material-symbols-outlined">format_align_left</span>
-        <span class="dock-label">Contents</span>
       </button>
 
-      <button class="dock-item" id="btnAssetsLocation">
+      <button class="dock-item" id="btnAssetsLocation" title="Assets">
         <span class="material-symbols-outlined">pin_drop</span>
-        <span class="dock-label">Assets</span>
       </button>
 
-      <button class="dock-item" id="btnServices">
+      <button class="dock-item" id="btnServices" title="Services">
         <span class="material-symbols-outlined">apps</span>
-        <span class="dock-label">Services</span>
       </button>
 
     </div>

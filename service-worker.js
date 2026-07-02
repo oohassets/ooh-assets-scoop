@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v141';
+const CACHE_NAME = 'scoop-ooh-cache-v145';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -13,6 +13,7 @@ const ASSETS_TO_CACHE = [
   './assets/css/dashboard.css',
   './assets/css/content-inventory.css',
   './assets/css/bookings.css',
+  './assets/css/splash.css',
   // Organized JS
   './assets/js/pwa.js',
   './assets/js/app.js',
@@ -28,6 +29,7 @@ const ASSETS_TO_CACHE = [
   // Firebase
   './firebase/firebase.js',
   // Pages
+  './pages/splash.html',
   './pages/dashboard.html',
   './pages/bookings.html',
   './pages/content-inventory.html',
@@ -42,6 +44,7 @@ const ASSETS_TO_CACHE = [
   './images/scooplogo_black_512x512.png',
   './images/screenshot-desktop.png',
   './images/screenshot-mobile.png',
+  './images/thepearlisland.jpg',
 ];
 
 importScripts("https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js");

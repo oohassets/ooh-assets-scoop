@@ -13,10 +13,6 @@
   <!-- STICKY PAGE HEADER -->
   <div class="bookings-sticky-header">
     <div class="bookings-hdr-inner">
-      <div class="bookings-hdr-text">
-        <div class="section-title" style="font-size:22px;">Campaign Bookings</div>
-        <p class="section-sub">Manage and update your bookings</p>
-      </div>
       <div class="bookings-hdr-btns">
         <button class="btn-bar-primary" id="openBookingBtn">Add Booking</button>
         <button class="btn-bar-primary" id="tabCalendar">View Calendar</button>
@@ -38,23 +34,13 @@
           </div>
 
           <div class="date-filter-wrap">
-            <button class="date-filter-btn" id="dateFilterBtn">
-              <span class="cal-icon material-symbols-outlined">calendar_month</span>
-              <span id="dateFilterLabel">This Month</span>
-              <span class="chevron-icon">▾</span>
-            </button>
-            <div class="date-filter-dropdown" id="dateFilterDropdown">
-              <button class="date-preset selected" data-preset="this-month">This Month</button>
-              <button class="date-preset" data-preset="last-month">Last Month</button>
-              <button class="date-preset" data-preset="next-month">Next Month</button>
-              <button class="date-preset" data-preset="all-year">All Year</button>
-              <button class="date-preset" data-preset="custom">Custom Range…</button>
-              <div class="date-custom-inputs" id="dateCustomInputs">
-                <div><div class="date-custom-label">From</div><input type="date" class="date-custom-field" id="customDateFrom"></div>
-                <div><div class="date-custom-label">To</div><input type="date" class="date-custom-field" id="customDateTo"></div>
-                <button class="date-apply-btn" id="applyCustomDate">Apply</button>
-              </div>
-            </div>
+            <select class="date-modern" id="dateFilterSelect"></select>
+          </div>
+          <div class="date-range-inputs" id="dateRangeInputs" hidden>
+            <input type="date" class="date-modern" id="customDateFrom">
+            <span class="date-range-arrow material-symbols-outlined">arrow_forward</span>
+            <input type="date" class="date-modern" id="customDateTo">
+            <button class="date-apply-btn" id="applyCustomDate">Apply</button>
           </div>
 
           <div class="filter-box">
@@ -109,11 +95,6 @@
     <div class="calendar-content">
       <div class="card">
         <div class="cal-section-hdr">
-          <div class="bookings-hdr-text">
-            <div class="section-title" style="font-size:22px;">Campaign Calendar</div>
-            <p class="section-sub">Track active, upcoming, and completed campaigns</p>
-          </div>
-
           <div class="cal-search-wrap">
             <div class="search-box">
               <span class="material-symbols-outlined cal-icon">search</span>
@@ -123,23 +104,13 @@
 
           <div class="bookings-cal-bar">
             <div class="date-filter-wrap">
-              <button class="date-filter-btn" id="calDateFilterBtn">
-                <span class="cal-icon material-symbols-outlined">calendar_month</span>
-                <span id="calDateFilterLabel">This Month</span>
-                <span class="chevron-icon">▾</span>
-              </button>
-              <div class="date-filter-dropdown" id="calDateFilterDropdown">
-                <button class="date-preset selected" data-cal-preset="this-month">This Month</button>
-                <button class="date-preset" data-cal-preset="last-month">Last Month</button>
-                <button class="date-preset" data-cal-preset="next-month">Next Month</button>
-                <button class="date-preset" data-cal-preset="all-year">All Year</button>
-                <button class="date-preset" data-cal-preset="custom">Custom Range…</button>
-                <div class="date-custom-inputs" id="calDateCustomInputs">
-                  <div><div class="date-custom-label">From</div><input type="date" class="date-custom-field" id="calFrom"></div>
-                  <div><div class="date-custom-label">To</div><input type="date" class="date-custom-field" id="calTo"></div>
-                  <button class="date-apply-btn" id="applyCalCustomDate">Apply</button>
-                </div>
-              </div>
+              <select class="date-modern" id="calDateFilterSelect"></select>
+            </div>
+            <div class="date-range-inputs" id="calDateRangeInputs" hidden>
+              <input type="date" class="date-modern" id="calFrom">
+              <span class="date-range-arrow material-symbols-outlined">arrow_forward</span>
+              <input type="date" class="date-modern" id="calTo">
+              <button class="date-apply-btn" id="applyCalCustomDate">Apply</button>
             </div>
 
             <div class="download-wrap">

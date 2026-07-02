@@ -429,30 +429,6 @@ function initAnimations() {
     } else { cursor.style.display="none"; cursorRing.style.display="none"; }
   }
 
-  // Hero canvas particles
-  const canvas = document.getElementById("hero-canvas");
-  if (canvas) {
-    const ctx = canvas.getContext("2d");
-    let W, H, particles = [];
-    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = canvas.parentElement.offsetHeight || window.innerHeight; }
-    resize(); window.addEventListener("resize", () => { resize(); initParticles(); });
-    function Particle() { this.x=Math.random()*W; this.y=Math.random()*H; this.vx=(Math.random()-0.5)*0.4; this.vy=(Math.random()-0.5)*0.4; this.r=Math.random()*1.5+0.5; this.alpha=Math.random()*0.5+0.1; }
-    Particle.prototype.update = function() { this.x+=this.vx; this.y+=this.vy; if(this.x<0)this.x=W; if(this.x>W)this.x=0; if(this.y<0)this.y=H; if(this.y>H)this.y=0; };
-    function initParticles() { const count=Math.floor(W*H/12000); particles=Array.from({length:count},()=>new Particle()); }
-    initParticles();
-    let mouseHero={x:W/2,y:H/2};
-    canvas.parentElement.addEventListener("mousemove",e=>{mouseHero.x=e.clientX;mouseHero.y=e.clientY;});
-    function drawParticles() {
-      const isDark=document.documentElement.getAttribute("data-theme")!=="light";
-      ctx.clearRect(0,0,W,H);
-      particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=isDark?`rgba(99,102,241,${p.alpha})`:`rgba(79,70,229,${p.alpha*0.6})`;ctx.fill();p.update();});
-      const maxDist=120;
-      for(let i=0;i<particles.length;i++){const dx=particles[i].x-mouseHero.x;const dy=particles[i].y-mouseHero.y;const dist=Math.sqrt(dx*dx+dy*dy);if(dist<maxDist){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(mouseHero.x,mouseHero.y);const alpha=(1-dist/maxDist)*(isDark?0.3:0.15);ctx.strokeStyle=`rgba(79,70,229,${alpha})`;ctx.lineWidth=0.8;ctx.stroke();}}
-      requestAnimationFrame(drawParticles);
-    }
-    drawParticles();
-  }
-
   // Scroll reveal
   const reveals = document.querySelectorAll(".reveal");
   const observer = new IntersectionObserver(entries => {
@@ -468,14 +444,6 @@ function initAnimations() {
 // ── INIT ──────────────────────────────────────────────────
 export async function init(userName) {
   currentUserName = userName || "User";
-
-  // Hero CTA buttons → navigate to Bookings page
-  document.getElementById("openBookingBtnHero")?.addEventListener("click", () => {
-    window.openBookings?.();
-  });
-  document.getElementById("openCalBtnHero")?.addEventListener("click", () => {
-    window.openBookings?.();
-  });
 
   initAnimations();
 
