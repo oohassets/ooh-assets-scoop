@@ -24,11 +24,26 @@ export function updateScrollDirection(scrollTop) {
   const dock  = document.getElementById('mobileDock');
   const frame = document.getElementById('app-content');
   const st    = typeof scrollTop === 'number' ? scrollTop : (frame?.scrollTop || 0);
+
+  // Mirrors the "at top" tolerance below — treat anything within 4px of the
+  // max scroll position as "at the bottom".
+  const maxScroll = frame ? frame.scrollHeight - frame.clientHeight : Infinity;
+  const atBottom  = st >= maxScroll - 4;
+
   const delta = st - lastScrollTop;
 
   if (st < 4) {
     nav?.classList.remove('nav-hidden');
     dock?.classList.remove('dock-hidden');
+    lastScrollTop = st;
+  } else if (atBottom) {
+    // Momentum/rubber-band bounce at the very bottom can oscillate scrollTop
+    // by a few px in either direction, which used to flicker nav-hidden on
+    // and off. Force-hidden while pinned at the bottom; only a deliberate
+    // scroll-up (handled below, once the user actually leaves this zone)
+    // reveals it again.
+    nav?.classList.add('nav-hidden');
+    dock?.classList.add('dock-hidden');
     lastScrollTop = st;
   } else if (delta > SCROLL_HIDE_THRESHOLD) {
     nav?.classList.add('nav-hidden');

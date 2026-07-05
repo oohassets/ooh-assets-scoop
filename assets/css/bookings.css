@@ -38,6 +38,11 @@
 .bookings-content {
   max-width: 1400px; width: 100%; margin: 0 auto;
 }
+/* Room below the card so the page itself has something to scroll
+   (mobile has its own larger clearance for the fixed dock, below). */
+#scheduleSection .card {
+  margin-bottom: 60px;
+}
 .calendar-content {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
@@ -136,11 +141,15 @@
 .filter-box select { border:none; outline:none; background:transparent; color:var(--text-secondary); font-family:var(--font-body); font-size:14px; cursor:pointer; width:100%; }
 .filter-box select option { background:var(--bg-secondary); color:var(--text-primary); }
 
-/* ── Download button ────────────────────── */
+/* ── Download button (same background/border tokens as .search-box /
+   .filter-box / .date-modern — kept as a plain <button>, so appearance is
+   reset explicitly to stop native button chrome from masking them) ───── */
 .download-wrap { position: relative; display: inline-flex; }
 .download-btn {
   display: flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; border-radius: var(--radius-sm);
+  box-sizing: border-box;
+  -webkit-appearance: none; appearance: none;
   border: 1px solid var(--border-glass); background: var(--bg-glass);
   color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
   flex-shrink: 0;
@@ -543,14 +552,16 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 @media(max-width:768px) {
   .bk-modal { border-radius:0 !important; max-height:100dvh; height:100dvh; }
   .bk-overlay { align-items:flex-start; }
-  #scheduleSection .card { margin-bottom: 90px; }
+  /* Bring the card right up against the sticky header instead of leaving a
+     large gap (8px section pad + 28px base card pad added up to ~46px). */
+  #scheduleSection .card { margin-bottom: 90px; padding-top: 12px; }
   .bookings-sticky-header { padding: 10px 1rem; }
   .bookings-hdr-inner { flex-wrap: wrap; gap: 8px; }
   .bookings-hdr-btns { gap: 8px; }
   #scheduleSection{ padding: 8px; }
   .btn-bar-primary, .btn-bar-secondary { font-size: 12px; padding: 9px 16px; }
   .toolbar { gap: 8px; margin-top: 0; }
-  #scheduleSection .table-container { margin-top: 10px; }
+  #scheduleSection .table-container { margin-top: 0; }
 
   /* Calendar as bottom-sheet panel on mobile */
   #calendarSection {
@@ -573,8 +584,11 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   .bookings-cal-bar { margin: 0; padding-right: 0; }
   .cal-close-btn { position: absolute; top: 12px; right: 12px; margin-left: 0; }
 
-  /* Mobile table cards */
-  table.data-table { min-width:unset; border-spacing:0 6px; }
+  /* Mobile table cards — fully escape table layout (not just tr/td) so
+     .mob-thead-row's position:sticky isn't sitting inside a display:table
+     ancestor, which several browsers fail to sticky-position correctly. */
+  table.data-table { display:block; min-width:unset; border-spacing:0 6px; }
+  table.data-table tbody { display:block; }
   table.data-table thead { display:none; }
   table.data-table tr { display:block; margin-bottom:6px; }
   table.data-table td.td-desk { display:none !important; }
