@@ -50,6 +50,42 @@ function activeSection() {
   );
 }
 
+// Matches the .bo-filler highlight rule used on-screen (loadCarousel.js) —
+// BO cells reading "Free"/"Filler" get called out in red in both exports.
+function isFreeOrFiller(v) {
+  return /free|filler/i.test(String(v ?? "").trim());
+}
+const BO_RED = [229, 72, 77]; // matches --error / --accent-rose
+
+function extractCards(container) {
+  const cards = [];
+  container?.querySelectorAll(".card").forEach(card => {
+    const title   = card.querySelector("h2")?.textContent.trim() || "";
+    const tbl     = card.querySelector("table");
+    if (!tbl) return;
+    const columns = Array.from(tbl.querySelectorAll("thead th")).map(th => th.textContent.trim());
+    const rows    = Array.from(tbl.querySelectorAll("tbody tr")).map(tr =>
+      Array.from(tr.querySelectorAll("td")).map(td => td.textContent.trim())
+    ).filter(r => r.some(Boolean));
+    if (columns.length) cards.push({ title, columns, rows });
+  });
+  return cards;
+}
+
+/** Cards for the active tab, grouped the same way the PDF lays them out:
+ *  TPI then Gewan (each internally in DOM order) for Digital, plain DOM
+ *  order for Static/Activity. */
+function getOrderedCardGroups(section) {
+  const tab = document.querySelector(".circuit-tab.active")?.dataset.tab || "digital";
+  if (tab === "digital") {
+    return [
+      extractCards(document.getElementById("carouselTPI")),
+      extractCards(document.getElementById("carouselGewan")),
+    ].filter(g => g.length);
+  }
+  return [extractCards(section)];
+}
+
 async function downloadAsPDF() {
   const btn = document.getElementById("ciDownloadBtn");
   if (btn) btn.classList.add("loading");
@@ -132,19 +168,15 @@ async function downloadAsPDF() {
       doc.text(title, x, ty);
     };
 
-    const extractCards = (container) => {
-      const cards = [];
-      container?.querySelectorAll(".card").forEach(card => {
-        const title   = card.querySelector("h2")?.textContent.trim() || "";
-        const tbl     = card.querySelector("table");
-        if (!tbl) return;
-        const columns = Array.from(tbl.querySelectorAll("thead th")).map(th => th.textContent.trim());
-        const rows    = Array.from(tbl.querySelectorAll("tbody tr")).map(tr =>
-          Array.from(tr.querySelectorAll("td")).map(td => td.textContent.trim())
-        ).filter(r => r.some(Boolean));
-        if (columns.length) cards.push({ title, columns, rows });
-      });
-      return cards;
+    // Colors the BO column red for Free/Filler rows; index looked up per
+    // card since column order can vary between digital/static tables.
+    const boHighlight = (columns) => {
+      const boIdx = columns.indexOf("BO");
+      if (boIdx === -1) return undefined;
+      return (data) => {
+        if (data.section !== "body" || data.column.index !== boIdx) return;
+        if (isFreeOrFiller(data.cell.raw)) data.cell.styles.textColor = BO_RED;
+      };
     };
 
     const renderCardPair = (left, right, startY) => {
@@ -156,6 +188,7 @@ async function downloadAsPDF() {
         ...tblStyles,
         columnStyles: buildColStyles(left.columns, CARD_W),
         margin: { top: 0, left: M, bottom: 0, right: PAGE_W - M - CARD_W },
+        didParseCell: boHighlight(left.columns),
       });
       const leftFinalY = doc.lastAutoTable.finalY;
 
@@ -168,6 +201,7 @@ async function downloadAsPDF() {
           ...tblStyles,
           columnStyles: buildColStyles(right.columns, CARD_W),
           margin: { top: 0, left: rightX, bottom: 0, right: M },
+          didParseCell: boHighlight(right.columns),
         });
         rightFinalY = doc.lastAutoTable.finalY;
       }
@@ -176,28 +210,15 @@ async function downloadAsPDF() {
     };
 
     // ── Render based on active tab ────────────────────────
-    const tab = document.querySelector(".circuit-tab.active")?.dataset.tab || "digital";
-
-    if (tab === "digital") {
-      // TPI group then Gewan group — keeps Monoprix solo before Gewan starts
-      const tpiCards   = extractCards(document.getElementById("carouselTPI"));
-      const gewanCards = extractCards(document.getElementById("carouselGewan"));
-
-      for (let i = 0; i < tpiCards.length; i += 2) {
-        y = renderCardPair(tpiCards[i], tpiCards[i + 1] || null, y);
-      }
-      if (gewanCards.length) {
-        y += GROUP_GAP;
-        for (let i = 0; i < gewanCards.length; i += 2) {
-          y = renderCardPair(gewanCards[i], gewanCards[i + 1] || null, y);
-        }
-      }
-    } else {
-      const cards = extractCards(section);
+    // TPI group then Gewan group (digital) — keeps Monoprix solo before
+    // Gewan starts; plain DOM order for static/activity.
+    const groups = getOrderedCardGroups(section);
+    groups.forEach((cards, gi) => {
+      if (gi > 0 && cards.length) y += GROUP_GAP;
       for (let i = 0; i < cards.length; i += 2) {
         y = renderCardPair(cards[i], cards[i + 1] || null, y);
       }
-    }
+    });
 
     doc.save(`SCOOP_OOH_Content_Inventory_${activeTabLabel()}.pdf`);
   } finally {
@@ -205,38 +226,70 @@ async function downloadAsPDF() {
   }
 }
 
+// Excel needs actual per-cell font color for the BO Free/Filler highlight,
+// which the plain XLSX (SheetJS) build used elsewhere in this file can't do
+// — so this export uses ExcelJS instead, same as bookings.js's calendar export.
 async function downloadAsExcel() {
   const btn = document.getElementById("ciDownloadBtn");
   if (btn) btn.classList.add("loading");
   try {
-    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
-    const XLSX = window.XLSX;
+    await loadScript("https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js");
+    const ExcelJS = window.ExcelJS;
 
-    // Gather all visible table rows from the active section
     const section = activeSection();
-    const rows = [["Circuit / Slot", "Content", "Status", "Start Date", "End Date"]];
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "SCOOP OOH"; wb.created = new Date();
+    const ws = wb.addWorksheet(activeTabLabel());
 
-    section.querySelectorAll(".card").forEach(card => {
-      const title  = card.querySelector("h2")?.textContent.trim() || "";
-      const cells  = card.querySelectorAll("td");
-      if (cells.length) {
-        // Table-style card: read each row
-        card.querySelectorAll("tr").forEach(tr => {
-          const vals = Array.from(tr.querySelectorAll("td,th")).map(c => c.textContent.trim());
-          if (vals.length) rows.push([title, ...vals]);
+    const HEAD_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FF64748B" } };
+    const RED       = { argb: "FFE5484D" }; // matches --error / --accent-rose
+
+    let maxCols = 1;
+    let r = 1;
+
+    // Same grouping/order as the PDF: TPI then Gewan (digital), plain DOM
+    // order otherwise — each card becomes a title row + header row + rows.
+    getOrderedCardGroups(section).forEach((cards, gi) => {
+      if (gi > 0 && cards.length) r++; // gap between TPI and Gewan groups
+      cards.forEach(({ title, columns, rows }) => {
+        maxCols = Math.max(maxCols, columns.length);
+
+        const titleCell = ws.getCell(r, 1);
+        titleCell.value = title;
+        titleCell.font  = { bold: true, size: 12, color: { argb: "FF141432" } };
+        r++;
+
+        const headRow = ws.getRow(r);
+        columns.forEach((col, i) => { headRow.getCell(i + 1).value = col; });
+        headRow.eachCell(cell => {
+          cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+          cell.fill = HEAD_FILL;
         });
-      } else {
-        // Simple card: add title line
-        const body = card.querySelector("p,span,.card-body")?.textContent.trim() || "";
-        rows.push([title, body]);
-      }
+        r++;
+
+        const boIdx = columns.indexOf("BO");
+        rows.forEach(vals => {
+          const row = ws.getRow(r);
+          vals.forEach((val, i) => {
+            const cell = row.getCell(i + 1);
+            cell.value = val;
+            if (i === boIdx && isFreeOrFiller(val)) cell.font = { bold: true, color: RED };
+          });
+          r++;
+        });
+
+        r++; // spacer row between cards
+      });
     });
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{ wch: 32 }, { wch: 36 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, activeTabLabel());
-    XLSX.writeFile(wb, `SCOOP_OOH_Content_Inventory_${activeTabLabel()}.xlsx`);
+    for (let i = 1; i <= maxCols; i++) ws.getColumn(i).width = 22;
+
+    const buf  = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = `SCOOP_OOH_Content_Inventory_${activeTabLabel()}.xlsx`; a.click();
+    URL.revokeObjectURL(url);
   } finally {
     if (btn) btn.classList.remove("loading");
   }

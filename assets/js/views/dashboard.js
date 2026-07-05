@@ -104,6 +104,43 @@ function animateCounter(id, target) {
   requestAnimationFrame(step);
 }
 
+// ── ENDING (sourced from content inventory d_/s_ circuit tables) ─────────
+/**
+ * Scans every d_/s_ circuit table for slots whose End Date falls within
+ * `windowDays` of today. Slots whose End Date has already passed are kept
+ * too (rather than dropped) and flagged as "Extended", since the slot is
+ * still occupying the circuit past its originally scheduled end date.
+ */
+function getEndingFromContentInventory(tables, today, dateLabel, windowDays) {
+  const items = [];
+  Object.keys(tables).forEach(tableName => {
+    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) return;
+    const data = tables[tableName];
+    if (!data) return;
+    const formattedName = tableName.replace(/^d_|^s_/, "").replace(/_/g," ").replace(/\b\w/g, ch => ch.toUpperCase());
+    const rows = Array.isArray(data) ? data : Object.values(data);
+    rows.forEach(r => {
+      if (!r || !r["End Date"]) return;
+      const ed = parseDate(r["End Date"]); if (!ed) return;
+      ed.setHours(0,0,0,0);
+      const ediff = Math.floor((ed-today)/86400000);
+      const isExtended = ediff < 0;
+      if (!isExtended && ediff > windowDays) return;
+      let asset = formattedName;
+      if (tableName.startsWith("s_") && r["Circuit"]) asset = `${formattedName} ${r["Circuit"]}`;
+      items.push({
+        label: dateLabel(ed, r["End Date"]),
+        brand: r.Client || "—",
+        asset,
+        statusCls: isExtended ? "extended" : "",
+        statusLabel: isExtended ? "Extended" : "",
+        sortDate: ed
+      });
+    });
+  });
+  return items;
+}
+
 // ── CAMPAIGN UPDATES ──────────────────────────────────────
 function renderUpdates(campaigns, tables) {
   const container = document.getElementById("campaignUpdatesContainer");
@@ -129,21 +166,25 @@ function renderUpdates(campaigns, tables) {
     if (type==="removed") groups.removed.push({label:dateLabel(d,raw),brand:log.Client||"-",asset:log.Circuits||"-",sortDate:d});
   });
   campaigns.forEach(c => {
-    const sd = parseDate(c.rawStartDate); const ed = parseDate(c.rawEndDate);
-    if (!sd) return; sd.setHours(0,0,0,0); if (ed) ed.setHours(0,0,0,0);
+    const sd = parseDate(c.rawStartDate);
+    if (!sd) return; sd.setHours(0,0,0,0);
     const sdiff = Math.floor((sd-today)/86400000);
-    const ediff = ed ? Math.floor((ed-today)/86400000) : 999;
     const s = (c.status||"").toLowerCase();
     const isUpcoming = s.includes("signed") || s.includes("pending");
     const isActive   = isUpcoming || s.includes("live");
     if (!isActive) return;
+    const ed = parseDate(c.rawEndDate); if (ed) ed.setHours(0,0,0,0);
+    const ediff = ed ? Math.floor((ed-today)/86400000) : 999;
     if (isUpcoming && ((sdiff>=0&&sdiff<=30)||(sdiff<0&&ediff>=0))) {
       groups.upcoming.push({label:dateLabel(sd,c.rawStartDate),statusCls:getStatusClass(c.status),statusLabel:c.status,brand:c.brand||c.client,asset:c.asset,person:c.person,sortDate:sd});
     }
-    if (ed && ediff >= 0 && ediff <= 7 && sdiff < 0) {
-      groups.ending.push({label:dateLabel(ed,c.rawEndDate),statusCls:getStatusClass(c.status),statusLabel:c.status,brand:c.brand||c.client,asset:c.asset,person:c.person,sortDate:ed});
-    }
   });
+  // Ending — sourced from the content inventory (d_/s_ circuit tables), not
+  // Campaigns_Booking: a slot's real "End Date" there is what's actually
+  // scheduled to come off screen. A slot whose End Date has already passed
+  // (but is still occupying the circuit) is flagged "Extended" instead of
+  // being dropped, since it means the booking ran past its original date.
+  groups.ending = getEndingFromContentInventory(tables, today, dateLabel, 7);
   groups.published.sort((a,b) => b.sortDate - a.sortDate);
   groups.removed.sort((a,b) => b.sortDate - a.sortDate);
   groups.upcoming.sort((a,b) => a.sortDate - b.sortDate);
@@ -155,7 +196,7 @@ function renderUpdates(campaigns, tables) {
         <div>
           <div class="update-item-label">${u.brand}</div>
           <div class="update-item-sub">${u.asset}</div>
-          ${id==="upcoming"&&u.statusLabel?`<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`:""}
+          ${(id==="upcoming"||id==="ending")&&u.statusLabel?`<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`:""}
         </div>
         <div class="update-date-badge">${u.label}</div>
       </div>

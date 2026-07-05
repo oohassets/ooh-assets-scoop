@@ -120,8 +120,11 @@ nav.nav-hidden ~ .map-container .app-frame {
 .pill-live      { background:rgba(53,179,126,0.15); color:var(--accent-emerald); }
 .pill-signed    { background:rgba(229,72,77,0.15);  color:var(--accent-rose); }
 .pill-pending   { background:rgba(224,161,58,0.15); color:var(--accent-amber); }
-.pill-completed { background:rgba(91,143,181,0.15);  color:var(--info); }
+.pill-completed { background:rgba(4,150,255,0.15);  color:var(--info); }
 .pill-cancelled { background:rgba(100,100,100,0.15);color:var(--text-muted); }
+/* Same hue as pill-signed (BO Signed) but lighter — for content-inventory
+   slots still occupying a circuit past their originally booked End Date. */
+.pill-extended  { background:rgba(229,72,77,0.08);  color:var(--accent-rose); }
 
 /* ── Footer ───────────────────────────── */
 footer { text-align:center; padding:3rem 2rem; border-top:1px solid var(--border-glass); margin-top:4rem; }

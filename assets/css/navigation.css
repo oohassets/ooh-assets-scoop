@@ -373,7 +373,7 @@ nav.nav-hidden {
 .notif-type-published { background: rgba(53,179,126,0.12);  color: var(--accent-emerald); border-color: rgba(53,179,126,0.25); }
 .notif-type-removed   { background: rgba(229,72,77,0.12);   color: var(--accent-rose);    border-color: rgba(229,72,77,0.25); }
 .notif-type-upcoming  { background: rgba(224,161,58,0.12);  color: var(--accent-amber);   border-color: rgba(224,161,58,0.25); }
-.notif-type-ending    { background: rgba(91,143,181,0.12);  color: var(--info);           border-color: rgba(91,143,181,0.25); }
+.notif-type-ending    { background: rgba(4,150,255,0.12);  color: var(--info);           border-color: rgba(4,150,255,0.25); }
 .notif-type-update    { background: rgba(177,42,66,0.12);  color: var(--accent-violet);  border-color: rgba(177,42,66,0.25); }
 .notif-type-system,
 .notif-type-default   { background: rgba(152,30,50,0.10);   color: var(--accent-indigo);  border-color: rgba(152,30,50,0.2); }

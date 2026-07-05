@@ -371,7 +371,7 @@ function renderActivityGrid(allTables, container) {
 
   const groups = { published: [], removed: [], upcoming: [], ending: [] };
 
-  // Published / Removed — from Campaign_Logs (last 3 days)
+  // Published / Removed — from Campaign_Logs, today only
   const logs = allTables["Campaign_Logs"] || {};
   Object.values(logs).forEach(log => {
     const raw = log.Date; const type = (log.Type || "").toLowerCase();
@@ -380,13 +380,13 @@ function renderActivityGrid(allTables, container) {
     if (!d) return;
     d.setHours(0, 0, 0, 0);
     const diff = Math.floor((d - today) / 86400000);
-    if (diff < -3 || diff > 0) return;
+    if (diff !== 0) return;
     const entry = { label: dateLabel(d), brand: log.Client || "—", asset: log.Circuits || "—", sortDate: d };
     if (type === "add" || type === "added")          groups.published.push(entry);
     if (type === "removed" || type === "remove")     groups.removed.push(entry);
   });
 
-  // Upcoming / Ending — from Campaigns_Booking
+  // Upcoming — from Campaigns_Booking, starting today only
   const bookings = allTables["Campaigns_Booking"];
   if (bookings) {
     const rows = Array.isArray(bookings) ? bookings : Object.values(bookings);
@@ -394,27 +394,50 @@ function renderActivityGrid(allTables, container) {
       if (!row) return;
       const status = (row.Status || "").toLowerCase();
       const sd = parseMMDDYYYY(row["Start Date"]);
-      const ed = parseMMDDYYYY(row["End Date"]);
       if (!sd) return;
       sd.setHours(0, 0, 0, 0);
-      if (ed) ed.setHours(0, 0, 0, 0);
       const sdiff = Math.floor((sd - today) / 86400000);
-      const ediff = ed ? Math.floor((ed - today) / 86400000) : 999;
       const isUpcoming = status.includes("signed") || status.includes("pending");
       const isActive   = isUpcoming || status.includes("live");
       if (!isActive) return;
-      const brand       = row["Brand Campaign"] || row.Client || "—";
-      const asset       = row.Circuits || "—";
-      const statusCls   = getStatusCls(row.Status);
-      const statusLabel = row.Status || "—";
-      if (isUpcoming && ((sdiff >= 0 && sdiff <= 30) || (sdiff < 0 && ediff >= 0))) {
+      if (isUpcoming && sdiff === 0) {
+        const brand       = row["Brand Campaign"] || row.Client || "—";
+        const asset       = row.Circuits || "—";
+        const statusCls   = getStatusCls(row.Status);
+        const statusLabel = row.Status || "—";
         groups.upcoming.push({ label: dateLabel(sd), brand, asset, statusCls, statusLabel, sortDate: sd });
-      }
-      if (ed && ediff >= 0 && ediff <= 7 && sdiff < 0) {
-        groups.ending.push({ label: dateLabel(ed), brand, asset, statusCls, statusLabel, sortDate: ed });
       }
     });
   }
+
+  // Ending — sourced from the content inventory (d_/s_ circuit tables),
+  // ending today only. A slot whose End Date already passed but is still
+  // occupying the circuit is kept and flagged "Extended" rather than dropped.
+  Object.keys(allTables).forEach(tableName => {
+    if (!tableName.startsWith("d_") && !tableName.startsWith("s_")) return;
+    const data = allTables[tableName];
+    if (!data) return;
+    const formattedName = tableName.replace(/^d_|^s_/, "").replace(/_/g, " ").replace(/\b\w/g, ch => ch.toUpperCase());
+    const rows = Array.isArray(data) ? data : Object.values(data);
+    rows.forEach(r => {
+      if (!r || !r["End Date"]) return;
+      const ed = parseMMDDYYYY(r["End Date"]); if (!ed) return;
+      ed.setHours(0, 0, 0, 0);
+      const ediff = Math.floor((ed - today) / 86400000);
+      const isExtended = ediff < 0;
+      if (!isExtended && ediff !== 0) return;
+      let asset = formattedName;
+      if (tableName.startsWith("s_") && r["Circuit"]) asset = `${formattedName} ${r["Circuit"]}`;
+      groups.ending.push({
+        label: dateLabel(ed),
+        brand: r.Client || "—",
+        asset,
+        statusCls: isExtended ? "extended" : "",
+        statusLabel: isExtended ? "Extended" : "",
+        sortDate: ed
+      });
+    });
+  });
 
   groups.published.sort((a, b) => b.sortDate - a.sortDate);
   groups.removed.sort((a, b) => b.sortDate - a.sortDate);
@@ -428,7 +451,7 @@ function renderActivityGrid(allTables, container) {
             <div>
               <div class="update-item-label">${u.brand}</div>
               <div class="update-item-sub">${u.asset}</div>
-              ${id === "upcoming" && u.statusLabel
+              ${(id === "upcoming" || id === "ending") && u.statusLabel
                 ? `<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`
                 : ""}
             </div>

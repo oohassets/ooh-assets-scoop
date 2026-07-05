@@ -1080,7 +1080,7 @@ async function downloadAsExcel() {
     const XLSX = window.XLSX;
     const wb = XLSX.utils.book_new();
     const wsData = [
-      ["SCOOP OOH"],
+      ["SCOOP Media and Communication Co."],
       ["Campaign Bookings"],
       [`Dates: ${getDateRangeStr()}`],
       [],
@@ -1405,7 +1405,7 @@ async function downloadCalendarAsExcel() {
 
     const ExcelJS   = window.ExcelJS;
     const wb        = new ExcelJS.Workbook();
-    wb.creator      = "SCOOP OOH"; wb.created = new Date();
+    wb.creator      = "SCOOP Media and Communication Co."; wb.created = new Date();
     const totalCols = 2 + dates.length;
 
     const ws = wb.addWorksheet("Campaign Calendar", {
@@ -1420,7 +1420,7 @@ async function downloadCalendarAsExcel() {
       c.font = font; c.alignment = { vertical: "middle", horizontal: "left" };
       ws.getRow(rowNum).height = height;
     };
-    addHdrRow("SCOOP OOH",         1, { bold: true, size: 18, color: { argb: "FF4F46E5" } }, 28);
+    addHdrRow("SCOOP Media and Communication Co.",         1, { bold: true, size: 18, color: { argb: "FF4F46E5" } }, 28);
     addHdrRow("Campaign Calendar", 2, { bold: true, size: 13, color: { argb: "FF141432" } }, 22);
     const expRangeStr = expStart && expEnd ? `${fmtDateHeader(expStart)} - ${fmtDateHeader(expEnd)}` : getCalDateRangeStr();
     addHdrRow(`Dates: ${expRangeStr}`, 3, { size: 10, color: { argb: "FF6E7A99" } }, 18);
