@@ -108,6 +108,7 @@
 .vr-toolbar-actions {
   display: flex;
   align-items: center;
+  gap: 10px;
   padding-top: 14px;
   border-top: 1px solid var(--border-glass);
 }
@@ -121,10 +122,28 @@
   border-radius: var(--radius-sm);
   background: var(--bg-glass);
   border: 1px solid var(--border-glass);
-  width: 100%;
+  flex: 1;
 }
 .vr-days-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
 .vr-days-value { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text-primary); }
+
+/* ── Download button (same background/border tokens as bookings.css /
+   content-inventory.css — kept in sync for a consistent look) ───── */
+.download-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
+.download-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; box-sizing: border-box; border-radius: var(--radius-sm);
+  -webkit-appearance: none; appearance: none;
+  border: 1px solid var(--border-glass); background: var(--bg-glass);
+  color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+}
+.download-btn .material-symbols-outlined { font-size: 20px; transition: transform 0.2s; }
+.download-btn:hover, .download-btn.loading {
+  border-color: var(--accent-indigo); color: var(--accent-indigo);
+  background: rgba(152,30,50,0.08);
+}
+.download-btn.loading .material-symbols-outlined { animation: vrDownloadSpin 0.8s linear infinite; }
+@keyframes vrDownloadSpin { to { transform: rotate(360deg); } }
 
 /* ── Circuit slicer (excel-style toggle filter) ───────── */
 .vr-slicer {

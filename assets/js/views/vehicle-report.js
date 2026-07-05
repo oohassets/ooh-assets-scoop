@@ -359,7 +359,10 @@ function renderCards(tpiData, gewanData, days) {
     const data = loc.source === "tpi" ? tpiData : gewanData;
     if (!data.length) {
       container.innerHTML += createCard(loc, "-", "-", "-", "-");
-      circuitMetrics.push({ name: loc.name, category: loc.category, totalImp: 0 });
+      circuitMetrics.push({
+        name: loc.name, category: loc.category, screens: loc.screens, metricLabel: loc.metricLabel,
+        totalImp: 0, impDay: "-", avg: "-", avgPersons: "-"
+      });
       return;
     }
     const total       = data.reduce((s, x) => s + Number(x.ContentTotal || 0), 0);
@@ -369,7 +372,10 @@ function renderCards(tpiData, gewanData, days) {
     const impDay      = Math.round((avgPersons / adsPerMinute) * loc.screens);
     const totalImp    = impDay * days;
     container.innerHTML += createCard(loc, totalImp, impDay, avg, avgPersons);
-    circuitMetrics.push({ name: loc.name, category: loc.category, totalImp });
+    circuitMetrics.push({
+      name: loc.name, category: loc.category, screens: loc.screens, metricLabel: loc.metricLabel,
+      totalImp, impDay, avg, avgPersons
+    });
   });
 
   applyCircuitFilter();
@@ -455,6 +461,150 @@ function renderChart(tpiData, gewanData) {
   });
 }
 
+// ── PDF EXPORT ────────────────────────────────────────────
+// Real jsPDF text/tables throughout (searchable), not an html2canvas
+// screenshot of the page. The two Chart.js canvases are embedded as images
+// since a chart's visual shape can't be represented as text — everything
+// else (header, KPI totals, circuit table) is drawn as actual PDF text.
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement("script");
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function loadImageForPDF(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      canvas.getContext("2d").drawImage(img, 0, 0);
+      resolve({ dataUrl: canvas.toDataURL("image/png"), w: img.naturalWidth, h: img.naturalHeight });
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function fmtHeaderDate(d) {
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+async function downloadAsPDF() {
+  const btn = document.getElementById("vrDownloadBtn");
+  if (btn) btn.classList.add("loading");
+  try {
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js");
+    const { jsPDF } = window.jspdf;
+
+    const M      = 12.7; // 0.5 inch margin
+    const doc    = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const PAGE_W = doc.internal.pageSize.getWidth();  // 297mm
+    const AVAIL_W = PAGE_W - M * 2;
+
+    // ── Logo ─────────────────────────────────────────────
+    let logoData = null;
+    try { logoData = await loadImageForPDF("images/scooplogo.png"); } catch (_) {}
+    const LOGO_H = 12;
+    const logoW  = logoData ? (LOGO_H * logoData.w) / logoData.h : 0;
+
+    // ── Header ────────────────────────────────────────────
+    let y = M + 4;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(20, 20, 50);
+    doc.text("SCOOP Media and Communication Co.", M, y + 5.5);
+    if (logoData) doc.addImage(logoData.dataUrl, "PNG", PAGE_W - M - logoW, y, logoW, LOGO_H);
+    y += LOGO_H;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(20, 20, 50);
+    doc.text("Vehicle Traffic Report", M, y + 4);
+    y += 7;
+
+    const range = getSelectedRange();
+    const rangeStr = range ? `${fmtHeaderDate(range.from)} - ${fmtHeaderDate(range.to)}` : "-";
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(110, 120, 150);
+    doc.text(`Period: ${rangeStr}`, M, y + 2);
+
+    const genStr = `Generated: ${fmtHeaderDate(new Date())}`;
+    doc.setFontSize(9);
+    doc.text(genStr, PAGE_W - M - doc.getTextWidth(genStr), y + 2);
+    y += 8;
+
+    // ── KPI summary row ────────────────────────────────────
+    doc.autoTable({
+      startY: y,
+      head: [["The Pearl Island", "Gewan Island", "Combined Total", "Avg / Day", "Total Days"]],
+      body: [[
+        document.getElementById("kpiTPI")?.textContent || "0",
+        document.getElementById("kpiGewan")?.textContent || "0",
+        document.getElementById("kpiAll")?.textContent || "0",
+        document.getElementById("kpiAvgDay")?.textContent || "0",
+        document.getElementById("daysCount")?.textContent || "-",
+      ]],
+      styles: { font: "helvetica", fontSize: 9, halign: "center", cellPadding: 3 },
+      headStyles: { fillColor: [100, 116, 139], textColor: 255, fontStyle: "bold", fontSize: 8.5 },
+      bodyStyles: { fontStyle: "bold", fontSize: 13, textColor: [20, 20, 50] },
+      margin: { left: M, right: M },
+    });
+    y = doc.lastAutoTable.finalY + 7;
+
+    // ── Charts (embedded as images — canvas pixels, not a page screenshot) ─
+    const chartCanvas = document.getElementById("vehicleChart");
+    const rankCanvas  = document.getElementById("circuitRankChart");
+    const CHART_H = 68;
+    const GAP     = 6;
+    const chartW  = chartCanvas ? AVAIL_W * 0.62 : 0;
+    const rankW   = AVAIL_W - chartW - (chartCanvas && rankCanvas ? GAP : 0);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(20, 20, 50);
+    if (chartCanvas) doc.text("Daily Vehicle Traffic", M, y);
+    if (rankCanvas)  doc.text("Impressions by Circuit", M + (chartCanvas ? chartW + GAP : 0), y);
+    y += 4;
+
+    if (chartCanvas) {
+      doc.addImage(chartCanvas.toDataURL("image/png", 1.0), "PNG", M, y, chartW, CHART_H);
+    }
+    if (rankCanvas) {
+      doc.addImage(rankCanvas.toDataURL("image/png", 1.0), "PNG", M + (chartCanvas ? chartW + GAP : 0), y, rankW, CHART_H);
+    }
+    y += CHART_H + 8;
+
+    // ── Circuit cards — selected circuits only, matching the on-screen filter ─
+    const selected = circuitMetrics.filter(m => activeCircuits.has(m.name));
+    doc.autoTable({
+      startY: y,
+      head: [["Circuit", "Category", "Screens / Faces", "Impression / Day", "Avg Traffic", "Avg Persons / Day", "Total Impressions"]],
+      body: selected.length
+        ? selected.map(m => [
+            m.name,
+            m.category === "static" ? "Static" : "Digital",
+            String(m.screens),
+            format(m.impDay), format(m.avg), format(m.avgPersons), format(m.totalImp),
+          ])
+        : [["No circuits selected", "", "", "", "", "", ""]],
+      styles: { font: "helvetica", fontSize: 8.5, cellPadding: 3 },
+      headStyles: { fillColor: [100, 116, 139], textColor: 255, fontStyle: "bold", fontSize: 8 },
+      alternateRowStyles: { fillColor: [245, 245, 255] },
+      margin: { left: M, right: M },
+    });
+
+    doc.save(`SCOOP_OOH_Vehicle_Traffic${range ? ` (${fmtHeaderDate(range.from)}-${fmtHeaderDate(range.to)})` : ""}.pdf`);
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
 export async function init() {
   const monthSelect = document.getElementById("monthSelect");
   const rangeRow    = document.getElementById("rangeRow");
@@ -471,6 +621,8 @@ export async function init() {
   // Any change to the custom range dates refreshes the report immediately.
   document.getElementById("dateFrom")?.addEventListener("change", () => { updateDaysCount(); loadData(); });
   document.getElementById("dateTo")?.addEventListener("change",   () => { updateDaysCount(); loadData(); });
+
+  document.getElementById("vrDownloadBtn")?.addEventListener("click", downloadAsPDF);
 
   // Populate dropdowns from whatever data actually exists in the DB,
   // default to the latest available whole month, and auto-render it.
