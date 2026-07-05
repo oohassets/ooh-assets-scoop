@@ -22,6 +22,7 @@
   box-sizing: border-box;
 }
 
+
 .splash-bg {
   position: absolute;
   inset: 0;
@@ -41,6 +42,11 @@
 
 /* ── Hero text wrapper (no card/glass — text sits directly on the photo) ── */
 .splash-glass {
+  /* True dead-center in the hero still leaves as much open photo below the
+     CTAs as above them, which reads as "sitting too low" — rest a bit above
+     center instead of exactly on it. Referenced by the animation below so
+     the entrance slide-up lands on this offset rather than translateY(0). */
+  --hero-shift: -8vh;
   position: relative;
   z-index: 2;
   max-width: 720px;
@@ -49,10 +55,14 @@
   text-align: center;
   animation: splashIn 0.7s ease both;
 }
+@media (max-height: 700px) {
+  /* Less headroom to spare on short viewports — nudge up less. */
+  .splash-glass { --hero-shift: -4vh; }
+}
 
 @keyframes splashIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(calc(var(--hero-shift) + 18px)); }
+  to   { opacity: 1; transform: translateY(var(--hero-shift)); }
 }
 
 /* ── Hero content (eyebrow / headline / sub / CTAs) ───── */
