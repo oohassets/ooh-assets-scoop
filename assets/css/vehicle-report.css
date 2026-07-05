@@ -345,8 +345,8 @@
   font-weight: 700;
 }
 .kpi-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.kpi-dot-tpi   { background: rgba(16,185,129,0.9); }
-.kpi-dot-gewan { background: rgba(4,150,255,0.9); }
+.kpi-dot-tpi   { background: #990000; }
+.kpi-dot-gewan { background: #999999; }
 
 .kpi-avg-row {
   display: flex;

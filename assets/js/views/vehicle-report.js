@@ -319,7 +319,7 @@ function renderKPIChart(tpiTotal, gewanTotal, days) {
       labels: ["The Pearl Island", "Gewan Island"],
       datasets: [{
         data: [tpiTotal, gewanTotal],
-        backgroundColor: ["rgba(16,185,129,0.85)", "rgba(4,150,255,0.85)"],
+        backgroundColor: ["#990000", "#999999"],
         borderWidth: 0,
         hoverOffset: 6
       }]
@@ -425,8 +425,8 @@ function renderChart(tpiData, gewanData) {
     data: {
       labels,
       datasets: [
-        { label:"The Pearl Island", data:tpiCounts,   backgroundColor:"rgba(16,185,129,0.8)", borderRadius:6, borderSkipped:"bottom" },
-        { label:"Gewan Island",     data:gewanCounts, backgroundColor:"rgba(4,150,255,0.8)",  borderRadius:6, borderSkipped:"bottom" }
+        { label:"The Pearl Island", data:tpiCounts,   backgroundColor:"#990000", borderRadius:6, borderSkipped:"bottom" },
+        { label:"Gewan Island",     data:gewanCounts, backgroundColor:"#999999", borderRadius:6, borderSkipped:"bottom" }
       ]
     },
     options: {

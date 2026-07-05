@@ -317,8 +317,8 @@ function renderVisitorsChart(tables) {
     data: {
       labels,
       datasets: [
-        { label:"The Pearl Island", data:tpiData,   backgroundColor:"rgba(16,185,129,0.8)", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false },
-        { label:"Gewan Island",     data:gewanData, backgroundColor:"rgba(4,150,255,0.8)",  borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false }
+        { label:"The Pearl Island", data:tpiData,   backgroundColor:"#990000", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false },
+        { label:"Gewan Island",     data:gewanData, backgroundColor:"#999999", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false }
       ]
     },
     options: {
