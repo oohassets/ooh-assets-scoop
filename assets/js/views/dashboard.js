@@ -317,8 +317,12 @@ function renderVisitorsChart(tables) {
     data: {
       labels,
       datasets: [
-        { label:"The Pearl Island", data:tpiData,   backgroundColor:"#990000", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false },
-        { label:"Gewan Island",     data:gewanData, backgroundColor:"#999999", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false }
+        // minBarLength keeps a real (much smaller) Gewan value from rounding
+        // down to a 0px-tall, invisible bar on the shared axis below — it
+        // does NOT inflate the value, just guarantees a thin visible sliver,
+        // so the chart still honestly shows Pearl >> Gewan.
+        { label:"The Pearl Island", data:tpiData,   backgroundColor:"#990000", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false, minBarLength:3 },
+        { label:"Gewan Island",     data:gewanData, backgroundColor:"#999999", borderRadius:{ topLeft:6, topRight:6, bottomLeft:0, bottomRight:0 }, borderSkipped:false, minBarLength:3 }
       ]
     },
     options: {
@@ -335,6 +339,13 @@ function renderVisitorsChart(tables) {
       },
       scales:{
         x:{grid:{display:false},ticks:{color:labelColor,font:{family:"Space Grotesk",weight:"600",size:11}}},
+        // Single shared axis — Pearl genuinely has far more traffic than
+        // Gewan, so both bars need to be measured against the same scale
+        // for that difference to read honestly. (A separate axis per island
+        // was tried, but it independently rescales each dataset to its own
+        // min/max, which visually flattens out the real gap between them —
+        // minBarLength above is what keeps Gewan's much smaller bars from
+        // disappearing instead.)
         y:{beginAtZero:true,grid:{color:gridColor},ticks:{color:labelColor,font:{family:"DM Sans",size:11},callback:v=>new Intl.NumberFormat("en",{notation:"compact"}).format(v)}}
       },
       animation: {
