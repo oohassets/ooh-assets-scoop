@@ -409,11 +409,21 @@
 }
 
 /* ── Responsive ───────────────────────── */
+/* Tablet (769–1400px): the old rule dropped straight from a 4-across flex
+   row to a single forced-100%-wide column — correct for phones, but on a
+   tablet-width screen it left the KPI donut and circuit-rank boxes (each
+   designed as a narrow ~260-300px column) stretched edge-to-edge with a lot
+   of dead space either side of their fixed-width contents. Wrapping instead
+   of forcing full width lets pairs of cards sit side by side wherever the
+   screen is wide enough to fit them properly. */
 @media (max-width: 1400px) {
-  .vr-top-row { flex-direction: column; }
-  .vr-top-row .vr-toolbar,
-  .vr-top-row .kpi-box,
-  .vr-top-row .vr-slicer { flex: none; width: 100%; max-width: none; }
+  .vr-top-row { flex-wrap: wrap; }
+  /* Each card keeps its own max-width so a card left alone on the last
+     wrapped row can't stretch back out to the full row width. */
+  .vr-top-row .vr-toolbar               { flex: 1 1 300px; width: auto; max-width: 420px; }
+  .vr-top-row .vr-slicer                { flex: 1 1 340px; width: auto; max-width: 620px; }
+  .vr-top-row .kpi-box                  { flex: 1 1 260px; width: auto; max-width: 360px; }
+  .vr-top-row .kpi-box.circuit-rank-box { flex: 1 1 300px; width: auto; max-width: 420px; }
   .vr-slicer-btns { max-height: 160px; }
 }
 @media (max-width: 768px) {
@@ -422,6 +432,12 @@
   .vr-range-arrow { display: none; }
   .vr-page #chartContainer { margin-bottom: 16px; padding: 14px; }
   .vr-page .cards { margin-bottom: 12px; gap: 12px; }
+  /* Phones are too narrow for the tablet 2-up wrap — force back to one
+     full-width card per row. */
+  .vr-top-row .vr-toolbar,
+  .vr-top-row .vr-slicer,
+  .vr-top-row .kpi-box,
+  .vr-top-row .kpi-box.circuit-rank-box { flex-basis: 100%; max-width: none; }
 }
 @media (max-width: 480px) {
   .kpi-donut-wrap { width: 110px; height: 110px; }

@@ -6,7 +6,14 @@
 
 .splash-hero {
   position: relative;
-  min-height: 100vh;
+  /* #app-content (this section's scroll container) is itself only
+     "100vh - 64px" tall — it sits below the fixed 64px nav — so sizing to
+     a full 100vh here made the section taller than what's actually visible,
+     pushing the vertically-centered content further down than it looked
+     like it should sit, and left an extra 64px to scroll past at the
+     bottom. Matching that real visible height keeps the hero properly
+     centered within what's actually on screen. */
+  min-height: calc(100vh - 64px);
   display: flex;
   align-items: center;
   justify-content: center;
