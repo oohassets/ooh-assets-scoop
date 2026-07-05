@@ -36,7 +36,7 @@
 .download-wrap { position: relative; display: inline-flex; }
 .download-btn {
   display: flex; align-items: center; justify-content: center;
-  width: 44px; height: 34px; border-radius: var(--radius-sm);
+  width: 44px; height: 36px; box-sizing: border-box; border-radius: var(--radius-sm);
   border: 1px solid var(--border-glass); background: var(--bg-primary);
   color: var(--text-secondary); cursor: pointer; transition: all 0.2s; flex-shrink: 0;
 }
@@ -185,7 +185,12 @@
   /* no longer sticky — lives inside .ci-sticky-header */
 }
 .circuit-tab {
-  padding: 7px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 20px;
   border-radius: 999px;
   border: 1px solid var(--border-glass);
   background: var(--bg-primary);

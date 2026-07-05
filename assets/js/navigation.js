@@ -13,14 +13,17 @@ export function updateNavAtTop() {
 const SCROLL_HIDE_THRESHOLD = 8;
 let lastScrollTop = 0;
 
-/** Hides the nav + mobile dock on scroll-down, reveals them on scroll-up. */
-export function updateScrollDirection() {
-  const frame = document.getElementById('app-content');
+/**
+ * Hides the nav + mobile dock on scroll-down, reveals them on scroll-up.
+ * @param {number} [scrollTop] - scrollTop of whichever container scrolled;
+ *   defaults to #app-content's own scrollTop when called with no args
+ *   (e.g. on page-transition reset).
+ */
+export function updateScrollDirection(scrollTop) {
   const nav   = document.querySelector('nav');
   const dock  = document.getElementById('mobileDock');
-  if (!frame) return;
-
-  const st    = frame.scrollTop;
+  const frame = document.getElementById('app-content');
+  const st    = typeof scrollTop === 'number' ? scrollTop : (frame?.scrollTop || 0);
   const delta = st - lastScrollTop;
 
   if (st < 4) {
@@ -43,10 +46,12 @@ export function updateScrollDirection() {
 export function initNavScroll() {
   const frame = document.getElementById('app-content');
   if (!frame) return;
+
   frame.addEventListener('scroll', () => {
     updateNavAtTop();
-    updateScrollDirection();
+    updateScrollDirection(frame.scrollTop);
   }, { passive: true });
+
   updateNavAtTop();
 }
 

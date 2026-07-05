@@ -21,6 +21,14 @@
   overflow-y: auto;
   background: transparent;
   z-index: 10;
+  transition: top 0.3s ease;
+}
+
+/* When the top nav hides on scroll-down, let the page container reclaim
+   its 64px so any sticky in-page header (e.g. .ci-sticky-header) sticks
+   flush at the very top of the viewport instead of leaving a gap. */
+nav.nav-hidden ~ .map-container .app-frame {
+  top: 0;
 }
 
 /* ── Global decorative orbs ───────────── */

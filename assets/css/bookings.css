@@ -6,49 +6,51 @@
 /* ── Page fill wrapper ───────────────────── */
 .bookings-page {
   position: relative;
-  display: flex; flex-direction: column;
-  height: 100%; overflow: hidden;
 }
 
-/* ── Sticky page header ─────────────────── */
+/* ── Sticky filter/action header — sticks to the very top on scroll,
+   reclaiming the nav's space (see nav.nav-hidden ~ .app-frame in layout.css) ── */
 .bookings-sticky-header {
-  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 101;
+  background: transparent;
+  transition: background 0.25s, box-shadow 0.25s, border-color 0.25s;
+  border-bottom: 1px solid transparent;
   padding: 14px 2rem;
-  border-bottom: none;
+}
+.bookings-sticky-header.bk-scrolled {
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border-bottom-color: var(--border-glass);
 }
 .bookings-hdr-inner {
   max-width: 1400px; margin: 0 auto;
-  display: flex; align-items: center; justify-content: flex-end; gap: 16px;
+  display: flex; flex-direction: column; gap: 12px;
 }
-.bookings-hdr-btns { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.bookings-hdr-btns { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
 
-/* ── Schedule section — fills remaining height ── */
+/* ── Schedule section ─────────────────────────────────── */
 #scheduleSection {
-  flex: 1; min-height: 0;
-  display: flex; flex-direction: column;
-  padding: 15px; overflow: hidden;
+  padding: 15px;
 }
 .bookings-content {
-  flex: 1; min-height: 0;
-  display: flex; flex-direction: column;
   max-width: 1400px; width: 100%; margin: 0 auto;
-  overflow: hidden;
 }
 .calendar-content {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
   width: 100%; overflow: hidden;
 }
-#scheduleSection .card {
-  flex: 1; min-height: 0;
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-#scheduleSection .toolbar  { flex-shrink: 0; }
+/* Table scrolls internally (sticky thead stays visible), but is tall
+   enough — and the page itself unclipped — that both it and the page
+   can scroll rather than being locked to a single viewport-height card. */
 #scheduleSection .table-container {
-  flex: 1; min-height: 0;
-  overflow: auto; max-height: none;
-  margin-top: 20px; margin-bottom: 0;
+  overflow: auto;
+  max-height: 75vh;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 /* ── Calendar section — fixed overlay, sits below 64px nav ── */
@@ -125,7 +127,7 @@
 .bookings-action-row { display: flex; justify-content: flex-end; margin-bottom: 15px; }
 
 /* ── Toolbar + search ─────────────────── */
-.toolbar    { display:flex; gap:12px; align-items:center; margin-top:20px; flex-wrap:wrap; }
+.toolbar    { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
 .search-box { flex:1; min-width:200px; display:flex; align-items:center; gap:10px; padding:0 16px; height:44px; background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:var(--radius-sm); transition:all 0.2s; }
 .search-box:focus-within { border-color:var(--accent-indigo); box-shadow:0 0 0 3px var(--glow-indigo); }
 .search-box input { flex:1; border:none; outline:none; background:transparent; color:var(--text-primary); font-family:var(--font-body); font-size:14px; }

@@ -1548,6 +1548,8 @@ async function downloadCalendarAsExcel() {
   }
 }
 
+let _cleanupFns = [];
+
 // ── INIT ──────────────────────────────────────────────────
 export async function init(userName) {
   currentUserName = userName || "User";
@@ -1756,6 +1758,17 @@ export async function init(userName) {
 
   populateAssets(tables);
   initAutoSuggest();
+
+  // ── Sticky header background on scroll (mirrors content-inventory.js) ──
+  const appContent   = document.getElementById("app-content");
+  const stickyHeader = document.querySelector(".bookings-sticky-header");
+
+  const onScroll = () => {
+    stickyHeader?.classList.toggle("bk-scrolled", appContent.scrollTop > 10);
+  };
+
+  appContent?.addEventListener("scroll", onScroll, { passive: true });
+  _cleanupFns = [() => appContent?.removeEventListener("scroll", onScroll)];
 }
 
 export function cleanup() {
@@ -1765,4 +1778,6 @@ export function cleanup() {
   // Remove overlays moved to body during init
   document.getElementById("bookingModal")?.remove();
   document.getElementById("calendarSection")?.remove();
+  _cleanupFns.forEach(fn => fn());
+  _cleanupFns = [];
 }

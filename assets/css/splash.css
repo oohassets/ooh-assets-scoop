@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════
    SCOOP OOH — SPLASH
    Landing hero: Pearl Island photo background,
-   brand-red tint, glass panel with moving shine
+   darkened to a neutral tint, text-only content
 ══════════════════════════════════════════ */
 
 .splash-hero {
@@ -22,50 +22,25 @@
   z-index: 0;
 }
 
-/* Brand-red tint over the photo — also what keeps hero text legible */
+/* Neutral dark tint over the photo — keeps hero text legible without
+   tinting the image red; matches the near-black --bg-base surface color */
 .splash-tint {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(160deg, rgba(97,17,31,0.90) 0%, rgba(152,30,50,0.55) 45%, rgba(11,12,14,0.88) 100%);
+    linear-gradient(180deg, rgba(11,12,14,0.58) 0%, rgba(11,12,14,0.72) 45%, rgba(11,12,14,0.9) 100%);
   z-index: 1;
 }
 
-/* ── Glass panel ───────────────────────── */
+/* ── Hero text wrapper (no card/glass — text sits directly on the photo) ── */
 .splash-glass {
   position: relative;
   z-index: 2;
   max-width: 720px;
   width: 100%;
   padding: 48px 44px;
-  border-radius: 32px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.22);
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
   text-align: center;
-  overflow: hidden;
   animation: splashIn 0.7s ease both;
-}
-
-/* Moving glass shine sweep */
-.splash-glass-shine {
-  position: absolute;
-  top: -60%;
-  left: -60%;
-  width: 55%;
-  height: 220%;
-  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.25), transparent);
-  transform: rotate(15deg);
-  animation: shineMove 6s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes shineMove {
-  0%   { left: -60%; }
-  55%  { left: 130%; }
-  100% { left: 130%; }
 }
 
 @keyframes splashIn {
@@ -128,7 +103,7 @@
 
 /* ── Responsive ───────────────────────── */
 @media(max-width: 900px) {
-  .splash-glass { padding: 40px 30px; border-radius: 26px; }
+  .splash-glass { padding: 40px 30px; }
   .hero-headline { font-size: clamp(22px,5vw,34px); }
 }
 @media(max-width: 480px) {

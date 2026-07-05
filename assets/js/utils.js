@@ -20,13 +20,25 @@ export function showOnlyFrame(frameId) {
 }
 
 /**
- * Load page-specific CSS once (no duplicates).
+ * Load page-specific CSS once (no duplicates). Returns a promise that
+ * resolves once the stylesheet has actually applied, so callers can wait
+ * for it before revealing unstyled content.
  */
 export function loadCSS(href) {
-  if (!document.querySelector(`link[href="${href}"]`)) {
-    const link = Object.assign(document.createElement("link"), { rel:"stylesheet", href });
-    document.head.appendChild(link);
+  const existing = document.querySelector(`link[href="${href}"]`);
+  if (existing) {
+    if (existing.sheet) return Promise.resolve();
+    return new Promise((resolve) => {
+      existing.addEventListener("load", resolve, { once: true });
+      existing.addEventListener("error", resolve, { once: true });
+    });
   }
+  return new Promise((resolve) => {
+    const link = Object.assign(document.createElement("link"), { rel: "stylesheet", href });
+    link.addEventListener("load", resolve, { once: true });
+    link.addEventListener("error", resolve, { once: true });
+    document.head.appendChild(link);
+  });
 }
 
 /**
@@ -39,9 +51,12 @@ export async function loadPage(url, cssHref) {
   // into the map view or other pages (e.g. vehicle-report body { padding:20px })
   document.querySelectorAll("style[data-page-style]").forEach(s => s.remove());
 
-  if (cssHref) loadCSS(cssHref);
-
+  // Fetch HTML and load CSS in parallel, but don't inject the HTML until the
+  // stylesheet has applied — otherwise buttons/tabs briefly render at their
+  // unstyled browser-default size before snapping to the real layout.
+  const cssReady = cssHref ? loadCSS(cssHref) : Promise.resolve();
   const text = await fetch(url).then(r => r.text());
+  await cssReady;
 
   // Inject <style> blocks from <head> (e.g. vehicle-report inline CSS)
   const headMatch = text.match(/<head[^>]*>([\s\S]*?)<\/head>/i);

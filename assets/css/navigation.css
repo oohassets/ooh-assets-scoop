@@ -151,6 +151,14 @@ nav.nav-hidden {
   .nav-page-title-sub { display:none; }
 }
 
+/* Page title + sub replace the icon cluster on mobile only — desktop has
+   room to keep both nav-center links and the icon cluster visible, so the
+   title swap (driven by setNavPageTitle()) is suppressed there. */
+@media(min-width:901px) {
+  .nav-page-title { display:none !important; }
+  .nav-actions.nav-actions-hidden { opacity:1; pointer-events:auto; }
+}
+
 .nav-badge {
   padding:5px 12px; border-radius:999px;
   font-size:12px; font-weight:600; font-family:var(--font-body);
@@ -495,6 +503,17 @@ nav.nav-hidden {
   nav { padding:0 1rem; }
   .nav-badge, .btn-nav-outline { display:none; }
   .btn-scoop-agent { display: flex; }
+
+  /* No room for the logo once the page title takes the left side */
+  .nav-logo { display: none; }
+  .nav-page-title {
+    left: 1rem; right: auto;
+    text-align: left;
+    max-width: 60%;
+  }
+  /* Keep the icon cluster pinned right now that the logo (which used to
+     balance the flex row via justify-content:space-between) is gone */
+  .nav-actions { margin-left: auto; }
 
   /* Hide Chatbase floating bubble on mobile — nav icon replaces it */
   #chatbase-bubble-button { display: none !important; }
