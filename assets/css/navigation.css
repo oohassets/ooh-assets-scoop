@@ -472,6 +472,11 @@ nav.nav-hidden {
   color: var(--text-primary); margin-bottom: 2px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.user-dropdown-position {
+  font-size: 12px; font-weight: 600; color: var(--accent-indigo);
+  margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .user-dropdown-email {
   font-size: 11px; color: var(--text-muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

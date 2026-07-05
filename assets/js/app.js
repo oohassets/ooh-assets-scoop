@@ -4,8 +4,9 @@
    info-card events, and Scoop AI.
 ══════════════════════════════════════════ */
 import { requireAuth } from "./authGuard.js";
-import { auth }        from "../../firebase/firebase.js";
+import { auth, rtdb }  from "../../firebase/firebase.js";
 import { signOut }     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { ref, get }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 import { initTheme }   from "./theme.js";
 import { initDock, initNavScroll } from "./navigation.js";
@@ -42,11 +43,33 @@ function getInitials(name) {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
+/**
+ * Looks up the signed-in user's row in the "user" RTDB table by matching
+ * its own `id` field against the Firebase Auth email (rows are keyed by a
+ * plain sequential index, not by email — same convention as `assetrate`).
+ */
+async function loadUserProfile(email) {
+  try {
+    const snap = await get(ref(rtdb, "user"));
+    if (!snap.exists()) return null;
+    const data = snap.val();
+    const rows = Array.isArray(data) ? data : Object.values(data);
+    return rows.find(row => row && (row.id || "").toLowerCase() === email.toLowerCase()) || null;
+  } catch (e) {
+    console.error("[SCOOP] Failed to load user profile:", e);
+    return null;
+  }
+}
+
 // ── Auth guard ────────────────────────────────────────────
 let firstLoad = true;
-requireAuth((user) => {
-  const userName = user.displayName || user.email.split("@")[0];
-  const initials = getInitials(userName);
+requireAuth(async (user) => {
+  const profile  = await loadUserProfile(user.email);
+  const userName = profile?.name || user.displayName || user.email.split("@")[0];
+  const initials = profile?.initials || getInitials(userName);
+  // Least-privilege default: an email not yet added to the "user" table
+  // (or with no rule set) only gets view access.
+  const rule     = (profile?.rule || "view").toLowerCase();
 
   // Avatar initials (nav button + dropdown header)
   const navInitEl  = document.getElementById("navAvatarInitials");
@@ -56,14 +79,19 @@ requireAuth((user) => {
 
   // Dropdown profile info
   const dropNameEl  = document.getElementById("userDropdownName");
+  const dropPosEl   = document.getElementById("userDropdownPosition");
   const dropEmailEl = document.getElementById("userDropdownEmail");
   if (dropNameEl)  dropNameEl.textContent  = userName;
+  if (dropPosEl)   dropPosEl.textContent   = profile?.position || "";
   if (dropEmailEl) dropEmailEl.textContent = user.email;
 
   // Store globally for view modules
-  window.__currentUser = { name: userName, email: user.email, uid: user.uid };
+  window.__currentUser = {
+    name: userName, email: user.email, uid: user.uid,
+    position: profile?.position || "", rule,
+  };
 
-  console.log(`[SCOOP] ✓ Auth — ${userName} (${user.email})`);
+  console.log(`[SCOOP] ✓ Auth — ${userName} (${user.email}) [${rule}]`);
 
   // Identify signed-in user in Chatbase widget
   initScoopAI(user);

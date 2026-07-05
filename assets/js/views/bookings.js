@@ -3,6 +3,10 @@ import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 let currentUserName = "";
+// Role gate: window.__currentUser.rule from the "user" RTDB table —
+// admin/sales can view, add and edit; anything else (view, or unset) is
+// view-only. See dashboard/app.js loadUserProfile() for how rule is set.
+let canEdit         = false;
 let allCampaigns    = [];
 let currentFiltered = [];
 let drpStart = null, drpEnd = null;
@@ -120,7 +124,7 @@ function renderTable(campaigns) {
   </tr>`;
   tbody.innerHTML = mobHeader + campaigns.map(r => {
     const statusCls = getStatusClass(r.status);
-    const isOwner = currentUserName && r.person &&
+    const isOwner = canEdit && currentUserName && r.person &&
       r.person.trim().toLowerCase() === currentUserName.trim().toLowerCase();
     const editDateBtn = isOwner
       ? `<button class="edit-row-btn" data-key="${r.key}" title="Edit booking"><span class="material-symbols-outlined" style="font-size:14px;">edit</span></button>`
@@ -1555,6 +1559,11 @@ export async function init(userName) {
   currentUserName = userName || "User";
   const lbl = document.getElementById("bookingPersonLabel");
   if (lbl) lbl.textContent = currentUserName;
+
+  // Role gate — admin/sales can add + edit; view (or unset) is read-only.
+  const rule = window.__currentUser?.rule || "view";
+  canEdit = rule === "admin" || rule === "sales";
+  document.getElementById("openBookingBtn")?.toggleAttribute("hidden", !canEdit);
 
   // Move overlays to <body> so they escape the app-frame stacking context
   // and render above the nav bar and mobile dock on all browsers / iOS Safari.

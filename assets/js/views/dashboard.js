@@ -343,9 +343,6 @@ function renderVisitorsChart(tables) {
         delay(ctx) {
           return ctx.type === "data" ? ctx.dataIndex * 60 : 0;
         }
-      },
-      animations: {
-        y: { from: 0 }
       }
     }
   });
