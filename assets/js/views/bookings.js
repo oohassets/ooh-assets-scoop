@@ -2,7 +2,10 @@
 import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-let currentUserName = "";
+let currentUserName     = "";
+// Person is saved (and matched against, for the edit-button ownership
+// check below) as initials, not the full name — see saveBooking().
+let currentUserInitials = "";
 // Role gate: window.__currentUser.rule from the "user" RTDB table —
 // admin/sales can view, add and edit; anything else (view, or unset) is
 // view-only. See dashboard/app.js loadUserProfile() for how rule is set.
@@ -71,6 +74,13 @@ function setValue(id, val) {
   const el = document.getElementById(id);
   if (el) el.value = val ?? "";
 }
+/** Same convention as app.js's nav-avatar initials (first + last name letter). */
+function getInitials(name) {
+  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "";
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
 
 async function loadAll() {
   try {
@@ -124,18 +134,22 @@ function renderTable(campaigns) {
   </tr>`;
   tbody.innerHTML = mobHeader + campaigns.map(r => {
     const statusCls = getStatusClass(r.status);
-    const isOwner = canEdit && currentUserName && r.person &&
-      r.person.trim().toLowerCase() === currentUserName.trim().toLowerCase();
+    // Person is now saved as initials (see saveBooking()) — match against
+    // that, not the full name. Bookings saved before this change stored the
+    // full name instead, so their own edit button may no longer show; that's
+    // an inherent one-time consequence of switching the stored format.
+    const isOwner = canEdit && currentUserInitials && r.person &&
+      r.person.trim().toLowerCase() === currentUserInitials.trim().toLowerCase();
     const editDateBtn = isOwner
       ? `<button class="edit-row-btn" data-key="${r.key}" title="Edit booking"><span class="material-symbols-outlined" style="font-size:14px;">edit</span></button>`
       : "";
     const editStatusBtn = isOwner
-      ? `<button class="edit-status-btn" data-key="${r.key}" title="Edit status">✎</button>
+      ? `<button class="edit-status-btn" data-key="${r.key}" title="Edit status"><span class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
          <div class="inline-status-dropdown" id="statusDrop-${r.key}">
-           <button class="status-option" data-key="${r.key}" data-val="Live">● Live</button>
-           <button class="status-option" data-key="${r.key}" data-val="BO Signed">● BO Signed</button>
-           <button class="status-option" data-key="${r.key}" data-val="Pending">● Pending</button>
-           <button class="status-option" data-key="${r.key}" data-val="Completed">● Completed</button>
+           <button class="status-option status-pill pill-live"      data-key="${r.key}" data-val="Live">Live</button>
+           <button class="status-option status-pill pill-signed"    data-key="${r.key}" data-val="BO Signed">BO Signed</button>
+           <button class="status-option status-pill pill-pending"   data-key="${r.key}" data-val="Pending">Pending</button>
+           <button class="status-option status-pill pill-completed" data-key="${r.key}" data-val="Completed">Completed</button>
          </div>`
       : "";
     return `
@@ -210,13 +224,27 @@ function renderTable(campaigns) {
 function openEditModal(campaign) {
   const title = document.getElementById("bookingModalTitle");
   if (title) title.textContent = "Edit Campaign Booking";
+  const saveBtn = document.getElementById("confirmBookingBtn");
+  if (saveBtn) saveBtn.textContent = "Update Booking";
+  const clearBtn = document.getElementById("clearFormBtn");
+  if (clearBtn) clearBtn.hidden = true;
 
   setValue("bookingEditKey",  campaign.key);
   setValue("bookingOrder",    campaign.bo);
   setValue("bookingClient",   campaign.client !== "—" ? campaign.client : "");
   setValue("bookingBrand",    campaign.brand  !== "—" ? campaign.brand  : "");
-  setValue("bookingAsset",    campaign.asset  !== "—" ? campaign.asset  : "");
-  setValue("bookingAssetText",campaign.asset  !== "—" ? campaign.asset  : "");
+
+  // Each Campaigns_Booking record is a single circuit — edit mode always
+  // starts from exactly one row (adding more here would create *new*
+  // records alongside the one being edited, see saveBooking()).
+  resetCircuitRows();
+  if (campaign.asset && campaign.asset !== "—") {
+    const firstRow = document.querySelector("#bkCircuitList .bk-circuit-row");
+    const textInput   = firstRow?.querySelector(".bk-inp");
+    const hiddenInput = firstRow?.querySelector("input[type=hidden]");
+    if (textInput)   textInput.value   = campaign.asset;
+    if (hiddenInput) hiddenInput.value = campaign.asset;
+  }
 
   const toISOfromMDY = mdy => {
     if (!mdy) return "";
@@ -231,12 +259,12 @@ function openEditModal(campaign) {
   if (startISO) {
     bkPickerStart = parseISOLocal(startISO);
     const startEl = document.getElementById("bkStartVal");
-    if (startEl) startEl.textContent = fmtPickDate(bkPickerStart);
+    if (startEl) { startEl.textContent = fmtPickDate(bkPickerStart); startEl.classList.remove("bk-dt-placeholder"); }
   }
   if (endISO) {
     bkPickerEnd = parseISOLocal(endISO);
     const endEl = document.getElementById("bkEndVal");
-    if (endEl) endEl.textContent = fmtPickDate(bkPickerEnd);
+    if (endEl) { endEl.textContent = fmtPickDate(bkPickerEnd); endEl.classList.remove("bk-dt-placeholder"); }
   }
 
   const statusEl = document.getElementById("campaignStatus");
@@ -249,29 +277,36 @@ function openEditModal(campaign) {
 }
 
 function checkFormComplete() {
-  const client = document.getElementById("bookingClient")?.value?.trim();
-  const brand  = document.getElementById("bookingBrand")?.value?.trim();
-  const asset  = document.getElementById("bookingAsset")?.value?.trim();
-  const start  = document.getElementById("bookingStartDate")?.value;
-  const end    = document.getElementById("bookingEndDate")?.value;
-  const status = document.getElementById("campaignStatus")?.value;
-  const complete = !!(client && brand && asset && start && end && status);
+  const client   = document.getElementById("bookingClient")?.value?.trim();
+  const brand    = document.getElementById("bookingBrand")?.value?.trim();
+  const circuits = getCircuitValues();
+  const start    = document.getElementById("bookingStartDate")?.value;
+  const end      = document.getElementById("bookingEndDate")?.value;
+  const status   = document.getElementById("campaignStatus")?.value;
+  const validDates = !!(start && end) && new Date(end) >= new Date(start);
+  const complete = !!(client && brand && circuits.length && validDates && status);
   document.getElementById("confirmBookingBtn")?.classList.toggle("visible", complete);
 }
 
 function resetModal() {
   const title = document.getElementById("bookingModalTitle");
   if (title) title.textContent = "Let's start your booking";
+  const saveBtn = document.getElementById("confirmBookingBtn");
+  if (saveBtn) { saveBtn.textContent = "Save Booking"; saveBtn.classList.remove("success"); }
+  const clearBtn = document.getElementById("clearFormBtn");
+  if (clearBtn) clearBtn.hidden = false;
   setValue("bookingEditKey", "");
-  ["bookingOrder","bookingClient","bookingBrand","bookingAssetText","bookingAsset",
-   "bookingStartDate","bookingEndDate","bookingTotalDays","bookingSlot"].forEach(id => setValue(id, ""));
+  ["bookingOrder","bookingClient","bookingBrand",
+   "bookingStartDate","bookingEndDate","bookingTotalDays"].forEach(id => setValue(id, ""));
+  resetCircuitRows();
   const s = document.getElementById("campaignStatus"); if (s) s.selectedIndex = 0;
 
   bkPickerStart = null; bkPickerEnd = null; bkPickMode = "start";
-  const sv = document.getElementById("bkStartVal"); if (sv) sv.textContent = "—";
-  const ev = document.getElementById("bkEndVal");   if (ev) ev.textContent = "—";
+  const sv = document.getElementById("bkStartVal");
+  if (sv) { sv.textContent = "Start Date"; sv.classList.add("bk-dt-placeholder"); }
+  const ev = document.getElementById("bkEndVal");
+  if (ev) { ev.textContent = "End Date"; ev.classList.add("bk-dt-placeholder"); }
   const td = document.getElementById("bookingTotalDaysDisplay"); if (td) td.textContent = "—";
-  const sl = document.getElementById("bookingSlotDisplay");      if (sl) sl.textContent = "—";
   document.getElementById("bkPickStart")?.classList.remove("active");
   document.getElementById("bkPickEnd")?.classList.remove("active");
   checkFormComplete();
@@ -284,6 +319,11 @@ function monthKeyFromDate(d) {
 function monthRangeFromKey(key) {
   const [y,m] = key.split("-").map(Number);
   return [new Date(y, m-1, 1), new Date(y, m, 0)];
+}
+/** Jan 1 → Dec 31 of the current calendar year. */
+function currentYearRange() {
+  const y = new Date().getFullYear();
+  return [new Date(y, 0, 1), new Date(y, 11, 31)];
 }
 function monthLabel(key) {
   const [y,m] = key.split("-").map(Number);
@@ -310,11 +350,12 @@ function buildMonthRange(campaigns) {
   }
   return keys;
 }
-/** Fills a <select> with "Select Date Range" + every month key (ascending), selecting defaultKey. */
+/** Fills a <select> with "Select Date Range" + "This Year" + every month key (ascending), selecting defaultKey. */
 function populateDateSelect(select, monthKeys, defaultKey) {
   if (!select) return;
   select.innerHTML =
     `<option value="range">Select Date Range</option>` +
+    `<option value="year">This Year</option>` +
     monthKeys.map(k => `<option value="${k}">${monthLabel(k)}</option>`).join("");
   select.value = defaultKey;
 }
@@ -349,12 +390,115 @@ function populateAssets(tables) {
 }
 
 function initAutoSuggest() {
-  setupSuggest("bookingClient",    "clientSuggestions", () => allClients,  null);
-  setupSuggest("bookingBrand",     "brandSuggestions",  () => allBrands,   null);
-  setupSuggest("bookingAssetText", "assetSuggestions",  () => allCircuits, val => {
-    setValue("bookingAsset", val);
-    autoAssignSlot();
+  setupSuggest("bookingClient", "clientSuggestions", () => allClients, null);
+  setupSuggest("bookingBrand",  "brandSuggestions",  () => allBrands,  null);
+  resetCircuitRows();
+}
+
+// ── CIRCUIT ROWS (add / remove) ───────────────────────────
+// One or more "Circuit" fields — the last row always shows a "+" button to
+// add another; every row above it shows a "−" to remove that row. Each row
+// gets its own text input (typed value) + hidden input (the exact value
+// picked from the autocomplete dropdown, same pattern as Client/Brand).
+let circuitRowSeq = 0;
+
+function renderCircuitRow() {
+  const n = circuitRowSeq++;
+  const row = document.createElement("div");
+  row.className = "bk-circuit-row";
+  row.dataset.row = String(n);
+  row.innerHTML = `
+    <div class="bk-field bk-ac">
+      <div class="bk-circuit-input-wrap">
+        <input class="bk-inp" id="circuitText-${n}" type="text" placeholder=" " autocomplete="off">
+        <input type="hidden" id="circuitVal-${n}">
+        <label class="bk-lbl" for="circuitText-${n}">Circuit</label>
+        <button type="button" class="bk-circuit-clear" id="circuitClear-${n}" title="Clear circuit" aria-label="Clear circuit">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+        <div class="bk-ac-drop" id="circuitDrop-${n}"></div>
+      </div>
+      <div class="bk-circuit-slot" id="circuitSlot-${n}"></div>
+    </div>
+    <button type="button" class="bk-circuit-btn" title="Add circuit">
+      <span class="material-symbols-outlined">add</span>
+    </button>`;
+  document.getElementById("bkCircuitList")?.appendChild(row);
+
+  document.getElementById(`circuitClear-${n}`)?.addEventListener("click", () => {
+    const textInput = document.getElementById(`circuitText-${n}`);
+    if (textInput) textInput.value = "";
+    setValue(`circuitVal-${n}`, "");
+    setCircuitSlotText(row, "");
+    document.getElementById(`circuitDrop-${n}`)?.classList.remove("open");
+    checkFormComplete();
+    textInput?.focus();
   });
+
+  setupSuggest(`circuitText-${n}`, `circuitDrop-${n}`, () => allCircuits, val => {
+    // Reject picking a circuit that's already confirmed in another row —
+    // getCircuitValues() only reads *other* rows here since this row's own
+    // hidden value hasn't been set to `val` yet.
+    const duplicate = getCircuitValues().some(v => v.toLowerCase() === val.toLowerCase());
+    if (duplicate) {
+      setValue(`circuitVal-${n}`, "");
+      setCircuitSlotText(row, "This circuit is already added above", true);
+      checkFormComplete();
+      return;
+    }
+    setValue(`circuitVal-${n}`, val);
+    autoAssignSlot();
+    checkFormComplete();
+  });
+  document.getElementById(`circuitText-${n}`)?.addEventListener("input", () => {
+    // Typing without picking a suggestion clears the confirmed value —
+    // matches the Client/Brand fields, and keeps checkFormComplete/slot
+    // checks from treating half-typed text as a selected circuit.
+    setValue(`circuitVal-${n}`, "");
+    setCircuitSlotText(row, "");
+    checkFormComplete();
+  });
+
+  row.querySelector(".bk-circuit-btn").addEventListener("click", () => {
+    if (row.querySelector(".bk-circuit-btn").classList.contains("remove")) {
+      row.remove();
+      refreshCircuitButtons();
+      autoAssignSlot();
+      checkFormComplete();
+    } else {
+      renderCircuitRow();
+    }
+  });
+
+  refreshCircuitButtons();
+}
+
+/** Last row = "+" (add another); every row above it = "−" (remove this one). */
+function refreshCircuitButtons() {
+  const rows = document.querySelectorAll("#bkCircuitList .bk-circuit-row");
+  rows.forEach((row, i) => {
+    const isLast = i === rows.length - 1;
+    const btn    = row.querySelector(".bk-circuit-btn");
+    const icon   = btn?.querySelector(".material-symbols-outlined");
+    if (!btn || !icon) return;
+    btn.classList.toggle("remove", !isLast);
+    btn.title = isLast ? "Add circuit" : "Remove circuit";
+    icon.textContent = isLast ? "add" : "remove";
+  });
+}
+
+/** Clears all circuit rows and seeds exactly one empty one. */
+function resetCircuitRows() {
+  const list = document.getElementById("bkCircuitList");
+  if (list) list.innerHTML = "";
+  renderCircuitRow();
+}
+
+/** Confirmed (autocomplete-selected) circuit values across all rows. */
+function getCircuitValues() {
+  return Array.from(document.querySelectorAll("#bkCircuitList .bk-circuit-row"))
+    .map(row => row.querySelector("input[type=hidden]")?.value?.trim())
+    .filter(Boolean);
 }
 
 function setupSuggest(inputId, dropId, getList, onSelect) {
@@ -362,14 +506,19 @@ function setupSuggest(inputId, dropId, getList, onSelect) {
   const drop  = document.getElementById(dropId);
   if (!input || !drop) return;
 
-  input.addEventListener("input", () => {
+  const showMatches = () => {
     const q = input.value.trim().toLowerCase();
     const list = getList();
     const matches = q ? list.filter(v => v.toLowerCase().includes(q)) : list.slice(0, 8);
     if (!matches.length) { drop.classList.remove("open"); return; }
     drop.innerHTML = matches.map(v => `<div class="bk-ac-item" data-val="${v}">${v}</div>`).join("");
     drop.classList.add("open");
-  });
+  };
+
+  // Show suggestions as soon as the field is clicked/focused, not just once
+  // the user starts typing.
+  input.addEventListener("input", showMatches);
+  input.addEventListener("focus", showMatches);
 
   drop.addEventListener("mousedown", e => {
     const item = e.target.closest(".bk-ac-item");
@@ -402,60 +551,82 @@ function calcDays() {
 }
 
 // ── SLOT AUTO-ASSIGN ──────────────────────────────────────
+/**
+ * For each circuit, finds the first slot (1..maxSlots) that isn't already
+ * booked by another campaign overlapping [newStart, newEnd]. Shared by the
+ * live preview (autoAssignSlot) and the actual save (saveBooking) so both
+ * use identical logic.
+ */
+async function computeSlotAssignments(circuits, newStart, newEnd, editKey) {
+  const [assetSnap, bookSnap] = await Promise.all([
+    get(ref(rtdb, "oohassets")),
+    get(ref(rtdb, "Campaigns_Booking")),
+  ]);
+  const assetRows = assetSnap.exists() ? Object.values(assetSnap.val()) : [];
+  const bookRows  = bookSnap.exists()  ? Object.entries(bookSnap.val()) : [];
+
+  return circuits.map(circuit => {
+    const match = assetRows.find(r => r && (r.Circuits||"").trim().toLowerCase() === circuit.trim().toLowerCase());
+    const maxSlots = match ? parseInt(match.Slot || 1, 10) : 1;
+    const bookedSlots = new Set();
+    bookRows.forEach(([k, b]) => {
+      if (!b || (editKey && k === editKey)) return;
+      if ((b.Circuits||"").trim().toLowerCase() !== circuit.trim().toLowerCase()) return;
+      const bS = parseDate(b["Start Date"]); const bE = parseDate(b["End Date"]);
+      if (!bS||!bE) return;
+      bS.setHours(0,0,0,0); bE.setHours(0,0,0,0);
+      if (newStart <= bE && newEnd >= bS) bookedSlots.add(parseInt(b.Slot||1,10));
+    });
+    let assigned = null;
+    for (let s = 1; s <= maxSlots; s++) { if (!bookedSlots.has(s)) { assigned = s; break; } }
+    return { circuit, assigned };
+  });
+}
+
+/** Sets the small availability line under a single circuit row's input. */
+function setCircuitSlotText(row, text, isError = false) {
+  const el = row?.querySelector(".bk-circuit-slot");
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle("bk-circuit-slot-error", !!isError);
+}
+
+/** Checks slot availability per circuit row and shows it under each one. */
 async function autoAssignSlot() {
-  const asset    = document.getElementById("bookingAsset")?.value;
   const startVal = document.getElementById("bookingStartDate")?.value;
   const endVal   = document.getElementById("bookingEndDate")?.value;
-  const slotEl   = document.getElementById("bookingSlot");
-  const slotDisp = document.getElementById("bookingSlotDisplay");
   const editKey  = document.getElementById("bookingEditKey")?.value;
+  const rows     = Array.from(document.querySelectorAll("#bkCircuitList .bk-circuit-row"));
+  // Only rows with a confirmed (autocomplete-selected) circuit get checked.
+  const rowsWithCircuit = rows.filter(row => row.querySelector("input[type=hidden]")?.value?.trim());
 
-  if (!slotEl) return;
-  if (!asset || !startVal || !endVal) {
-    slotEl.value = "";
-    if (slotDisp) slotDisp.textContent = "—";
+  if (!rowsWithCircuit.length) return;
+
+  if (!startVal || !endVal) {
+    rowsWithCircuit.forEach(row => setCircuitSlotText(row, ""));
     return;
   }
-  if (slotDisp) slotDisp.textContent = "Checking…";
-  slotEl.value = "Checking…";
 
   const newStart = parseISOLocal(startVal); const newEnd = parseISOLocal(endVal);
   if (!newStart || !newEnd || newStart > newEnd) {
-    slotEl.value = "Invalid dates";
-    if (slotDisp) slotDisp.textContent = "Invalid dates";
+    rowsWithCircuit.forEach(row => setCircuitSlotText(row, "Invalid dates", true));
     return;
   }
   newStart.setHours(0,0,0,0); newEnd.setHours(0,0,0,0);
 
+  rowsWithCircuit.forEach(row => setCircuitSlotText(row, "Checking…"));
+
   try {
-    const assetSnap = await get(ref(rtdb, "oohassets"));
-    let maxSlots = 1;
-    if (assetSnap.exists()) {
-      const rows = Object.values(assetSnap.val());
-      const match = rows.find(r => r && (r.Circuits||"").trim().toLowerCase() === asset.trim().toLowerCase());
-      if (match) maxSlots = parseInt(match.Slot || 1, 10);
-    }
-    const bookSnap = await get(ref(rtdb, "Campaigns_Booking"));
-    const bookedSlots = new Set();
-    if (bookSnap.exists()) {
-      Object.entries(bookSnap.val()).forEach(([k, b]) => {
-        if (!b || (editKey && k === editKey)) return;
-        if ((b.Circuits||"").trim().toLowerCase() !== asset.trim().toLowerCase()) return;
-        const bS = parseDate(b["Start Date"]); const bE = parseDate(b["End Date"]);
-        if (!bS||!bE) return;
-        bS.setHours(0,0,0,0); bE.setHours(0,0,0,0);
-        if (newStart <= bE && newEnd >= bS) bookedSlots.add(parseInt(b.Slot||1,10));
-      });
-    }
-    let assigned = null;
-    for (let s = 1; s <= maxSlots; s++) { if (!bookedSlots.has(s)) { assigned = s; break; } }
-    const result = assigned !== null ? `Slot ${assigned}` : "No slots available";
-    slotEl.value = result;
-    if (slotDisp) slotDisp.textContent = result;
+    const circuitNames = rowsWithCircuit.map(row => row.querySelector("input[type=hidden]").value.trim());
+    const assignments  = await computeSlotAssignments(circuitNames, newStart, newEnd, editKey);
+    rowsWithCircuit.forEach((row, i) => {
+      const a = assignments[i];
+      if (a.assigned !== null) setCircuitSlotText(row, `Slot ${a.assigned}`);
+      else setCircuitSlotText(row, "No slots available", true);
+    });
   } catch(e) {
     console.error(e);
-    slotEl.value = "Error";
-    if (slotDisp) slotDisp.textContent = "Error";
+    rowsWithCircuit.forEach(row => setCircuitSlotText(row, "Error", true));
   }
 }
 
@@ -573,12 +744,26 @@ function applyPickerHighlight(el, date) {
   if (e && t === e) el.classList.add("bk-sel-end");
 }
 
+let pickerWarningTimeout = null;
+/** Briefly shows a warning in place of the picker's normal hint text. */
+function showPickerWarning(msg) {
+  const hint = document.getElementById("bkPickerInfo");
+  if (!hint) return;
+  clearTimeout(pickerWarningTimeout);
+  hint.textContent = msg;
+  hint.classList.add("bk-hint-warning");
+  pickerWarningTimeout = setTimeout(() => {
+    hint.classList.remove("bk-hint-warning");
+    updatePickerInfo();
+  }, 2200);
+}
+
 function onPickerDayClick(date) {
   date.setHours(0,0,0,0);
   const today = new Date(); today.setHours(0,0,0,0);
   if (date < today) return;
 
-  if (bkPickMode === "start" || !bkPickerStart || date <= bkPickerStart) {
+  if (bkPickMode === "start" || !bkPickerStart) {
     bkPickerStart = date;
     bkPickerEnd   = addDays(date, 13); // 2-week default
     bkPickMode    = "end";
@@ -588,6 +773,12 @@ function onPickerDayClick(date) {
       b.disabled = false;
       b.classList.toggle("active", b.dataset.weeks === "2");
     });
+  } else if (date < bkPickerStart) {
+    // End Date must never be earlier than Start Date — reject the click
+    // and warn instead of silently treating it as a new start date. Use
+    // the Reset button to actually restart the selection.
+    showPickerWarning("End Date cannot be earlier than Start Date");
+    return;
   } else {
     bkPickerEnd = date;
   }
@@ -600,8 +791,10 @@ function applyPickerToForm() {
   if (!bkPickerStart || !bkPickerEnd) return;
   setValue("bookingStartDate", toISO(bkPickerStart));
   setValue("bookingEndDate",   toISO(bkPickerEnd));
-  const sv = document.getElementById("bkStartVal"); if (sv) sv.textContent = fmtPickDate(bkPickerStart);
-  const ev = document.getElementById("bkEndVal");   if (ev) ev.textContent = fmtPickDate(bkPickerEnd);
+  const sv = document.getElementById("bkStartVal");
+  if (sv) { sv.textContent = fmtPickDate(bkPickerStart); sv.classList.remove("bk-dt-placeholder"); }
+  const ev = document.getElementById("bkEndVal");
+  if (ev) { ev.textContent = fmtPickDate(bkPickerEnd); ev.classList.remove("bk-dt-placeholder"); }
   calcDays();
   autoAssignSlot();
   checkFormComplete();
@@ -610,51 +803,84 @@ function applyPickerToForm() {
 
 // ── SAVE BOOKING ──────────────────────────────────────────
 async function saveBooking() {
-  const booking = document.getElementById("bookingOrder")?.value;
-  const client  = document.getElementById("bookingClient")?.value?.trim();
-  const brand   = document.getElementById("bookingBrand")?.value?.trim();
-  const asset   = document.getElementById("bookingAsset")?.value;
-  const start   = document.getElementById("bookingStartDate")?.value;
-  const end     = document.getElementById("bookingEndDate")?.value;
-  const slotRaw = document.getElementById("bookingSlot")?.value || "";
-  const person  = document.getElementById("bookingPersonLabel")?.textContent?.trim();
-  const status  = document.getElementById("campaignStatus")?.value || "Pending";
-  const editKey = document.getElementById("bookingEditKey")?.value;
+  const booking  = document.getElementById("bookingOrder")?.value;
+  const client   = document.getElementById("bookingClient")?.value?.trim();
+  const brand    = document.getElementById("bookingBrand")?.value?.trim();
+  const circuits = getCircuitValues();
+  const start    = document.getElementById("bookingStartDate")?.value;
+  const end      = document.getElementById("bookingEndDate")?.value;
+  // Saved as initials, not the full name shown in the "Booked by" bar.
+  const person   = currentUserInitials;
+  const status   = document.getElementById("campaignStatus")?.value || "Pending";
+  const editKey  = document.getElementById("bookingEditKey")?.value;
 
-  if (!client||!brand||!asset||!start||!end) { alert("Please fill in all required fields."); return; }
-  const slotNum = parseInt(slotRaw.replace(/\D/g,""), 10);
-  if (!slotRaw || isNaN(slotNum) || slotRaw.toLowerCase().includes("no slots")) {
-    alert("No available slot for the selected circuit and date range."); return;
-  }
+  if (!client||!brand||!circuits.length||!start||!end) { alert("Please fill in all required fields."); return; }
 
-  const btn = document.getElementById("confirmBookingBtn");
+  const newStart = parseISOLocal(start); const newEnd = parseISOLocal(end);
+  newStart.setHours(0,0,0,0); newEnd.setHours(0,0,0,0);
+  if (newEnd < newStart) { alert("End Date cannot be earlier than Start Date."); return; }
+
+  const btn      = document.getElementById("confirmBookingBtn");
+  const idleText = editKey ? "Update Booking" : "Save Booking";
   btn.textContent = "Saving…"; btn.disabled = true;
 
-  const data = {
-    BO: booking, Client: client, "Brand Campaign": brand,
-    Circuits: asset, Slot: slotNum,
-    "Start Date": toMMDDYYYY(start), "End Date": toMMDDYYYY(end),
-    Status: status, Person: person
-  };
-
   try {
-    if (editKey) {
-      await update(ref(rtdb, `Campaigns_Booking/${editKey}`), data);
-    } else {
-      const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
-      let nextKey = 1;
-      if (existingSnap.exists()) {
-        const val = existingSnap.val();
-        nextKey = Array.isArray(val) ? val.filter(Boolean).length : Object.keys(val).length;
-      }
-      await set(ref(rtdb, `Campaigns_Booking/${nextKey}`), data);
+
+    // Re-check availability fresh at save time (rather than trusting the
+    // last preview) — one assignment per circuit, since each circuit
+    // becomes its own Campaigns_Booking record.
+    const assignments = await computeSlotAssignments(circuits, newStart, newEnd, editKey);
+    const unavailable = assignments.filter(a => a.assigned === null);
+    if (unavailable.length) {
+      alert(`No available slot for: ${unavailable.map(a => a.circuit).join(", ")}`);
+      btn.textContent = idleText; btn.disabled = false;
+      return;
     }
+
+    const makeRecord = a => ({
+      BO: booking, Client: client, "Brand Campaign": brand,
+      Circuits: a.circuit, Slot: a.assigned,
+      "Start Date": toMMDDYYYY(start), "End Date": toMMDDYYYY(end),
+      Status: status, Person: person
+    });
+
+    const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
+    let nextKey = 1;
+    if (existingSnap.exists()) {
+      const val = existingSnap.val();
+      nextKey = Array.isArray(val) ? val.filter(Boolean).length : Object.keys(val).length;
+    }
+
+    if (editKey) {
+      // Editing always starts from a single circuit row (see openEditModal),
+      // so update that record in place; any *additional* rows the user adds
+      // while editing become new records rather than overwriting it.
+      await update(ref(rtdb, `Campaigns_Booking/${editKey}`), makeRecord(assignments[0]));
+      for (let i = 1; i < assignments.length; i++) {
+        await set(ref(rtdb, `Campaigns_Booking/${nextKey++}`), makeRecord(assignments[i]));
+      }
+    } else {
+      for (const a of assignments) {
+        await set(ref(rtdb, `Campaigns_Booking/${nextKey++}`), makeRecord(a));
+      }
+    }
+
+    // Success — green button, no Reset button cluttering the confirmation
+    // (applies the same whether this was an Add or an Update; edit mode
+    // already keeps Reset hidden throughout, so hiding it again is a no-op).
     btn.textContent = "Saved! ✓";
+    btn.classList.add("success");
+    const clearBtnNow = document.getElementById("clearFormBtn");
+    if (clearBtnNow) clearBtnNow.hidden = true;
+
     const tables = await loadAll();
     allCampaigns = getCampaigns(tables);
     applyFilters();
     setTimeout(() => {
-      btn.textContent = "Save Booking"; btn.disabled = false;
+      // resetModal() sets the button back to "Save Booking" (it also
+      // un-hides Reset) since closing always returns to add-mode.
+      btn.classList.remove("success");
+      btn.disabled = false;
       resetModal();
       document.getElementById("bookingModal")?.classList.remove("active");
     }, 1200);
@@ -1556,7 +1782,10 @@ let _cleanupFns = [];
 
 // ── INIT ──────────────────────────────────────────────────
 export async function init(userName) {
-  currentUserName = userName || "User";
+  currentUserName     = userName || "User";
+  // Prefer the custom initials from the "user" RTDB table (window.__currentUser,
+  // set in app.js) over a computed fallback, same as the nav avatar.
+  currentUserInitials = window.__currentUser?.initials || getInitials(currentUserName);
   const lbl = document.getElementById("bookingPersonLabel");
   if (lbl) lbl.textContent = currentUserName;
 
@@ -1583,10 +1812,11 @@ export async function init(userName) {
   });
 
   dateFilterSelect?.addEventListener("change", () => {
-    const isRange = dateFilterSelect.value === "range";
+    const val     = dateFilterSelect.value;
+    const isRange = val === "range";
     if (dateRangeInputs) dateRangeInputs.hidden = !isRange;
     if (!isRange) {
-      [drpStart, drpEnd] = monthRangeFromKey(dateFilterSelect.value);
+      [drpStart, drpEnd] = val === "year" ? currentYearRange() : monthRangeFromKey(val);
       applyFilters();
     }
   });
@@ -1665,10 +1895,45 @@ export async function init(userName) {
   document.getElementById("clearFormBtn")?.addEventListener("click", resetModal);
   document.getElementById("confirmBookingBtn")?.addEventListener("click", saveBooking);
 
-  ["bookingClient","bookingBrand","bookingAssetText"].forEach(id =>
+  // Circuit rows wire their own "input" → checkFormComplete (see renderCircuitRow).
+  ["bookingClient","bookingBrand"].forEach(id =>
     document.getElementById(id)?.addEventListener("input", checkFormComplete)
   );
   document.getElementById("campaignStatus")?.addEventListener("change", checkFormComplete);
+
+  // BO NO: "BO-0000" template on first focus (user only edits the digits),
+  // always exactly 4 digits after "BO-", and a "-<year>" suffix appended
+  // once the user confirms with Enter or Tab — e.g. typing "60" over the
+  // template and pressing Enter/Tab turns "BO-0000" into "BO-0060-2026".
+  const bookingOrderInput = document.getElementById("bookingOrder");
+  const BO_PREFIX = "BO-";
+
+  bookingOrderInput?.addEventListener("focus", (e) => {
+    if (!e.target.value) e.target.value = BO_PREFIX + "0000";
+  });
+
+  bookingOrderInput?.addEventListener("input", (e) => {
+    let val = e.target.value;
+    if (!val.toUpperCase().startsWith(BO_PREFIX)) {
+      val = BO_PREFIX + val.replace(/[^0-9]/g, "");
+    }
+    const rest = val.slice(BO_PREFIX.length);
+    // Once a year suffix has been appended (a 2nd "-"), leave it alone —
+    // the digits-only/4-digit-max formatting only applies before that.
+    if (rest.includes("-")) return;
+    e.target.value = BO_PREFIX + rest.replace(/[^0-9]/g, "").slice(0, 4);
+  });
+
+  const confirmBoNumber = () => {
+    const match = bookingOrderInput?.value.match(/^BO-(\d{1,4})$/i);
+    if (!match) return; // blank, already confirmed, or a non-standard value
+    const digits = match[1].padStart(4, "0");
+    bookingOrderInput.value = `${BO_PREFIX}${digits}-${new Date().getFullYear()}`;
+  };
+  bookingOrderInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); confirmBoNumber(); }
+  });
+  bookingOrderInput?.addEventListener("blur", confirmBoNumber);
 
   // ── Date picker wiring ────────────────────────────────
   document.getElementById("bkPickStart")?.addEventListener("click", () => openDatePicker("start"));
@@ -1731,10 +1996,11 @@ export async function init(userName) {
   const calDateRangeInputs  = document.getElementById("calDateRangeInputs");
 
   calDateFilterSelect?.addEventListener("change", async () => {
-    const isRange = calDateFilterSelect.value === "range";
+    const val     = calDateFilterSelect.value;
+    const isRange = val === "range";
     if (calDateRangeInputs) calDateRangeInputs.hidden = !isRange;
     if (!isRange) {
-      [calDrpStart, calDrpEnd] = monthRangeFromKey(calDateFilterSelect.value);
+      [calDrpStart, calDrpEnd] = val === "year" ? currentYearRange() : monthRangeFromKey(val);
       const cfe = document.getElementById("calFrom"); if (cfe) cfe.value = toISO(calDrpStart);
       const cte = document.getElementById("calTo");   if (cte) cte.value = toISO(calDrpEnd);
       await buildCalendar();

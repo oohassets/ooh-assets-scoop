@@ -178,36 +178,33 @@
           <div class="bk-ac-drop" id="brandSuggestions"></div>
         </div>
 
-        <div class="bk-field bk-ac">
-          <input class="bk-inp" id="bookingAssetText" type="text" placeholder=" " autocomplete="off">
-          <input type="hidden" id="bookingAsset">
-          <label class="bk-lbl" for="bookingAssetText">Asset / Circuit</label>
-          <div class="bk-ac-drop" id="assetSuggestions"></div>
-        </div>
-
-        <!-- Date card -->
+        <!-- Date card — 2 columns in 1 box: (Start Date → End Date) | (N Days) -->
         <div class="bk-date-card">
-          <div class="bk-date-cols">
-            <div class="bk-date-col" id="bkPickStart" role="button" tabindex="0">
-              <span class="bk-dt-lbl">Start Date</span>
-              <span class="bk-dt-val" id="bkStartVal">—</span>
+          <div class="bk-date-row">
+            <div class="bk-date-group">
+              <div class="bk-date-pick" id="bkPickStart" role="button" tabindex="0">
+                <span class="bk-dt-val bk-dt-placeholder" id="bkStartVal">Start Date</span>
+              </div>
+              <span class="bk-date-arrow">→</span>
+              <div class="bk-date-pick" id="bkPickEnd" role="button" tabindex="0">
+                <span class="bk-dt-val bk-dt-placeholder" id="bkEndVal">End Date</span>
+              </div>
             </div>
-            <div class="bk-date-sep"></div>
-            <div class="bk-date-col" id="bkPickEnd" role="button" tabindex="0">
-              <span class="bk-dt-lbl">End Date</span>
-              <span class="bk-dt-val" id="bkEndVal">—</span>
-            </div>
-          </div>
-          <div class="bk-date-meta">
-            <span id="bookingTotalDaysDisplay">—</span>
-            <span id="bookingSlotDisplay">—</span>
+            <span class="bk-date-divider"></span>
+            <span class="bk-date-days" id="bookingTotalDaysDisplay">—</span>
           </div>
         </div>
 
         <input type="hidden" id="bookingStartDate">
         <input type="hidden" id="bookingEndDate">
         <input type="hidden" id="bookingTotalDays">
-        <input type="hidden" id="bookingSlot">
+
+        <!-- Circuit rows are rendered/managed by bookings.js (renderCircuitRow(),
+             refreshCircuitButtons()) — always at least one row, each with its
+             own autocomplete; the last row shows "+", every row above it "−".
+             Each row's slot availability is checked once a circuit + the
+             dates above are set, and shown under that row (.bk-circuit-slot). -->
+        <div id="bkCircuitList"></div>
 
         <div class="bk-field bk-sel-wrap">
           <select class="bk-inp bk-sel" id="campaignStatus" required>

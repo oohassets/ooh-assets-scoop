@@ -9,7 +9,7 @@ import { signOut }     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-
 import { ref, get }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 import { initTheme }   from "./theme.js";
-import { initDock, initNavScroll, initPullToRefresh } from "./navigation.js";
+import { initDock, initNavScroll } from "./navigation.js";
 import { toggleInfoCard, updateInfoCard } from "./asset-rates.js";
 import { loadAssetMap } from "./maps.js";
 import { renderAssetsMegaDropdown, renderAssetsMobilePanel } from "./asset-location-menu.js";
@@ -96,7 +96,7 @@ requireAuth(async (user) => {
 
   // Store globally for view modules
   window.__currentUser = {
-    name: userName, email: user.email, uid: user.uid,
+    name: userName, initials, email: user.email, uid: user.uid,
     position: profile?.position || "", rule,
   };
 
@@ -130,9 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Transparent nav at scroll-top
   initNavScroll();
-
-  // Pull-down-to-refresh (mobile/tablet)
-  initPullToRefresh();
 
   // Notification bell
   initNotifications();

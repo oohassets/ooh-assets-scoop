@@ -522,8 +522,10 @@ nav.nav-hidden {
   .nav-badge, .btn-nav-outline { display:none; }
   .btn-scoop-agent { display: flex; }
 
-  /* No room for the logo once the page title takes the left side */
-  .nav-logo { display: none; }
+  /* Logo shows on mobile when the nav is in icon mode (Dashboard/Splash —
+     see app.js's nav-logo click → reload). No room for it once a page
+     title takes the left side instead (setNavPageTitle() toggles this). */
+  .nav-logo.nav-logo-hidden { display: none; }
   .nav-page-title {
     left: 1rem; right: auto;
     text-align: left;
