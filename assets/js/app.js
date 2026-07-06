@@ -9,7 +9,7 @@ import { signOut }     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-
 import { ref, get }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 import { initTheme }   from "./theme.js";
-import { initDock, initNavScroll } from "./navigation.js";
+import { initDock, initNavScroll, initPullToRefresh } from "./navigation.js";
 import { toggleInfoCard, updateInfoCard } from "./asset-rates.js";
 import { loadAssetMap } from "./maps.js";
 import { renderAssetsMegaDropdown, renderAssetsMobilePanel } from "./asset-location-menu.js";
@@ -109,7 +109,14 @@ requireAuth(async (user) => {
   if (firstLoad) {
     firstLoad = false;
     await assetMapReady; // ensure maps[] is populated before resolving ?map= deep links
-    loadFromURL();
+    await loadFromURL();
+    // Landing directly on a ?map= deep link leaves the (slow, third-party)
+    // Google Maps embed still loading — router.js's own "load" listener on
+    // #mapFrame clears the overlay once that finishes, so don't race it here.
+    const mapFrame = document.getElementById("mapFrame");
+    if (!mapFrame || mapFrame.style.display !== "block") {
+      document.getElementById("appLoadingOverlay")?.classList.add("hide");
+    }
   }
 });
 
@@ -124,6 +131,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Transparent nav at scroll-top
   initNavScroll();
 
+  // Pull-down-to-refresh (mobile/tablet)
+  initPullToRefresh();
+
   // Notification bell
   initNotifications();
 
@@ -133,14 +143,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderAssetsMobilePanel();
   });
 
-  // Logo → manual page refresh with spin animation
+  // Logo → manual page refresh
   document.querySelector(".nav-logo")?.addEventListener("click", () => {
-    const mark = document.querySelector(".nav-logo-mark");
-    if (!mark || mark.classList.contains("spinning")) return;
-    mark.classList.add("spinning");
-    mark.addEventListener("animationend", () => {
-      window.location.reload();
-    }, { once: true });
+    window.location.reload();
   });
 
   // User avatar dropdown

@@ -57,28 +57,35 @@ nav.nav-hidden ~ .map-container .app-frame {
 @media(max-width:900px) {
   .map-container { height: calc(100vh - 64px - env(safe-area-inset-bottom, 0px)); }
 }
-@media(max-width:768px) {
-  .info-card {
-    width: calc(100vw - 40px); right:20px;
-    /* dvh (not vh) — vh includes the space behind a mobile browser's
-       collapsible address bar, which overstates the real visible height
-       and let the card overflow past the bottom of the screen. Leave room
-       above the mobile dock so a tall card scrolls internally instead. */
-    max-height: calc(100dvh - 64px - 75px - 110px);
-  }
-}
-/* Short/landscape viewports — pull the card up closer to the action
-   buttons so it has more room to breathe before it needs to scroll. */
-@media(max-height:500px) {
-  .info-card { top:60px; max-height: calc(100dvh - 60px - 20px); }
-}
 
 /* ── Overlay (hides Google branding) ─── */
 .map-overlay {
+  /* Only meant to be visible over the map iframe — router.js's toggleOverlay()
+     shows/hides it as views switch. Defaulting to hidden (like #mapFrame and
+     #app-content already do) keeps it from flashing on screen during the
+     gap between page load and that first JS call actually running. */
+  display:none;
   position:absolute; top:0; right:0;
   width:140px; height:50px;
   background:#4d6a79; z-index:1500;
 }
+
+/* ── App loading spinner (covers the map-container gap before the first
+   view or map has finished loading) ─── */
+.app-loading-overlay {
+  position:absolute; inset:0; z-index:2000;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg-primary);
+  transition:opacity 0.25s ease;
+}
+.app-loading-overlay.hide { opacity:0; pointer-events:none; }
+.app-loading-spinner {
+  width:40px; height:40px; border-radius:50%;
+  border:4px solid var(--border-glass);
+  border-top-color:var(--brand-500);
+  animation:appLoadingSpin 0.8s linear infinite;
+}
+@keyframes appLoadingSpin { to { transform:rotate(360deg); } }
 
 /* ── Map action buttons ───────────────── */
 .info-btn  { position:absolute; top:20px; right:70px; background:transparent; border:none; cursor:pointer; }
@@ -99,6 +106,30 @@ nav.nav-hidden ~ .map-container .app-frame {
   to   { opacity:1; transform:translateY(0); }
 }
 
+/* These must come after the base .info-card rule above — same specificity,
+   so whichever is later in the file wins regardless of the media query
+   matching. Previously this block sat *before* the base rule, so the base
+   rule's width:400px/right:20px always won, even on mobile, which is what
+   was pushing the card's left edge off-screen. */
+@media(max-width:768px) {
+  .info-card {
+    /* % of .map-container (its actual containing block), not vw — 100vw is
+       the full device width including any reserved scrollbar gutter, which
+       can be wider than .map-container's real rendered width. */
+    width: calc(100% - 10px); right:5px;
+    /* dvh (not vh) — vh includes the space behind a mobile browser's
+       collapsible address bar, which overstates the real visible height
+       and let the card overflow past the bottom of the screen. Leave room
+       above the mobile dock so a tall card scrolls internally instead. */
+    max-height: calc(100dvh - 64px - 75px - 110px);
+  }
+}
+/* Short/landscape viewports — pull the card up closer to the action
+   buttons so it has more room to breathe before it needs to scroll. */
+@media(max-height:500px) {
+  .info-card { top:60px; max-height: calc(100dvh - 60px - 20px); }
+}
+
 .info-header {
   padding:14px 18px; background:#4d6a79; color:#ffffff;
   font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -112,14 +143,19 @@ nav.nav-hidden ~ .map-container .app-frame {
 .close-info       { cursor:pointer; font-size:14px; opacity:0.8; flex-shrink:0; }
 .close-info:hover { opacity:1; }
 
-.info-table             { width:100%; border-collapse:collapse; }
+/* table-layout:fixed makes the 50/50 column split a hard rule instead of a
+   hint — with the default "auto" layout, an unbreakable value (a long
+   number, a dimension string with no spaces) could force the table wider
+   than .info-card, which is what was still overflowing on mobile. */
+.info-table             { width:100%; border-collapse:collapse; table-layout:fixed; }
 .info-table tr          { border-bottom:1px solid var(--border-glass); }
 .info-table th {
   width:50%; padding:14px 16px; text-align:left;
   font-size:12px; color:var(--text-muted);
   background:var(--bg-glass); font-family:var(--font-body); font-weight:600;
+  overflow-wrap:break-word;
 }
-.info-table td { padding:14px 16px; font-size:13px; color:var(--text-primary); }
+.info-table td { padding:14px 16px; font-size:13px; color:var(--text-primary); overflow-wrap:break-word; }
 
 /* ── Shared card + section utilities ─── */
 .card { background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-lg); padding:28px; backdrop-filter:blur(20px); transition:border-color 0.3s; }

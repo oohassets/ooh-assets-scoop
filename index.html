@@ -6,6 +6,15 @@
     <title>SCOOP OOH Assets</title>
 
     <script>(function(){const t=localStorage.getItem("scoop-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();</script>
+
+    <!-- Warm up the connection to Google Maps ahead of time — the Assets
+         Location embed (assets/js/maps.js) is a cross-origin iframe whose
+         DNS/TLS handshake would otherwise only start once a location is
+         clicked. -->
+    <link rel="preconnect" href="https://www.google.com">
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="./assets/js/pwa.js"></script>
     <script type="module" src="./assets/js/app.js"></script>
@@ -130,12 +139,12 @@
         <!-- User profile avatar + dropdown -->
         <div class="user-avatar-wrap" id="userAvatarWrap">
           <button class="user-avatar" id="userAvatarBtn" title="My Account">
-            <span id="navAvatarInitials">U</span>
+            <span id="navAvatarInitials"><span class="material-symbols-outlined">person</span></span>
           </button>
           <div class="user-dropdown" id="userDropdown">
             <div class="user-dropdown-profile">
               <div class="user-dropdown-avatar-lg">
-                <span id="userDropdownInitials">U</span>
+                <span id="userDropdownInitials"><span class="material-symbols-outlined">person</span></span>
               </div>
               <div class="user-dropdown-info">
                 <div class="user-dropdown-name" id="userDropdownName">User</div>
@@ -168,6 +177,10 @@
         MAP AREA
     ══════════════════════════════════════════ -->
     <div class="map-container">
+
+      <div class="app-loading-overlay" id="appLoadingOverlay">
+        <div class="app-loading-spinner"></div>
+      </div>
 
       <div class="map-overlay">
         <button class="info-btn" onclick="toggleInfoCard()" title="View Asset Details">

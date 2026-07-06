@@ -70,6 +70,41 @@ export function initNavScroll() {
   updateNavAtTop();
 }
 
+// Mobile/tablet only; how far (px) the user must drag down before it fires.
+const PULL_REFRESH_THRESHOLD  = 70;
+const PULL_REFRESH_MAX_WIDTH  = 1024;
+
+/**
+ * Custom pull-to-refresh for mobile/tablet: dragging down while already
+ * scrolled to the very top of #app-content reloads the page. #app-content
+ * is a fixed-position div with its own internal scroll (not the document),
+ * so the browser's native pull-to-refresh — which only watches document
+ * scroll — never fires here; this reimplements the gesture by hand.
+ */
+export function initPullToRefresh() {
+  const frame = document.getElementById('app-content');
+  if (!frame) return;
+
+  let startY = null;
+
+  frame.addEventListener('touchstart', (e) => {
+    const isMobileOrTablet = window.innerWidth <= PULL_REFRESH_MAX_WIDTH;
+    startY = (isMobileOrTablet && frame.scrollTop <= 0) ? e.touches[0].clientY : null;
+  }, { passive: true });
+
+  frame.addEventListener('touchmove', (e) => {
+    if (startY === null) return;
+    // Bail out once the user has scrolled away from the top.
+    if (frame.scrollTop > 0) { startY = null; return; }
+    if (e.touches[0].clientY - startY > PULL_REFRESH_THRESHOLD) {
+      startY = null;
+      window.location.reload();
+    }
+  }, { passive: true });
+
+  frame.addEventListener('touchend', () => { startY = null; }, { passive: true });
+}
+
 /**
  * Swap the nav's right-side content: on Dashboard/Splash it shows the
  * chatbot/notification/avatar icon cluster; on every other page it shows

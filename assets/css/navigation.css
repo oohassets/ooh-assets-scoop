@@ -36,8 +36,6 @@ nav.nav-hidden {
 .nav-logo:hover .nav-logo-mark { box-shadow:0 0 0 2px var(--accent-indigo); }
 .nav-logo-mark img { width:100%; height:100%; object-fit:contain; transition:transform 0.2s; }
 .nav-logo:hover .nav-logo-mark img { transform:scale(1.08); }
-.nav-logo-mark.spinning img { animation:logoSpin 0.55s cubic-bezier(0.4,0,0.2,1) forwards; }
-@keyframes logoSpin { to { transform:rotate(360deg); } }
 .nav-brand      { font-family:var(--font-body); font-weight:700; font-size:14px; color:var(--text-primary); white-space:nowrap; }
 
 /* Center links */
@@ -508,6 +506,14 @@ nav.nav-hidden {
 .user-dropdown-item--signout:hover {
   background: rgba(229,72,77,0.10); color: var(--accent-rose);
 }
+
+/* Theme toggle previews the mode it switches TO (its own label/icon already
+   say "Dark Mode" / "Light Mode") rather than the current mode — so in
+   light mode it hovers dark, and in dark mode it hovers light. These are
+   literal colors (not theme tokens) since they intentionally represent the
+   *other* theme's palette, not whichever one is currently active. */
+[data-theme="light"] #userThemeToggle:hover { background:#1C1F23; color:#F3F4F5; }
+[data-theme="dark"]  #userThemeToggle:hover { background:#DDE5F5; color:#0A1628; }
 
 /* ── Responsive breakpoints ─────────── */
 @media(max-width:900px) {

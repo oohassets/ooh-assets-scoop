@@ -13,6 +13,13 @@ let currentMapUrl = maps["assets"];
 
 export function getCurrentMapUrl() { return currentMapUrl; }
 
+// The Google My Maps embed itself is what's slow to load (third-party, out
+// of our control) — hide that behind the same spinner used for app boot,
+// and clear it once the iframe actually finishes loading.
+document.getElementById("mapFrame")?.addEventListener("load", () => {
+  document.getElementById("appLoadingOverlay")?.classList.add("hide");
+});
+
 async function switchView(htmlPath, cssPath, viewModulePath) {
   console.log(`[SCOOP] → ${htmlPath}`);
 
@@ -142,7 +149,12 @@ export async function openViewScreen() {
 export function setMap(key) {
   if (!maps[key]) return;
   currentMapKey = key;
-  currentMapUrl = maps[key];
+  // Re-selecting the map that's already loaded shouldn't re-trigger a full
+  // iframe reload (and its slow round-trip to Google) — only swap src, and
+  // show the loading spinner, when the URL is actually changing.
+  const nextUrl    = maps[key];
+  const urlChanged = nextUrl !== currentMapUrl;
+  currentMapUrl    = nextUrl;
   updateInfoCard(key);
 
   // Cleanup current view and any page-specific inline styles
@@ -150,10 +162,17 @@ export function setMap(key) {
   currentView = null;
   document.querySelectorAll("style[data-page-style]").forEach(s => s.remove());
 
-  const mapFrame   = document.getElementById("mapFrame");
-  const appContent = document.getElementById("app-content");
-  const pageOrbs   = document.getElementById("page-orbs");
-  if (mapFrame)   { mapFrame.style.display = "block"; mapFrame.src = currentMapUrl; }
+  const mapFrame       = document.getElementById("mapFrame");
+  const appContent     = document.getElementById("app-content");
+  const pageOrbs       = document.getElementById("page-orbs");
+  const loadingOverlay = document.getElementById("appLoadingOverlay");
+  if (mapFrame) {
+    mapFrame.style.display = "block";
+    if (urlChanged) {
+      loadingOverlay?.classList.remove("hide");
+      mapFrame.src = currentMapUrl;
+    }
+  }
   if (appContent) { appContent.style.display = "none"; appContent.scrollTop = 0; }
   if (pageOrbs)   pageOrbs.style.display   = "none";
   toggleOverlay(true);
