@@ -1,40 +1,63 @@
-/* ── Google Maps embed data ──────────────────────────────── */
+/* ── Asset location & map data (sourced from RTDB `assetmap`) ──
+   Rows carry: id, name, parent_id, sort_order, map_link. A row's own "id"
+   is the same id used in the "assetrate" table (see asset-rates.js), and
+   a blank parent_id marks a root/column node (Digital Assets, Static
+   Assets, Assets). Everything else is nested under its parent_id and
+   ordered by sort_order. */
+import { rtdb } from "../../firebase/firebase.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-export const maps = {
-  "assets":               "https://www.google.com/maps/d/u/0/embed?mid=1O9QdapVXTxIAc27SDk8ELyLVISIOVB4&noprof=1&hl=en",
-  "digital":              "https://www.google.com/maps/d/u/0/embed?mid=1t_EhNntR3I06WqkHaqzRDvYjHrXCdbM&noprof=1&hl=en",
-  "underpass":            "https://www.google.com/maps/d/u/0/embed?mid=15JQiSPepcZmeo4aDskMY6OWGiAF5Gdg&noprof=1&hl=en",
-  "underpass-entrance":   "https://www.google.com/maps/d/u/0/embed?mid=1E6NPWl93orbNijhr5zH4Orb2aWT_z5o&noprof=1&hl=en",
-  "underpass-exit":       "https://www.google.com/maps/d/u/0/embed?mid=1m9aRQtqlbbdEJYmjzNOcds_fPXZe0PM&noprof=1&hl=en",
-  "udctower":             "https://www.google.com/maps/d/u/0/embed?mid=1TiVuDE320ZUxLN2Mdydi3-YgYoOim4M&noprof=1&hl=en",
-  "monoprix":             "https://www.google.com/maps/d/u/0/embed?mid=1z8NjNY3ZIUG7YrnNeam7uqZbX0x1jNY&noprof=1&hl=en",
-  "qqscreen":             "https://www.google.com/maps/d/u/0/embed?mid=1k4h99g2dTfmTrIzY3Js7M92j8BOTpkk&noprof=1&hl=en",
-  "mupi":                 "https://www.google.com/maps/d/u/0/embed?mid=1vOMNPiS5Y-HrRRHCR1KcJhUcXn9xwEw&noprof=1&hl=en",
-  "mupi-c1":              "https://www.google.com/maps/d/u/0/embed?mid=1BrVkhO1Lg0HRAKHpGeH74zEDztPX-pE&noprof=1&hl=en",
-  "mupi-c2":              "https://www.google.com/maps/d/u/0/embed?mid=1MajcJPKIVulbFbP5yotE1NxGdhElf_k&noprof=1&hl=en",
-  "gewan":                "https://www.google.com/maps/d/u/0/embed?mid=1SFDoLXZLLc2-B3se_7_qjfZcf2ZYNDs&noprof=1&hl=en",
-  "gewan-c1":             "https://www.google.com/maps/d/u/0/embed?mid=1wrqeO7Do01Qi-opFeeALKHALMdYyRN8&noprof=1&hl=en",
-  "gewan-c2":             "https://www.google.com/maps/d/u/0/embed?mid=1nPSY9CLK2ylFcBmWyf87oQrmQy7wF3A&noprof=1&hl=en",
-  "gewan-building":       "https://www.google.com/maps/d/u/0/embed?mid=166LX-hEhyLkOiYMXHkFeWFcV-i7hW-w&noprof=1&hl=en",
-  "lightpoles-me-mb-mc":  "https://www.google.com/maps/d/u/0/embed?mid=1gDh_bZEpRLSaat86k1w98xUendnKYWU&noprof=1&hl=en",
-  "lightpoles-me-mb":     "https://www.google.com/maps/d/u/0/embed?mid=1Gz9picEAgT-cCahubRivimvxR_RWR6U&noprof=1&hl=en",
-  "lightpoles-me":        "https://www.google.com/maps/d/u/0/embed?mid=1QdozkvfmFHSKl4-WbGsxYRZSY4F4Efw&noprof=1&hl=en",
-  "lightpoles-me-c1":     "https://www.google.com/maps/d/u/0/embed?mid=10dH5uxmKgTJVg4fHtAjrZMDcAl8rwGY&noprof=1&hl=en",
-  "lightpoles-me-c2":     "https://www.google.com/maps/d/u/0/embed?mid=1MCsELJCQAFr3XEtW-0EQz7xqaEjxmwY&noprof=1&hl=en",
-  "lightpoles-me-c3":     "https://www.google.com/maps/d/u/0/embed?mid=134Qm5HV3pu0vGEc3MZKVWNSso6v6a7Q&noprof=1&hl=en",
-  "lightpoles-mb":        "https://www.google.com/maps/d/u/0/embed?mid=1GjWw7-wVWV1Fk_-RNwr3egYdvFGX6Ps&noprof=1&hl=en",
-  "lightpoles-mb-c1":     "https://www.google.com/maps/d/u/0/embed?mid=1LUgg-DxCO4Z6ZosnYyyCORfOFmjp9ec&noprof=1&hl=en",
-  "lightpoles-mb-c2":     "https://www.google.com/maps/d/u/0/embed?mid=1mCE2soYkBCj5FCz5wA_gBpch98Jo0Cw&noprof=1&hl=en",
-  "lightpoles-mb-c3":     "https://www.google.com/maps/d/u/0/embed?mid=19zR16bM8uBvhfAejf2WfDnX5w5Dt0Bs&noprof=1&hl=en",
-  "lightpoles-mc":        "https://www.google.com/maps/d/u/0/embed?mid=1-2OwVCSXdxbJ5EMrL86ziAYYyxpWWLY&noprof=1&hl=en",
-  "lightpoles-pa":        "https://www.google.com/maps/d/u/0/embed?mid=1i_evQjZALeMbNR5qAu7y550-FpztPMM&noprof=1&hl=en",
-  "lightpoles-pa-c1":     "https://www.google.com/maps/d/u/0/embed?mid=1VnQurtB2nj6Wn5Kusx4-iv7Ty1iMQZM&noprof=1&hl=en",
-  "lightpoles-pa-c2":     "https://www.google.com/maps/d/u/0/embed?mid=17gxQvvE533Haw5NZ664MG_fftFcu1Yw&noprof=1&hl=en",
-  "lightpoles-pa-c3":     "https://www.google.com/maps/d/u/0/embed?mid=148DGkNNWesU5NXgRjdLF_SN2vMFZ0YM&noprof=1&hl=en",
-  "lightpoles-pa-c4":     "https://www.google.com/maps/d/u/0/embed?mid=1nu4ao35FX9BxwqQJy5UFZodZD2CaRQ4&noprof=1&hl=en",
-  "mupi-pa":              "https://www.google.com/maps/d/u/0/embed?mid=1FfdQf0DTJHPt7B4u1MwHcXGkTKeY7Wo&noprof=1&hl=en",
-  "mupi-pa-c1":           "https://www.google.com/maps/d/u/0/embed?mid=1i1_Q16qBXVmpyIoSoxy5tuYTjjrGuh4&noprof=1&hl=en",
-  "mupi-pa-c2":           "https://www.google.com/maps/d/u/0/embed?mid=1ImXsQCd1FN0PMP_QiYdOq5Kk3D5fUgE&noprof=1&hl=en",
-  "mupi-pa-c3":           "https://www.google.com/maps/d/u/0/embed?mid=1Bn9qg0voB7acWefrsldjCh4nFcd-Alw&noprof=1&hl=en",
-  "mupi-pa-low":          "https://www.google.com/maps/d/u/0/embed?mid=1JhqYIESVivHiJO-PLFciKR-9HWLSqqc&noprof=1&hl=en",
-};
+// Populated by loadAssetMap(): id → map_link. Exported as a stable object
+// reference (mutated in place, never reassigned) so modules that imported
+// `{ maps }` before the fetch resolved still see the populated data.
+export const maps = {};
+
+let rowsCache = null;
+let treeCache = [];
+
+async function fetchAssetMapRows() {
+  if (rowsCache) return rowsCache;
+  const snap = await get(ref(rtdb, "assetmap"));
+  rowsCache = snap.exists() ? Object.values(snap.val()) : [];
+  return rowsCache;
+}
+
+function sortOrderOf(row) {
+  return Number(row.sort_order ?? row.sort_id ?? 0) || 0;
+}
+
+function buildTree(rows) {
+  const byId = {};
+  rows.forEach(row => { if (row?.id) byId[row.id] = { ...row, children: [] }; });
+
+  const roots = [];
+  rows.forEach(row => {
+    if (!row?.id) return;
+    const node   = byId[row.id];
+    const parent = row.parent_id ? byId[row.parent_id] : null;
+    (parent ? parent.children : roots).push(node);
+  });
+
+  const sortRec = (list) => {
+    list.sort((a, b) => sortOrderOf(a) - sortOrderOf(b));
+    list.forEach(n => sortRec(n.children));
+  };
+  sortRec(roots);
+  return roots;
+}
+
+/**
+ * Fetches the "assetmap" table once, populates `maps` (id → map_link) and
+ * builds the parent/child tree used to render the Assets Location menus.
+ */
+export async function loadAssetMap() {
+  const rows = await fetchAssetMapRows();
+  rows.forEach(row => { if (row?.id) maps[row.id] = row.map_link; });
+  treeCache = buildTree(rows);
+  return treeCache;
+}
+
+/** Root nodes (Digital Assets, Static Assets, Assets), each with `.children`. */
+export function getAssetTree() {
+  return treeCache;
+}

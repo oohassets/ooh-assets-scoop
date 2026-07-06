@@ -11,6 +11,8 @@ import { ref, get }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-
 import { initTheme }   from "./theme.js";
 import { initDock, initNavScroll } from "./navigation.js";
 import { toggleInfoCard, updateInfoCard } from "./asset-rates.js";
+import { loadAssetMap } from "./maps.js";
+import { renderAssetsMegaDropdown, renderAssetsMobilePanel } from "./asset-location-menu.js";
 import { getCurrentMapUrl } from "./router.js";
 import {
   loadFromURL,
@@ -35,6 +37,13 @@ window.setMap                  = setMap;
 window.setMapAndClose          = setMapAndClose;
 window.toggleInfoCard          = toggleInfoCard;
 window.copyGoogleMapLink       = () => copyGoogleMapLink(getCurrentMapUrl());
+
+// Kick off the assetmap fetch as early as possible — routing (deep-linked
+// ?map= URLs) and the Assets Location menus both depend on it.
+const assetMapReady = loadAssetMap().catch(err => {
+  console.error("[SCOOP] Failed to load asset map:", err);
+  return [];
+});
 
 // ── Helpers ───────────────────────────────────────────────
 function getInitials(name) {
@@ -99,6 +108,7 @@ requireAuth(async (user) => {
   // Load the initial view only once, after auth confirms user identity
   if (firstLoad) {
     firstLoad = false;
+    await assetMapReady; // ensure maps[] is populated before resolving ?map= deep links
     loadFromURL();
   }
 });
@@ -116,6 +126,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Notification bell
   initNotifications();
+
+  // Assets Location menus (desktop mega-dropdown + mobile dock panel)
+  assetMapReady.then(() => {
+    renderAssetsMegaDropdown();
+    renderAssetsMobilePanel();
+  });
 
   // Logo → manual page refresh with spin animation
   document.querySelector(".nav-logo")?.addEventListener("click", () => {

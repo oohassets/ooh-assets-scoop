@@ -68,95 +68,8 @@
           </button>
           <div class="mega-dropdown">
 
-            <div class="mega-column">
-              <div class="mega-title"><a onclick="setMap('digital')">Digital Assets</a></div>
-
-              <div class="hover-item">
-                <div class="hover-title"><a onclick="setMap('underpass')">Underpass</a><span>›</span></div>
-                <div class="hover-submenu">
-                  <a onclick="setMap('underpass-entrance')">Underpass Entrance</a>
-                  <a onclick="setMap('underpass-exit')">Underpass Exit</a>
-                </div>
-              </div>
-
-              <div class="hover-item">
-                <div class="hover-title"><a onclick="setMap('mupi')">Mupi</a><span>›</span></div>
-                <div class="hover-submenu">
-                  <a onclick="setMap('mupi-c1')">Mupi Circuit 1</a>
-                  <a onclick="setMap('mupi-c2')">Mupi Circuit 2</a>
-                </div>
-              </div>
-
-              <div class="hover-item">
-                <div class="hover-title"><a onclick="setMap('gewan')">Gewan Crystal Walk</a><span>›</span></div>
-                <div class="hover-submenu">
-                  <a onclick="setMap('gewan-c1')">Gewan Crystal Walk Circuit 1</a>
-                  <a onclick="setMap('gewan-c2')">Gewan Crystal Walk Circuit 2</a>
-                  <a onclick="setMap('gewan-building')">Gewan Crystal Building</a>
-                </div>
-              </div>
-
-              <div class="hover-item"><div class="hover-title"><a onclick="setMap('udctower')">UDC Tower</a></div></div>
-              <div class="hover-item"><div class="hover-title"><a onclick="setMap('monoprix')">Monoprix</a></div></div>
-              <div class="hover-item"><div class="hover-title"><a onclick="setMap('qqscreen')">Qanat Quartier Screen</a></div></div>
-            </div>
-
-            <div class="mega-column">
-              <div class="mega-title"><a onclick="setMap('lightpoles-me-mb-mc')">Static Assets</a></div>
-
-              <div class="hover-item">
-                <div class="hover-title"><a onclick="setMap('lightpoles-me-mb')">Light Poles Main Circuits</a><span>›</span></div>
-                <div class="hover-submenu">
-                  <div class="hover-item sub">
-                    <div class="hover-title"><a onclick="setMap('lightpoles-me')">Main Entrance</a><span>›</span></div>
-                    <div class="hover-submenu deep">
-                      <a onclick="setMap('lightpoles-me-c1')">Main Entrance Circuit 1</a>
-                      <a onclick="setMap('lightpoles-me-c2')">Main Entrance Circuit 2</a>
-                      <a onclick="setMap('lightpoles-me-c3')">Main Entrance Circuit 3</a>
-                    </div>
-                  </div>
-                  <div class="hover-item sub">
-                    <div class="hover-title"><a onclick="setMap('lightpoles-mb')">Main Boulevard</a><span>›</span></div>
-                    <div class="hover-submenu deep">
-                      <a onclick="setMap('lightpoles-mb-c1')">Main Boulevard Circuit 1</a>
-                      <a onclick="setMap('lightpoles-mb-c2')">Main Boulevard Circuit 2</a>
-                      <a onclick="setMap('lightpoles-mb-c3')">Main Boulevard Circuit 3</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="hover-item"><div class="hover-title"><a onclick="setMap('lightpoles-mc')">Light Poles Medina Centrale</a></div></div>
-
-              <div class="hover-item">
-                <div class="hover-title"><a onclick="setMap('lightpoles-pa')">Light Poles Porto Arabia</a><span>›</span></div>
-                <div class="hover-submenu">
-                  <a onclick="setMap('lightpoles-pa-c1')">Light Poles Porto Arabia Circuit 1</a>
-                  <a onclick="setMap('lightpoles-pa-c2')">Light Poles Porto Arabia Circuit 2</a>
-                  <a onclick="setMap('lightpoles-pa-c3')">Light Poles Porto Arabia Circuit 3</a>
-                  <a onclick="setMap('lightpoles-pa-c4')">Light Poles Porto Arabia Circuit 4</a>
-                </div>
-              </div>
-
-              <div class="hover-item">
-                <div class="hover-title"><a onclick="setMap('mupi-pa')">Mupi Porto Arabia</a><span>›</span></div>
-                <div class="hover-submenu">
-                  <a onclick="setMap('mupi-pa-c1')">Mupi Porto Arabia Circuit 1</a>
-                  <a onclick="setMap('mupi-pa-c2')">Mupi Porto Arabia Circuit 2</a>
-                  <a onclick="setMap('mupi-pa-c3')">Mupi Porto Arabia Circuit 3</a>
-                  <a onclick="setMap('mupi-pa-low')">Mupi Porto Arabia Low Visibility</a>
-                </div>
-              </div>
-            </div>
-
-            <div class="mega-column" style="min-width:160px;max-width:180px;">
-              <div class="mega-title">3D View</div>
-              <a class="mega-earth-link"
-                href="https://earth.google.com/web/@25.37272326,51.53164098,1.04532372a,1440.22784026d,35y,99.15131406h,66.75047323t,0r/data=CgRCAggBMikKJwolCiExTlJHcTlTb2tDX1JMc0ppVGI5RkVoX256cWs2WXcwSzcgAToDCgEwQgIIAEoICMGWp80HEAE?authuser=0"
-                target="_blank" rel="noopener noreferrer">
-                🌍 View 3D Asset Locations<br>in Google Earth
-              </a>
-            </div>
+            <!-- Digital/Static/Assets columns are rendered from RTDB `assetmap` — see asset-location-menu.js -->
+            <div id="assetsMegaColumns" style="display:contents"></div>
 
           </div>
         </div>
@@ -322,69 +235,8 @@
         <button class="asset-header" onclick="setMapAndClose('assets')">Asset Location</button>
       </div>
 
-      <button class="asset-section-title" onclick="setMapAndClose('digital')">Digital Assets</button>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('underpass')">Underpass</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('underpass-entrance')">Underpass Entrance</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('underpass-exit')">Underpass Exit</button>
-      </div>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('mupi')">Mupi</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-c1')">Mupi Circuit 1</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-c2')">Mupi Circuit 2</button>
-      </div>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('gewan')">Gewan Crystal Walk</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('gewan-c1')">Gewan Crystal Walk Circuit 1</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('gewan-c2')">Gewan Crystal Walk Circuit 2</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('gewan-building')">Gewan Crystal Building</button>
-      </div>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('udctower')">UDC Tower</button>
-        <button class="asset-group-title" onclick="setMapAndClose('monoprix')">Monoprix</button>
-        <button class="asset-group-title" onclick="setMapAndClose('qqscreen')">Qanat Quartier Screen</button>
-      </div>
-
-      <button class="asset-section-title" onclick="setMapAndClose('lightpoles-me-mb-mc')">Static Assets</button>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-me')">Light Poles Main Entrance</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c1')">Main Entrance Circuit 1</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c2')">Main Entrance Circuit 2</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-me-c3')">Main Entrance Circuit 3</button>
-      </div>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-mb')">Light Poles Main Boulevard</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c1')">Circuit 1</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c2')">Circuit 2</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mb-c3')">Circuit 3</button>
-      </div>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-mc')">Light Poles Medina Centrale</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-mc')">Medina Centrale Circuit 1</button>
-      </div>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('lightpoles-pa')">Light Poles Porto Arabia</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c1')">Circuit 1</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c2')">Circuit 2</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c3')">Circuit 3</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('lightpoles-pa-c4')">Circuit 4</button>
-      </div>
-
-      <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('mupi-pa')">Mupi Porto Arabia, Boardwalk</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c1')">Mupi Boardwalk Circuit 1</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c2')">Mupi Boardwalk Circuit 2</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-c3')">Mupi Boardwalk Circuit 3</button>
-        <button class="asset-group-submenu" onclick="setMapAndClose('mupi-pa-low')">Mupi Boardwalk Low Visibility</button>
-      </div>
+      <!-- Digital/Static sections are rendered from RTDB `assetmap` — see asset-location-menu.js -->
+      <div id="assetsPanelGenerated"></div>
     </div>
 
     <!-- Services Panel -->

@@ -102,7 +102,7 @@ nav.nav-hidden {
 .hover-item:hover > .hover-title span       { transform:translateX(3px); }
 
 .hover-submenu {
-  display:none; position:absolute; left:calc(100% + 8px); top:0;
+  display:none; position:absolute; left:calc(100% + 1px); top:0;
   background:var(--nav-bg); border:1px solid var(--border-glass);
   border-radius:12px; padding:10px; min-width:200px;
   box-shadow:0 16px 40px rgba(0,0,0,0.25); backdrop-filter:blur(24px); z-index:300;
@@ -116,7 +116,7 @@ nav.nav-hidden {
 .hover-submenu a.active { background:rgba(200,58,80,0.12); color:var(--accent-cyan); font-weight:600; }
 
 /* Deep (3rd-level) submenu */
-.hover-submenu.deep          { position:absolute; left:calc(100% + 8px); top:0; display:none; }
+.hover-submenu.deep          { position:absolute; left:calc(100% + 1px); top:0; display:none; }
 .hover-item.sub:hover > .hover-submenu.deep { display:block; }
 .hover-item.sub .hover-title { padding:6px 8px; font-size:12px; }
 
