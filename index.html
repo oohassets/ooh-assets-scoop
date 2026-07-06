@@ -235,18 +235,22 @@
         <button class="asset-header" onclick="setMapAndClose('assets')">Asset Location</button>
       </div>
 
-      <!-- Digital/Static sections are rendered from RTDB `assetmap` — see asset-location-menu.js -->
-      <div id="assetsPanelGenerated"></div>
+      <div class="panel-body">
+        <!-- Digital/Static sections are rendered from RTDB `assetmap` — see asset-location-menu.js -->
+        <div id="assetsPanelGenerated"></div>
+      </div>
     </div>
 
     <!-- Services Panel -->
     <div class="dock-panel" id="servicesPanel">
       <div class="panel-header">Services</div>
-      <div class="panel-content">
-        <button onclick="openVehicleReport()">Visitors</button>
-        <button onclick="openAssetDimensionChecker()">Asset Dimension Checker</button>
-        <button onclick="openImageCompressor()">Bulk Image Compressor</button>
-        <button onclick="openViewScreen()">View Screen</button>
+      <div class="panel-body">
+        <div class="panel-content">
+          <button onclick="openVehicleReport()">Visitors</button>
+          <button onclick="openAssetDimensionChecker()">Asset Dimension Checker</button>
+          <button onclick="openImageCompressor()">Bulk Image Compressor</button>
+          <button onclick="openViewScreen()">View Screen</button>
+        </div>
       </div>
     </div>
     

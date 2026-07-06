@@ -44,7 +44,7 @@ export async function updateInfoCard(mapKey) {
 
   const isStatic = (details.category || "").toLowerCase() === "static";
   card.dataset.hasdata = "true";
-  header.innerHTML = `Asset Rate Card › ${details.name || "Asset"}<span class="close-info" onclick="toggleInfoCard()">✕</span>`;
+  header.innerHTML = `<span class="info-header-text">Asset Rate Card › ${details.name || "Asset"}</span><span class="close-info" onclick="toggleInfoCard()">✕</span>`;
 
   const countLabel = isStatic ? "Faces" : "Screens";
   const feeLabel   = isStatic ? "Production &amp; Installation" : "Upload Fee";
