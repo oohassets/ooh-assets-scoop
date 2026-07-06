@@ -60,15 +60,17 @@ nav.nav-hidden ~ .map-container .app-frame {
 @media(max-width:768px) {
   .info-card {
     width: calc(100vw - 40px); right:20px;
-    /* Leave room above the mobile dock so a tall card scrolls internally
-       instead of overflowing past the bottom of the viewport. */
-    max-height: calc(100vh - 64px - 75px - 110px);
+    /* dvh (not vh) — vh includes the space behind a mobile browser's
+       collapsible address bar, which overstates the real visible height
+       and let the card overflow past the bottom of the screen. Leave room
+       above the mobile dock so a tall card scrolls internally instead. */
+    max-height: calc(100dvh - 64px - 75px - 110px);
   }
 }
 /* Short/landscape viewports — pull the card up closer to the action
    buttons so it has more room to breathe before it needs to scroll. */
 @media(max-height:500px) {
-  .info-card { top:60px; max-height: calc(100vh - 60px - 20px); }
+  .info-card { top:60px; max-height: calc(100dvh - 60px - 20px); }
 }
 
 /* ── Overlay (hides Google branding) ─── */
@@ -86,7 +88,7 @@ nav.nav-hidden ~ .map-container .app-frame {
 /* ── Asset info card ──────────────────── */
 .info-card {
   position:absolute; top:75px; right:20px;
-  width:400px; max-height:calc(100vh - 120px);
+  width:400px; max-height:calc(100dvh - 120px);
   background:var(--bg-card); border:1px solid var(--border-glass);
   border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.25);
   overflow-y:auto; z-index:999; display:none;

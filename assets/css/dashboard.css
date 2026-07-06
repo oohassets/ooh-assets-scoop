@@ -16,6 +16,9 @@
 #cursor { position:fixed; width:16px; height:16px; border-radius:50%; background:var(--accent-indigo); pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:transform 0.1s,width 0.2s,height 0.2s,opacity 0.2s; mix-blend-mode:screen; opacity:0.7; }
 #cursor-ring { position:fixed; width:36px; height:36px; border-radius:50%; border:1.5px solid var(--accent-cyan); pointer-events:none; z-index:9997; transform:translate(-50%,-50%); transition:transform 0.15s ease-out,width 0.2s,height 0.2s; opacity:0.4; }
 
+/* ── Section titles (Updates / Visitors / Trends) ─── */
+.section-title { font-size:22px; }
+
 /* ── Stats grid ───────────────────────── */
 .stats-grid {
   max-width:1300px;
@@ -192,10 +195,14 @@ main { padding:2rem 2rem 4rem; max-width:1400px; margin:0 auto; }
   .stat-value { font-size:clamp(24px,5vw,32px); }
   .stat-sub   { font-size:11px; }
   .stat-trend { font-size:11px; }
+
+  .section-title { font-size:17px; }
 }
 @media(max-width:400px) {
   .stats-grid { gap:10px; }
   .stat-card  { min-height:120px; padding:12px; }
   .stat-value { font-size:22px; }
   .stat-label, .stat-sub, .stat-trend { font-size:10px; }
+
+  .section-title { font-size:16px; }
 }
