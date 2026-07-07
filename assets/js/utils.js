@@ -122,3 +122,31 @@ export function setURL(params = {}) {
 export function copyGoogleMapLink(url) {
   navigator.clipboard.writeText(url).then(() => alert("Google Map link copied!"));
 }
+
+/**
+ * Scroll-reveal: fades/slides in every `.reveal` element (see the CSS rule
+ * in theme.css) once it scrolls into the middle band of the viewport,
+ * instead of the instant it merely touches an edge — so the reveal is
+ * still visibly happening while the section is on screen. Elements already
+ * on screen at call time (e.g. above-the-fold content right after a page
+ * load) are shown immediately with no animation, since animating something
+ * the user can already see just reads as flicker.
+ * Returns a disconnect() fn a view's cleanup() can call, though most views
+ * don't bother since navigating away replaces the whole DOM subtree anyway.
+ */
+export function initScrollReveal(root = document) {
+  const reveals = root.querySelectorAll(".reveal:not(.reveal-bound)");
+  if (!reveals.length) return () => {};
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0, rootMargin: "-40% 0px -40% 0px" }); // fires once the element crosses the middle ~20% of the viewport
+  reveals.forEach(el => {
+    el.classList.add("reveal-bound");
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) { el.classList.add("visible"); return; }
+    observer.observe(el);
+  });
+  return () => observer.disconnect();
+}

@@ -1,6 +1,7 @@
 /* ── Bookings View Module ─────────────────────────────────── */
 import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { initScrollReveal } from "../utils.js";
 
 let currentUserName     = "";
 // Person is saved (and matched against, for the edit-button ownership
@@ -2044,6 +2045,8 @@ export async function init(userName) {
 
   appContent?.addEventListener("scroll", onScroll, { passive: true });
   _cleanupFns = [() => appContent?.removeEventListener("scroll", onScroll)];
+
+  initScrollReveal();
 }
 
 export function cleanup() {

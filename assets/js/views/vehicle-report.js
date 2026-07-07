@@ -1,6 +1,7 @@
 /* ── Vehicle Traffic Report View Module ─────────────────── */
 import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { initScrollReveal } from "../utils.js";
 
 const adsPerMinute = 6;
 const personPerCar = 2;
@@ -634,6 +635,8 @@ export async function init() {
   renderCircuitSlicer();
 
   await loadData();
+
+  initScrollReveal();
 }
 
 export function cleanup() {

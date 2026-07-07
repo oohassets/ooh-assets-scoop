@@ -455,7 +455,7 @@ function renderActivityGrid(allTables, container) {
                 ? `<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`
                 : ""}
             </div>
-            <div class="update-date-badge">${u.label}</div>
+            <div class="update-date-badge"${id === "ending" && u.sortDate < today ? ` style="background:rgba(229,72,77,0.08)"` : ""}>${u.label}</div>
           </div>`).join("")
       : `<div style="padding:14px 0;font-size:12px;color:var(--text-muted);">No updates</div>`;
 

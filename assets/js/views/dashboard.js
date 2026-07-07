@@ -1,6 +1,7 @@
 /* ── Dashboard View Module ───────────────────────────────── */
 import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { initScrollReveal } from "../utils.js";
 
 export let currentUserName = "";
 export function setUser(name) { currentUserName = name; }
@@ -198,7 +199,7 @@ function renderUpdates(campaigns, tables) {
           <div class="update-item-sub">${u.asset}</div>
           ${(id==="upcoming"||id==="ending")&&u.statusLabel?`<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`:""}
         </div>
-        <div class="update-date-badge">${u.label}</div>
+        <div class="update-date-badge"${id==="ending"&&u.sortDate<today?` style="background:rgba(229,72,77,0.08)"`:""}>${u.label}</div>
       </div>
     `).join("") : `<div style="padding:14px 0;font-size:12px;color:var(--text-muted);">No updates</div>`;
     return `
@@ -478,16 +479,8 @@ function initAnimations() {
     } else { cursor.style.display="none"; cursorRing.style.display="none"; }
   }
 
-  // Scroll reveal
-  const reveals = document.querySelectorAll(".reveal");
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
-  }, {threshold:0.1,rootMargin:"0px 0px -40px 0px"});
-  reveals.forEach(el => {
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight && rect.bottom > 0) { el.classList.add("visible"); return; }
-    observer.observe(el);
-  });
+  // Scroll reveal — fires as each section crosses the middle of the viewport
+  initScrollReveal();
 }
 
 // ── INIT ──────────────────────────────────────────────────

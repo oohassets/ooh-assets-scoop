@@ -98,6 +98,27 @@ body {
   transition:  background 0.4s, color 0.4s;
 }
 
+/* ── Branding pattern watermark ──────────────────────────
+   Faint, tiled SCOOP/UDC pattern behind every page. Fixed + negative
+   z-index so it always paints behind in-flow content (see CSS 2.1 painting
+   order — negative stack levels come before non-positioned descendants)
+   without having to touch the z-index of the nav or any other element.
+   The source file is a huge 8046x3117 tile, so it's scaled down to a small
+   repeat unit here (width only — height is "auto" so the aspect ratio is
+   preserved, not stretched) and then tiled/repeated to fill the page. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("../../images/udcpattern.png");
+  background-repeat: repeat;
+  background-position: top left;
+  background-size: 700px auto;
+  opacity: 0.02;
+  pointer-events: none;
+}
+
 iframe { position:relative; z-index:1; border:none; }
 
 /* ── Animated dot ─────────────────────── */

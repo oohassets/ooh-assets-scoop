@@ -1,5 +1,6 @@
 /* ── Content Inventory View Module ───────────────────────── */
 import { loadCarousel } from "../loadCarousel.js";
+import { initScrollReveal } from "../utils.js";
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -299,6 +300,7 @@ let _cleanupFns = [];
 
 export async function init() {
   await loadCarousel();
+  initScrollReveal();
 
   // ── Tab switcher ───────────────────────────────────────
   document.querySelectorAll(".circuit-tab").forEach(btn => {
