@@ -375,8 +375,9 @@ function initStatPanel(campaigns, tables) {
     pending: "var(--accent-amber)", free: "var(--accent-cyan)"
   };
 
-  function buildItems(items) {
+  function buildItems(items, type) {
     if (!items.length) return `<p class="sp-empty">No data available</p>`;
+    const today = new Date(); today.setHours(0,0,0,0);
     return items.map((item, i) => {
       const label   = item.brand && item.brand !== "—"
         ? `${item.client} - ${item.brand}` : item.client;
@@ -384,13 +385,19 @@ function initStatPanel(campaigns, tables) {
         ? `<div class="sp-circuit">${item.circuit}</div>` : "";
       const bo      = item.bo   && item.bo   !== "—" ? `<span class="sp-bo">${item.bo}</span>`   : "";
       const dates   = item.date && item.date !== "— → —" ? `<span class="sp-dates">${item.date}</span>` : "";
+      // A "Live" campaign whose End Date has already passed is still occupying
+      // its circuit — flag it "Extended" the same way content-inventory does.
+      const ed = type === "live" ? parseDate(item.rawEndDate) : null;
+      if (ed) ed.setHours(0,0,0,0);
+      const extended = ed && ed < today
+        ? `<span class="status-pill pill-extended">Extended</span>` : "";
       return `
         <div class="sp-item" style="animation-delay:${i * 0.04}s">
           <span class="sp-num">${i + 1}</span>
           <div class="sp-body">
             <div class="sp-client">${label}</div>
             ${circuit}
-            <div class="sp-meta">${bo}${dates}</div>
+            <div class="sp-meta">${bo}${dates}${extended}</div>
           </div>
         </div>`;
     }).join("");
@@ -404,7 +411,7 @@ function initStatPanel(campaigns, tables) {
     if (statusKey[type]) {
       items = campaigns
         .filter(c => c.status.toLowerCase().includes(statusKey[type]))
-        .map(c => ({ client: c.client, brand: c.brand, circuit: c.asset, bo: c.bo, date: c.date }));
+        .map(c => ({ client: c.client, brand: c.brand, circuit: c.asset, bo: c.bo, date: c.date, rawEndDate: c.rawEndDate }));
     } else if (type === "free") {
       Object.entries(tables).forEach(([tName, tData]) => {
         if (!tName.startsWith("d_") && !tName.startsWith("s_")) return;
@@ -428,7 +435,7 @@ function initStatPanel(campaigns, tables) {
 
     titleEl.textContent = titleMap[type] || "";
     countEl.textContent = `${items.length} campaign${items.length !== 1 ? "s" : ""}`;
-    bodyEl.innerHTML    = buildItems(items);
+    bodyEl.innerHTML    = buildItems(items, type);
     panel.style.setProperty("--sp-accent", accentMap[type] || "var(--accent-indigo)");
     overlay.dataset.active = type;
     overlay.classList.add("open");
