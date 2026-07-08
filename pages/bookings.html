@@ -10,53 +10,58 @@
 <!-- PAGE FILL WRAPPER (flex column; fills app-frame) -->
 <div class="bookings-page">
 
-  <!-- STICKY PAGE HEADER (actions + filter toolbar, both stick together) -->
+  <!-- STICKY PAGE HEADER (actions only — stays pinned to top on scroll) -->
   <div class="bookings-sticky-header">
     <div class="bookings-hdr-inner">
       <div class="bookings-hdr-btns">
         <button class="btn-bar-primary" id="openBookingBtn">Add Booking</button>
         <button class="btn-bar-primary" id="tabCalendar">View Calendar</button>
       </div>
+    </div>
+  </div>
 
-      <div class="toolbar">
-        <div class="search-box">
-          <span class="cal-icon material-symbols-outlined">search</span>
-          <input type="text" id="campaignSearch" placeholder="Search campaign, client, circuit…">
-        </div>
+  <!-- FILTER TOOLBAR (search / date range / status / download) — scrolls
+       away normally with the page; the schedule card takes over sticking
+       to the top (right below the header buttons) once this scrolls out. -->
+  <div class="bookings-toolbar-row">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="cal-icon material-symbols-outlined">search</span>
+        <input type="text" id="campaignSearch" placeholder="Search campaign, client, circuit…">
+      </div>
 
-        <div class="date-filter-wrap">
-          <select class="date-modern" id="dateFilterSelect"></select>
-        </div>
-        <div class="date-range-inputs" id="dateRangeInputs" hidden>
-          <input type="date" class="date-modern" id="customDateFrom">
-          <span class="date-range-arrow material-symbols-outlined">arrow_forward</span>
-          <input type="date" class="date-modern" id="customDateTo">
-          <button class="date-apply-btn" id="applyCustomDate">Apply</button>
-        </div>
+      <div class="date-filter-wrap">
+        <select class="date-modern" id="dateFilterSelect"></select>
+      </div>
+      <div class="date-range-inputs" id="dateRangeInputs" hidden>
+        <input type="date" class="date-modern" id="customDateFrom">
+        <span class="date-range-arrow material-symbols-outlined">arrow_forward</span>
+        <input type="date" class="date-modern" id="customDateTo">
+        <button class="date-apply-btn" id="applyCustomDate">Apply</button>
+      </div>
 
-        <div class="filter-box">
-          <select id="campaignStatusFilter">
-            <option value="">All Status</option>
-            <option value="Live">Live</option>
-            <option value="BO Signed">BO Signed</option>
-            <option value="Pending">Pending</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-        </div>
+      <div class="filter-box">
+        <select id="campaignStatusFilter">
+          <option value="">All Status</option>
+          <option value="Live">Live</option>
+          <option value="BO Signed">BO Signed</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
 
-        <div class="download-wrap">
-          <button class="download-btn" id="downloadBtn" title="Download report">
-            <span class="material-symbols-outlined">download</span>
+      <div class="download-wrap">
+        <button class="download-btn" id="downloadBtn" title="Download report">
+          <span class="material-symbols-outlined">download</span>
+        </button>
+        <div class="download-dropdown" id="downloadDropdown">
+          <button class="dl-opt" id="downloadPDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span>PDF
           </button>
-          <div class="download-dropdown" id="downloadDropdown">
-            <button class="dl-opt" id="downloadPDF">
-              <span class="material-symbols-outlined">picture_as_pdf</span>PDF
-            </button>
-            <button class="dl-opt" id="downloadExcel">
-              <span class="material-symbols-outlined">table_view</span>Excel
-            </button>
-          </div>
+          <button class="dl-opt" id="downloadExcel">
+            <span class="material-symbols-outlined">table_view</span>Excel
+          </button>
         </div>
       </div>
     </div>

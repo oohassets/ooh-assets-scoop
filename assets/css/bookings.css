@@ -31,6 +31,14 @@
 }
 .bookings-hdr-btns { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
 
+/* ── Filter toolbar row — NOT sticky; scrolls away with the page. Kept as
+   its own block (rather than living inside .bookings-sticky-header) so the
+   schedule card below can claim the sticky spot once this scrolls past. ── */
+.bookings-toolbar-row {
+  max-width: 1400px; margin: 0 auto;
+  padding: 10px 2rem 14px;
+}
+
 /* ── Schedule section ─────────────────────────────────── */
 #scheduleSection {
   padding: 15px;
@@ -39,9 +47,17 @@
   max-width: 1400px; width: 100%; margin: 0 auto;
 }
 /* Room below the card so the page itself has something to scroll
-   (mobile has its own larger clearance for the fixed dock, below). */
+   (mobile has its own larger clearance for the fixed dock, below).
+   Sticks to the top — right under the sticky header buttons — once the
+   (non-sticky) toolbar above it has scrolled out of view. The offset
+   tracks the header's real height via --bookings-header-h (set in
+   bookings.js with a ResizeObserver), since that height differs by
+   breakpoint rather than being a fixed value. */
 #scheduleSection .card {
   margin-bottom: 60px;
+  position: sticky;
+  top: var(--bookings-header-h, 76px);
+  z-index: 40;
 }
 .calendar-content {
   flex: 1; min-height: 0;
@@ -625,16 +641,37 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 @media(max-width:768px) {
   .bk-modal { border-radius:0 !important; max-height:100dvh; height:100dvh; }
   .bk-overlay { align-items:flex-start; }
-  /* Bring the card right up against the sticky header instead of leaving a
-     large gap (8px section pad + 28px base card pad added up to ~46px). */
+  /* Trim the card's own top padding so it doesn't leave a large gap
+     (8px section pad + 28px base card pad added up to ~46px) once it's
+     stuck under the header. */
   #scheduleSection .card { margin-bottom: 90px; padding-top: 12px; }
   .bookings-sticky-header { padding: 10px 1rem; }
   .bookings-hdr-inner { flex-wrap: wrap; gap: 8px; }
   .bookings-hdr-btns { gap: 8px; }
+  .bookings-toolbar-row { padding: 0 1rem 10px; }
   #scheduleSection{ padding: 8px; }
   .btn-bar-primary, .btn-bar-secondary { font-size: 12px; padding: 9px 16px; }
   .toolbar { gap: 8px; margin-top: 0; }
   #scheduleSection .table-container { margin-top: 0; }
+
+  /* Search box gets its own full-width row; everything else (date filter,
+     status, download) wraps to the row(s) below it. */
+  .search-box { flex: 1 1 100%; }
+
+  /* Date range/status selects read less "shouty" on mobile. */
+  .date-modern { font-weight: 400; }
+
+  /* Custom date-range inputs: own full-width row, inputs side by side and
+     free to shrink (native date-input chrome doesn't scale), Apply button
+     wraps to its own line rather than forcing horizontal overflow. */
+  .date-range-inputs {
+    flex: 1 1 100%; flex-wrap: wrap;
+  }
+  .date-range-inputs input.date-modern {
+    flex: 1 1 120px; min-width: 0; padding: 0 8px; font-size: 12px;
+  }
+  .date-range-arrow { flex: 0 0 auto; }
+  .date-apply-btn { flex: 1 1 100%; }
 
   /* Calendar as bottom-sheet panel on mobile */
   #calendarSection {
@@ -676,6 +713,21 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   .mob-date { font-size:11px; color:var(--text-muted); white-space:nowrap; }
   .mob-person { font-size:11px; color:var(--text-muted); text-align:right; }
   .mob-hdr .mob-col { font-size:10px; font-weight:700; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; }
-  .mob-thead-row td { background:var(--bg-secondary) !important; position:sticky; top:0; z-index:5; border-radius:8px !important; padding:8px 12px !important; }
+
+  /* .table-container's own overflow:auto/max-height (desktop) would make it
+     the sticky containing block for .mob-thead-row instead of #app-content —
+     but the sticky *card* it sits inside is already pinned to #app-content at
+     --bookings-header-h, so a sticky child computed against a *different*
+     scrolling ancestor drifts out of alignment (or, on cards short enough to
+     never actually overflow 75vh, sticks at top:0 and ends up hidden behind
+     the taller header instead of visibly pinned under the card). Letting the
+     page itself scroll here — same scrolling ancestor as the card — keeps
+     the header row aligned with the card at every scroll position. */
+  #scheduleSection .table-container { overflow:visible; max-height:none; }
+  .mob-thead-row td {
+    background:var(--bg-secondary) !important; position:sticky;
+    top:var(--bookings-header-h, 76px); z-index:5;
+    border-radius:8px !important; padding:8px 12px !important;
+  }
 
 }

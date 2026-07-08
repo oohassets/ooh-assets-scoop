@@ -142,4 +142,10 @@ iframe { position:relative; z-index:1; border:none; }
 
 /* ── Reveal on scroll ─────────────────── */
 .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease, transform 0.6s ease; }
-.reveal.visible { opacity:1; transform:translateY(0); }
+/* transform:none (not translateY(0)) once settled — any non-"none" transform
+   value on an ancestor creates a new containing block, which silently breaks
+   position:sticky on descendants in real browsers (e.g. the bookings page's
+   sticky card/table header living inside .bookings-content.reveal). Visually
+   identical resting frame either way, and the transition still interpolates
+   correctly from translateY(30px) to none. */
+.reveal.visible { opacity:1; transform:none; }
