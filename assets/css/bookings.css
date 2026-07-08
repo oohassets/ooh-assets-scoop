@@ -43,8 +43,16 @@
 #scheduleSection {
   padding: 15px;
 }
+/* min-height matters, not just cosmetic spacing: a sticky child's "stuck"
+   range is bounded by its containing block's own box. .card is the only
+   child here, so without this, .bookings-content's box is exactly as tall
+   as .card itself — zero slack — and .card's position:sticky silently never
+   engages (it just scrolls away like a static element) because there's no
+   room between "resting in flow" and "pushed past the bottom of its own
+   containing block" for it to visibly stick within. */
 .bookings-content {
   max-width: 1400px; width: 100%; margin: 0 auto;
+  min-height: 150vh;
 }
 /* Room below the card so the page itself has something to scroll
    (mobile has its own larger clearance for the fixed dock, below).
@@ -66,7 +74,10 @@
 }
 /* Table scrolls internally (sticky thead stays visible), but is tall
    enough — and the page itself unclipped — that both it and the page
-   can scroll rather than being locked to a single viewport-height card. */
+   can scroll rather than being locked to a single viewport-height card.
+   Bounding this also keeps .card itself short regardless of row count —
+   which .bookings-content's min-height (above) depends on to give #card's
+   own position:sticky real room to work with (see that comment). */
 #scheduleSection .table-container {
   overflow: auto;
   max-height: 75vh;
@@ -714,19 +725,27 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   .mob-person { font-size:11px; color:var(--text-muted); text-align:right; }
   .mob-hdr .mob-col { font-size:10px; font-weight:700; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; }
 
-  /* .table-container's own overflow:auto/max-height (desktop) would make it
-     the sticky containing block for .mob-thead-row instead of #app-content —
-     but the sticky *card* it sits inside is already pinned to #app-content at
-     --bookings-header-h, so a sticky child computed against a *different*
-     scrolling ancestor drifts out of alignment (or, on cards short enough to
-     never actually overflow 75vh, sticks at top:0 and ends up hidden behind
-     the taller header instead of visibly pinned under the card). Letting the
-     page itself scroll here — same scrolling ancestor as the card — keeps
-     the header row aligned with the card at every scroll position. */
-  #scheduleSection .table-container { overflow:visible; max-height:none; }
+  /* .card's own position:sticky only has room to visibly "stick" if its
+     containing block (.bookings-content) is taller than .card itself — a
+     sticky element can't travel/stay pinned past its containing block's own
+     edge. If .table-container were left unbounded (overflow:visible), .card
+     would grow to match however many rows are in the list, .bookings-content
+     would grow to match .card, and there'd be zero slack between them — the
+     card would silently never stick (this is what briefly shipped here and
+     didn't fix the reported bug). Capping table-container's height keeps
+     .card itself short regardless of row count, which both (a) gives
+     .bookings-content's min-height (see the schedule-section rule above)
+     real slack to work with, and
+     (b) is what makes .mob-thead-row's own position:sticky (top:0, relative
+     to *this* container's scrollport) have real internal scroll to stick
+     within, once the row count actually exceeds this height. */
+  #scheduleSection .table-container {
+    overflow: auto;
+    max-height: calc(100dvh - var(--bookings-header-h, 76px) - 40px);
+  }
   .mob-thead-row td {
     background:var(--bg-secondary) !important; position:sticky;
-    top:var(--bookings-header-h, 76px); z-index:5;
+    top:0; z-index:5;
     border-radius:8px !important; padding:8px 12px !important;
   }
 
