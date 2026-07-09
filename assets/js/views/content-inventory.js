@@ -311,6 +311,13 @@ export async function init() {
       document.getElementById("digitalSection").style.display  = tab === "digital"  ? "block" : "none";
       document.getElementById("staticSection").style.display   = tab === "static"   ? "block" : "none";
       document.getElementById("activitySection").style.display = tab === "activity" ? "block" : "none";
+
+      // Sections start hidden (display:none), so their .reveal children have a
+      // zero-size rect when initScrollReveal() first runs and never satisfy the
+      // "already in view" check — they'd otherwise sit at opacity:0 until a
+      // scroll happens to cross the observer's mid-viewport band. Tab switches
+      // are a deliberate action, not a scroll, so force-reveal immediately.
+      activeSection()?.querySelectorAll(".reveal").forEach(el => el.classList.add("visible"));
     });
   });
 
