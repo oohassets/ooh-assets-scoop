@@ -748,5 +748,110 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
     top:0; z-index:5;
     border-radius:8px !important; padding:8px 12px !important;
   }
+}
 
+/* ══════════════════════════════════════════
+   CIRCUIT MAP PANEL (Add/Edit Booking modal)
+   Same background/font as the rest of the Add Booking
+   form — theme-aware, not a standalone dark theme.
+══════════════════════════════════════════ */
+
+/* Toggle switch — "View Circuit Map" */
+.bk-map-toggle-row { display:flex; align-items:center; margin:2px 0 18px; }
+.bk-map-toggle { display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; }
+.bk-map-toggle input { position:absolute; opacity:0; width:0; height:0; }
+.bk-map-toggle-track {
+  width:38px; height:22px; border-radius:999px; flex-shrink:0;
+  background:rgba(127,140,150,0.22); border:1px solid rgba(79,230,199,0.35);
+  position:relative; transition:background 0.2s, border-color 0.2s;
+}
+.bk-map-toggle-thumb {
+  position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
+  background:#8a97a6; transition:transform 0.2s ease, background 0.2s ease;
+}
+.bk-map-toggle input:checked ~ .bk-map-toggle-track { background:rgba(79,230,199,0.18); border-color:#4FE6C7; }
+.bk-map-toggle input:checked ~ .bk-map-toggle-track .bk-map-toggle-thumb {
+  transform:translateX(16px); background:#4FE6C7; box-shadow:0 0 8px rgba(79,230,199,0.7);
+}
+.bk-map-toggle-label { font-size:13px; font-family:var(--font-body); color:var(--text-secondary); letter-spacing:0.02em; }
+
+/* Layout: form + map panel side by side (row) on wide viewports handled
+   below; column stack is the default/mobile behavior. */
+.bk-main-row { display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; }
+.bk-map-panel[hidden] { display:none; }
+
+.bk-map-panel {
+  --hud-teal: #4FE6C7;
+  position:relative; display:flex; flex-direction:column;
+  background:var(--bg-secondary); color:var(--text-primary);
+  font-family:var(--font-body);
+}
+[data-theme="light"] .bk-map-panel { background:#ffffff; }
+.bk-map-panel-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; border-bottom:1px solid var(--border-glass); flex-shrink:0;
+}
+.bk-map-panel-title {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  letter-spacing:0.1em; text-transform:uppercase; color:var(--hud-teal);
+}
+.bk-map-dim-btn {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  letter-spacing:0.02em; color:var(--hud-teal); background:rgba(79,230,199,0.08);
+  border:1px solid rgba(79,230,199,0.4); border-radius:6px; padding:4px 10px;
+  cursor:pointer; transition:background 0.15s, box-shadow 0.15s;
+}
+.bk-map-dim-btn:hover { background:rgba(79,230,199,0.18); box-shadow:0 0 10px rgba(79,230,199,0.35); }
+
+.bk-map-canvas-wrap { position:relative; flex:1; min-height:0; }
+.bk-map-canvas { position:absolute; inset:0; }
+
+/* HUD corner brackets — kept as the one accent detail on the panel */
+.bk-map-corner { position:absolute; width:16px; height:16px; pointer-events:none; z-index:5; }
+.bk-map-corner-tl { top:8px; left:8px; border-top:2px solid var(--hud-teal); border-left:2px solid var(--hud-teal); }
+.bk-map-corner-tr { top:8px; right:8px; border-top:2px solid var(--hud-teal); border-right:2px solid var(--hud-teal); }
+.bk-map-corner-bl { bottom:8px; left:8px; border-bottom:2px solid var(--hud-teal); border-left:2px solid var(--hud-teal); }
+.bk-map-corner-br { bottom:8px; right:8px; border-bottom:2px solid var(--hud-teal); border-right:2px solid var(--hud-teal); }
+
+/* 404 / "no map data" notices — bottom-left of the canvas */
+.bk-map-notices {
+  position:absolute; left:10px; bottom:10px; right:10px;
+  display:flex; flex-direction:column; gap:4px; z-index:6; pointer-events:none;
+}
+.bk-map-notice {
+  font-family:var(--font-body); font-size:11px; color:#a9721a;
+  background:rgba(255,209,102,0.16); border:1px solid rgba(255,209,102,0.5);
+  border-radius:4px; padding:5px 9px; pointer-events:auto;
+}
+[data-theme="dark"] .bk-map-notice { color:#FFD166; background:rgba(10,13,18,0.85); }
+
+/* MapLibre popup — same card look as the rest of the form */
+.bk-map-popup .maplibregl-popup-content {
+  background:var(--bg-secondary); color:var(--text-primary); border:1px solid var(--border-glass);
+  border-radius:8px; padding:10px 12px; font-family:var(--font-body);
+  box-shadow:0 6px 24px rgba(0,0,0,0.3);
+}
+[data-theme="light"] .bk-map-popup .maplibregl-popup-content { background:#ffffff; }
+.bk-map-popup .maplibregl-popup-tip { border-top-color:var(--bg-secondary) !important; }
+.bk-map-popup .maplibregl-popup-close-button { color:var(--text-muted); font-size:16px; }
+.bk-map-popup-circuit { font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--hud-teal); margin-bottom:4px; }
+.bk-map-popup-name { font-family:var(--font-body); font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
+.bk-map-popup-desc { font-size:11px; line-height:1.5; color:var(--text-secondary); }
+
+/* Wide layout: form narrows to ~55%, map panel takes ~45% beside it */
+@media(min-width:900px) {
+  .bk-modal.bk-modal-wide { max-width:min(96vw, 1080px); }
+  .bk-main-row.bk-map-open { flex-direction:row; }
+  .bk-main-row.bk-map-open .bk-view { flex:0 0 55%; max-width:55%; }
+  .bk-main-row.bk-map-open .bk-map-panel { flex:0 0 45%; max-width:45%; border-left:1px solid rgba(79,230,199,0.25); }
+}
+
+/* Narrow layout: map panel stacks below the form at ~50vh */
+@media(max-width:899px) {
+  .bk-main-row.bk-map-open { flex-direction:column; }
+  .bk-main-row.bk-map-open .bk-view { flex:1 1 auto; min-height:0; }
+  .bk-main-row.bk-map-open .bk-map-panel {
+    flex:0 0 50vh; height:50vh; width:100%;
+    border-top:1px solid rgba(79,230,199,0.25);
+  }
 }

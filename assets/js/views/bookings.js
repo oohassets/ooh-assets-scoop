@@ -2,6 +2,7 @@
 import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { initScrollReveal } from "../utils.js";
+import { initCircuitMapUI, syncCircuitMapSelection, teardownCircuitMap } from "../circuit-map.js";
 
 let currentUserName     = "";
 // Person is saved (and matched against, for the edit-button ownership
@@ -287,6 +288,11 @@ function checkFormComplete() {
   const validDates = !!(start && end) && new Date(end) >= new Date(start);
   const complete = !!(client && brand && circuits.length && validDates && status);
   document.getElementById("confirmBookingBtn")?.classList.toggle("visible", complete);
+  // Every place that can add/remove/clear a circuit row calls
+  // checkFormComplete() right after, so this is the single choke point for
+  // keeping the (optional) Circuit Map panel in sync — syncCircuitMapSelection()
+  // itself no-ops until the panel has been switched on at least once.
+  syncCircuitMapSelection(circuits);
 }
 
 function resetModal() {
@@ -1896,6 +1902,8 @@ export async function init(userName) {
   document.getElementById("clearFormBtn")?.addEventListener("click", resetModal);
   document.getElementById("confirmBookingBtn")?.addEventListener("click", saveBooking);
 
+  initCircuitMapUI({ getSelectedCircuits: getCircuitValues });
+
   // Circuit rows wire their own "input" → checkFormComplete (see renderCircuitRow).
   ["bookingClient","bookingBrand"].forEach(id =>
     document.getElementById(id)?.addEventListener("input", checkFormComplete)
@@ -2072,6 +2080,7 @@ export function cleanup() {
   drpStart = drpEnd = null;
   calDrpStart = calDrpEnd = null;
   bkPickerStart = bkPickerEnd = null;
+  teardownCircuitMap();
   // Remove overlays moved to body during init
   document.getElementById("bookingModal")?.remove();
   document.getElementById("calendarSection")?.remove();

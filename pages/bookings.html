@@ -153,7 +153,8 @@
 
 <!-- ADD / EDIT BOOKING MODAL -->
 <div class="modal-overlay bk-overlay" id="bookingModal">
-  <div class="bk-modal">
+  <div class="bk-modal" id="bkModalBox">
+  <div class="bk-main-row" id="bkMainRow">
 
     <!-- ── Form view ── -->
     <div class="bk-view" id="bkFormView">
@@ -211,6 +212,17 @@
              dates above are set, and shown under that row (.bk-circuit-slot). -->
         <div id="bkCircuitList"></div>
 
+        <!-- Off by default; lazy-inits the MapLibre map on first switch-on
+             (see circuit-map.js). Toggling off just hides the panel and
+             restores the form width — the map instance itself is kept. -->
+        <div class="bk-map-toggle-row">
+          <label class="bk-map-toggle" for="bkMapToggle">
+            <input type="checkbox" id="bkMapToggle">
+            <span class="bk-map-toggle-track"><span class="bk-map-toggle-thumb"></span></span>
+            <span class="bk-map-toggle-label">View Circuit Map</span>
+          </label>
+        </div>
+
         <div class="bk-field bk-sel-wrap">
           <select class="bk-inp bk-sel" id="campaignStatus" required>
             <option value="" disabled selected></option>
@@ -234,6 +246,24 @@
         <button class="bk-btn-save" id="confirmBookingBtn">Save Booking</button>
       </div>
     </div><!-- /.bk-view -->
+
+    <!-- ── Circuit Map panel (hidden until the toggle above is switched on) ── -->
+    <div class="bk-map-panel" id="bkMapPanel" hidden>
+      <div class="bk-map-panel-hdr">
+        <span class="bk-map-panel-title">Circuit Map</span>
+        <button type="button" class="bk-map-dim-btn" id="bkMapDimToggle" title="Toggle 2D / 3D">3D</button>
+      </div>
+      <div class="bk-map-canvas-wrap">
+        <div id="bkMapCanvas" class="bk-map-canvas"></div>
+        <span class="bk-map-corner bk-map-corner-tl"></span>
+        <span class="bk-map-corner bk-map-corner-tr"></span>
+        <span class="bk-map-corner bk-map-corner-bl"></span>
+        <span class="bk-map-corner bk-map-corner-br"></span>
+        <div class="bk-map-notices" id="bkMapNotices"></div>
+      </div>
+    </div>
+
+  </div><!-- /.bk-main-row -->
 
     <!-- ── Date picker (slides up over form) ── -->
     <div class="bk-picker" id="bkPicker">
