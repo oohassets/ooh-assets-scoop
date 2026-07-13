@@ -272,7 +272,9 @@ async function ensureMapInit() {
       bearing: -20,
       antialias: true
     });
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
+    // bottom-right, not top-right — the panel header now floats over the
+    // top of the map (see .bk-map-panel-hdr), which would otherwise cover it.
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
     // Style/tile fetch failures don't throw — they surface here instead, so
     // log them rather than leaving a silently blank canvas.
     map.on("error", e => console.error("[circuit-map] MapLibre error:", e?.error || e));

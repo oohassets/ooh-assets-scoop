@@ -785,7 +785,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
    Toggling off is instant (no exit animation requested). */
 .bk-map-panel {
   --map-accent: var(--accent-indigo);
-  position:relative; display:flex; flex-direction:column;
+  position:relative;
   background:var(--bg-secondary); color:var(--text-primary);
   font-family:var(--font-body);
   opacity:0; transform:translateX(-24px);
@@ -799,10 +799,24 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   .bk-map-panel { transition:none; }
 }
 [data-theme="light"] .bk-map-panel { background:#ffffff; }
+
+/* The canvas fills the whole panel via position:absolute — sized purely by
+   .bk-map-panel's own box, not by any nested flex-grow chain (that chain is
+   what silently produced a 0-height canvas before: .bk-map-panel used to be
+   display:flex;flex-direction:column with the header in normal flow and the
+   canvas wrap as a flex:1 sibling, which depends on every ancestor resolving
+   a definite height. The header now floats on top instead, same as the
+   known-working standalone preview's HUD-panel-over-full-bleed-map layout). */
+.bk-map-canvas-wrap { position:absolute; inset:0; }
+.bk-map-canvas { position:absolute; inset:0; }
+
 .bk-map-panel-hdr {
+  position:absolute; top:0; left:0; right:0; z-index:4;
   display:flex; align-items:center; justify-content:space-between;
-  padding:10px 14px; border-bottom:1px solid var(--border-glass); flex-shrink:0;
+  padding:10px 14px; border-bottom:1px solid var(--border-glass);
+  background:var(--bg-secondary);
 }
+[data-theme="light"] .bk-map-panel-hdr { background:#ffffff; }
 .bk-map-panel-title {
   font-family:var(--font-body); font-size:11px; font-weight:700;
   letter-spacing:0.1em; text-transform:uppercase; color:var(--map-accent);
@@ -814,9 +828,6 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   cursor:pointer; transition:background 0.15s, box-shadow 0.15s;
 }
 .bk-map-dim-btn:hover { background:rgba(152,30,50,0.18); box-shadow:0 0 10px rgba(152,30,50,0.35); }
-
-.bk-map-canvas-wrap { position:relative; flex:1; min-height:0; }
-.bk-map-canvas { position:absolute; inset:0; }
 
 /* Corner brackets — kept as the one accent detail on the panel */
 .bk-map-corner { position:absolute; width:16px; height:16px; pointer-events:none; z-index:5; }
@@ -851,18 +862,16 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-map-popup-desc { font-size:11px; line-height:1.5; color:var(--text-secondary); }
 
 /* Wide layout: form narrows to ~55%, map panel takes ~45% beside it.
-   .bk-modal only ever had max-height, not height — with just .bk-view as
-   its single flex child that was fine (the form's own content height
-   drove the modal's auto height). Once .bk-map-panel joins as a sibling,
-   that auto-height chain has nothing definite to stretch/grow against, so
-   .bk-map-canvas-wrap (flex:1) can resolve to a zero-height box and the
-   MapLibre canvas paints at 0×0 no matter how often resize() is called.
-   Giving the modal a real height here (not just a cap) fixes that. */
+   .bk-modal only ever had max-height, not height — giving it a real height
+   here (not just a cap) is what makes .bk-main-row's own flex:1 resolve to
+   a definite size, which .bk-map-panel (flex:0 0 45%) then stretches into
+   as its own real box. The canvas itself no longer depends on any further
+   flex-grow inside that box (see .bk-map-canvas-wrap above). */
 @media(min-width:900px) {
   .bk-modal.bk-modal-wide { max-width:min(96vw, 1080px); height:92vh; }
   .bk-main-row.bk-map-open { flex-direction:row; }
   .bk-main-row.bk-map-open .bk-view { flex:0 0 55%; max-width:55%; }
-  .bk-main-row.bk-map-open .bk-map-panel { flex:0 0 45%; max-width:45%; border-left:1px solid rgba(79,230,199,0.25); }
+  .bk-main-row.bk-map-open .bk-map-panel { flex:0 0 45%; max-width:45%; border-left:1px solid rgba(152,30,50,0.25); }
 }
 
 /* Narrow layout: map panel stacks below the form at ~50vh */
@@ -871,6 +880,6 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   .bk-main-row.bk-map-open .bk-view { flex:1 1 auto; min-height:0; }
   .bk-main-row.bk-map-open .bk-map-panel {
     flex:0 0 50vh; height:50vh; width:100%;
-    border-top:1px solid rgba(79,230,199,0.25);
+    border-top:1px solid rgba(152,30,50,0.25);
   }
 }
