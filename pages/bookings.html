@@ -251,7 +251,11 @@
     <div class="bk-map-panel" id="bkMapPanel" hidden>
       <div class="bk-map-panel-hdr">
         <span class="bk-map-panel-title">Circuit Map</span>
-        <button type="button" class="bk-map-dim-btn" id="bkMapDimToggle" title="Toggle 2D / 3D">3D</button>
+        <div class="bk-map-hdr-actions">
+          <button type="button" class="bk-map-chip active" id="bkMapLabelsToggle" aria-pressed="true" title="Toggle map labels">Labels</button>
+          <button type="button" class="bk-map-chip" id="bkMapTrafficToggle" aria-pressed="false" title="Toggle live traffic">Traffic</button>
+          <button type="button" class="bk-map-dim-btn" id="bkMapDimToggle" title="Toggle 2D / 3D">3D</button>
+        </div>
       </div>
       <div class="bk-map-canvas-wrap">
         <div id="bkMapCanvas" class="bk-map-canvas"></div>

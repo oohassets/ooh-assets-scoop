@@ -800,15 +800,27 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 }
 [data-theme="light"] .bk-map-panel { background:#ffffff; }
 
-/* The canvas fills the whole panel via position:absolute — sized purely by
-   .bk-map-panel's own box, not by any nested flex-grow chain (that chain is
-   what silently produced a 0-height canvas before: .bk-map-panel used to be
-   display:flex;flex-direction:column with the header in normal flow and the
-   canvas wrap as a flex:1 sibling, which depends on every ancestor resolving
-   a definite height. The header now floats on top instead, same as the
-   known-working standalone preview's HUD-panel-over-full-bleed-map layout). */
+/* .bk-map-canvas-wrap fills the whole panel via position:absolute — sized
+   purely by .bk-map-panel's own box, not by any nested flex-grow chain (that
+   chain is what silently produced a 0-height canvas before: .bk-map-panel
+   used to be display:flex;flex-direction:column with the header in normal
+   flow and the canvas wrap as a flex:1 sibling, which depends on every
+   ancestor resolving a definite height). The header now floats on top
+   instead, same as the known-working standalone preview's
+   HUD-panel-over-full-bleed-map layout.
+
+   .bk-map-canvas itself must NOT be position:absolute — MapLibre adds its
+   own ".maplibregl-map" class to the exact element you pass as `container`
+   and ships CSS setting position:relative on it; since that stylesheet is
+   injected after bookings.css and both selectors are single-class (equal
+   specificity), MapLibre's rule silently wins and overrides ours, which
+   left the container at height:0 (confirmed via computed-style logging).
+   MapLibre's own contract is that the container just needs a normal,
+   definite height — its internal <canvas> fills that via MapLibre's own
+   CSS — so give it that with plain width/height:100% instead of fighting
+   for position. */
 .bk-map-canvas-wrap { position:absolute; inset:0; }
-.bk-map-canvas { position:absolute; inset:0; }
+.bk-map-canvas { width:100%; height:100%; }
 
 .bk-map-panel-hdr {
   position:absolute; top:0; left:0; right:0; z-index:4;
@@ -828,6 +840,19 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   cursor:pointer; transition:background 0.15s, box-shadow 0.15s;
 }
 .bk-map-dim-btn:hover { background:rgba(152,30,50,0.18); box-shadow:0 0 10px rgba(152,30,50,0.35); }
+
+.bk-map-hdr-actions { display:flex; align-items:center; gap:6px; }
+
+/* Labels / Traffic toggle chips — off by default (outline only), filled
+   solid when active. */
+.bk-map-chip {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  letter-spacing:0.02em; color:var(--text-muted); background:transparent;
+  border:1px solid var(--border-glass); border-radius:6px; padding:4px 10px;
+  cursor:pointer; transition:background 0.15s, border-color 0.15s, color 0.15s;
+}
+.bk-map-chip:hover { border-color:var(--map-accent); color:var(--map-accent); }
+.bk-map-chip.active { color:#fff; background:var(--map-accent); border-color:var(--map-accent); }
 
 /* Corner brackets — kept as the one accent detail on the panel */
 .bk-map-corner { position:absolute; width:16px; height:16px; pointer-events:none; z-index:5; }
@@ -861,17 +886,26 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-map-popup-name { font-family:var(--font-body); font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
 .bk-map-popup-desc { font-size:11px; line-height:1.5; color:var(--text-secondary); }
 
-/* Wide layout: form narrows to ~55%, map panel takes ~45% beside it.
+/* Wide layout: the map panel's width is driven by aspect-ratio:4/3 against
+   its own (stretched, definite) height rather than a fixed percentage, so
+   it reads as a landscape map instead of a tall narrow strip. The form just
+   takes whatever's left (flex:1, with a sane min-width so it never gets
+   crushed). flex-shrink stays enabled on the map panel (flex:0 1 auto) so
+   it gracefully shrinks below its ideal 4:3 width on medium-width windows
+   rather than overflowing/squeezing the form to nothing.
    .bk-modal only ever had max-height, not height — giving it a real height
    here (not just a cap) is what makes .bk-main-row's own flex:1 resolve to
-   a definite size, which .bk-map-panel (flex:0 0 45%) then stretches into
-   as its own real box. The canvas itself no longer depends on any further
-   flex-grow inside that box (see .bk-map-canvas-wrap above). */
+   a definite size, which .bk-map-panel then stretches into as its own real
+   box. The canvas itself no longer depends on any further flex-grow inside
+   that box (see .bk-map-canvas-wrap above). */
 @media(min-width:900px) {
-  .bk-modal.bk-modal-wide { max-width:min(96vw, 1080px); height:92vh; }
+  .bk-modal.bk-modal-wide { max-width:min(96vw, 1400px); height:92vh; }
   .bk-main-row.bk-map-open { flex-direction:row; }
-  .bk-main-row.bk-map-open .bk-view { flex:0 0 55%; max-width:55%; }
-  .bk-main-row.bk-map-open .bk-map-panel { flex:0 0 45%; max-width:45%; border-left:1px solid rgba(152,30,50,0.25); }
+  .bk-main-row.bk-map-open .bk-view { flex:1 1 320px; min-width:320px; max-width:none; }
+  .bk-main-row.bk-map-open .bk-map-panel {
+    flex:0 1 auto; aspect-ratio:4/3; max-width:70%;
+    border-left:1px solid rgba(152,30,50,0.25);
+  }
 }
 
 /* Narrow layout: map panel stacks below the form at ~50vh */

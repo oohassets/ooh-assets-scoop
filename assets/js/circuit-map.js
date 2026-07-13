@@ -15,6 +15,8 @@ const MAPLIBRE_CSS = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/m
 const TOGEOJSON_JS = "https://unpkg.com/@tmcw/togeojson@5.8.1/dist/togeojson.umd.js";
 const STYLE_URL    = "https://tiles.openfreemap.org/styles/liberty";
 const LOAD_TIMEOUT_MS = 10000;
+const TOMTOM_KEY = "338Cqqs5etZ36aDk1FUHBdJOguMd50FP";
+const TRAFFIC_REFRESH_MS = 60000;
 
 // Fixed per-circuit palette (cycled if more circuits are selected than colors).
 const CIRCUIT_COLORS = [
@@ -43,6 +45,9 @@ let dom = {};
 let getSelectedCircuits = () => [];
 let resizeHandler = null;
 let canvasResizeObserver = null;
+let labelsOn = true;
+let trafficOn = false;
+let trafficTimer = null;
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -327,6 +332,52 @@ function toggle2D3D() {
   if (dom.dimBtn) dom.dimBtn.textContent = is3D ? "3D" : "2D";
 }
 
+/** Hides/shows the base style's own text/POI symbol layers (not our own circuit-seq labels). */
+function toggleLabels() {
+  if (!map) return;
+  labelsOn = !labelsOn;
+  map.getStyle().layers.forEach(l => {
+    if (l.type === "symbol" && !l.id.startsWith("circuit-symbol-")) {
+      map.setLayoutProperty(l.id, "visibility", labelsOn ? "visible" : "none");
+    }
+  });
+  dom.labelsBtn?.classList.toggle("active", labelsOn);
+  dom.labelsBtn?.setAttribute("aria-pressed", String(labelsOn));
+}
+
+/** First currently-added circuit circle layer, if any — used so the traffic
+    raster always sits below circuit markers regardless of toggle order. */
+function firstCircuitLayerId() {
+  return map.getStyle().layers.find(l => l.id.startsWith("circuit-circle-"))?.id;
+}
+function trafficTileURL() {
+  return `https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${TOMTOM_KEY}&t=${Date.now()}`;
+}
+function addTraffic() {
+  if (map.getSource("traffic")) return;
+  map.addSource("traffic", { type: "raster", tiles: [trafficTileURL()], tileSize: 256 });
+  map.addLayer({ id: "traffic", type: "raster", source: "traffic", paint: { "raster-opacity": 0.85 } }, firstCircuitLayerId());
+}
+function removeTraffic() {
+  if (map.getLayer("traffic")) map.removeLayer("traffic");
+  if (map.getSource("traffic")) map.removeSource("traffic");
+}
+/** Live traffic overlay (TomTom Traffic Flow) — re-fetched every 60s while on. */
+function toggleTraffic() {
+  if (!map) return;
+  trafficOn = !trafficOn;
+  if (trafficOn) {
+    addTraffic();
+    trafficTimer = setInterval(() => { removeTraffic(); addTraffic(); }, TRAFFIC_REFRESH_MS);
+  } else {
+    removeTraffic();
+    clearInterval(trafficTimer);
+    trafficTimer = null;
+  }
+  dom.trafficBtn?.classList.toggle("active", trafficOn);
+  dom.trafficBtn?.setAttribute("aria-pressed", String(trafficOn));
+}
+
 /** Diffs the currently-selected circuit names against what's on the map and updates layers/notices/bounds. */
 export async function syncCircuitMapSelection(circuitNames) {
   if (!map) return;
@@ -398,6 +449,8 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
     canvas:  document.getElementById("bkMapCanvas"),
     notices: document.getElementById("bkMapNotices"),
     dimBtn:  document.getElementById("bkMapDimToggle"),
+    labelsBtn: document.getElementById("bkMapLabelsToggle"),
+    trafficBtn: document.getElementById("bkMapTrafficToggle"),
     modalBox: document.getElementById("bkModalBox")
   };
   if (!dom.toggle || !dom.panel || !dom.canvas) return;
@@ -405,9 +458,13 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
   dom.toggle.checked = false;
   dom.panel.hidden = true;
   panelOpen = false;
+  labelsOn = true;
+  trafficOn = false;
 
   dom.toggle.addEventListener("change", onToggleChange);
   dom.dimBtn?.addEventListener("click", toggle2D3D);
+  dom.labelsBtn?.addEventListener("click", toggleLabels);
+  dom.trafficBtn?.addEventListener("click", toggleTraffic);
 
   // Once the enter transition finishes, drop the (by-then no-op) transform
   // entirely rather than leaving translate(0,0) applied forever — a
@@ -437,6 +494,7 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
 export function teardownCircuitMap() {
   if (resizeHandler) { window.removeEventListener("resize", resizeHandler); resizeHandler = null; }
   if (canvasResizeObserver) { canvasResizeObserver.disconnect(); canvasResizeObserver = null; }
+  if (trafficTimer) { clearInterval(trafficTimer); trafficTimer = null; }
   if (map) { map.remove(); map = null; }
   mapInitPromise = null;
   popup = null;
@@ -449,5 +507,7 @@ export function teardownCircuitMap() {
   nameToIdPromise = null;
   panelOpen = false;
   is3D = true;
+  labelsOn = true;
+  trafficOn = false;
   dom = {};
 }
