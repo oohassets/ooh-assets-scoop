@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Light Poles - Main Entrance C1</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - lightpoles-me-c1</description>
+    <Placemark>
+      <name>LP-ME-C1-01</name>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.531795,25.372574,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-03</name>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.530815,25.372827,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-04</name>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.530462,25.372779,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-05</name>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.530006,25.372907,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-06</name>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.529946,25.372618,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-07</name>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.530378,25.372487,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-08</name>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.530424,25.372632,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-09</name>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.530762,25.372251,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-10</name>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.531207,25.372153,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-11</name>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.531279,25.372414,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-12</name>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.531495,25.372094,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-ME-C1-02</name>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.53136,25.372676,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

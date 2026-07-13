@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Underpass</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - underpass</description>
+    <Placemark>
+      <name>DU-C1-Entrance</name>
+      <description><![CDATA[Description: Underpass Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 6240x420<br>Location: Underpass Entrance<br>Geographic Location: 25.37169, 51.53622]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.536227,25.371692,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DU-C2-Exit</name>
+      <description><![CDATA[Description: Underpass Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 6240x420<br>Location: Underpass Exit<br>Geographic Location: 25.37188, 51.53731]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.537314,25.371888,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

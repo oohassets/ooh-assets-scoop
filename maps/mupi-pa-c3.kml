@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Mupi - Porto Arabia C3</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - mupi-pa-c3</description>
+    <Placemark>
+      <name>MU-PA-01</name>
+      <description><![CDATA[1,2,3,4]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.539879,25.364946,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-02</name>
+      <description><![CDATA[5,6,7,8]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.540198,25.364843,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-03</name>
+      <description><![CDATA[9,10,11,12]]></description>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.540571,25.364915,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-04</name>
+      <description><![CDATA[17,18,19,20]]></description>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.540806,25.36625,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-05</name>
+      <description><![CDATA[21,22,23,24]]></description>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.540408,25.366802,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-06</name>
+      <description><![CDATA[25,26,27,28]]></description>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.540222,25.36693,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-07</name>
+      <description><![CDATA[29,30,31,32]]></description>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.540112,25.367234,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-08</name>
+      <description><![CDATA[33,34,35,36]]></description>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.539867,25.367878,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-09</name>
+      <description><![CDATA[37,38,39,40]]></description>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.53964,25.368015,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-10</name>
+      <description><![CDATA[41,42,43,44]]></description>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.539711,25.368325,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-11</name>
+      <description><![CDATA[45,46,47,48]]></description>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.53958,25.369219,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-12</name>
+      <description><![CDATA[049,50,51,52]]></description>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.539387,25.369269,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-13</name>
+      <description><![CDATA[53,54,55,56]]></description>
+      <ExtendedData><Data name="seq"><value>13</value></Data></ExtendedData>
+      <Point><coordinates>51.539639,25.369731,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-15</name>
+      <description><![CDATA[65,66,67,68]]></description>
+      <ExtendedData><Data name="seq"><value>14</value></Data></ExtendedData>
+      <Point><coordinates>51.54034,25.371601,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-16</name>
+      <description><![CDATA[69,70,71,72]]></description>
+      <ExtendedData><Data name="seq"><value>15</value></Data></ExtendedData>
+      <Point><coordinates>51.540636,25.371683,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-17</name>
+      <description><![CDATA[74,75,76]]></description>
+      <ExtendedData><Data name="seq"><value>16</value></Data></ExtendedData>
+      <Point><coordinates>51.541176,25.372206,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-18</name>
+      <description><![CDATA[95,96,97,98]]></description>
+      <ExtendedData><Data name="seq"><value>17</value></Data></ExtendedData>
+      <Point><coordinates>51.543072,25.372469,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-19</name>
+      <description><![CDATA[99,100,101,102]]></description>
+      <ExtendedData><Data name="seq"><value>18</value></Data></ExtendedData>
+      <Point><coordinates>51.54297,25.373044,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-20</name>
+      <description><![CDATA[103,104,105,106]]></description>
+      <ExtendedData><Data name="seq"><value>19</value></Data></ExtendedData>
+      <Point><coordinates>51.543895,25.373146,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-21</name>
+      <description><![CDATA[107,108,109,110]]></description>
+      <ExtendedData><Data name="seq"><value>20</value></Data></ExtendedData>
+      <Point><coordinates>51.544034,25.373295,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-22</name>
+      <description><![CDATA[111,112,113,114]]></description>
+      <ExtendedData><Data name="seq"><value>21</value></Data></ExtendedData>
+      <Point><coordinates>51.544124,25.373154,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-24</name>
+      <description><![CDATA[117,118,119,120]]></description>
+      <ExtendedData><Data name="seq"><value>22</value></Data></ExtendedData>
+      <Point><coordinates>51.545344,25.373045,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-25</name>
+      <description><![CDATA[121,122,123,124]]></description>
+      <ExtendedData><Data name="seq"><value>23</value></Data></ExtendedData>
+      <Point><coordinates>51.545489,25.37293,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-27</name>
+      <description><![CDATA[127,128,129,130]]></description>
+      <ExtendedData><Data name="seq"><value>24</value></Data></ExtendedData>
+      <Point><coordinates>51.54594,25.371938,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-28</name>
+      <description><![CDATA[131,132,133,134]]></description>
+      <ExtendedData><Data name="seq"><value>28</value></Data></ExtendedData>
+      <Point><coordinates>51.54658,25.372444,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-29</name>
+      <description><![CDATA[145,146,147,148]]></description>
+      <ExtendedData><Data name="seq"><value>26</value></Data></ExtendedData>
+      <Point><coordinates>51.546662,25.372078,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-31</name>
+      <description><![CDATA[150,151,152,153]]></description>
+      <ExtendedData><Data name="seq"><value>27</value></Data></ExtendedData>
+      <Point><coordinates>51.547282,25.371487,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-32</name>
+      <description><![CDATA[154,155,156,157]]></description>
+      <ExtendedData><Data name="seq"><value>28</value></Data></ExtendedData>
+      <Point><coordinates>51.547568,25.371056,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-33</name>
+      <description><![CDATA[158,159,160,161]]></description>
+      <ExtendedData><Data name="seq"><value>29</value></Data></ExtendedData>
+      <Point><coordinates>51.547906,25.370979,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-34</name>
+      <description><![CDATA[162,163,164,165]]></description>
+      <ExtendedData><Data name="seq"><value>30</value></Data></ExtendedData>
+      <Point><coordinates>51.547806,25.370614,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-35</name>
+      <description><![CDATA[166,167,168,169]]></description>
+      <ExtendedData><Data name="seq"><value>35</value></Data></ExtendedData>
+      <Point><coordinates>51.54831,25.36986,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-36</name>
+      <description><![CDATA[170,171,172,173]]></description>
+      <ExtendedData><Data name="seq"><value>32</value></Data></ExtendedData>
+      <Point><coordinates>51.548039,25.369602,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-37</name>
+      <description><![CDATA[174,175,176,177]]></description>
+      <ExtendedData><Data name="seq"><value>33</value></Data></ExtendedData>
+      <Point><coordinates>51.54805,25.369147,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-38</name>
+      <description><![CDATA[178,179,180,181]]></description>
+      <ExtendedData><Data name="seq"><value>38</value></Data></ExtendedData>
+      <Point><coordinates>51.548288,25.368686,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-39</name>
+      <description><![CDATA[182,183,184,185]]></description>
+      <ExtendedData><Data name="seq"><value>35</value></Data></ExtendedData>
+      <Point><coordinates>51.547937,25.368554,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-40</name>
+      <description><![CDATA[186,187,188,189]]></description>
+      <ExtendedData><Data name="seq"><value>36</value></Data></ExtendedData>
+      <Point><coordinates>51.547574,25.367923,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-41</name>
+      <description><![CDATA[190,191,192,193]]></description>
+      <ExtendedData><Data name="seq"><value>37</value></Data></ExtendedData>
+      <Point><coordinates>51.547893,25.367746,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-42</name>
+      <description><![CDATA[194,195,196,197]]></description>
+      <ExtendedData><Data name="seq"><value>38</value></Data></ExtendedData>
+      <Point><coordinates>51.54789,25.367579,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-43</name>
+      <description><![CDATA[198,199,200,201]]></description>
+      <ExtendedData><Data name="seq"><value>39</value></Data></ExtendedData>
+      <Point><coordinates>51.547216,25.366763,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-44</name>
+      <description><![CDATA[202,203,204,205]]></description>
+      <ExtendedData><Data name="seq"><value>44</value></Data></ExtendedData>
+      <Point><coordinates>51.54724,25.366575,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-45</name>
+      <description><![CDATA[206,207,208,209]]></description>
+      <ExtendedData><Data name="seq"><value>41</value></Data></ExtendedData>
+      <Point><coordinates>51.546152,25.365955,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-46</name>
+      <description><![CDATA[210,211,212,213]]></description>
+      <ExtendedData><Data name="seq"><value>42</value></Data></ExtendedData>
+      <Point><coordinates>51.546224,25.36583,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-47</name>
+      <description><![CDATA[218,219,220,221]]></description>
+      <ExtendedData><Data name="seq"><value>43</value></Data></ExtendedData>
+      <Point><coordinates>51.545135,25.366168,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-49</name>
+      <description><![CDATA[224,225,226,227]]></description>
+      <ExtendedData><Data name="seq"><value>44</value></Data></ExtendedData>
+      <Point><coordinates>51.544982,25.36549,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-50</name>
+      <description><![CDATA[228,229,230,231]]></description>
+      <ExtendedData><Data name="seq"><value>45</value></Data></ExtendedData>
+      <Point><coordinates>51.544939,25.365212,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-51</name>
+      <description><![CDATA[232,233,234,235]]></description>
+      <ExtendedData><Data name="seq"><value>46</value></Data></ExtendedData>
+      <Point><coordinates>51.544525,25.365539,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-53</name>
+      <description><![CDATA[238]]></description>
+      <ExtendedData><Data name="seq"><value>53</value></Data></ExtendedData>
+      <Point><coordinates>51.543424,25.36533,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MU-PA-54</name>
+      <description><![CDATA[241,242,243,244]]></description>
+      <ExtendedData><Data name="seq"><value>48</value></Data></ExtendedData>
+      <Point><coordinates>51.542685,25.364241,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

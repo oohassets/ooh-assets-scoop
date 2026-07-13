@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Monoprix</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - monoprix</description>
+    <Placemark>
+      <name>MC Kiddy Zone</name>
+      <description><![CDATA[Description: Monoprix Indoor Screen<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1080x1920<br>Location: Medina Central, Monoprix, near Mumuso<br>Geographic Location: 25.36743, 51.55067]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.550672,25.36743,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MC Krispy Kreme</name>
+      <description><![CDATA[Description: Monoprix Indoor Screen<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1080x1920<br>Location: Medina Central, Monoprix, near Krispy Creme<br>Geographic Location: 25.36737, 51.5502]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.5502,25.367378,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MC Tylos Pharmacy</name>
+      <description><![CDATA[Description: Monoprix Indoor Screen<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1080x1920<br>Location: Medina Central, Monoprix, near Tylos Pharmacy<br>Geographic Location: 25.36773, 51.54996]]></description>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.549961,25.367732,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MC Elevator</name>
+      <description><![CDATA[Description: Monoprix Indoor Screen<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1080x1920<br>Location: Medina Central, Monoprix, near Elevator<br>Geographic Location: 25.36751, 51.54993]]></description>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.549932,25.367512,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MC Ooredoo</name>
+      <description><![CDATA[Description: Monoprix Indoor Screen<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1080x1920<br>Location: Medina Central, Monoprix, near Ooredoo<br>Geographic Location: 25.36712, 51.55005]]></description>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.55005,25.367126,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>MC QNB</name>
+      <description><![CDATA[Description: Monoprix Indoor Screen<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1080x1920<br>Location: Medina Central, Monoprix, near QNB<br>Geographic Location: 25.36691, 51.55067]]></description>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.550672,25.366911,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Mupi - Circuit 1</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - mupi-c1</description>
+    <Placemark>
+      <name>DM01-SSC1-Main Roundabout (QQ)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Main roundabout, Qanat Quartier<br>Geographic Location: 25.37217, 51.53681]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.536813,25.372178,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM04-SSC1-Piazza Arabia</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia, Piazza Arabia<br>Geographic Location: 25.37091, 51.53812]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.538127,25.37091,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM05-SSC1-PA (Tower 8)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia Drive, Tower 8<br>Geographic Location: 25.37244, 51.53954]]></description>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.539542,25.372441,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM06-DSC1-PA (Tower 11)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia Drive, Tower 11<br>Geographic Location: 25.37436, 51.54322]]></description>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.543226,25.374369,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM09-DSC1-MC Ferrari</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Medina Central, near Ferrari<br>Geographic Location: 25.36593, 51.54838]]></description>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.548389,25.365936,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM10-SSC1-MC Monoprix</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Medina Central, Monoprix<br>Geographic Location: 25.36931, 51.54988]]></description>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.549883,25.369312,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM11-SSC1-MC &amp; PA Intersection</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Near Qatar Cool Signal<br>Geographic Location: 25.37151, 51.55028]]></description>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.550288,25.37151,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM15-DSC1-QQ 3</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Qanat Quartier Drive<br>Geographic Location: 25.37515, 51.54473]]></description>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.544739,25.375156,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM17-SSC1-Kempinski 2</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Kempinski Road<br>Geographic Location: 25.37578, 51.54769]]></description>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.547697,25.375784,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

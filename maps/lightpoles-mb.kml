@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Light Poles - Main Boulevard</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - lightpoles-mb</description>
+    <Placemark>
+      <name>LP-MB-C1-01</name>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.537858,25.372121,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-02</name>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.538282,25.372327,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-03</name>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.538626,25.372528,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-04</name>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.539724,25.373256,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-05</name>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.538357,25.37218,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-06</name>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.538705,25.372389,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-07</name>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.539106,25.372675,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-08</name>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.539807,25.373124,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-09</name>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.538111,25.372398,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-10</name>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.538531,25.372634,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-11</name>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.538889,25.372871,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C1-12</name>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.539619,25.373364,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-01</name>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.540801,25.373943,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-02</name>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.541985,25.374464,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-03</name>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.543292,25.374752,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-04</name>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.544695,25.374771,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-05</name>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.546454,25.374304,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-06</name>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.547701,25.373628,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-07</name>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.54788,25.373502,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-08</name>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.548474,25.373004,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-09</name>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.549119,25.372435,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-10</name>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.549844,25.371927,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-11</name>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.550202,25.371715,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C2-12</name>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.550599,25.371522,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-01</name>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.551985,25.371064,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-02</name>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.552429,25.371022,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-03</name>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.553319,25.371064,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-04</name>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.554196,25.371229,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-05</name>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.555026,25.37153,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-06</name>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.555445,25.371673,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-07</name>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.555887,25.371776,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-08</name>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.556757,25.371898,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-09</name>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.556888,25.371682,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-10</name>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.557456,25.371662,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-11</name>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.557526,25.371893,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-12</name>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.557184,25.372255,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

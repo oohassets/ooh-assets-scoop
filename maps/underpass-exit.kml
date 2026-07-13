@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Underpass - Exit (C2)</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - underpass-exit</description>
+    <Placemark>
+      <name>DU-C2-Exit</name>
+      <description><![CDATA[Description: Underpass Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 6240x420<br>Location: Underpass Exit<br>Geographic Location: 25.37188, 51.53731]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.537314,25.371888,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

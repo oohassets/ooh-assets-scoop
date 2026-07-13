@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Qanat Quartier Wall Screen</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - qqscreen</description>
+    <Placemark>
+      <name>QQ-C1-01</name>
+      <description><![CDATA[Description: Qanat Quartier Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 3742x432<br>Location: Qanat Quartier Drive<br>Geographic Location: 25.37537, 51.54413]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.544138,25.375377,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Gewan Crystal Walk - C1</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - gewan-c1</description>
+    <Placemark>
+      <name>PS-C1-01</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 512x640<br>Location: Crystal Walk 1<br>Geographic Location: 25.37707, 51.53617]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.536177,25.377079,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-02</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 384x640<br>Location: Crystal Walk 2<br>Geographic Location: 25.37755, 51.53654]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.536545,25.37755,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-03</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 640x384<br>Location: Road Side, Elevator<br>Geographic Location: 25.37721, 51.53688]]></description>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.536887,25.377219,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-04</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 384x512<br>Location: Crystal Walk 5<br>Geographic Location: 25.37818, 51.53803]]></description>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.538038,25.378184,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-05</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 384x512<br>Location: Crystal Walk 6<br>Geographic Location: 25.3784, 51.53802]]></description>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.538026,25.3784,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-06</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 640x384<br>Location: Crystal Walk 5<br>Geographic Location: 25.37791, 51.53844]]></description>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.538441,25.377912,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-07</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 384x640<br>Location: Promenade 3<br>Geographic Location: 25.37754, 51.53896]]></description>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.538945,25.377512,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-08</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 640x384<br>Location: Crystal Walk 10<br>Geographic Location: 25.379, 51.53898]]></description>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.53898,25.379006,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-09</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 640x640<br>Location: Promenade 4<br>Geographic Location: 25.37807, 51.53968]]></description>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.539689,25.378075,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-10</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 384x640<br>Location: Crystal Walk 10<br>Geographic Location: 25.3792, 51.53942]]></description>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.539429,25.379202,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-11</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 384x640<br>Location: Crystal Walk 9<br>Geographic Location: 25.37917, 51.53945]]></description>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.539471,25.379154,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-12</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 384x640<br>Location: Promenade 5<br>Geographic Location: 25.37855, 51.54023]]></description>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.540218,25.378525,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>PS-C1-25</name>
+      <description><![CDATA[Description: Crystal Walk Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 512x640<br>Location: Crystal Walk<br>Geographic Location: 25.37768, 51.53697]]></description>
+      <ExtendedData><Data name="seq"><value>13</value></Data></ExtendedData>
+      <Point><coordinates>51.536977,25.377683,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Gewan Crystal Building</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - gewan-building</description>
+    <Placemark>
+      <name>RB-01</name>
+      <description><![CDATA[Description: Building Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1296x756<br>Location: Crystal Buiding 1<br>Geographic Location: 25.37692, 51.53632]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.536327,25.376924,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>RB-02</name>
+      <description><![CDATA[Description: Building Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 1296x756<br>Location: Crystal Buiding 2<br>Geographic Location: 25.37717, 51.5361]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.536104,25.377173,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

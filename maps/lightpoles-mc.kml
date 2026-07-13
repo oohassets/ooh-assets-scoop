@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Light Poles - Medina Centrale</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - lightpoles-mc</description>
+    <Placemark>
+      <name>LP-MC-C1-01</name>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.550853,25.371198,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-02</name>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.550969,25.371074,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-03</name>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.551232,25.371034,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-04</name>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.550845,25.370892,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-05</name>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.550699,25.370693,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-06</name>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.550532,25.370511,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-07</name>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.550121,25.370203,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-08</name>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.54986,25.370254,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MC-C1-09</name>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.549963,25.369967,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

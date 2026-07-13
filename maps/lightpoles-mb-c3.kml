@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Light Poles - Main Boulevard C3</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - lightpoles-mb-c3</description>
+    <Placemark>
+      <name>LP-MB-C3-01</name>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.551985,25.371064,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-02</name>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.552429,25.371022,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-03</name>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.553319,25.371064,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-04</name>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.554196,25.371229,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-05</name>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.555026,25.37153,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-06</name>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.555445,25.371673,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-07</name>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.555887,25.371776,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-08</name>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.556757,25.371898,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-09</name>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.556888,25.371682,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-10</name>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.557456,25.371662,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-11</name>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.557526,25.371893,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-MB-C3-12</name>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.557184,25.372255,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

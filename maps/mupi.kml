@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Mupi - All Circuits</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - mupi</description>
+    <Placemark>
+      <name>DM01-SSC1-Main Roundabout (QQ)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Main roundabout, Qanat Quartier<br>Geographic Location: 25.37217, 51.53681]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.536813,25.372178,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM04-SSC1-Piazza Arabia</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia, Piazza Arabia<br>Geographic Location: 25.37091, 51.53812]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.538127,25.37091,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM05-SSC1-PA (Tower 8)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia Drive, Tower 8<br>Geographic Location: 25.37244, 51.53954]]></description>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.539542,25.372441,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM06-DSC1-PA (Tower 11)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia Drive, Tower 11<br>Geographic Location: 25.37436, 51.54322]]></description>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.543226,25.374369,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM09-DSC1-MC Ferrari</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Medina Central, near Ferrari<br>Geographic Location: 25.36593, 51.54838]]></description>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.548389,25.365936,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM10-SSC1-MC Monoprix</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Medina Central, Monoprix<br>Geographic Location: 25.36931, 51.54988]]></description>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.549883,25.369312,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM11-SSC1-MC &amp; PA Intersection</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Near Qatar Cool Signal<br>Geographic Location: 25.37151, 51.55028]]></description>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.550288,25.37151,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM15-DSC1-QQ 3</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Qanat Quartier Drive<br>Geographic Location: 25.37515, 51.54473]]></description>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.544739,25.375156,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM17-SSC1-Kempinski 2</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 256x384<br>Location: Kempinski Road<br>Geographic Location: 25.37578, 51.54769]]></description>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.547697,25.375784,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM02-SSC2-Main Roundabout (PA)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Medina Central, Porto Arabia<br>Geographic Location: 25.37109, 51.53713]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.53713,25.371094,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM03-SSC2-Main Roundabout (PB)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Medina Central, Main Boulevard<br>Geographic Location: 25.37153, 51.53744]]></description>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.537446,25.371539,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM07-DSC2-PA (Tower 18)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia Drive, Tower 18<br>Geographic Location: 25.37206, 51.54875<br>]]></description>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.548752,25.37206,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM08-SSC2-PA (Tower 22)</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Porto Arabia Drive, Tower 22<br>Geographic Location: 25.36875, 51.54958]]></description>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.549581,25.368758,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM12-SSC2-MC Signal</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Near Qatar Cool Signal<br>Geographic Location: 25.37062, 51.55036]]></description>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.550362,25.370622,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM13-DSC2-QQ 1</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Qanat Quartier Drive<br>Geographic Location: 25.37492, 51.54252<br>]]></description>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.542528,25.374921,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM14-DSC2-QQ 2</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Double Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Qanat Quartier Drive<br>Geographic Location: 25.37505, 51.54359<br>]]></description>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.54359,25.375058,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM16-SSC2-Kempinski 1</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Kempinski Road<br>Geographic Location: 25.3757, 51.54731]]></description>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.547311,25.375705,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>DM18-SSC2-Kempinski 3</name>
+      <description><![CDATA[Description: Digital Mupi<br>Screen Type: Single Sided Screen<br>Circuit: Circuit 2<br>Screen Size (WxH) px: 256x384<br>Location: Kempinski Road<br>Geographic Location: 25.37585, 51.54804]]></description>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.548049,25.375858,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

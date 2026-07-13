@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Light Poles - Porto Arabia C1</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - lightpoles-pa-c1</description>
+    <Placemark>
+      <name>LP-PA-C1-01</name>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.539655,25.365488,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-02</name>
+      <ExtendedData><Data name="seq"><value>2</value></Data></ExtendedData>
+      <Point><coordinates>51.539461,25.365773,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-03</name>
+      <ExtendedData><Data name="seq"><value>3</value></Data></ExtendedData>
+      <Point><coordinates>51.539343,25.365937,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-04</name>
+      <ExtendedData><Data name="seq"><value>4</value></Data></ExtendedData>
+      <Point><coordinates>51.538975,25.366479,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-05</name>
+      <ExtendedData><Data name="seq"><value>5</value></Data></ExtendedData>
+      <Point><coordinates>51.538722,25.366877,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-06</name>
+      <ExtendedData><Data name="seq"><value>6</value></Data></ExtendedData>
+      <Point><coordinates>51.538556,25.367197,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-07</name>
+      <ExtendedData><Data name="seq"><value>7</value></Data></ExtendedData>
+      <Point><coordinates>51.538282,25.367916,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-08</name>
+      <ExtendedData><Data name="seq"><value>8</value></Data></ExtendedData>
+      <Point><coordinates>51.538211,25.368198,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-09</name>
+      <ExtendedData><Data name="seq"><value>9</value></Data></ExtendedData>
+      <Point><coordinates>51.53817,25.368405,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-10</name>
+      <ExtendedData><Data name="seq"><value>10</value></Data></ExtendedData>
+      <Point><coordinates>51.538126,25.368681,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-11</name>
+      <ExtendedData><Data name="seq"><value>11</value></Data></ExtendedData>
+      <Point><coordinates>51.538092,25.369085,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-12</name>
+      <ExtendedData><Data name="seq"><value>12</value></Data></ExtendedData>
+      <Point><coordinates>51.538115,25.36976,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-13</name>
+      <ExtendedData><Data name="seq"><value>13</value></Data></ExtendedData>
+      <Point><coordinates>51.538144,25.370031,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-14</name>
+      <ExtendedData><Data name="seq"><value>14</value></Data></ExtendedData>
+      <Point><coordinates>51.538203,25.370348,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-15</name>
+      <ExtendedData><Data name="seq"><value>15</value></Data></ExtendedData>
+      <Point><coordinates>51.538314,25.370751,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-16</name>
+      <ExtendedData><Data name="seq"><value>16</value></Data></ExtendedData>
+      <Point><coordinates>51.538445,25.371108,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-17</name>
+      <ExtendedData><Data name="seq"><value>17</value></Data></ExtendedData>
+      <Point><coordinates>51.538683,25.371617,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-18</name>
+      <ExtendedData><Data name="seq"><value>18</value></Data></ExtendedData>
+      <Point><coordinates>51.538819,25.371842,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-19</name>
+      <ExtendedData><Data name="seq"><value>19</value></Data></ExtendedData>
+      <Point><coordinates>51.538968,25.372052,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>LP-PA-C1-20</name>
+      <ExtendedData><Data name="seq"><value>20</value></Data></ExtendedData>
+      <Point><coordinates>51.539137,25.372257,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>

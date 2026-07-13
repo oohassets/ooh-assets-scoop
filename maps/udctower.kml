@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>UDC Tower</name>
+    <description>Scoop Media &amp; Communication - OOH Assets - udctower</description>
+    <Placemark>
+      <name>UDC Tower Screen</name>
+      <description><![CDATA[Description: UDC Tower Screen<br>Screen Type: Wall Screen<br>Circuit: Circuit 1<br>Screen Size (WxH) px: 1664x1040 x 4<br>6656x1040 x 1<br>Location: UDC Tower<br>Geographic Location: 25.37144, 51.53383]]></description>
+      <ExtendedData><Data name="seq"><value>1</value></Data></ExtendedData>
+      <Point><coordinates>51.533831,25.371446,0</coordinates></Point>
+    </Placemark>
+  </Document>
+</kml>
