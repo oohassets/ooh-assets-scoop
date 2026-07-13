@@ -8,10 +8,13 @@
 import { rtdb } from "../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const MAPLIBRE_JS  = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
-const MAPLIBRE_CSS = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";
+// cdnjs, not unpkg — confirmed reachable in this environment (a known-working
+// standalone preview used this same cdnjs URL for maplibre-gl).
+const MAPLIBRE_JS  = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js";
+const MAPLIBRE_CSS = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css";
 const TOGEOJSON_JS = "https://unpkg.com/@tmcw/togeojson@5.8.1/dist/togeojson.umd.js";
 const STYLE_URL    = "https://tiles.openfreemap.org/styles/liberty";
+const LOAD_TIMEOUT_MS = 10000;
 
 // Fixed per-circuit palette (cycled if more circuits are selected than colors).
 const CIRCUIT_COLORS = [
@@ -44,8 +47,11 @@ let canvasResizeObserver = null;
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    console.log("[circuit-map] loading script", src);
     const s = document.createElement("script");
-    s.src = src; s.onload = resolve; s.onerror = reject;
+    s.src = src;
+    s.onload = () => { console.log("[circuit-map] loaded script", src); resolve(); };
+    s.onerror = () => { console.error("[circuit-map] FAILED to load script", src); reject(new Error(`Failed to load ${src}`)); };
     document.head.appendChild(s);
   });
 }
@@ -56,7 +62,8 @@ function loadCSS(href) {
     l.rel = "stylesheet"; l.href = href;
     // Resolve on error too — a stylesheet failing to load shouldn't block
     // map init forever, though the canvas will size wrong without it.
-    l.onload = () => resolve(); l.onerror = () => resolve();
+    l.onload = () => resolve();
+    l.onerror = () => { console.error("[circuit-map] FAILED to load stylesheet", href); resolve(); };
     document.head.appendChild(l);
   });
 }
@@ -262,25 +269,43 @@ function ensure3DBuildings() {
 async function ensureMapInit() {
   if (mapInitPromise) return mapInitPromise;
   mapInitPromise = (async () => {
-    await loadLibs();
-    map = new maplibregl.Map({
-      container: dom.canvas,
-      style: STYLE_URL,
-      center: [51.543, 25.372], // Pearl Qatar / Qanat Quartier — where these circuits sit
-      zoom: 15,
-      pitch: 55,
-      bearing: -20,
-      antialias: true
-    });
-    // bottom-right, not top-right — the panel header now floats over the
-    // top of the map (see .bk-map-panel-hdr), which would otherwise cover it.
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
-    // Style/tile fetch failures don't throw — they surface here instead, so
-    // log them rather than leaving a silently blank canvas.
-    map.on("error", e => console.error("[circuit-map] MapLibre error:", e?.error || e));
-    await new Promise(resolve => map.on("load", resolve));
-    ensure3DBuildings();
-    map.resize();
+    try {
+      console.log("[circuit-map] loading MapLibre + togeojson...");
+      await loadLibs();
+      if (!maplibregl) throw new Error("window.maplibregl is undefined after script load — CDN blocked?");
+      console.log("[circuit-map] libs ready, constructing map...");
+      map = new maplibregl.Map({
+        container: dom.canvas,
+        style: STYLE_URL,
+        center: [51.543, 25.372], // Pearl Qatar / Qanat Quartier — where these circuits sit
+        zoom: 15,
+        pitch: 55,
+        bearing: -20,
+        antialias: true
+      });
+      // bottom-right, not top-right — the panel header now floats over the
+      // top of the map (see .bk-map-panel-hdr), which would otherwise cover it.
+      map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
+      // Style/tile fetch failures don't throw — they surface here instead, so
+      // log them rather than leaving a silently blank canvas.
+      map.on("error", e => console.error("[circuit-map] MapLibre error:", e?.error || e));
+      console.log("[circuit-map] waiting for style/tiles to finish loading...");
+      await Promise.race([
+        new Promise(resolve => map.on("load", resolve)),
+        new Promise((_, reject) => setTimeout(
+          () => reject(new Error(`"load" event never fired within ${LOAD_TIMEOUT_MS}ms — check network access to ${STYLE_URL}`)),
+          LOAD_TIMEOUT_MS
+        ))
+      ]);
+      console.log("[circuit-map] map loaded");
+      ensure3DBuildings();
+      map.resize();
+    } catch (err) {
+      console.error("[circuit-map] map init failed:", err);
+      addNotice("Map failed to load — see console for details");
+      mapInitPromise = null; // allow retrying on the next toggle-on
+      throw err;
+    }
   })();
   return mapInitPromise;
 }
@@ -340,7 +365,11 @@ async function onToggleChange(e) {
   void dom.panel.offsetWidth;
   requestAnimationFrame(() => dom.panel.classList.add("bk-map-visible"));
 
-  await ensureMapInit();
+  try {
+    await ensureMapInit();
+  } catch {
+    return; // ensureMapInit already logged + surfaced a notice
+  }
   requestAnimationFrame(() => {
     map.resize();
     syncCircuitMapSelection(getSelectedCircuits());
