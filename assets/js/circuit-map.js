@@ -303,6 +303,13 @@ async function ensureMapInit() {
       const rect = dom.canvas.getBoundingClientRect();
       const glCanvas = map.getCanvas();
       console.log(`[circuit-map] container box: ${rect.width}x${rect.height} — internal <canvas>: ${glCanvas.width}x${glCanvas.height} (style ${glCanvas.style.width} x ${glCanvas.style.height})`);
+      // Trace the whole ancestor chain's computed height to find exactly
+      // which level is collapsing to 0.
+      [dom.modalBox, dom.mainRow, dom.panel, dom.canvas.parentElement, dom.canvas].forEach(el => {
+        if (!el) return;
+        const cs = getComputedStyle(el);
+        console.log(`[circuit-map] ${el.id || el.className} — class="${el.className}" display=${cs.display} height=${cs.height} flex=${cs.flex} minHeight=${cs.minHeight}`);
+      });
     } catch (err) {
       console.error("[circuit-map] map init failed:", err);
       addNotice("Map failed to load — see console for details");
