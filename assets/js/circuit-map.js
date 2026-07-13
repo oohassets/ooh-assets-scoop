@@ -18,11 +18,12 @@ const LOAD_TIMEOUT_MS = 10000;
 const TOMTOM_KEY = "338Cqqs5etZ36aDk1FUHBdJOguMd50FP";
 const TRAFFIC_REFRESH_MS = 60000;
 
-// Fixed per-circuit palette (cycled if more circuits are selected than colors).
-const CIRCUIT_COLORS = [
-  "#4FE6C7", "#FF6B6B", "#FFD166", "#6C8CFF", "#C77DFF",
-  "#FF9F45", "#39D98A", "#F45B69", "#5BC0EB", "#E4C1F9"
-];
+// Marker color by circuit category, keyed off the id prefix (see colorFor()).
+const CATEGORY_COLORS = {
+  lightpoles: "#1F7A42", // dark green — lightpoles-*
+  mupiPA:     "#6C3FA6", // purple — mupi-pa*
+  digital:    "#C2570A"  // dark orange — everything else (underpass*, gewan*, mupi/-c1/-c2, udctower, qqscreen, monoprix)
+};
 
 let maplibregl   = null;
 let toGeoJSON    = null;
@@ -37,7 +38,6 @@ let assetNameToId   = null;               // lowercased Circuits name -> oohasse
 let nameToIdPromise = null;
 const geojsonCache  = new Map();          // id -> FeatureCollection | null (404/failed, cached so it's never refetched)
 const pendingFetch  = new Map();          // id -> in-flight fetch promise
-const colorForId    = new Map();          // id -> assigned color
 const idToLabel     = new Map();          // id -> the human Circuits name it was selected as
 let visibleIds      = new Set();
 
@@ -112,8 +112,9 @@ async function loadNameToIdMap() {
 }
 
 function colorFor(id) {
-  if (!colorForId.has(id)) colorForId.set(id, CIRCUIT_COLORS[colorForId.size % CIRCUIT_COLORS.length]);
-  return colorForId.get(id);
+  if (id.startsWith("lightpoles")) return CATEGORY_COLORS.lightpoles;
+  if (id.startsWith("mupi-pa")) return CATEGORY_COLORS.mupiPA;
+  return CATEGORY_COLORS.digital;
 }
 
 /** Fetches + parses /maps/{id}.kml to GeoJSON once, caching the result (including failures) forever. */
@@ -501,7 +502,6 @@ export function teardownCircuitMap() {
   visibleIds = new Set();
   geojsonCache.clear();
   pendingFetch.clear();
-  colorForId.clear();
   idToLabel.clear();
   assetNameToId = null;
   nameToIdPromise = null;
