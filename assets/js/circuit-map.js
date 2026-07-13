@@ -39,6 +39,7 @@ let visibleIds      = new Set();
 let dom = {};
 let getSelectedCircuits = () => [];
 let resizeHandler = null;
+let canvasResizeObserver = null;
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -318,11 +319,24 @@ export async function syncCircuitMapSelection(circuitNames) {
 async function onToggleChange(e) {
   const on = e.target.checked;
   panelOpen = on;
-  dom.panel.hidden = !on;
-  dom.mainRow?.classList.toggle("bk-map-open", on);
-  dom.modalBox?.classList.toggle("bk-modal-wide", on);
 
-  if (!on) return;
+  if (!on) {
+    dom.panel.classList.remove("bk-map-visible");
+    dom.panel.hidden = true;
+    dom.mainRow?.classList.remove("bk-map-open");
+    dom.modalBox?.classList.remove("bk-modal-wide");
+    return;
+  }
+
+  dom.panel.hidden = false;
+  dom.mainRow?.classList.add("bk-map-open");
+  dom.modalBox?.classList.add("bk-modal-wide");
+  // Force a layout flush so the panel's initial (invisible, offset) state is
+  // committed before adding .bk-map-visible — otherwise the browser can
+  // coalesce "unhide" + "become visible" into one frame and the fade/slide
+  // transition never runs.
+  void dom.panel.offsetWidth;
+  requestAnimationFrame(() => dom.panel.classList.add("bk-map-visible"));
 
   await ensureMapInit();
   requestAnimationFrame(() => {
@@ -355,11 +369,20 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
 
   resizeHandler = () => { if (map && panelOpen) map.resize(); };
   window.addEventListener("resize", resizeHandler);
+
+  // Safety net: whenever the canvas's own box actually changes size (layout
+  // settling, breakpoint switch, flex chain resolving late), resize the map
+  // to match rather than relying solely on the explicit resize() calls above.
+  if ("ResizeObserver" in window) {
+    canvasResizeObserver = new ResizeObserver(() => { if (map) map.resize(); });
+    canvasResizeObserver.observe(dom.canvas);
+  }
 }
 
 /** Tears down the map instance and all per-page state. Call from the Bookings view's cleanup(). */
 export function teardownCircuitMap() {
   if (resizeHandler) { window.removeEventListener("resize", resizeHandler); resizeHandler = null; }
+  if (canvasResizeObserver) { canvasResizeObserver.disconnect(); canvasResizeObserver = null; }
   if (map) { map.remove(); map = null; }
   mapInitPromise = null;
   popup = null;
