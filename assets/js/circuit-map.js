@@ -300,6 +300,9 @@ async function ensureMapInit() {
       console.log("[circuit-map] map loaded");
       ensure3DBuildings();
       map.resize();
+      const rect = dom.canvas.getBoundingClientRect();
+      const glCanvas = map.getCanvas();
+      console.log(`[circuit-map] container box: ${rect.width}x${rect.height} — internal <canvas>: ${glCanvas.width}x${glCanvas.height} (style ${glCanvas.style.width} x ${glCanvas.style.height})`);
     } catch (err) {
       console.error("[circuit-map] map init failed:", err);
       addNotice("Map failed to load — see console for details");
@@ -349,6 +352,7 @@ async function onToggleChange(e) {
 
   if (!on) {
     dom.panel.classList.remove("bk-map-visible");
+    dom.panel.style.transform = ""; // clear the inline override from transitionend so the next enter animates from the CSS base state again
     dom.panel.hidden = true;
     dom.mainRow?.classList.remove("bk-map-open");
     dom.modalBox?.classList.remove("bk-modal-wide");
@@ -397,6 +401,18 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
 
   dom.toggle.addEventListener("change", onToggleChange);
   dom.dimBtn?.addEventListener("click", toggle2D3D);
+
+  // Once the enter transition finishes, drop the (by-then no-op) transform
+  // entirely rather than leaving translate(0,0) applied forever — a
+  // permanently-transformed ancestor keeps the element on its own
+  // compositing layer, which some GPU/driver combos render a WebGL canvas
+  // blank under. Also resize() once more in case the container's measured
+  // box was briefly affected mid-transition.
+  dom.panel.addEventListener("transitionend", e => {
+    if (e.propertyName !== "transform" || !dom.panel.classList.contains("bk-map-visible")) return;
+    dom.panel.style.transform = "none";
+    map?.resize();
+  });
 
   resizeHandler = () => { if (map && panelOpen) map.resize(); };
   window.addEventListener("resize", resizeHandler);
