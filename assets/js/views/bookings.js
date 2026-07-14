@@ -557,6 +557,22 @@ function getCircuitValues() {
     .filter(Boolean);
 }
 
+/** BO/Client/Brand/dates for the circuit map's screenshot header (see
+    getBookingInfo in circuit-map.js's initCircuitMapUI()). Reads straight
+    from the form fields, not the campaign objects — this runs on whatever's
+    currently typed/picked, including on an unsaved new booking. */
+function getBookingHeaderInfo() {
+  const bo     = document.getElementById("bookingOrder")?.value?.trim() || "";
+  const client = document.getElementById("bookingClient")?.value?.trim() || "";
+  const brand  = document.getElementById("bookingBrand")?.value?.trim() || "";
+  const startEl = document.getElementById("bkStartVal");
+  const endEl   = document.getElementById("bkEndVal");
+  const start = startEl && !startEl.classList.contains("bk-dt-placeholder") ? startEl.textContent.trim() : "";
+  const end   = endEl && !endEl.classList.contains("bk-dt-placeholder") ? endEl.textContent.trim() : "";
+  const dates = start && end ? `${start} → ${end}` : (start || end || "");
+  return { bo, client, brand, dates };
+}
+
 function setupSuggest(inputId, dropId, getList, onSelect) {
   const input = document.getElementById(inputId);
   const drop  = document.getElementById(dropId);
@@ -1957,7 +1973,7 @@ export async function init(userName) {
   document.getElementById("clearFormBtn")?.addEventListener("click", resetModal);
   document.getElementById("confirmBookingBtn")?.addEventListener("click", saveBooking);
 
-  initCircuitMapUI({ getSelectedCircuits: getCircuitValues });
+  initCircuitMapUI({ getSelectedCircuits: getCircuitValues, getBookingInfo: getBookingHeaderInfo });
 
   // Circuit rows wire their own "input" → checkFormComplete (see renderCircuitRow).
   ["bookingClient","bookingBrand"].forEach(id =>

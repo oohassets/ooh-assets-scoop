@@ -68,6 +68,11 @@ let visibleIds      = new Set();
 
 let dom = {};
 let getSelectedCircuits = () => [];
+// Supplies the booking form's own BO/Client/Brand/dates for the screenshot
+// header (see drawScreenshotHeader()) — circuit-map.js has no direct access
+// to bookings.js's form fields, so bookings.js passes a getter the same way
+// it does for getSelectedCircuits.
+let getBookingInfo = () => ({});
 let resizeHandler = null;
 let canvasResizeObserver = null;
 let labelsOn = true;
@@ -947,12 +952,59 @@ async function saveScreenshotCanvas(canvas) {
   URL.revokeObjectURL(url);
 }
 
+/** Draws the "CIRCUIT MAP | BO - Client - Brand Campaign | Dates" header bar
+    across the top of the export canvas — "CIRCUIT MAP" in the accent color
+    (matching the on-screen .bk-map-panel-title), the rest in the theme's
+    normal text color, separated by "|". Segments with no value (e.g. a
+    booking with no BO yet) are simply omitted rather than leaving a stray
+    " - "/"|". Returns the bar's height so future callers could stack
+    something below it if needed (nothing does today). */
+function drawScreenshotHeader(ctx, canvasWidth, scale, theme, segments) {
+  const fontSize = Math.round(10 * scale);
+  const padX = 14 * scale, padY = 8 * scale;
+  const barHeight = fontSize + padY * 2;
+  const midY = barHeight / 2;
+
+  ctx.save();
+  ctx.fillStyle = theme.bg;
+  ctx.fillRect(0, 0, canvasWidth, barHeight);
+  ctx.strokeStyle = theme.border;
+  ctx.lineWidth = Math.max(1, scale * 0.75);
+  ctx.beginPath(); ctx.moveTo(0, barHeight); ctx.lineTo(canvasWidth, barHeight); ctx.stroke();
+
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  let x = padX;
+
+  ctx.font = `700 ${fontSize}px ${theme.fontFamily}`;
+  ctx.fillStyle = theme.accent;
+  const title = segments[0].toUpperCase();
+  ctx.fillText(title, x, midY);
+  x += ctx.measureText(title).width;
+
+  const rest = segments.slice(1).filter(Boolean);
+  ctx.font = `600 ${fontSize}px ${theme.fontFamily}`;
+  rest.forEach(seg => {
+    ctx.fillStyle = theme.border;
+    const sep = "   |   ";
+    ctx.fillText(sep, x, midY);
+    x += ctx.measureText(sep).width;
+    ctx.fillStyle = theme.text;
+    ctx.fillText(seg, x, midY);
+    x += ctx.measureText(seg).width;
+  });
+
+  ctx.restore();
+  return barHeight;
+}
+
 /** Exports the current map view as a high-resolution 5:3 PNG. Frames the
     selected circuits, momentarily resizes the MapLibre container to a fixed
     5:3 export resolution (counter-scaled back down visually via CSS
     transform so nothing appears to move on screen — a "Capturing…" veil
-    covers the brief non-uniform squish this causes), then composites in the
-    Details / Dimensions cards on top if their toggles are on, matching
+    covers the brief non-uniform squish this causes), then composites in a
+    "CIRCUIT MAP | BO - Client - Brand | Dates" header (drawScreenshotHeader())
+    plus the Details / Dimensions cards if their toggles are on, matching
     whatever's currently shown on screen, and saves the result (see
     saveScreenshotCanvas() above for how "saves" adapts per platform). */
 async function captureScreenshot() {
@@ -1006,6 +1058,15 @@ async function captureScreenshot() {
     ctx.drawImage(mapCanvas, 0, 0);
 
     const pxScale = mapCanvas.width / targetWidth; // device pixels per CSS px, at the export size
+
+    const info = getBookingInfo() || {};
+    const bookingLabel = [info.bo, info.client, info.brand].filter(Boolean).join(" - ");
+    // .bk-map-panel-hdr (not .bk-map-panel itself) has real bg/border set —
+    // .bk-map-panel has no border of its own, so its computed border color
+    // would be an unreliable default rather than the intended --border-glass.
+    const headerTheme = readCardTheme(dom.panel.querySelector(".bk-map-panel-hdr") || dom.panel);
+    drawScreenshotHeader(ctx, out.width, pxScale, headerTheme, ["Circuit Map", bookingLabel, info.dates]);
+
     const margin = 10 * pxScale;
     let cardX = margin;
     const cardBottomY = out.height - margin;
@@ -1181,8 +1242,9 @@ async function onToggleChange(e) {
 }
 
 /** Wires the toggle + resize button. Call once per Bookings view init(). */
-export function initCircuitMapUI({ getSelectedCircuits: getter }) {
+export function initCircuitMapUI({ getSelectedCircuits: getter, getBookingInfo: infoGetter }) {
   getSelectedCircuits = getter || (() => []);
+  getBookingInfo = infoGetter || (() => ({}));
 
   dom = {
     toggle:  document.getElementById("bkMapToggle"),
