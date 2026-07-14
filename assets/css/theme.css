@@ -149,3 +149,31 @@ iframe { position:relative; z-index:1; border:none; }
    identical resting frame either way, and the transition still interpolates
    correctly from translateY(30px) to none. */
 .reveal.visible { opacity:1; transform:none; }
+
+/* ── Prevent mobile Safari's auto-zoom on input focus ──
+   iOS zooms the whole page in whenever a focused text field's computed
+   font-size is under 16px — most of this app's inputs/selects are styled
+   smaller than that for a tighter desktop look, which is what triggers it.
+   Global + !important so it reliably wins over every page's own (smaller)
+   input font-size without having to hunt down and patch each one
+   individually; scoped to mobile viewports only so desktop's compact sizing
+   is untouched. Excludes checkbox/radio/range/etc. — their native controls
+   don't render text and font-size can affect their intrinsic sizing in some
+   browsers. */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="password"],
+  input[type="url"],
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"],
+  input:not([type]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
