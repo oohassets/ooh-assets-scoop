@@ -654,6 +654,11 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 
 /* ── Responsive ───────────────────────── */
 @media(max-width:768px) {
+  /* Booking modal is always fullscreen on phones (standard bottom-sheet ->
+     fullscreen behavior), regardless of whether the circuit map is open —
+     a *tablet*-only variant of this same rule, gated to only apply when the
+     map panel is open, lives in the max-width:899px block further down
+     (see the comment there). */
   .bk-modal { border-radius:0 !important; max-height:100dvh; height:100dvh; }
   .bk-overlay { align-items:flex-start; }
   /* Trim the card's own top padding so it doesn't leave a large gap
@@ -826,9 +831,17 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-map-canvas-wrap { position:absolute; inset:0; }
 .bk-map-canvas { width:100%; height:100%; }
 
+/* flex-wrap so the action buttons drop to their own row(s) instead of
+   overflowing/overlapping on narrow phones where all of Labels, Traffic,
+   Screenshot, Show Details, Show Dimensions and 3D/Standard can't fit on
+   one line (row-gap covers the seam between wrapped rows). Height is auto
+   (no fixed height set here) so the header simply grows to fit however many
+   rows it wraps to — it already floats over the map rather than pushing it
+   down, so a taller header on small phones just covers a bit more map. */
 .bk-map-panel-hdr {
   position:absolute; top:0; left:0; right:0; z-index:4;
   display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; row-gap:6px;
   padding:10px 14px; border-bottom:1px solid var(--border-glass);
   background:var(--bg-secondary);
 }
@@ -856,7 +869,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 }
 .bk-map-dim-btn:hover { background:rgba(152,30,50,0.18); box-shadow:0 0 10px rgba(152,30,50,0.35); }
 
-.bk-map-hdr-actions { display:flex; align-items:center; gap:6px; }
+.bk-map-hdr-actions { display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
 
 /* Labels / Traffic toggle chips — off by default (outline only), filled
    solid when active. */
@@ -1025,8 +1038,22 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
    show both usefully, and the form fields would otherwise get crushed under
    a short map strip. Slides in from the right like a pushed nav screen; the
    back button in the panel header (see .bk-map-back-btn) is the only way
-   back since the form underneath is fully covered. */
+   back since the form underneath is fully covered.
+   .bk-modal itself must ALSO go edge-to-edge at this same breakpoint: it has
+   overflow:hidden (see the base .bk-modal rule), and overflow clipping
+   applies to descendants regardless of their own position — so a
+   position:fixed;inset:0 child (the map panel, below) only paints within
+   whatever of the viewport .bk-modal's own box still covers. On phones
+   (≤768px) .bk-modal already happens to be full-viewport-sized via its own
+   ≤768px rule, which is why this bug only ever showed up on tablet widths
+   (769–899px), where .bk-modal was still the small ~480px centered card and
+   silently clipped the "fullscreen" map panel down to almost nothing.
+   Scoped with :has(.bk-map-open) rather than applying unconditionally, so a
+   tablet filling out the form with the map panel closed still gets the
+   normal centered card, not a forced fullscreen sheet. */
 @media(max-width:899px) {
+  .bk-modal:has(.bk-main-row.bk-map-open) { border-radius:0 !important; max-height:100dvh; height:100dvh; }
+  .bk-overlay:has(.bk-main-row.bk-map-open) { align-items:flex-start; }
   .bk-map-back-btn { display:flex; }
   .bk-main-row.bk-map-open .bk-view { flex:1 1 auto; min-height:0; }
   .bk-main-row.bk-map-open .bk-map-panel {
@@ -1039,4 +1066,32 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 }
 @media(max-width:899px) and (prefers-reduced-motion: reduce) {
   .bk-main-row.bk-map-open .bk-map-panel { transition:none; }
+}
+
+/* Mobile (≤600px, same phone/tablet cutoff .bk-overlay already uses above):
+   the Details/Dimensions float row switches from side-by-side to stacked —
+   at phone widths two ~260px-capped panels side by side don't both fit
+   on screen, which is what left Dimensions cut off/requiring horizontal
+   scroll (see .bk-map-float-row's overflow-x:auto for ≥601px). Stacked,
+   both panels are full-width and share ONE scroll container instead of
+   each other's or their own separate horizontal/vertical scrollbars.
+   Details renders above Dimensions simply because it's the first child in
+   DOM order — flex-direction:column keeps that order top-to-bottom.
+   Tablets (601–899px) keep the original side-by-side row; there's enough
+   width there for both panels at once. */
+@media(max-width:600px) {
+  .bk-map-float-row {
+    left:10px; right:10px; bottom:14px;
+    flex-direction:column; align-items:stretch;
+    max-width:none; max-height:min(46vh, 320px);
+    overflow-x:visible; overflow-y:auto;
+  }
+  .bk-map-float-panel {
+    width:100%; max-width:none; min-width:0; max-height:none; flex-shrink:0;
+  }
+  .bk-map-float-hdr { font-size:9px; }
+  .bk-map-float-table { font-size:11px; }
+  .bk-map-float-table th { font-size:9px; }
+  .bk-map-float-share-btn { width:18px; height:18px; }
+  .bk-map-float-share-btn .material-symbols-outlined { font-size:13px; }
 }
