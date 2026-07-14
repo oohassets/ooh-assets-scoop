@@ -883,6 +883,20 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-map-icon-btn:hover { border-color:var(--map-accent); color:var(--map-accent); }
 .bk-map-icon-btn[aria-busy="true"] { opacity:0.5; cursor:wait; pointer-events:none; }
 
+/* "Fit to visible" MapLibre control button (see FitToVisibleControl in
+   circuit-map.js) — sits inside MapLibre's own .maplibregl-ctrl-group
+   chrome, so the white background/rounded corners/shadow come for free and
+   automatically match the built-in NavigationControl beside it. Icon color
+   is fixed dark (not theme-linked) since that white control chrome doesn't
+   change with the app's light/dark theme either. */
+.bk-map-fit-btn {
+  display:flex; align-items:center; justify-content:center;
+  width:29px; height:29px; padding:0; border:none; background:transparent;
+  color:#333; cursor:pointer;
+}
+.bk-map-fit-btn .material-symbols-outlined { font-size:18px; line-height:1; }
+.bk-map-fit-btn:hover { background:rgba(0,0,0,0.05); }
+
 /* 404 / "no map data" notices — bottom-left of the canvas */
 .bk-map-notices {
   position:absolute; left:10px; bottom:10px; right:10px;

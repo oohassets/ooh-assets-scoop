@@ -100,6 +100,26 @@ function escapeHTML(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
 
+/** Some circuit KML files' <description> text comes through togeojson as a
+    raw JSON envelope — e.g. {"@type":"html","value":"Description: ...\n..."}
+    — instead of the plain HTML/text it's meant to hold (a Google My Maps
+    export quirk), which rendered as literal escaped JSON in the popup.
+    Unwraps that envelope; real HTML descriptions (containing actual tags)
+    still pass through unchanged, so this only affects the JSON-wrapped
+    plain-text case. */
+function normalizeDescription(desc) {
+  if (!desc) return "";
+  let str = String(desc).trim();
+  if (str.startsWith("{") && str.includes('"@type"') && str.includes('"value"')) {
+    try {
+      const parsed = JSON.parse(str);
+      if (typeof parsed?.value === "string") str = parsed.value.trim();
+    } catch { /* not actually JSON — fall through and render as-is */ }
+  }
+  if (/<[a-z][\s\S]*>/i.test(str)) return str; // already real markup
+  return escapeHTML(str).replace(/\n/g, "<br>");
+}
+
 async function loadLibs() {
   if (libsPromise) return libsPromise;
   libsPromise = (async () => {
@@ -248,7 +268,7 @@ function ensureCircuitLayers(id, geojson) {
     const f = e.features?.[0];
     if (!f) return;
     const coords = f.geometry.coordinates.slice();
-    showPopup(coords, f.properties.name || "", f.properties.description || "", idToLabel.get(id) || id);
+    showPopup(coords, f.properties.name || "", normalizeDescription(f.properties.description), idToLabel.get(id) || id);
   });
   map.on("mouseenter", circle, () => { map.getCanvas().style.cursor = "pointer"; });
   map.on("mouseleave", circle, () => { map.getCanvas().style.cursor = ""; });
@@ -282,6 +302,31 @@ function fitToVisible() {
     });
   });
   if (has) map.fitBounds(bounds, { padding: 60, pitch: map.getPitch(), duration: 500 });
+}
+
+/** Custom MapLibre IControl — reuses MapLibre's own "maplibregl-ctrl-group"
+    chrome (white rounded button group, same shadow/border as the built-in
+    NavigationControl) so it matches that control's look with no bespoke
+    CSS. Added to the map after the NavigationControl, in the same
+    "bottom-right" corner, so it stacks directly above it. */
+class FitToVisibleControl {
+  constructor(onClick) { this._onClick = onClick; }
+  onAdd() {
+    this._container = document.createElement("div");
+    this._container.className = "maplibregl-ctrl maplibregl-ctrl-group";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "bk-map-fit-btn";
+    btn.setAttribute("aria-label", "Fit to visible circuits");
+    btn.title = "Fit to visible circuits";
+    btn.innerHTML = '<span class="material-symbols-outlined">fit_screen</span>';
+    btn.addEventListener("click", () => this._onClick());
+    this._container.appendChild(btn);
+    return this._container;
+  }
+  onRemove() {
+    this._container.parentNode?.removeChild(this._container);
+  }
 }
 
 function clearNotices() { if (dom.notices) dom.notices.innerHTML = ""; }
@@ -409,6 +454,10 @@ async function ensureMapInit() {
       // bottom-right, not top-right — the panel header now floats over the
       // top of the map (see .bk-map-panel-hdr), which would otherwise cover it.
       map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
+      // Added after the NavigationControl (and same corner) so it stacks
+      // directly above it — MapLibre's bottom-right corner container uses
+      // flex-direction:column-reverse, so later-added controls render higher.
+      map.addControl(new FitToVisibleControl(() => { if (visibleIds.size) fitToVisible(); }), "bottom-right");
       // Style/tile fetch failures don't throw — they surface here instead, so
       // log them rather than leaving a silently blank canvas.
       map.on("error", e => console.error("[circuit-map] MapLibre error:", e?.error || e));
