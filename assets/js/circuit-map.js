@@ -311,7 +311,13 @@ function showPopup(coords, name, descriptionHTML, label) {
     .addTo(map);
 }
 
-function fitToVisible() {
+/** paddingPx defaults to 60 for normal on-screen use (the toolbar button,
+    and the auto-fit on selection change). captureScreenshot() passes a
+    scaled-up value instead — MapLibre's fitBounds padding is in CSS px of
+    the container, and that container is briefly resized to a much wider
+    CSS width during capture, so the same 60px would be a nearly
+    imperceptible margin there and fit circuits right up against the edges. */
+function fitToVisible(paddingPx = 60) {
   if (!visibleIds.size || !maplibregl) return;
   const bounds = new maplibregl.LngLatBounds();
   let has = false;
@@ -321,7 +327,7 @@ function fitToVisible() {
       if (f.geometry?.type === "Point") { bounds.extend(f.geometry.coordinates); has = true; }
     });
   });
-  if (has) map.fitBounds(bounds, { padding: 60, pitch: map.getPitch(), duration: 500 });
+  if (has) map.fitBounds(bounds, { padding: paddingPx, pitch: map.getPitch(), duration: 500 });
 }
 
 /** Custom MapLibre IControl — reuses MapLibre's own "maplibregl-ctrl-group"
@@ -768,6 +774,12 @@ function toggleDimensions() {
 const SCREENSHOT_SCALE  = 2; // supersample beyond the display's own devicePixelRatio for a crisper export
 const EXPORT_ASPECT_W   = 5; // exported image is always a fixed 5:3 landscape frame, regardless of
 const EXPORT_ASPECT_H   = 3; // the on-screen panel's own shape (4:3 desktop, arbitrary mobile fullscreen)
+// Floor on the export width so even a small on-screen panel (e.g. a
+// narrower desktop window, or the fixed-size mobile fullscreen sheet)
+// still exports at Ultra HD-class resolution — 3840px wide at 5:3 is
+// 3840x2304, above 4K UHD's 3840x2160. Panels that are already wider than
+// this (once multiplied by SCREENSHOT_SCALE) go higher still.
+const EXPORT_MIN_WIDTH  = 3840;
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -917,6 +929,34 @@ function canvasToBlob(canvas) {
   return new Promise(resolve => canvas.toBlob(resolve, "image/png", 1.0));
 }
 
+/** Strips characters illegal in filenames on Windows/macOS (\ / : * ? " < >
+    |), swaps the date range's "→" for "to" (an arrow glyph is legal but
+    displays/transfers oddly across some systems/uploads), and collapses
+    whitespace — everything else (spaces, letters) is left as typed. */
+function sanitizeFilenamePart(s) {
+  return String(s ?? "")
+    .replace(/→/g, "to")
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** "circuit-map-<BO>-<Client>-<Brand Campaign>-<capture date>.png" — same
+    omit-if-missing behavior as the header (drawScreenshotHeader()) for
+    BO/Client/Brand: a piece with no value is simply left out rather than
+    leaving a stray "--". The date segment is always *today's* date (when
+    the screenshot was taken), not the booking's own selected date range —
+    that already has its own segment in the on-image header — so this always
+    has at least one part and never needs a separate timestamp fallback. */
+function buildScreenshotFilename(info) {
+  const today = new Date();
+  const todayISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const parts = [info?.bo, info?.client, info?.brand, todayISO]
+    .map(sanitizeFilenamePart)
+    .filter(Boolean);
+  return `circuit-map-${parts.join("-")}.png`;
+}
+
 /** Saves the exported canvas to the device. On iOS/Android, an <a download>
     link pointing at a data: URL is unreliable — iOS Safari in particular
     just navigates to the image instead of downloading it, so the file was
@@ -926,8 +966,8 @@ function canvasToBlob(canvas) {
     into the device's actual Photos/Gallery app, which is what users expect.
     Falls back to the classic download-link approach everywhere else
     (desktop browsers), which already works fine there. */
-async function saveScreenshotCanvas(canvas) {
-  const filename = `circuit-map-${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
+async function saveScreenshotCanvas(canvas, info) {
+  const filename = buildScreenshotFilename(info);
   const blob = await canvasToBlob(canvas);
   if (!blob) throw new Error("canvas.toBlob() returned null");
   const file = new File([blob], filename, { type: "image/png" });
@@ -954,15 +994,17 @@ async function saveScreenshotCanvas(canvas) {
 
 /** Draws the "CIRCUIT MAP | BO - Client - Brand Campaign | Dates" header bar
     across the top of the export canvas — "CIRCUIT MAP" in the accent color
-    (matching the on-screen .bk-map-panel-title), the rest in the theme's
-    normal text color, separated by "|". Segments with no value (e.g. a
-    booking with no BO yet) are simply omitted rather than leaving a stray
-    " - "/"|". Returns the bar's height so future callers could stack
-    something below it if needed (nothing does today). */
+    at 10px (matching the on-screen .bk-map-panel-title), the booking info
+    (BO/Client/Brand + Dates) in the theme's normal text color at 12px,
+    separated by "|". Segments with no value (e.g. a booking with no BO yet)
+    are simply omitted rather than leaving a stray " - "/"|". Returns the
+    bar's height so future callers could stack something below it if needed
+    (nothing does today). */
 function drawScreenshotHeader(ctx, canvasWidth, scale, theme, segments) {
-  const fontSize = Math.round(10 * scale);
+  const titleFontSize = Math.round(10 * scale);
+  const infoFontSize  = Math.round(12 * scale);
   const padX = 14 * scale, padY = 8 * scale;
-  const barHeight = fontSize + padY * 2;
+  const barHeight = Math.max(titleFontSize, infoFontSize) + padY * 2;
   const midY = barHeight / 2;
 
   ctx.save();
@@ -976,14 +1018,14 @@ function drawScreenshotHeader(ctx, canvasWidth, scale, theme, segments) {
   ctx.textAlign = "left";
   let x = padX;
 
-  ctx.font = `700 ${fontSize}px ${theme.fontFamily}`;
+  ctx.font = `700 ${titleFontSize}px ${theme.fontFamily}`;
   ctx.fillStyle = theme.accent;
   const title = segments[0].toUpperCase();
   ctx.fillText(title, x, midY);
   x += ctx.measureText(title).width;
 
   const rest = segments.slice(1).filter(Boolean);
-  ctx.font = `600 ${fontSize}px ${theme.fontFamily}`;
+  ctx.font = `600 ${infoFontSize}px ${theme.fontFamily}`;
   rest.forEach(seg => {
     ctx.fillStyle = theme.border;
     const sep = "   |   ";
@@ -1022,7 +1064,15 @@ async function captureScreenshot() {
   dom.screenshotBtn?.setAttribute("aria-busy", "true");
   veilEl?.classList.add("bk-map-capturing");
   try {
-    const targetWidth  = Math.max(rect.width, 800) * SCREENSHOT_SCALE;
+    // MapLibre's internal canvas ends up (container CSS width) x
+    // devicePixelRatio, and the export mirrors that — on a 2x/3x phone
+    // screen, EXPORT_MIN_WIDTH alone could compound with devicePixelRatio
+    // into an excessively large buffer, risking an out-of-memory capture on
+    // lower-end devices. Cap the *final* device-pixel width so it never
+    // exceeds MAX_DEVICE_PIXEL_WIDTH regardless of the display's own ratio.
+    const MAX_DEVICE_PIXEL_WIDTH = 8000;
+    const dpr = window.devicePixelRatio || 1;
+    const targetWidth  = Math.min(Math.max(rect.width * SCREENSHOT_SCALE, EXPORT_MIN_WIDTH), MAX_DEVICE_PIXEL_WIDTH / dpr);
     const targetHeight = Math.round(targetWidth * EXPORT_ASPECT_H / EXPORT_ASPECT_W);
     canvasEl.style.width  = `${targetWidth}px`;
     canvasEl.style.height = `${targetHeight}px`;
@@ -1035,8 +1085,10 @@ async function captureScreenshot() {
     // *current* container aspect ratio is, so fitting against the on-screen
     // panel's own (different) aspect ratio and only resizing afterward could
     // leave circuits cropped once the container became the wider/shorter
-    // 5:3 export box.
-    if (visibleIds.size) fitToVisible();
+    // 5:3 export box. Padding scales with how much wider the container just
+    // got (targetWidth vs rect.width) — the default 60px would be almost no
+    // margin at all against a multi-thousand-pixel-wide export container.
+    if (visibleIds.size) fitToVisible(60 * (targetWidth / rect.width));
 
     // Wait for the fit's camera animation (see fitToVisible()'s own
     // duration) and tiles at the new, larger pixel size to finish loading
@@ -1057,7 +1109,16 @@ async function captureScreenshot() {
     const ctx = out.getContext("2d");
     ctx.drawImage(mapCanvas, 0, 0);
 
-    const pxScale = mapCanvas.width / targetWidth; // device pixels per CSS px, at the export size
+    // NOT devicePixelRatio alone (mapCanvas.width / targetWidth, ~1-3x) —
+    // that left the header/cards nearly invisible once EXPORT_MIN_WIDTH
+    // started inflating targetWidth for Ultra HD captures. But NOT the full
+    // out.width/rect.width ratio uncapped either — that keeps the header the
+    // same *proportion* of the image as the (small) on-screen panel, which
+    // sounds right but reads as oversized once you're looking at the actual
+    // multi-thousand-pixel image rather than the panel it came from. Capped
+    // so text stays a modest, ~10-12px-reads-as-small size regardless of how
+    // big EXPORT_MIN_WIDTH/SCREENSHOT_SCALE push the capture resolution.
+    const uiScale = Math.min(out.width / rect.width, 2);
 
     const info = getBookingInfo() || {};
     const bookingLabel = [info.bo, info.client, info.brand].filter(Boolean).join(" - ");
@@ -1065,27 +1126,27 @@ async function captureScreenshot() {
     // .bk-map-panel has no border of its own, so its computed border color
     // would be an unreliable default rather than the intended --border-glass.
     const headerTheme = readCardTheme(dom.panel.querySelector(".bk-map-panel-hdr") || dom.panel);
-    drawScreenshotHeader(ctx, out.width, pxScale, headerTheme, ["Circuit Map", bookingLabel, info.dates]);
+    drawScreenshotHeader(ctx, out.width, uiScale, headerTheme, ["Circuit Map", bookingLabel, info.dates]);
 
-    const margin = 10 * pxScale;
+    const margin = 10 * uiScale;
     let cardX = margin;
     const cardBottomY = out.height - margin;
 
     if (detailsOn && dom.detailsPanel && !dom.detailsPanel.hidden) {
       const theme = readCardTheme(dom.detailsPanel);
-      const { width } = drawFloatingCard(ctx, cardX, cardBottomY, pxScale, theme, {
+      const { width } = drawFloatingCard(ctx, cardX, cardBottomY, uiScale, theme, {
         title: "Selected Circuits",
         columns: ["Circuit", "Faces"],
         rows: readCardRows(dom.detailsBody),
         totalRow: ["Total", dom.detailsTotal?.textContent || "0"],
         emptyText: "No circuits selected"
       });
-      cardX += width + 8 * pxScale;
+      cardX += width + 8 * uiScale;
     }
 
     if (dimensionsOn && dom.dimensionsPanel && !dom.dimensionsPanel.hidden) {
       const theme = readCardTheme(dom.dimensionsPanel);
-      drawFloatingCard(ctx, cardX, cardBottomY, pxScale, theme, {
+      drawFloatingCard(ctx, cardX, cardBottomY, uiScale, theme, {
         title: "Circuit Dimensions",
         columns: ["Circuit", "Dimension"],
         rows: readCardRows(dom.dimensionsBody),
@@ -1093,7 +1154,7 @@ async function captureScreenshot() {
       });
     }
 
-    await saveScreenshotCanvas(out);
+    await saveScreenshotCanvas(out, info);
   } catch (err) {
     console.error("[circuit-map] screenshot failed:", err);
     addNotice("Screenshot failed — see console for details");
