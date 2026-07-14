@@ -215,10 +215,15 @@
 
 /* ── Date range filter ────────────────── */
 .date-filter-wrap { position:relative; display:inline-flex; }
+/* Matches .search-box input / .filter-box select's font-size/weight (14px,
+   normal) — this used to be 13px/600 (bold), visibly heavier/smaller than
+   the search box and status filter next to it. Shared by both the Schedule
+   section's date range control and the Calendar section's (both use this
+   same class). */
 .date-modern {
   height:44px; line-height:42px; padding:0 14px; border-radius:var(--radius-sm);
   border:1px solid var(--border-glass); background:var(--bg-glass);
-  color:var(--text-primary); font-family:var(--font-body); font-size:13px; font-weight:600;
+  color:var(--text-secondary); font-family:var(--font-body); font-size:14px; font-weight:400;
   cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s;
 }
 .date-modern:hover { border-color:var(--accent-indigo); }
@@ -235,6 +240,28 @@
 .table-container::-webkit-scrollbar-thumb { background:var(--border-glass); border-radius:999px; }
 table.data-table { width:100%; border-collapse:separate; border-spacing:0 8px; min-width:700px; }
 table.data-table th { font-size:13px; font-weight:700; font-family:var(--font-body); color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; padding:10px 16px 10px; text-align:left; position:sticky; top:0; background:var(--bg-secondary); z-index:5; }
+/* Sortable column header (see updateSortHeaderUI()/click handler in
+   bookings.js) — dimmed "unfold_more" while unsorted, swaps to "stat_1"
+   (ascending) or "stat_minus_1" (descending) and becomes fully opaque once
+   this column is the active sort. */
+/* display:flex directly on a <th> overrides its used display away from
+   table-cell, which drops it out of the table's column layout entirely
+   (all sortable headers collapsed into one stacked column instead of
+   spreading across their own columns — a real bug this shipped with once).
+   The <th> itself must stay a plain table-cell; the icon/label alignment
+   lives on the inline-flex wrapper span inside it instead. */
+.th-sortable { cursor:pointer; user-select:none; transition:color 0.15s; white-space:nowrap; }
+.th-sortable:hover { color:var(--text-primary); }
+.th-sort-label { display:inline-flex; align-items:center; gap:2px; }
+/* The icon font's own glyph metrics sit lower than the label's text
+   baseline by default (visible misalignment even inside a centered flex
+   row) — line-height:1 plus its own flex centering keeps the glyph
+   optically centered against the text next to it. */
+.th-sort-icon {
+  font-size:14px !important; line-height:1; opacity:0.45; transition:opacity 0.15s;
+  display:inline-flex; align-items:center;
+}
+.th-sortable.sort-active .th-sort-icon { opacity:1; color:var(--accent-indigo); }
 table.data-table td { padding:16px; font-size:13px; background:var(--bg-glass); transition:background 0.2s; }
 table.data-table tr:hover td { background:var(--bg-glass-hover); }
 table.data-table td:first-child { border-radius:12px 0 0 12px; font-weight:600; }
@@ -677,9 +704,6 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   /* Search box gets its own full-width row; everything else (date filter,
      status, download) wraps to the row(s) below it. */
   .search-box { flex: 1 1 100%; }
-
-  /* Date range/status selects read less "shouty" on mobile. */
-  .date-modern { font-weight: 400; }
 
   /* Custom date-range inputs: own full-width row, inputs side by side and
      free to shrink (native date-input chrome doesn't scale), Apply button

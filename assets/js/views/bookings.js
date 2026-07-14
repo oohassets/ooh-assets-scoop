@@ -14,6 +14,11 @@ let currentUserInitials = "";
 let canEdit         = false;
 let allCampaigns    = [];
 let currentFiltered = [];
+// Column sort state — null sortField means "no sort applied" (falls back to
+// allCampaigns' own order, newest-first — see getCampaigns()). Currently
+// only the Person header is wired to this; see applyFilters()/toggleSort().
+let sortField = null;
+let sortDir   = "asc";
 let drpStart = null, drpEnd = null;
 let calDrpStart = null, calDrpEnd = null;
 let calBookings = [], calDates = [], calRangeStart = null, calRangeEnd = null;
@@ -383,8 +388,52 @@ function applyFilters() {
     });
   }
   if (status) f = f.filter(c => (c.status||"").toLowerCase().trim() === status.toLowerCase().trim());
+  if (sortField) applySortInPlace(f);
   currentFiltered = f;
   renderTable(f);
+}
+
+/** Sorts `f` (the already-filtered array) in place by the active sortField/
+    sortDir — one comparator per sortable <th> (Circuit/Dates/Status/Person;
+    "Client / Brand" has no header hook and isn't sortable). Dates sorts on
+    each row's own `sortDate` (a real Date, already computed in
+    getCampaigns()) rather than the "date" field, which is just the
+    formatted "MMM D → MMM D" display string. */
+function applySortInPlace(f) {
+  const dirMul = sortDir === "asc" ? 1 : -1;
+  const cmpStr = (a, b) => (a || "").localeCompare(b || "", undefined, { sensitivity: "base" });
+  switch (sortField) {
+    case "asset":  f.sort((a, b) => dirMul * cmpStr(a.asset, b.asset)); break;
+    case "date":   f.sort((a, b) => dirMul * (a.sortDate - b.sortDate)); break;
+    case "status": f.sort((a, b) => dirMul * cmpStr(a.status, b.status)); break;
+    case "person": f.sort((a, b) => dirMul * cmpStr(a.person, b.person)); break;
+  }
+}
+
+/** Click handler for a sortable <th> — first click on a new column sorts
+    ascending; clicking the already-active column flips direction. Re-runs
+    applyFilters() so the sort applies on top of whatever search/date/status
+    filters are currently set, and updates every sortable header's icon/state
+    (not just the clicked one, in case more columns become sortable later). */
+function toggleSort(field) {
+  if (sortField === field) {
+    sortDir = sortDir === "asc" ? "desc" : "asc";
+  } else {
+    sortField = field;
+    sortDir = "asc";
+  }
+  updateSortHeaderUI();
+  applyFilters();
+}
+
+function updateSortHeaderUI() {
+  document.querySelectorAll(".th-sortable").forEach(th => {
+    const isActive = th.dataset.sort === sortField;
+    th.classList.toggle("sort-active", isActive);
+    const icon = th.querySelector(".th-sort-icon");
+    if (!icon) return;
+    icon.textContent = !isActive ? "unfold_more" : (sortDir === "asc" ? "stat_1" : "stat_minus_1");
+  });
 }
 
 // ── ASSET / AUTOCOMPLETE DATA ─────────────────────────────
@@ -1839,6 +1888,12 @@ export async function init(userName) {
 
   document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
   document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
+  document.querySelectorAll(".th-sortable").forEach(th => {
+    th.addEventListener("click", () => toggleSort(th.dataset.sort));
+    th.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSort(th.dataset.sort); }
+    });
+  });
   document.getElementById("calSearch")?.addEventListener("input", filterAndRenderBars);
 
   // ── Download ──────────────────────────────────────────
@@ -2080,6 +2135,7 @@ export function cleanup() {
   drpStart = drpEnd = null;
   calDrpStart = calDrpEnd = null;
   bkPickerStart = bkPickerEnd = null;
+  sortField = null; sortDir = "asc";
   teardownCircuitMap();
   // Remove overlays moved to body during init
   document.getElementById("bookingModal")?.remove();
