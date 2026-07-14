@@ -812,13 +812,53 @@ function drawFloatingCard(ctx, x, bottomY, scale, theme, { title, columns, rows,
   return { width: cardW, height: cardH };
 }
 
+function canvasToBlob(canvas) {
+  return new Promise(resolve => canvas.toBlob(resolve, "image/png", 1.0));
+}
+
+/** Saves the exported canvas to the device. On iOS/Android, an <a download>
+    link pointing at a data: URL is unreliable — iOS Safari in particular
+    just navigates to the image instead of downloading it, so the file was
+    effectively unfindable afterward. Where the Web Share API's file support
+    is available (iOS Safari 15+, Android Chrome), route through the native
+    share sheet instead — "Save Image"/"Save to Photos" there saves straight
+    into the device's actual Photos/Gallery app, which is what users expect.
+    Falls back to the classic download-link approach everywhere else
+    (desktop browsers), which already works fine there. */
+async function saveScreenshotCanvas(canvas) {
+  const filename = `circuit-map-${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
+  const blob = await canvasToBlob(canvas);
+  if (!blob) throw new Error("canvas.toBlob() returned null");
+  const file = new File([blob], filename, { type: "image/png" });
+
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: "Circuit Map" });
+      return;
+    } catch (err) {
+      if (err?.name === "AbortError") return; // user dismissed the share sheet — not a failure
+      console.warn("[circuit-map] navigator.share failed, falling back to download:", err);
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 /** Exports the current map view as a high-resolution 5:3 PNG. Frames the
     selected circuits, momentarily resizes the MapLibre container to a fixed
     5:3 export resolution (counter-scaled back down visually via CSS
     transform so nothing appears to move on screen — a "Capturing…" veil
     covers the brief non-uniform squish this causes), then composites in the
     Details / Dimensions cards on top if their toggles are on, matching
-    whatever's currently shown on screen. */
+    whatever's currently shown on screen, and saves the result (see
+    saveScreenshotCanvas() above for how "saves" adapts per platform). */
 async function captureScreenshot() {
   if (!map || !dom.canvas) return;
   const canvasEl = dom.canvas;
@@ -896,13 +936,7 @@ async function captureScreenshot() {
       });
     }
 
-    const dataUrl = out.toDataURL("image/png", 1.0);
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `circuit-map-${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    await saveScreenshotCanvas(out);
   } catch (err) {
     console.error("[circuit-map] screenshot failed:", err);
     addNotice("Screenshot failed — see console for details");
