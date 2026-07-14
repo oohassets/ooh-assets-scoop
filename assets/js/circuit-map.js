@@ -18,9 +18,9 @@ const LOAD_TIMEOUT_MS = 10000;
 const TOMTOM_KEY = "338Cqqs5etZ36aDk1FUHBdJOguMd50FP";
 const TRAFFIC_REFRESH_MS = 60000;
 
-// Standard view's raster basemap (roads/buildings/labels baked into the
-// tile images themselves) — swapped in for the "liberty" vector style's own
-// layers when the user picks Standard, so it's a flat, plain streets look
+// Default view's raster basemap (roads/buildings/labels baked into the tile
+// images themselves) — swapped in for the "liberty" vector style's own
+// layers when the user picks Default, so it's a flat, plain streets look
 // with no 2D/3D building extrusions. Falls back to the second entry if the
 // first's tiles start failing to load (see handleStandardBasemapError()).
 const RETINA_SUFFIX = (window.devicePixelRatio || 1) >= 2 ? "@2x" : "";
@@ -35,6 +35,12 @@ const STANDARD_BASEMAPS = [
   }
 ];
 
+// Satellite view's raster basemap — Esri World Imagery, free/keyless like
+// the Default basemap above. Esri's own tile path is z/y/x (not the usual
+// z/x/y), hence the token order below.
+const SATELLITE_TILE_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const SATELLITE_ATTRIBUTION = "Esri, Maxar, Earthstar Geographics";
+
 // Marker color by circuit category, keyed off the id prefix (see colorFor()).
 const CATEGORY_COLORS = {
   lightpoles: "#1F7A42", // dark green — lightpoles-*
@@ -48,7 +54,7 @@ let libsPromise  = null;
 let mapInitPromise = null;
 let map          = null;
 let popup        = null;
-let is3D         = true;
+let mapMode      = "default"; // "3d" | "default" | "satellite" — Default is what loads first
 let panelOpen    = false;
 let standardBasemapIndex     = 0;
 let standardBasemapFellBack  = false;
@@ -340,9 +346,9 @@ function addNotice(msg) {
 }
 
 /** Adds a fill-extrusion building layer if the style doesn't already ship one.
-    Starts out matching the current is3D state (visible in 3D, hidden in
-    Standard) so a user who flips to Standard before the map finishes
-    loading doesn't briefly see buildings pop in. */
+    Starts out matching the current mapMode (visible only in "3d") so a user
+    who picks a different view before the map finishes loading doesn't
+    briefly see buildings pop in. */
 function ensure3DBuildings() {
   const style = map.getStyle();
   if (style.layers.some(l => l.type === "fill-extrusion")) return;
@@ -355,7 +361,7 @@ function ensure3DBuildings() {
     "source-layer": "building",
     type: "fill-extrusion",
     minzoom: 14,
-    layout: { visibility: is3D ? "visible" : "none" },
+    layout: { visibility: mapMode === "3d" ? "visible" : "none" },
     paint: {
       "fill-extrusion-color": "#1c2430",
       "fill-extrusion-height": ["coalesce", ["get", "render_height"], ["get", "height"], 8],
@@ -365,10 +371,11 @@ function ensure3DBuildings() {
   }, labelLayerId);
 }
 
-/** Adds the Standard-view raster basemap source/layer (hidden by default —
-    only shown while !is3D, see setStandardBasemapActive()). Inserted below
-    every other layer so it sits under the vector style's own layers (still
-    visible while in 3D) as well as our own circuit markers. */
+/** Adds the Default-view raster basemap source/layer (hidden by default —
+    visibility is set once by applyMapMode() after all three ensure*Basemap
+    functions have run, see ensureMapInit()). Inserted below every other
+    layer so it sits under the vector style's own layers (visible in 3D) as
+    well as our own circuit markers. */
 function ensureStandardBasemap() {
   if (map.getSource("standard-basemap")) return;
   const basemap = STANDARD_BASEMAPS[standardBasemapIndex];
@@ -386,7 +393,6 @@ function ensureStandardBasemap() {
     layout: { visibility: "none" }
   }, beforeId);
   map.on("error", handleStandardBasemapError);
-  setStandardBasemapActive(!is3D);
 }
 
 /** Swaps to the next basemap in STANDARD_BASEMAPS the first time a tile from
@@ -408,25 +414,72 @@ function handleStandardBasemapError(e) {
   standardBasemapFellBack = true;
   standardBasemapIndex = nextIndex;
   src.setTiles(STANDARD_BASEMAPS[nextIndex].tiles);
-  console.warn("[circuit-map] Standard-view basemap failed to load, switched to fallback tiles");
+  console.warn("[circuit-map] Default-view basemap failed to load, switched to fallback tiles");
 }
 
-/** Toggles between the Standard raster basemap and the "liberty" vector
-    style's own layers (roads/buildings/labels) — the two are never shown
-    together, so Standard view reads as a plain basemap with no extra 2D/3D
-    building/vector-label clutter. Leaves our own circuit- and traffic
-    layers (and, when returning to 3D, the user's Labels toggle state)
-    untouched. */
-function setStandardBasemapActive(active) {
-  if (!map.getLayer("standard-basemap-layer")) return;
-  map.setLayoutProperty("standard-basemap-layer", "visibility", active ? "visible" : "none");
+/** Adds the Satellite-view raster basemap (Esri World Imagery) — same
+    hidden-by-default/inserted-at-the-bottom treatment as ensureStandardBasemap(). */
+function ensureSatelliteBasemap() {
+  if (map.getSource("satellite-basemap")) return;
+  map.addSource("satellite-basemap", {
+    type: "raster",
+    tiles: [SATELLITE_TILE_URL],
+    tileSize: 256,
+    attribution: SATELLITE_ATTRIBUTION
+  });
+  const beforeId = map.getStyle().layers[0]?.id;
+  map.addLayer({
+    id: "satellite-basemap-layer",
+    type: "raster",
+    source: "satellite-basemap",
+    layout: { visibility: "none" }
+  }, beforeId);
+}
+
+/** Switches between the three map views — "3d" (the "liberty" vector style,
+    pitched, with building extrusions), "default" (the flat CARTO raster
+    basemap) and "satellite" (Esri World Imagery raster) — exactly one of
+    the three basemaps is ever visible at once. Default/Satellite both hide
+    the "liberty" vector style's own layers entirely (no vector road lines
+    or place labels drawn over the raster imagery); 3D restores them,
+    respecting whatever the user's own Labels toggle was set to. */
+function applyMapMode(mode) {
+  if (!map) return;
+  mapMode = mode;
+  map.easeTo({ pitch: mode === "3d" ? 55 : 0, duration: 400 });
+
+  if (map.getLayer("circuit-3d-buildings")) {
+    map.setLayoutProperty("circuit-3d-buildings", "visibility", mode === "3d" ? "visible" : "none");
+  }
+  if (map.getLayer("standard-basemap-layer")) {
+    map.setLayoutProperty("standard-basemap-layer", "visibility", mode === "default" ? "visible" : "none");
+  }
+  if (map.getLayer("satellite-basemap-layer")) {
+    map.setLayoutProperty("satellite-basemap-layer", "visibility", mode === "satellite" ? "visible" : "none");
+  }
   map.getStyle().layers.forEach(l => {
-    if (l.id === "standard-basemap-layer" || l.id.startsWith("circuit-") || l.id === "traffic") return;
-    if (active) {
-      map.setLayoutProperty(l.id, "visibility", "none");
-    } else {
-      map.setLayoutProperty(l.id, "visibility", (l.type === "symbol" && !labelsOn) ? "none" : "visible");
-    }
+    if (l.id === "standard-basemap-layer" || l.id === "satellite-basemap-layer" || l.id.startsWith("circuit-") || l.id === "traffic") return;
+    map.setLayoutProperty(l.id, "visibility", mode === "3d" ? ((l.type === "symbol" && !labelsOn) ? "none" : "visible") : "none");
+  });
+}
+
+/** Forces English map labels on the "liberty" vector style (3D view) by
+    rewriting every place/road/POI symbol layer's text-field to prefer the
+    OpenMapTiles-schema "name:en" field, falling back to the local "name"
+    only where no English translation exists in the source data. Only
+    touches layers whose CURRENT text-field already references some "name"
+    property (skips our own circuit-symbol-* labels, which show a seq
+    number, not a place name, plus anything else non-name-based).
+    The Default/Satellite views' raster basemaps can't be localized this
+    way — their labels (Default's, at least — Satellite has none) are baked
+    into the tile images themselves, not driven by a style expression, so
+    there's nothing here to rewrite for them. */
+function anglicizeVectorLabels() {
+  map.getStyle().layers.forEach(l => {
+    if (l.type !== "symbol" || l.id.startsWith("circuit-symbol-")) return;
+    const field = l.layout?.["text-field"];
+    if (!field || !/"name/.test(JSON.stringify(field))) return;
+    map.setLayoutProperty(l.id, "text-field", ["coalesce", ["get", "name:en"], ["get", "name"]]);
   });
 }
 
@@ -443,7 +496,7 @@ async function ensureMapInit() {
         style: STYLE_URL,
         center: [51.543, 25.372], // Pearl Qatar / Qanat Quartier — where these circuits sit
         zoom: 15,
-        pitch: 55,
+        pitch: 0, // Default is the view that loads first (see mapMode) — 3D eases up to pitch 55 only once picked
         bearing: -20,
         antialias: true,
         // Required for canvas.toDataURL() to read back real pixels in
@@ -471,7 +524,10 @@ async function ensureMapInit() {
       ]);
       console.log("[circuit-map] map loaded");
       ensure3DBuildings();
+      anglicizeVectorLabels();
       ensureStandardBasemap();
+      ensureSatelliteBasemap();
+      applyMapMode(mapMode);
       map.resize();
       const rect = dom.canvas.getBoundingClientRect();
       const glCanvas = map.getCanvas();
@@ -493,17 +549,9 @@ async function ensureMapInit() {
   return mapInitPromise;
 }
 
-function toggle2D3D() {
+function onMapModeChange(e) {
   if (!map) return;
-  is3D = !is3D;
-  map.easeTo({ pitch: is3D ? 55 : 0, duration: 400 });
-  if (dom.dimBtn) dom.dimBtn.textContent = is3D ? "3D" : "Standard";
-  // Standard view is the flat raster basemap only — no 2D/3D building
-  // extrusions, no "liberty" vector style layers underneath it.
-  if (map.getLayer("circuit-3d-buildings")) {
-    map.setLayoutProperty("circuit-3d-buildings", "visibility", is3D ? "visible" : "none");
-  }
-  setStandardBasemapActive(!is3D);
+  applyMapMode(e.target.value);
 }
 
 /** Hides/shows the base style's own text/POI symbol layers (not our own circuit-seq labels). */
@@ -1099,7 +1147,7 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
     panel:   document.getElementById("bkMapPanel"),
     canvas:  document.getElementById("bkMapCanvas"),
     notices: document.getElementById("bkMapNotices"),
-    dimBtn:  document.getElementById("bkMapDimToggle"),
+    viewSelect: document.getElementById("bkMapViewSelect"),
     labelsBtn: document.getElementById("bkMapLabelsToggle"),
     trafficBtn: document.getElementById("bkMapTrafficToggle"),
     modalBox: document.getElementById("bkModalBox"),
@@ -1124,11 +1172,13 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
   trafficOn = false;
   detailsOn = false;
   dimensionsOn = false;
+  mapMode = "default";
+  if (dom.viewSelect) dom.viewSelect.value = mapMode;
   dom.detailsPanel?.setAttribute("hidden", "");
   dom.dimensionsPanel?.setAttribute("hidden", "");
 
   dom.toggle.addEventListener("change", onToggleChange);
-  dom.dimBtn?.addEventListener("click", toggle2D3D);
+  dom.viewSelect?.addEventListener("change", onMapModeChange);
   dom.labelsBtn?.addEventListener("click", toggleLabels);
   dom.trafficBtn?.addEventListener("click", toggleTraffic);
   dom.detailsBtn?.addEventListener("click", toggleDetails);
@@ -1193,7 +1243,7 @@ export function teardownCircuitMap() {
   idToAssetRate = null;
   assetRatePromise = null;
   panelOpen = false;
-  is3D = true;
+  mapMode = "default";
   labelsOn = true;
   trafficOn = false;
   detailsOn = false;

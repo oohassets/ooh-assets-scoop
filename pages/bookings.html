@@ -286,7 +286,11 @@
           </button>
           <button type="button" class="bk-map-chip" id="bkMapDetailsToggle" aria-pressed="false" title="Show the selected circuits list">Details</button>
           <button type="button" class="bk-map-chip" id="bkMapDimensionsToggle" aria-pressed="false" title="Show the selected circuits' dimensions">Dimensions</button>
-          <button type="button" class="bk-map-dim-btn" id="bkMapDimToggle" title="Toggle 3D / Standard view">3D</button>
+          <select class="bk-map-dim-btn" id="bkMapViewSelect" title="Map View" aria-label="Map View">
+            <option value="3d">3D</option>
+            <option value="default" selected>Default</option>
+            <option value="satellite">Satellite</option>
+          </select>
         </div>
       </div>
       <div class="bk-map-canvas-wrap">
