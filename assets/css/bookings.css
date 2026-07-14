@@ -1004,30 +1004,36 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
    its own (stretched, definite) height rather than a fixed percentage, so
    it reads as a landscape map instead of a tall narrow strip. The form just
    takes whatever's left (flex:1, with a sane min-width so it never gets
-   crushed). flex-shrink stays enabled on the map panel (flex:0 1 auto) so
-   it gracefully shrinks below its ideal 4:3 width on medium-width windows
-   rather than overflowing/squeezing the form to nothing.
+   crushed). flex-shrink stays enabled on the map panel (0 1 <basis>) so
+   it can still give up width on medium-width windows rather than
+   overflowing/squeezing the form to nothing.
    .bk-modal only ever had max-height, not height — giving it a real height
    here (not just a cap) is what makes .bk-main-row's own flex:1 resolve to
    a definite size, which .bk-map-panel then stretches into as its own real
    box. The canvas itself no longer depends on any further flex-grow inside
    that box (see .bk-map-canvas-wrap above).
-   The reveal-to-right open animation is driven by animating max-width from 0
-   up to its 70% cap (rather than a fixed-offset transform) — the panel
-   visibly grows out of the seam next to the form, and the form's own flex:1
-   basis shrinks to match in the same motion, so both sides read as one
+   The reveal-to-right open animation is driven by animating flex-basis from
+   0% up to 58% (rather than a fixed-offset transform) — the panel visibly
+   grows out of the seam next to the form, and the form's own flex:1 basis
+   shrinks to match in the same motion, so both sides read as one
    synchronized "drawer opening to the right" gesture. The ResizeObserver set
-   up in circuit-map.js keeps calling map.resize() as the box grows. */
+   up in circuit-map.js keeps calling map.resize() as the box grows.
+   Deliberately NOT using aspect-ratio to size this (an earlier version did,
+   capped via max-width) — combining aspect-ratio with a flex item's basis
+   and an animated max-width is a known-flaky combination in Safari's flex
+   layout engine, and was silently collapsing the panel to 0 width on iPad
+   (form would visibly expand into the freed-up space, map never appearing).
+   A plain flex-basis transition has none of that dependency. */
 @media(min-width:900px) {
   .bk-modal.bk-modal-wide { max-width:min(96vw, 1400px); height:92vh; }
   .bk-main-row.bk-map-open { flex-direction:row; }
   .bk-main-row.bk-map-open .bk-view { flex:1 1 320px; min-width:320px; max-width:none; }
   .bk-main-row.bk-map-open .bk-map-panel {
-    flex:0 1 auto; aspect-ratio:4/3; max-width:0; overflow:hidden;
+    flex:0 1 0%; overflow:hidden;
     border-left:1px solid rgba(152,30,50,0.25);
-    transition:max-width 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+    transition:flex-basis 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
   }
-  .bk-main-row.bk-map-open .bk-map-panel.bk-map-visible { max-width:70%; }
+  .bk-main-row.bk-map-open .bk-map-panel.bk-map-visible { flex-basis:58%; }
 }
 @media(min-width:900px) and (prefers-reduced-motion: reduce) {
   .bk-main-row.bk-map-open .bk-map-panel { transition:none; }

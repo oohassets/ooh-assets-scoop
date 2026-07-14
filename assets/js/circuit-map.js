@@ -1123,9 +1123,9 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
   // compositing layer, which some GPU/driver combos render a WebGL canvas
   // blank under. Also resize() once more in case the container's measured
   // box was briefly affected mid-transition. Widescreen reveals via
-  // max-width instead of transform, so watch for either.
+  // flex-basis instead of transform, so watch for either.
   dom.panel.addEventListener("transitionend", e => {
-    if ((e.propertyName !== "transform" && e.propertyName !== "max-width") || !dom.panel.classList.contains("bk-map-visible")) return;
+    if ((e.propertyName !== "transform" && e.propertyName !== "flex-basis") || !dom.panel.classList.contains("bk-map-visible")) return;
     dom.panel.style.transform = "none";
     map?.resize();
   });
