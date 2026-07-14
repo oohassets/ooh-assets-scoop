@@ -357,7 +357,11 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 }
 @media(min-width:600px){ .bk-modal { border-radius: 24px; animation: modalIn 0.25s ease; } }
 
-.bk-view { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+/* position:relative makes this the containing block for .bk-picker
+   (position:absolute;inset:0) — keeps the date picker confined to the
+   form's own width even when the wide map layout stretches .bk-modal,
+   instead of the picker climbing up to .bk-modal and covering the map too. */
+.bk-view { position:relative; display:flex; flex-direction:column; flex:1; overflow:hidden; }
 
 /* Header */
 .bk-hdr { display:flex; align-items:center; justify-content:center; padding:16px 20px 4px; position:relative; }
@@ -780,21 +784,21 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-main-row { display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; }
 .bk-map-panel[hidden] { display:none; }
 
-/* Fade + slide in from the left as the panel takes its spot on the right
-   (triggered by adding .bk-map-visible — see circuit-map.js onToggleChange).
+/* Reveal-to-right entrance (triggered by adding .bk-map-visible — see
+   circuit-map.js onToggleChange). On wide viewports the panel opens like a
+   drawer growing out of the form's right edge (max-width 0 -> its open
+   width, see the min-width:900px block below); on narrow viewports it's a
+   fullscreen sheet that slides in from the right (max-width:899px block).
    Toggling off is instant (no exit animation requested). */
 .bk-map-panel {
   --map-accent: var(--accent-indigo);
   position:relative;
   background:var(--bg-secondary); color:var(--text-primary);
   font-family:var(--font-body);
-  opacity:0; transform:translateX(-24px);
-  transition:opacity 0.38s ease, transform 0.38s cubic-bezier(0.22,1,0.36,1);
+  opacity:0;
+  transition:opacity 0.3s ease;
 }
-@media(max-width:899px) {
-  .bk-map-panel { transform:translateY(20px); }
-}
-.bk-map-panel.bk-map-visible { opacity:1; transform:translate(0,0); }
+.bk-map-panel.bk-map-visible { opacity:1; }
 @media (prefers-reduced-motion: reduce) {
   .bk-map-panel { transition:none; }
 }
@@ -829,10 +833,21 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   background:var(--bg-secondary);
 }
 [data-theme="light"] .bk-map-panel-hdr { background:#ffffff; }
+.bk-map-hdr-left { display:flex; align-items:center; gap:8px; min-width:0; }
 .bk-map-panel-title {
   font-family:var(--font-body); font-size:11px; font-weight:700;
   letter-spacing:0.1em; text-transform:uppercase; color:var(--map-accent);
 }
+/* Back button — only shown on the narrow/fullscreen layout (<900px), where
+   the form underneath isn't reachable to flip the toggle back off. */
+.bk-map-back-btn {
+  display:none; flex-shrink:0; width:30px; height:30px; margin:-4px 0;
+  border:none; background:none; border-radius:50%; cursor:pointer;
+  align-items:center; justify-content:center; color:var(--text-primary);
+  transition:background 0.15s;
+}
+.bk-map-back-btn .material-symbols-outlined { font-size:20px; }
+.bk-map-back-btn:hover { background:var(--bg-glass); }
 .bk-map-dim-btn {
   font-family:var(--font-body); font-size:11px; font-weight:600;
   letter-spacing:0.02em; color:var(--map-accent); background:rgba(152,30,50,0.08);
@@ -854,12 +869,19 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-map-chip:hover { border-color:var(--map-accent); color:var(--map-accent); }
 .bk-map-chip.active { color:#fff; background:var(--map-accent); border-color:var(--map-accent); }
 
-/* Corner brackets — kept as the one accent detail on the panel */
-.bk-map-corner { position:absolute; width:16px; height:16px; pointer-events:none; z-index:5; }
-.bk-map-corner-tl { top:8px; left:8px; border-top:2px solid var(--map-accent); border-left:2px solid var(--map-accent); }
-.bk-map-corner-tr { top:8px; right:8px; border-top:2px solid var(--map-accent); border-right:2px solid var(--map-accent); }
-.bk-map-corner-bl { bottom:8px; left:8px; border-bottom:2px solid var(--map-accent); border-left:2px solid var(--map-accent); }
-.bk-map-corner-br { bottom:8px; right:8px; border-bottom:2px solid var(--map-accent); border-right:2px solid var(--map-accent); }
+/* Screenshot — icon-only, same footprint/style family as the chips */
+.bk-map-icon-btn {
+  display:flex; align-items:center; justify-content:center;
+  width:26px; height:26px; padding:0; flex-shrink:0;
+  border:1px solid var(--border-glass); border-radius:6px; background:transparent;
+  color:var(--text-muted); cursor:pointer;
+  transition:background 0.15s, border-color 0.15s, color 0.15s;
+}
+.bk-map-icon-btn .material-symbols-outlined {
+  font-size:16px; line-height:1; display:flex; align-items:center; justify-content:center;
+}
+.bk-map-icon-btn:hover { border-color:var(--map-accent); color:var(--map-accent); }
+.bk-map-icon-btn[aria-busy="true"] { opacity:0.5; cursor:wait; pointer-events:none; }
 
 /* 404 / "no map data" notices — bottom-left of the canvas */
 .bk-map-notices {
@@ -872,6 +894,71 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   border-radius:4px; padding:5px 9px; pointer-events:auto;
 }
 [data-theme="dark"] .bk-map-notice { color:#FFD166; background:rgba(10,13,18,0.85); }
+
+/* Details / Dimensions floating panels — bottom-left, toggled by "Show
+   Details" / "Show Dimensions". A flex row so whichever panel(s) are
+   un-hidden lay out side by side automatically; sits a bit higher than
+   .bk-map-notices (also bottom-left) so the two don't overlap in the rare
+   case a notice is showing at the same time. */
+.bk-map-float-row {
+  position:absolute; left:10px; bottom:44px; z-index:6;
+  display:flex; align-items:flex-end; gap:8px;
+  max-width:calc(100% - 20px); overflow-x:auto;
+}
+.bk-map-float-panel {
+  flex-shrink:0;
+  min-width:180px; max-width:260px; max-height:240px;
+  overflow-y:auto; background:var(--bg-secondary); color:var(--text-primary);
+  border:1px solid var(--border-glass); border-radius:10px;
+  padding:10px 12px; font-family:var(--font-body);
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+}
+.bk-map-float-panel[hidden] { display:none; }
+[data-theme="light"] .bk-map-float-panel { background:#ffffff; }
+.bk-map-float-hdr-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+.bk-map-float-hdr {
+  font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--map-accent);
+}
+/* Share — icon-only, no background/border, copies the panel as an
+   aligned plain-text table to the clipboard (see circuit-map.js). */
+.bk-map-float-share-btn {
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  width:20px; height:20px; padding:0;
+  background:transparent; border:none; cursor:pointer;
+  color:var(--text-muted); transition:color 0.15s;
+}
+.bk-map-float-share-btn .material-symbols-outlined { font-size:15px; }
+.bk-map-float-share-btn:hover { color:var(--map-accent); }
+.bk-map-float-share-btn.bk-share-success { color:var(--success); }
+.bk-map-float-share-btn.bk-share-error { color:var(--error); }
+/* table-layout:fixed + explicit 60/40 column widths so the Circuit and
+   Dimension columns always keep a clear gap between them, regardless of how
+   long either cell's text is — otherwise a wrapped multi-line circuit name
+   and a wrapped multi-line dimension can end up sitting right next to each
+   other with no visual separation (see bk-map-float-table td padding). */
+.bk-map-float-table { width:100%; border-collapse:collapse; font-size:12px; table-layout:fixed; }
+.bk-map-float-table th {
+  text-align:left; font-size:10px; font-weight:700; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:0.05em; padding-bottom:4px;
+}
+.bk-map-float-table td { padding:4px 0; border-top:1px solid var(--border-glass); line-height:1.5; overflow-wrap:break-word; }
+.bk-map-float-table th:first-child, .bk-map-float-table td:first-child { width:60%; padding-right:12px; }
+.bk-map-float-table th:last-child, .bk-map-float-table td:last-child { width:40%; padding-left:12px; text-align:right; }
+.bk-map-float-table tfoot td { font-weight:700; border-top:1.5px solid var(--map-accent); padding-top:6px; }
+.bk-map-float-empty { color:var(--text-muted); font-style:italic; text-align:center !important; border-top:none !important; padding:6px 0 !important; }
+
+/* Capture-in-progress veil — covers the canvas while captureScreenshot()
+   temporarily resizes the container to the export resolution (see
+   circuit-map.js), since that resize briefly renders at a different aspect
+   ratio than what's laid out on screen. */
+.bk-map-capturing::after {
+  content:"Capturing…";
+  position:absolute; inset:0; z-index:8;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(10,13,18,0.72); color:#fff;
+  font-family:var(--font-body); font-size:13px; font-weight:600; letter-spacing:0.04em;
+}
 
 /* MapLibre popup — same card look as the rest of the form */
 .bk-map-popup .maplibregl-popup-content {
@@ -897,23 +984,45 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
    here (not just a cap) is what makes .bk-main-row's own flex:1 resolve to
    a definite size, which .bk-map-panel then stretches into as its own real
    box. The canvas itself no longer depends on any further flex-grow inside
-   that box (see .bk-map-canvas-wrap above). */
+   that box (see .bk-map-canvas-wrap above).
+   The reveal-to-right open animation is driven by animating max-width from 0
+   up to its 70% cap (rather than a fixed-offset transform) — the panel
+   visibly grows out of the seam next to the form, and the form's own flex:1
+   basis shrinks to match in the same motion, so both sides read as one
+   synchronized "drawer opening to the right" gesture. The ResizeObserver set
+   up in circuit-map.js keeps calling map.resize() as the box grows. */
 @media(min-width:900px) {
   .bk-modal.bk-modal-wide { max-width:min(96vw, 1400px); height:92vh; }
   .bk-main-row.bk-map-open { flex-direction:row; }
   .bk-main-row.bk-map-open .bk-view { flex:1 1 320px; min-width:320px; max-width:none; }
   .bk-main-row.bk-map-open .bk-map-panel {
-    flex:0 1 auto; aspect-ratio:4/3; max-width:70%;
+    flex:0 1 auto; aspect-ratio:4/3; max-width:0; overflow:hidden;
     border-left:1px solid rgba(152,30,50,0.25);
+    transition:max-width 0.45s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
   }
+  .bk-main-row.bk-map-open .bk-map-panel.bk-map-visible { max-width:70%; }
+}
+@media(min-width:900px) and (prefers-reduced-motion: reduce) {
+  .bk-main-row.bk-map-open .bk-map-panel { transition:none; }
 }
 
-/* Narrow layout: map panel stacks below the form at ~50vh */
+/* Narrow layout (phones + tablets, <900px): the map takes over the full
+   viewport instead of stacking under the form — there isn't enough width to
+   show both usefully, and the form fields would otherwise get crushed under
+   a short map strip. Slides in from the right like a pushed nav screen; the
+   back button in the panel header (see .bk-map-back-btn) is the only way
+   back since the form underneath is fully covered. */
 @media(max-width:899px) {
-  .bk-main-row.bk-map-open { flex-direction:column; }
+  .bk-map-back-btn { display:flex; }
   .bk-main-row.bk-map-open .bk-view { flex:1 1 auto; min-height:0; }
   .bk-main-row.bk-map-open .bk-map-panel {
-    flex:0 0 50vh; height:50vh; width:100%;
-    border-top:1px solid rgba(152,30,50,0.25);
+    position:fixed; inset:0; z-index:10050;
+    border-radius:0; opacity:1;
+    transform:translateX(100%);
+    transition:transform 0.38s cubic-bezier(0.32,0.72,0,1);
   }
+  .bk-main-row.bk-map-open .bk-map-panel.bk-map-visible { transform:translateX(0); }
+}
+@media(max-width:899px) and (prefers-reduced-motion: reduce) {
+  .bk-main-row.bk-map-open .bk-map-panel { transition:none; }
 }

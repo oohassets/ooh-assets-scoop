@@ -7,14 +7,11 @@ if ('serviceWorker' in navigator) {
       window.__swReg = reg;
       console.log('[SCOOP SW] Registered:', reg.scope);
       listenForUpdate(reg);
-
-      // Check for updates on page focus (catches deploys while tab was in background)
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') reg.update();
-      });
-
-      // Periodic check every 5 minutes
-      setInterval(() => reg.update(), 5 * 60 * 1000);
+      // No background polling for updates (no visibilitychange/setInterval
+      // reg.update() loop) — the browser already re-checks the service
+      // worker on normal navigation, so a page left open and idle won't
+      // silently pick up and activate a new version on its own. Updates are
+      // still caught on the next real page load/navigation.
     })
     .catch(err => console.error('[SCOOP SW] Registration failed:', err));
 

@@ -245,51 +245,86 @@
         <button class="bk-btn-clear" id="clearFormBtn">Reset</button>
         <button class="bk-btn-save" id="confirmBookingBtn">Save Booking</button>
       </div>
+
+      <!-- ── Date picker (slides up over the form only — scoped to .bk-view
+           via its own position:relative so it stays confined to the form's
+           width even when the wide map layout is open, see bookings.css) ── -->
+      <div class="bk-picker" id="bkPicker">
+        <div class="bk-picker-drag"></div>
+        <div class="bk-picker-top">
+          <span class="bk-picker-title">Booking dates</span>
+          <button class="bk-picker-x" id="bkPickerClose"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div class="bk-picker-hint" id="bkPickerInfo">Select the campaign start date</div>
+        <div class="bk-picker-months" id="bkPickerMonths"></div>
+        <div class="bk-picker-foot">
+          <div class="bk-qpicks">
+            <button class="bk-qpick" data-weeks="2" disabled>2 Weeks</button>
+            <button class="bk-qpick" data-weeks="4" disabled>4 Weeks</button>
+          </div>
+          <div class="bk-picker-summary">
+            <span class="bk-picker-range" id="bkPickerRange">—</span>
+            <button class="bk-picker-reset" id="bkPickerReset">Reset</button>
+          </div>
+          <button class="bk-picker-ok" id="bkPickerOk">Confirm</button>
+        </div>
+      </div>
     </div><!-- /.bk-view -->
 
     <!-- ── Circuit Map panel (hidden until the toggle above is switched on) ── -->
     <div class="bk-map-panel" id="bkMapPanel" hidden>
       <div class="bk-map-panel-hdr">
-        <span class="bk-map-panel-title">Circuit Map</span>
+        <div class="bk-map-hdr-left">
+          <button type="button" class="bk-map-back-btn" id="bkMapBackBtn" aria-label="Close map"><span class="material-symbols-outlined">arrow_back</span></button>
+          <span class="bk-map-panel-title">Circuit Map</span>
+        </div>
         <div class="bk-map-hdr-actions">
           <button type="button" class="bk-map-chip active" id="bkMapLabelsToggle" aria-pressed="true" title="Toggle map labels">Labels</button>
           <button type="button" class="bk-map-chip" id="bkMapTrafficToggle" aria-pressed="false" title="Toggle live traffic">Traffic</button>
-          <button type="button" class="bk-map-dim-btn" id="bkMapDimToggle" title="Toggle 2D / 3D">3D</button>
+          <button type="button" class="bk-map-icon-btn" id="bkMapScreenshotBtn" aria-label="Screenshot the map" title="Screenshot the map (HD)">
+            <span class="material-symbols-outlined">photo_camera</span>
+          </button>
+          <button type="button" class="bk-map-chip" id="bkMapDetailsToggle" aria-pressed="false" title="Show the selected circuits list">Show Details</button>
+          <button type="button" class="bk-map-chip" id="bkMapDimensionsToggle" aria-pressed="false" title="Show the selected circuits' dimensions">Show Dimensions</button>
+          <button type="button" class="bk-map-dim-btn" id="bkMapDimToggle" title="Toggle 3D / Standard view">3D</button>
         </div>
       </div>
       <div class="bk-map-canvas-wrap">
         <div id="bkMapCanvas" class="bk-map-canvas"></div>
-        <span class="bk-map-corner bk-map-corner-tl"></span>
-        <span class="bk-map-corner bk-map-corner-tr"></span>
-        <span class="bk-map-corner bk-map-corner-bl"></span>
-        <span class="bk-map-corner bk-map-corner-br"></span>
         <div class="bk-map-notices" id="bkMapNotices"></div>
+        <!-- Details / Dimensions float side by side (flex row) — whichever
+             is toggled on lays out next to the other automatically. -->
+        <div class="bk-map-float-row" id="bkMapFloatRow">
+          <div class="bk-map-float-panel" id="bkMapDetailsPanel" hidden>
+            <div class="bk-map-float-hdr-row">
+              <span class="bk-map-float-hdr">Selected Circuits</span>
+              <button type="button" class="bk-map-float-share-btn" id="bkMapDetailsShareBtn" aria-label="Copy as text table" title="Copy as text table">
+                <span class="material-symbols-outlined">share</span>
+              </button>
+            </div>
+            <table class="bk-map-float-table">
+              <thead><tr><th>Circuit</th><th>Faces</th></tr></thead>
+              <tbody id="bkMapDetailsBody"></tbody>
+              <tfoot><tr><td>Total</td><td id="bkMapDetailsTotal">0</td></tr></tfoot>
+            </table>
+          </div>
+          <div class="bk-map-float-panel" id="bkMapDimensionsPanel" hidden>
+            <div class="bk-map-float-hdr-row">
+              <span class="bk-map-float-hdr">Circuit Dimensions</span>
+              <button type="button" class="bk-map-float-share-btn" id="bkMapDimensionsShareBtn" aria-label="Copy as text table" title="Copy as text table">
+                <span class="material-symbols-outlined">share</span>
+              </button>
+            </div>
+            <table class="bk-map-float-table">
+              <thead><tr><th>Circuit</th><th>Dimension</th></tr></thead>
+              <tbody id="bkMapDimensionsBody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
   </div><!-- /.bk-main-row -->
-
-    <!-- ── Date picker (slides up over form) ── -->
-    <div class="bk-picker" id="bkPicker">
-      <div class="bk-picker-drag"></div>
-      <div class="bk-picker-top">
-        <span class="bk-picker-title">Booking dates</span>
-        <button class="bk-picker-x" id="bkPickerClose"><span class="material-symbols-outlined">close</span></button>
-      </div>
-      <div class="bk-picker-hint" id="bkPickerInfo">Select the campaign start date</div>
-      <div class="bk-picker-months" id="bkPickerMonths"></div>
-      <div class="bk-picker-foot">
-        <div class="bk-qpicks">
-          <button class="bk-qpick" data-weeks="2" disabled>2 Weeks</button>
-          <button class="bk-qpick" data-weeks="4" disabled>4 Weeks</button>
-        </div>
-        <div class="bk-picker-summary">
-          <span class="bk-picker-range" id="bkPickerRange">—</span>
-          <button class="bk-picker-reset" id="bkPickerReset">Reset</button>
-        </div>
-        <button class="bk-picker-ok" id="bkPickerOk">Confirm</button>
-      </div>
-    </div>
 
   </div><!-- /.bk-modal -->
 </div>
