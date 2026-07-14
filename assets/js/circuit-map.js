@@ -874,16 +874,6 @@ async function captureScreenshot() {
   dom.screenshotBtn?.setAttribute("aria-busy", "true");
   veilEl?.classList.add("bk-map-capturing");
   try {
-    if (visibleIds.size) {
-      fitToVisible();
-      await new Promise(resolve => {
-        let done = false;
-        const finish = () => { if (done) return; done = true; resolve(); };
-        map.once("idle", finish);
-        setTimeout(finish, 2000);
-      });
-    }
-
     const targetWidth  = Math.max(rect.width, 800) * SCREENSHOT_SCALE;
     const targetHeight = Math.round(targetWidth * EXPORT_ASPECT_H / EXPORT_ASPECT_W);
     canvasEl.style.width  = `${targetWidth}px`;
@@ -892,9 +882,19 @@ async function captureScreenshot() {
     canvasEl.style.transform = `scale(${rect.width / targetWidth}, ${rect.height / targetHeight})`;
     map.resize();
 
-    // Wait for tiles at the new, larger pixel size to finish loading before
-    // reading the canvas back — otherwise the export can catch a half-drawn
-    // frame. Capped so a stalled tile fetch can't hang the button forever.
+    // Fit AFTER resizing to the export's own 5:3 shape, not before —
+    // fitBounds() computes its camera fit against whatever the map's
+    // *current* container aspect ratio is, so fitting against the on-screen
+    // panel's own (different) aspect ratio and only resizing afterward could
+    // leave circuits cropped once the container became the wider/shorter
+    // 5:3 export box.
+    if (visibleIds.size) fitToVisible();
+
+    // Wait for the fit's camera animation (see fitToVisible()'s own
+    // duration) and tiles at the new, larger pixel size to finish loading
+    // before reading the canvas back — "idle" only fires once both are
+    // done, so a single wait covers both. Capped so a stalled fetch or
+    // animation can't hang the button forever.
     await new Promise(resolve => {
       let done = false;
       const finish = () => { if (done) return; done = true; resolve(); };
