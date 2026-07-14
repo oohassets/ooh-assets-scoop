@@ -868,6 +868,21 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   cursor:pointer; transition:background 0.15s, box-shadow 0.15s;
 }
 .bk-map-dim-btn:hover { background:rgba(152,30,50,0.18); box-shadow:0 0 10px rgba(152,30,50,0.35); }
+/* #bkMapViewSelect is a <select> wearing .bk-map-dim-btn's styling — strip
+   native select chrome so its box is sized purely by our own padding/font,
+   same as the sibling chip buttons. */
+#bkMapViewSelect { appearance:none; -webkit-appearance:none; -moz-appearance:none; }
+/* theme.css forces every <select> to font-size:16px on mobile so iOS Safari
+   doesn't zoom the page when it's focused — that's aimed at real text
+   fields, but this control is a compact view-mode picker (a native option
+   picker overlay, not in-place text entry), so it doesn't need the
+   trade-off and was rendering visibly larger than the neighboring chip
+   buttons. #bkMapViewSelect's id specificity beats theme.css's plain
+   "select" rule regardless of load order, even without !important, but
+   matching it keeps this override robust if that base rule ever changes. */
+@media (max-width: 768px) {
+  #bkMapViewSelect { font-size: 11px !important; }
+}
 
 .bk-map-hdr-actions { display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
 
