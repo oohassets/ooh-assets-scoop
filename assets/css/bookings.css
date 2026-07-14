@@ -989,6 +989,12 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-map-float-table th:last-child, .bk-map-float-table td:last-child { width:40%; padding-left:12px; text-align:right; }
 .bk-map-float-table tfoot td { font-weight:700; border-top:1.5px solid var(--map-accent); padding-top:6px; }
 .bk-map-float-empty { color:var(--text-muted); font-style:italic; text-align:center !important; border-top:none !important; padding:6px 0 !important; }
+/* Category-color dot (same color as that circuit's map marker, see
+   colorFor()/circuitDot() in circuit-map.js) prefixing the circuit name. */
+.bk-map-circuit-dot {
+  display:inline-block; width:8px; height:8px; border-radius:50%;
+  margin-right:6px; flex-shrink:0; vertical-align:middle;
+}
 
 /* Capture-in-progress veil — covers the canvas while captureScreenshot()
    temporarily resizes the container to the export resolution (see

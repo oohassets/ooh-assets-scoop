@@ -187,6 +187,15 @@ function colorFor(id) {
   return CATEGORY_COLORS.digital;
 }
 
+/** Small colored dot (same category color as that circuit's map marker) to
+    prefix a circuit's name in the Details/Dimensions floating panels, so a
+    row can be visually matched back to its marker on the map. Purely
+    decorative — contributes no text, so it doesn't affect the plain-text
+    clipboard copy (readCardRows() reads text content only). */
+function circuitDot(id) {
+  return `<span class="bk-map-circuit-dot" style="background:${colorFor(id)}"></span>`;
+}
+
 /** Fetches + parses /maps/{id}.kml to GeoJSON once, caching the result (including failures) forever. */
 async function fetchCircuitGeoJSON(id) {
   if (geojsonCache.has(id)) return geojsonCache.get(id);
@@ -611,10 +620,10 @@ async function updateDetailsPanel(ids) {
     const rate = rateMap.get(id);
     const facesNum = Number(rate?.faces) || 0;
     total += facesNum;
-    return { label: idToLabel.get(id) || id, display: rate?.faces_screen ?? rate?.faces ?? "—" };
+    return { id, label: idToLabel.get(id) || id, display: rate?.faces_screen ?? rate?.faces ?? "—" };
   });
   dom.detailsBody.innerHTML = rows.length
-    ? rows.map(r => `<tr><td>${escapeHTML(r.label)}</td><td>${escapeHTML(String(r.display))}</td></tr>`).join("")
+    ? rows.map(r => `<tr><td>${circuitDot(r.id)}${escapeHTML(r.label)}</td><td>${escapeHTML(String(r.display))}</td></tr>`).join("")
     : `<tr><td colspan="2" class="bk-map-float-empty">No circuits selected</td></tr>`;
   if (dom.detailsTotal) dom.detailsTotal.textContent = String(total);
 }
@@ -643,6 +652,45 @@ function formatMergedNumbers(nums) {
   return `${sorted.slice(0, -1).join(", ")} & ${sorted[sorted.length - 1]}`;
 }
 
+/** Location families where every circuit shares the same "Dimensions" value
+    (Gewan's is itself a multi-size value — see formatDimensionCell() — but
+    that whole value is identical across every Gewan circuit) regardless of
+    which specific circuit/location variant is selected — see
+    collapseDimensionGroups() below. "mupi-c" (digital, e.g. "TPI Digital
+    Mupi Circuit 1/2/…") and "mupi-pa" (static, "Mupi Port Arabia Boardwalk")
+    are different id prefixes/categories, not variants of each other. */
+const DIMENSION_COLLAPSE_GROUPS = [
+  { test: id => id.startsWith("lightpoles"), label: "Light Poles" },
+  { test: id => id.startsWith("mupi-c"),     label: "TPI Digital Mupi" },
+  { test: id => id.startsWith("monoprix"),   label: "TPI Monoprix" },
+  { test: id => id.startsWith("mupi-pa"),    label: "Mupi Port Arabia Boardwalk" },
+  { test: id => id.startsWith("gewan"),      label: "Gewan Crystal Walk" }
+];
+
+/** Every circuit within one of DIMENSION_COLLAPSE_GROUPS shares the same
+    physical dimension, so collapse ALL currently-selected circuits from
+    that group into a single row (e.g. "Light Poles") instead of listing
+    each location/circuit separately — unlike mergeSameDimensionCircuits()
+    below, this merges across different base names/locations entirely, not
+    just "same name, different circuit number". Takes the dimension value
+    from whichever row in that group is encountered first (they're all
+    identical, so it doesn't matter which). Each collapsed row is emitted at
+    the position of that group's first circuit in the original selection
+    order; rows that don't belong to any group pass through unchanged. */
+function collapseDimensionGroups(rows) {
+  const out = [];
+  const collapsedLabels = new Set();
+  rows.forEach(r => {
+    const group = DIMENSION_COLLAPSE_GROUPS.find(g => g.test(r.id));
+    if (!group) { out.push(r); return; }
+    if (!collapsedLabels.has(group.label)) {
+      out.push({ id: r.id, label: group.label, dim: r.dim });
+      collapsedLabels.add(group.label);
+    }
+  });
+  return out;
+}
+
 /** Merges rows that share both an identical Dimension value and a common
     "<base> Circuit N" label into one row labeled "<base> Circuit N1 & N2" —
     e.g. selecting both Gewan Crystal Walk Circuit 1 and 2 (same physical
@@ -653,11 +701,11 @@ function formatMergedNumbers(nums) {
 function mergeSameDimensionCircuits(rows) {
   const order = [];
   const groups = new Map();
-  rows.forEach(({ label, dim }) => {
+  rows.forEach(({ id, label, dim }) => {
     const split = splitCircuitNumber(label);
     const key = split ? `${split.base.toLowerCase()}|${dim}` : `__single__|${label}|${dim}`;
     if (!groups.has(key)) {
-      groups.set(key, split ? { base: split.base, dim, nums: [split.num] } : { label, dim, nums: null });
+      groups.set(key, split ? { id, base: split.base, dim, nums: [split.num] } : { id, label, dim, nums: null });
       order.push(key);
     } else if (split) {
       groups.get(key).nums.push(split.num);
@@ -665,7 +713,7 @@ function mergeSameDimensionCircuits(rows) {
   });
   return order.map(key => {
     const g = groups.get(key);
-    return { label: g.nums ? `${g.base} ${formatMergedNumbers(g.nums)}` : g.label, dim: g.dim };
+    return { id: g.id, label: g.nums ? `${g.base} ${formatMergedNumbers(g.nums)}` : g.label, dim: g.dim };
   });
 }
 
@@ -696,11 +744,11 @@ async function updateDimensionsPanel(ids) {
   const rateMap = await loadAssetRateMap();
   const rawRows = [...ids].map(id => {
     const rate = rateMap.get(id);
-    return { label: idToLabel.get(id) || id, dim: rate?.Dimensions || "—" };
+    return { id, label: idToLabel.get(id) || id, dim: rate?.Dimensions || "—" };
   });
-  const rows = mergeSameDimensionCircuits(rawRows);
+  const rows = mergeSameDimensionCircuits(collapseDimensionGroups(rawRows));
   dom.dimensionsBody.innerHTML = rows.length
-    ? rows.map(r => `<tr><td>${escapeHTML(r.label)}</td><td>${formatDimensionCell(r.dim)}</td></tr>`).join("")
+    ? rows.map(r => `<tr><td>${circuitDot(r.id)}${escapeHTML(r.label)}</td><td>${formatDimensionCell(r.dim)}</td></tr>`).join("")
     : `<tr><td colspan="2" class="bk-map-float-empty">No circuits selected</td></tr>`;
 }
 
@@ -1021,24 +1069,19 @@ async function copyTextToClipboard(text) {
   }
 }
 
-/** Builds a plain-text, space-padded table (title + aligned 2-column rows
-    [+ total]) suitable for pasting into an email or chat message. A
-    Dimensions cell's "\n"-joined multi-line sizes are flattened to a single
-    ", "-separated line here, since plain-text alignment can't represent a
-    multi-line table cell without breaking every row after it. */
-function buildShareTableText({ title, columns, rows, totalRow }) {
+/** Builds a plain-text block list (title, then one "circuit name" line
+    followed by its value line(s), blank-line separated per circuit, [+ a
+    trailing total line]) suitable for pasting into an email or chat
+    message. A Dimensions cell's "\n"-joined multi-line sizes are kept as
+    separate lines under that circuit's name rather than flattened onto one
+    line — there's no column alignment to preserve here, so each size just
+    reads as its own line. */
+function buildShareTableText({ title, rows, totalLine }) {
   if (rows.length === 0) return `${title}\nNo circuits selected`;
-
-  const flatRows = rows.map(([a, b]) => [a, b.replace(/\s*\n+\s*/g, ", ")]);
-  const measureRows = totalRow ? [...flatRows, totalRow] : flatRows;
-  const colAWidth = Math.max(columns[0].length, ...measureRows.map(r => r[0].length));
-  const colBWidth = Math.max(columns[1].length, ...measureRows.map(r => r[1].length));
-  const sep = "-".repeat(colAWidth + colBWidth + 3);
-  const padRow = ([a, b]) => `${a.padEnd(colAWidth)}   ${b.padEnd(colBWidth)}`;
-
-  const lines = [title, sep, padRow(columns), sep, ...flatRows.map(padRow)];
-  if (totalRow) lines.push(sep, padRow(totalRow));
-  return lines.join("\n");
+  const blocks = rows.map(([name, value]) => `${name}\n${value}`);
+  const lines = [title, blocks.join("\n\n")];
+  if (totalLine) lines.push(totalLine);
+  return lines.join("\n\n");
 }
 
 /** Briefly swaps a share button's icon/tooltip to confirm success/failure,
@@ -1185,13 +1228,11 @@ export function initCircuitMapUI({ getSelectedCircuits: getter }) {
   dom.dimensionsBtn?.addEventListener("click", toggleDimensions);
   dom.screenshotBtn?.addEventListener("click", captureScreenshot);
   dom.detailsShareBtn?.addEventListener("click", () => shareCardAsText(dom.detailsShareBtn, dom.detailsBody, {
-    title: "Selected Circuits",
-    columns: ["Circuit", "Faces"],
-    totalRow: ["Total", dom.detailsTotal?.textContent || "0"]
+    title: "Circuits Faces",
+    totalLine: `Total ${dom.detailsTotal?.textContent || "0"}`
   }));
   dom.dimensionsShareBtn?.addEventListener("click", () => shareCardAsText(dom.dimensionsShareBtn, dom.dimensionsBody, {
-    title: "Circuit Dimensions",
-    columns: ["Circuit", "Dimension"]
+    title: "Circuit Dimensions"
   }));
   // Mobile/tablet fullscreen back button — only visible under 900px (see
   // .bk-map-back-btn in bookings.css); just flips the same toggle switch

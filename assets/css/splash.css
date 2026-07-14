@@ -73,6 +73,7 @@
   color: #fff; letter-spacing: 0.1em; text-transform: uppercase;
   margin-bottom: 2rem; animation: fadeInUp 0.6s ease both;
   position: relative; z-index: 1;
+  white-space: nowrap; /* pill badge — meant to always read as one line, never wrap */
 }
 .hero-eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
 
@@ -130,6 +131,12 @@
 @media(max-width: 480px) {
   .splash-hero { padding: 24px 14px; }
   .splash-glass { padding: 32px 22px; }
+  /* "SCOOP Media and Communications Co." at the desktop 12px size + 0.1em
+     letter-spacing + 8px/18px padding no longer fits this panel's narrower
+     content width in one line — shrink font/padding/letter-spacing (rather
+     than dropping the nowrap above and letting it wrap) so the pill still
+     reads as a single line, just a smaller one. */
+  .hero-eyebrow { font-size: 9.5px; padding: 6px 12px; gap: 6px; letter-spacing: 0.06em; }
   /* "Inventory, Campaigns and Schedules" no longer fits a proper hero size
      on one line at this width — split it into two shorter lines instead
      of shrinking the font down to body-text size. */
