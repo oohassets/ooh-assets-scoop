@@ -2129,7 +2129,6 @@ export async function init(userName) {
   // ── Sticky header background on scroll (mirrors content-inventory.js) ──
   const appContent   = document.getElementById("app-content");
   const stickyHeader = document.querySelector(".bookings-sticky-header");
-  const bookingsPage = document.querySelector(".bookings-page");
 
   const onScroll = () => {
     stickyHeader?.classList.toggle("bk-scrolled", appContent.scrollTop > 10);
@@ -2137,23 +2136,8 @@ export async function init(userName) {
 
   appContent?.addEventListener("scroll", onScroll, { passive: true });
 
-  // The schedule card sticks right under the header buttons once the
-  // (non-sticky) toolbar scrolls past — keep its offset (--bookings-header-h)
-  // in sync with the header's real height, since that height differs by
-  // breakpoint rather than being a fixed value.
-  let headerRO;
-  if (stickyHeader && bookingsPage) {
-    const syncHeaderHeight = () => {
-      bookingsPage.style.setProperty("--bookings-header-h", `${stickyHeader.offsetHeight}px`);
-    };
-    syncHeaderHeight();
-    headerRO = new ResizeObserver(syncHeaderHeight);
-    headerRO.observe(stickyHeader);
-  }
-
   _cleanupFns = [
     () => appContent?.removeEventListener("scroll", onScroll),
-    () => headerRO?.disconnect(),
     // document-level click listeners persist across view navigations unless
     // explicitly removed (unlike element-scoped listeners inside
     // #app-content, which are torn down for free when the view's markup is

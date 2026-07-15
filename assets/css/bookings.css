@@ -34,38 +34,29 @@
 /* ── Filter toolbar row — NOT sticky; scrolls away with the page. Kept as
    its own block (rather than living inside .bookings-sticky-header) so the
    schedule card below can claim the sticky spot once this scrolls past. ── */
+/* max-width/centering lives on .toolbar (the child), not this row itself —
+   .bookings-toolbar-row is a direct flex item of .bookings-page (flex
+   column, see the min-width:769px block below), and a flex item with
+   auto left/right margins stops stretching to fill the cross axis and
+   shrink-wraps to its content instead (centering *that* narrower box) —
+   exactly the effect that made this row visibly narrower than the table
+   card below it once .bookings-page became a flex container. */
 .bookings-toolbar-row {
-  max-width: 1400px; margin: 0 auto;
   padding: 10px 2rem 14px;
 }
 
 /* ── Schedule section ─────────────────────────────────── */
+/* The table fills to the bottom of the screen and never lets the page
+   itself scroll, at every breakpoint — see the min-width:769px and
+   max-width:768px blocks below for the actual flex/height rules
+   (.bookings-page, #scheduleSection, .bookings-content, #scheduleSection
+   .card and .table-container all participate; every real viewport width
+   is covered by one block or the other, with no gap between them). */
 #scheduleSection {
   padding: 15px;
 }
-/* min-height matters, not just cosmetic spacing: a sticky child's "stuck"
-   range is bounded by its containing block's own box. .card is the only
-   child here, so without this, .bookings-content's box is exactly as tall
-   as .card itself — zero slack — and .card's position:sticky silently never
-   engages (it just scrolls away like a static element) because there's no
-   room between "resting in flow" and "pushed past the bottom of its own
-   containing block" for it to visibly stick within. */
 .bookings-content {
   max-width: 1400px; width: 100%; margin: 0 auto;
-  min-height: 150vh;
-}
-/* Room below the card so the page itself has something to scroll
-   (mobile has its own larger clearance for the fixed dock, below).
-   Sticks to the top — right under the sticky header buttons — once the
-   (non-sticky) toolbar above it has scrolled out of view. The offset
-   tracks the header's real height via --bookings-header-h (set in
-   bookings.js with a ResizeObserver), since that height differs by
-   breakpoint rather than being a fixed value. */
-#scheduleSection .card {
-  margin-bottom: 60px;
-  position: sticky;
-  top: var(--bookings-header-h, 76px);
-  z-index: 40;
 }
 .calendar-content {
   flex: 1; min-height: 0;
@@ -159,7 +150,7 @@
 .bookings-action-row { display: flex; justify-content: flex-end; margin-bottom: 15px; }
 
 /* ── Toolbar + search ─────────────────── */
-.toolbar    { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.toolbar    { display:flex; gap:12px; align-items:center; flex-wrap:wrap; max-width:1400px; margin:0 auto; }
 .search-box { flex:1; min-width:200px; display:flex; align-items:center; gap:10px; padding:0 16px; height:44px; background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:var(--radius-sm); transition:all 0.2s; }
 .search-box:focus-within { border-color:var(--accent-indigo); box-shadow:0 0 0 3px var(--glow-indigo); }
 /* height:100% + line-height + appearance reset: mobile browsers (iOS Safari
@@ -679,6 +670,60 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 }
 .bk-picker-ok:hover { opacity:0.9; box-shadow:0 6px 20px var(--glow-indigo); }
 
+/* ── Desktop / iPad-tablet — table fills to the bottom of the screen,
+   page itself never scrolls (only .table-container scrolls internally).
+   .app-frame (see layout.css) is the app's real scroll container on every
+   page — it's position:fixed with overflow-y:auto and no explicit height,
+   so it scrolls whenever its content (here, .bookings-page) is taller than
+   it. .bookings-content's old min-height:150vh deliberately made the page
+   taller than the viewport so the sticky header/card had room to visibly
+   "stick" while the page scrolled past them. Capping .bookings-page to
+   exactly .app-frame's own height and chaining flex:1/min-height:0 down
+   through every wrapper to .table-container removes that scroll room
+   instead of giving it more — .app-frame ends up with nothing to scroll,
+   and the table simply occupies whatever's left below the header/toolbar.
+   Scoped to ≥769px on purpose — phones keep the sticky/page-scroll
+   behavior in the max-width:768px block below, which suits a small screen
+   (and the very different mobile card layout) better than forcing one tall
+   internally-scrolling box into it. */
+@media(min-width:769px) {
+  .bookings-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .bookings-sticky-header,
+  .bookings-toolbar-row {
+    flex: 0 0 auto;
+  }
+  #scheduleSection {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .bookings-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  #scheduleSection .card {
+    position: static;
+    margin-bottom: 0;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  #scheduleSection .table-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+}
+
 /* ── Responsive ───────────────────────── */
 @media(max-width:768px) {
   /* Booking modal is always fullscreen on phones (standard bottom-sheet ->
@@ -688,22 +733,82 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
      (see the comment there). */
   .bk-modal { border-radius:0 !important; max-height:100dvh; height:100dvh; }
   .bk-overlay { align-items:flex-start; }
+
+  /* Table fills to the bottom of the screen instead of the page scrolling
+     — same technique as the min-width:769px block above (see its comment
+     for the full explanation): .bookings-page is capped to exactly
+     .app-frame's height with overflow:hidden, and flex:1/min-height:0
+     chains down through every wrapper so .table-container is the one
+     thing that actually scrolls. margin-bottom on .card keeps its old
+     clearance above the fixed mobile dock (.mobile-dock, ~66px tall from
+     the true bottom edge) instead of the table sitting behind it. */
+  .bookings-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .bookings-sticky-header,
+  .bookings-toolbar-row {
+    flex: 0 0 auto;
+  }
+  #scheduleSection {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    /* Less horizontal padding than vertical — the card (and the table
+       inside it) was leaving a visibly wider gap on the sides than top/
+       bottom needed. */
+    padding: 8px 4px;
+  }
+  .bookings-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
   /* Trim the card's own top padding so it doesn't leave a large gap
      (8px section pad + 28px base card pad added up to ~46px) once it's
      stuck under the header. */
-  #scheduleSection .card { margin-bottom: 90px; padding-top: 12px; }
+  #scheduleSection .card {
+    position: static;
+    margin-bottom: 90px;
+    padding: 12px;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
   .bookings-sticky-header { padding: 10px 1rem; }
   .bookings-hdr-inner { flex-wrap: wrap; gap: 8px; }
   .bookings-hdr-btns { gap: 8px; }
   .bookings-toolbar-row { padding: 0 1rem 10px; }
-  #scheduleSection{ padding: 8px; }
   .btn-bar-primary, .btn-bar-secondary { font-size: 12px; padding: 9px 16px; }
   .toolbar { gap: 8px; margin-top: 0; }
   #scheduleSection .table-container { margin-top: 0; }
 
-  /* Search box gets its own full-width row; everything else (date filter,
-     status, download) wraps to the row(s) below it. */
+  /* Search box gets its own full-width row; date filter, status, and
+     download share one row underneath instead of wrapping across two —
+     shrunk (no more min-width:140px forcing status onto its own line,
+     smaller height/padding/font) just enough that all three comfortably
+     fit side by side down to the narrowest phones. */
   .search-box { flex: 1 1 100%; }
+  .date-filter-wrap,
+  .filter-box {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .filter-box { padding: 0 10px; height: 38px; }
+  .filter-box select { font-size: 12px; }
+  /* width:100% is the actual fix here — a <select> with no explicit width
+     sizes to its own option text ("July 2026", etc.) regardless of its
+     flex-shrunk wrapper, so it kept overflowing past .date-filter-wrap's
+     box and into the status filter next to it once that wrapper (like
+     .filter-box) was allowed to shrink below the select's natural width. */
+  .date-filter-wrap .date-modern { width: 100%; height: 38px; line-height: 36px; padding: 0 10px; font-size: 12px; }
+  .download-wrap { flex: 0 0 auto; }
+  .download-btn { width: 38px; height: 38px; }
 
   /* Custom date-range inputs: own full-width row, inputs side by side and
      free to shrink (native date-input chrome doesn't scale), Apply button
@@ -758,27 +863,31 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   .mob-person { font-size:11px; color:var(--text-muted); text-align:right; }
   .mob-hdr .mob-col { font-size:10px; font-weight:700; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; }
 
-  /* .card's own position:sticky only has room to visibly "stick" if its
-     containing block (.bookings-content) is taller than .card itself — a
-     sticky element can't travel/stay pinned past its containing block's own
-     edge. If .table-container were left unbounded (overflow:visible), .card
-     would grow to match however many rows are in the list, .bookings-content
-     would grow to match .card, and there'd be zero slack between them — the
-     card would silently never stick (this is what briefly shipped here and
-     didn't fix the reported bug). Capping table-container's height keeps
-     .card itself short regardless of row count, which both (a) gives
-     .bookings-content's min-height (see the schedule-section rule above)
-     real slack to work with, and
-     (b) is what makes .mob-thead-row's own position:sticky (top:0, relative
-     to *this* container's scrollport) have real internal scroll to stick
-     within, once the row count actually exceeds this height. */
+  /* flex:1/min-height:0 (see .bookings-page above) does the height-fitting
+     now — .table-container just needs to actually scroll internally once
+     its flex-allocated space runs out, same as any other row count. */
   #scheduleSection .table-container {
     overflow: auto;
-    max-height: calc(100dvh - var(--bookings-header-h, 76px) - 40px);
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+  /* Sticky lives on the *row* (.mob-thead-row), not its <td> — a sticky
+     element can't travel/stay pinned past its own containing block's edge,
+     and .mob-thead-row's td is its only child, so if the td were the
+     sticky element its containing block (the row) would be exactly as
+     tall as the td itself: zero slack, so it visibly never actually
+     sticks (it "sticks" for an instant then gets pushed away with
+     everything else — indistinguishable from not being sticky at all).
+     The row's own containing block is tbody, which holds every other row
+     too — genuinely taller, so *it* has real room to stick within. */
+  .mob-thead-row {
+    position: sticky;
+    top: 0;
+    z-index: 5;
   }
   .mob-thead-row td {
-    background:var(--bg-secondary) !important; position:sticky;
-    top:0; z-index:5;
+    background:var(--bg-secondary) !important;
     border-radius:8px !important; padding:8px 12px !important;
   }
 }
