@@ -9,14 +9,7 @@
 }
 
 /* ── Sticky filter/action header — sticks to the very top on scroll,
-   reclaiming the nav's space (see nav.nav-hidden ~ .app-frame in layout.css) ──
-   Once nav scrolls out of the way, this becomes the topmost sticky element
-   flush against the real top of the screen — on a notched/Dynamic-Island
-   phone in installed standalone-PWA mode that's exactly where the "Add
-   Booking"/"View Calendar" buttons would sit under the camera housing, so
-   padding-top adds real safe-area clearance instead of just the usual 14px
-   (env() resolves to 0 on non-notched devices/without viewport-fit=cover,
-   so max() just falls back to the normal 14px there). */
+   reclaiming the nav's space (see nav.nav-hidden ~ .app-frame in layout.css) ── */
 .bookings-sticky-header {
   position: sticky;
   top: 0;
@@ -25,7 +18,6 @@
   transition: background 0.25s, box-shadow 0.25s, border-color 0.25s;
   border-bottom: 1px solid transparent;
   padding: 14px 2rem;
-  padding-top: max(14px, env(safe-area-inset-top));
 }
 .bookings-sticky-header.bk-scrolled {
   background: var(--nav-bg);
@@ -155,11 +147,6 @@
 }
 .btn-bar-primary .material-symbols-outlined { font-size: 16px; }
 .btn-bar-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--glow-indigo); }
-/* "Add Booking"/"View Calendar" text label — hidden on the very narrowest
-   phones (see the max-width:380px block below) so the buttons collapse to
-   compact icon-only pills instead of wrapping/clipping past the sticky
-   header's edge. */
-.btn-bar-primary .btn-label { white-space: nowrap; }
 .btn-bar-secondary {
   display: flex; align-items: center; gap: 6px;
   padding: 10px 22px; border-radius: 999px; cursor: pointer;
@@ -705,16 +692,9 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
      (8px section pad + 28px base card pad added up to ~46px) once it's
      stuck under the header. */
   #scheduleSection .card { margin-bottom: 90px; padding-top: 12px; }
-  .bookings-sticky-header {
-    padding: 10px 1rem;
-    padding-top: max(10px, env(safe-area-inset-top));
-  }
+  .bookings-sticky-header { padding: 10px 1rem; }
   .bookings-hdr-inner { flex-wrap: wrap; gap: 8px; }
-  /* Safety net if both buttons' minimum content width (icon + label, see
-     the max-width:380px block below) still can't fit side by side on the
-     very narrowest phones — wraps to two rows instead of overflowing/
-     clipping past the header's edge. */
-  .bookings-hdr-btns { gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .bookings-hdr-btns { gap: 8px; }
   .bookings-toolbar-row { padding: 0 1rem 10px; }
   #scheduleSection{ padding: 8px; }
   .btn-bar-primary, .btn-bar-secondary { font-size: 12px; padding: 9px 16px; }
@@ -757,35 +737,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
   .cal-search-wrap { position: static; transform: none; width: 100%; }
   .bookings-cal-bar { margin: 0; padding-right: 0; }
   .cal-close-btn { position: absolute; top: 12px; right: 12px; margin-left: 0; }
-}
 
-/* ── Narrowest phones — compact icon-only header buttons ─────
-   "Add Booking"/"View Calendar" at max-width:768px's font-size:12px/
-   padding:9px 16px still need roughly 90-110px each (icon+label+padding);
-   two of them plus the 8px gap can outgrow the available width once the
-   header's own 1rem side padding is subtracted on a ~360px-or-narrower
-   phone (or with larger accessibility text sizes), clipping past the
-   button's own pill shape. Dropping the text label and centering just the
-   icon in a fixed circular hit area keeps both buttons comfortably inside
-   the header at any width down to the smallest phones in real use. */
-@media(max-width:380px) {
-  .btn-bar-primary .btn-label { display: none; }
-  .bookings-hdr-btns .btn-bar-primary {
-    /* 48px meets the min. recommended touch target size. */
-    width: 48px; height: 48px; padding: 0; justify-content: center;
-  }
-}
-
-/* ── Table → cards (phones AND iPad Pro portrait) ───────────
-   A wider range than the rest of the mobile UI above (max-width:768px)
-   deliberately — iPad Pro portrait (834-1024px) still has plenty of room for
-   the modal/calendar/toolbar to stay in their desktop layouts (those keep
-   their own 768px cutoff), but a real 5-column data table with sane padding
-   needs >1024px to lay out without cramming columns down to unreadable
-   widths. Below 1024px the table converts to stacked cards instead of
-   shrinking its own padding to fit — a shrunk desktop table was tried first
-   and still left columns fighting each other for space on an 11" iPad. */
-@media(max-width:1023px) {
   /* Mobile table cards — fully escape table layout (not just tr/td) so
      .mob-thead-row's position:sticky isn't sitting inside a display:table
      ancestor, which several browsers fail to sticky-position correctly. */
@@ -824,21 +776,9 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
     overflow: auto;
     max-height: calc(100dvh - var(--bookings-header-h, 76px) - 40px);
   }
-  /* Sticky lives on the *row* (.mob-thead-row), not its <td> — the same
-     containing-block slack issue explained above for .card. .mob-thead-row's
-     own td is its only child, so if the td were the sticky element its
-     containing block (the row) would be exactly as tall as the td itself:
-     zero slack, so it visibly never actually sticks (this shipped once and
-     silently didn't fix the reported "header doesn't stick on mobile" bug).
-     The row's own containing block is tbody, which holds every other row
-     too — genuinely taller, so *it* has real room to stick within. */
-  .mob-thead-row {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-  }
   .mob-thead-row td {
-    background:var(--bg-secondary) !important;
+    background:var(--bg-secondary) !important; position:sticky;
+    top:0; z-index:5;
     border-radius:8px !important; padding:8px 12px !important;
   }
 }
