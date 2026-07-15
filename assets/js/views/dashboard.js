@@ -1,7 +1,7 @@
 /* ── Dashboard View Module ───────────────────────────────── */
-import { rtdb } from "../../../firebase/firebase.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { initScrollReveal } from "../utils.js";
+import { loadRootTables } from "../rtdb-root.js";
+import { loadChartJS } from "../load-chartjs.js";
 
 export let currentUserName = "";
 export function setUser(name) { currentUserName = name; }
@@ -10,8 +10,25 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 
 let chartInstance = null;
 let visitorsChartInstance = null;
+// window/document-level listeners + the cursor-ring interval started by
+// initAnimations() — unlike element-scoped listeners inside #app-content
+// (torn down for free when the view's markup is replaced), these persist
+// across navigations unless explicitly removed, so a stale copy piled up
+// on window/document every time Dashboard was revisited. Tracked here so
+// cleanup() can remove them.
+let scrollProgressHandler = null;
+let cursorMoveHandler = null;
+let cursorRingInterval = null;
 
 // ── HELPERS ───────────────────────────────────────────────
+// Escapes free-text campaign fields (Client/Brand Campaign/BO/Circuits —
+// plain <input> text saved verbatim to RTDB by bookings.js) before they're
+// interpolated into innerHTML here, so a booking with HTML/script in one of
+// those fields can't execute in another viewer's session (stored XSS).
+function escapeHTML(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
 function parseDate(v) {
   if (!v) return null;
   const p = v.toString().trim().split("/").map(x => parseInt(x,10));
@@ -37,7 +54,7 @@ function getStatusClass(s="") {
 
 async function loadAll() {
   try {
-    const snap = await get(ref(rtdb, "/"));
+    const snap = await loadRootTables();
     return snap.exists() ? snap.val() : {};
   } catch(e) { console.error(e); return {}; }
 }
@@ -195,8 +212,8 @@ function renderUpdates(campaigns, tables) {
     const body = items.length ? items.map((u,i) => `
       <div class="update-item" style="animation-delay:${i*0.05}s">
         <div>
-          <div class="update-item-label">${u.brand}</div>
-          <div class="update-item-sub">${u.asset}</div>
+          <div class="update-item-label">${escapeHTML(u.brand)}</div>
+          <div class="update-item-sub">${escapeHTML(u.asset)}</div>
           ${(id==="upcoming"||id==="ending")&&u.statusLabel?`<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`:""}
         </div>
         <div class="update-date-badge"${id==="ending"&&u.sortDate<today?` style="background:rgba(229,72,77,0.08)"`:""}>${u.label}</div>
@@ -226,9 +243,11 @@ function renderUpdates(campaigns, tables) {
 }
 
 // ── CAMPAIGN TRENDS CHART ─────────────────────────────────
-function renderChart(campaigns) {
+async function renderChart(campaigns) {
   const canvas = document.getElementById("trendChart");
   if (!canvas) return;
+  await loadChartJS();
+  if (!canvas.isConnected) return; // view was torn down (cleanup()) while Chart.js was loading
   if (chartInstance) chartInstance.destroy();
   const live=new Array(12).fill(0), booked=new Array(12).fill(0), completed=new Array(12).fill(0), pending=new Array(12).fill(0);
   campaigns.forEach(c => {
@@ -271,10 +290,9 @@ function renderChart(campaigns) {
 }
 
 // ── VISITORS CHART ────────────────────────────────────────
-function renderVisitorsChart(tables) {
+async function renderVisitorsChart(tables) {
   const canvas = document.getElementById("visitorsChart");
   if (!canvas) return;
-  if (visitorsChartInstance) { visitorsChartInstance.destroy(); visitorsChartInstance = null; }
 
   const vt = tables["vehiclecounts"] || tables["VehicleCounts"] ||
     Object.values(tables).find((_,i) => Object.keys(tables)[i]?.toLowerCase() === "vehiclecounts");
@@ -315,6 +333,10 @@ function renderVisitorsChart(tables) {
   const isDark     = document.documentElement.getAttribute("data-theme") !== "light";
   const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
   const labelColor = isDark ? "#5A6A8A" : "#6B7A99";
+
+  await loadChartJS();
+  if (!canvas.isConnected) return; // view was torn down (cleanup()) while Chart.js was loading
+  if (visitorsChartInstance) { visitorsChartInstance.destroy(); visitorsChartInstance = null; }
 
   visitorsChartInstance = new Chart(canvas.getContext("2d"), {
     type: "bar",
@@ -383,10 +405,10 @@ function initStatPanel(campaigns, tables) {
     const today = new Date(); today.setHours(0,0,0,0);
     return items.map((item, i) => {
       const label   = item.brand && item.brand !== "—"
-        ? `${item.client} - ${item.brand}` : item.client;
+        ? `${escapeHTML(item.client)} - ${escapeHTML(item.brand)}` : escapeHTML(item.client);
       const circuit = item.circuit && item.circuit !== "—"
-        ? `<div class="sp-circuit">${item.circuit}</div>` : "";
-      const bo      = item.bo   && item.bo   !== "—" ? `<span class="sp-bo">${item.bo}</span>`   : "";
+        ? `<div class="sp-circuit">${escapeHTML(item.circuit)}</div>` : "";
+      const bo      = item.bo   && item.bo   !== "—" ? `<span class="sp-bo">${escapeHTML(item.bo)}</span>`   : "";
       const dates   = item.date && item.date !== "— → —" ? `<span class="sp-dates">${item.date}</span>` : "";
       // A "Live" campaign whose End Date has already passed is still occupying
       // its circuit — flag it "Extended" the same way content-inventory does.
@@ -468,11 +490,12 @@ function initStatPanel(campaigns, tables) {
 // ── ANIMATIONS ────────────────────────────────────────────
 function initAnimations() {
   // Scroll progress
-  window.addEventListener("scroll", () => {
+  scrollProgressHandler = () => {
     const p = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
     const el = document.getElementById("scroll-progress");
     if (el) el.style.width = p + "%";
-  });
+  };
+  window.addEventListener("scroll", scrollProgressHandler);
 
   // Cursor
   const cursor = document.getElementById("cursor");
@@ -480,8 +503,9 @@ function initAnimations() {
   let mouseX=0, mouseY=0, ringX=0, ringY=0;
   if (cursor && cursorRing) {
     if (window.innerWidth > 900) {
-      document.addEventListener("mousemove", e => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left=mouseX+"px"; cursor.style.top=mouseY+"px"; });
-      setInterval(() => { ringX+=(mouseX-ringX)*0.15; ringY+=(mouseY-ringY)*0.15; cursorRing.style.left=ringX+"px"; cursorRing.style.top=ringY+"px"; }, 16);
+      cursorMoveHandler = e => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left=mouseX+"px"; cursor.style.top=mouseY+"px"; };
+      document.addEventListener("mousemove", cursorMoveHandler);
+      cursorRingInterval = setInterval(() => { ringX+=(mouseX-ringX)*0.15; ringY+=(mouseY-ringY)*0.15; cursorRing.style.left=ringX+"px"; cursorRing.style.top=ringY+"px"; }, 16);
       document.querySelectorAll("button,a,input,select,.stat-card").forEach(el => {
         el.addEventListener("mouseenter", () => { cursor.style.width="24px"; cursor.style.height="24px"; cursorRing.style.width="52px"; cursorRing.style.height="52px"; });
         el.addEventListener("mouseleave", () => { cursor.style.width="16px"; cursor.style.height="16px"; cursorRing.style.width="36px"; cursorRing.style.height="36px"; });
@@ -505,12 +529,18 @@ export async function init(userName) {
   updateStats(campaigns, tables);
   renderUpdates(campaigns, tables);
   initStatPanel(campaigns, tables);
-  renderChart(campaigns);
-  renderVisitorsChart(tables);
+  // Both await the same shared, cached Chart.js load (see loadChartJS()),
+  // so running them concurrently doesn't trigger two script fetches — and
+  // keeps the app-loading overlay up until both charts are actually
+  // attached, instead of hiding it the instant Chart.js starts loading.
+  await Promise.all([renderChart(campaigns), renderVisitorsChart(tables)]);
 }
 
 // ── CLEANUP ───────────────────────────────────────────────
 export function cleanup() {
   if (chartInstance)         { chartInstance.destroy();         chartInstance = null; }
   if (visitorsChartInstance) { visitorsChartInstance.destroy(); visitorsChartInstance = null; }
+  if (scrollProgressHandler) { window.removeEventListener("scroll", scrollProgressHandler); scrollProgressHandler = null; }
+  if (cursorMoveHandler)     { document.removeEventListener("mousemove", cursorMoveHandler); cursorMoveHandler = null; }
+  if (cursorRingInterval)    { clearInterval(cursorRingInterval); cursorRingInterval = null; }
 }

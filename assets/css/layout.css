@@ -140,7 +140,14 @@ nav.nav-hidden ~ .map-container .app-frame {
   flex:1; min-width:0;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-.close-info       { cursor:pointer; font-size:14px; opacity:0.8; flex-shrink:0; }
+.close-info       {
+  cursor:pointer; font-size:14px; opacity:0.8; flex-shrink:0;
+  /* Was a bare text glyph with no defined hit area at all — 48px meets the
+     min. recommended touch target size. Negative margin offsets the added
+     padding so the header's own height/padding rhythm is unaffected. */
+  display:flex; align-items:center; justify-content:center;
+  width:48px; height:48px; margin:-14px -18px -14px 0; border-radius:50%;
+}
 .close-info:hover { opacity:1; }
 
 /* table-layout:fixed makes the 50/50 column split a hard rule instead of a

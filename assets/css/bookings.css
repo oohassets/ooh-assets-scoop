@@ -776,11 +776,36 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
     overflow: auto;
     max-height: calc(100dvh - var(--bookings-header-h, 76px) - 40px);
   }
+  /* Sticky lives on the *row* (.mob-thead-row), not its <td> — the same
+     containing-block slack issue explained above for .card. .mob-thead-row's
+     own td is its only child, so if the td were the sticky element its
+     containing block (the row) would be exactly as tall as the td itself:
+     zero slack, so it visibly never actually sticks (this shipped once and
+     silently didn't fix the reported "header doesn't stick on mobile" bug).
+     The row's own containing block is tbody, which holds every other row
+     too — genuinely taller, so *it* has real room to stick within. */
+  .mob-thead-row {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
   .mob-thead-row td {
-    background:var(--bg-secondary) !important; position:sticky;
-    top:0; z-index:5;
+    background:var(--bg-secondary) !important;
     border-radius:8px !important; padding:8px 12px !important;
   }
+}
+
+/* ── Tablet (iPad Pro portrait, etc.) ───
+   Between the mobile card layout (≤768px) and the full desktop table, iPad
+   Pro portrait widths (834-1024px) landed on the exact same min-width:700px
+   table with the same 16px cell padding as a full desktop screen — as
+   little as ~48px of slack across all 5 columns combined once the card's
+   own padding is subtracted, cramped enough to read as a broken/colliding
+   layout rather than just "a bit tight". */
+@media(min-width:769px) and (max-width:1024px) {
+  table.data-table { min-width:600px; }
+  table.data-table th { padding:10px 10px 10px; }
+  table.data-table td { padding:12px 10px; }
 }
 
 /* ══════════════════════════════════════════

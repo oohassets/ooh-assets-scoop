@@ -2,6 +2,7 @@
 import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { initScrollReveal } from "../utils.js";
+import { loadChartJS } from "../load-chartjs.js";
 
 const adsPerMinute = 6;
 const personPerCar = 2;
@@ -147,10 +148,9 @@ function applyCircuitFilter() {
 }
 
 /** Horizontal bar chart ranking the currently selected circuits by total impressions over the selected period. */
-function renderCircuitRankChart() {
+async function renderCircuitRankChart() {
   const canvas = document.getElementById("circuitRankChart");
   if (!canvas) return;
-  if (rankChart) { rankChart.destroy(); rankChart = null; }
 
   const rows = circuitMetrics
     .filter(m => activeCircuits.has(m.name) && m.totalImp > 0)
@@ -163,6 +163,10 @@ function renderCircuitRankChart() {
   const isDark     = document.documentElement.getAttribute("data-theme") !== "light";
   const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
   const labelColor = isDark ? "#5A6A8A" : "#6B7A99";
+
+  await loadChartJS();
+  if (!canvas.isConnected) return; // view was torn down (cleanup()) while Chart.js was loading
+  if (rankChart) { rankChart.destroy(); rankChart = null; }
 
   rankChart = new Chart(canvas.getContext("2d"), {
     type: "bar",
@@ -296,12 +300,18 @@ async function loadData() {
   const tpiTotal   = tpi.reduce((s, x) => s + Number(x.ContentTotal || x["Content.Total"] || 0), 0);
   const gewanTotal = gewan.reduce((s, x) => s + Number(x.ContentTotal || x["Content.Total"] || 0), 0);
 
-  renderKPIChart(tpiTotal, gewanTotal, days);
   renderCards(tpi, gewan, days);
-  renderChart(tpi, gewan);
+  // Both await the same shared, cached Chart.js load (see loadChartJS()),
+  // so running them concurrently doesn't trigger two script fetches — and
+  // keeps loadData()'s own promise from resolving until both charts are
+  // actually attached, instead of the instant Chart.js starts loading.
+  await Promise.all([
+    renderKPIChart(tpiTotal, gewanTotal, days),
+    renderChart(tpi, gewan),
+  ]);
 }
 
-function renderKPIChart(tpiTotal, gewanTotal, days) {
+async function renderKPIChart(tpiTotal, gewanTotal, days) {
   const combined = tpiTotal + gewanTotal;
   document.getElementById("kpiTPI").innerText   = tpiTotal.toLocaleString();
   document.getElementById("kpiGewan").innerText = gewanTotal.toLocaleString();
@@ -310,9 +320,12 @@ function renderKPIChart(tpiTotal, gewanTotal, days) {
 
   const canvas = document.getElementById("kpiDonut");
   if (!canvas) return;
-  if (kpiChart) { kpiChart.destroy(); kpiChart = null; }
 
   const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+
+  await loadChartJS();
+  if (!canvas.isConnected) return; // view was torn down (cleanup()) while Chart.js was loading
+  if (kpiChart) { kpiChart.destroy(); kpiChart = null; }
 
   kpiChart = new Chart(canvas.getContext("2d"), {
     type: "doughnut",
@@ -407,10 +420,9 @@ function createCard(loc, totalImp, impDay, avg, avgPersons) {
   </div>`;
 }
 
-function renderChart(tpiData, gewanData) {
+async function renderChart(tpiData, gewanData) {
   const canvas = document.getElementById("vehicleChart");
   if (!canvas) return;
-  if (chart) { chart.destroy(); chart = null; }
 
   const rawLabels = Array.from(new Set([
     ...tpiData.map(d => d.ContentDate || d["Content.Date"]),
@@ -426,6 +438,10 @@ function renderChart(tpiData, gewanData) {
   const isDark     = document.documentElement.getAttribute("data-theme") !== "light";
   const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
   const labelColor = isDark ? "#5A6A8A" : "#6B7A99";
+
+  await loadChartJS();
+  if (!canvas.isConnected) return; // view was torn down (cleanup()) while Chart.js was loading
+  if (chart) { chart.destroy(); chart = null; }
 
   chart = new Chart(canvas.getContext("2d"), {
     type: "bar",

@@ -3,6 +3,15 @@ import { rtdb } from "../../../firebase/firebase.js";
 import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { initScrollReveal } from "../utils.js";
 import { initCircuitMapUI, syncCircuitMapSelection, teardownCircuitMap } from "../circuit-map.js";
+import { loadRootTables } from "../rtdb-root.js";
+
+// Escapes free-text booking fields (Client/Brand Campaign/BO/Circuits/Person
+// — all plain <input> text, saved to RTDB verbatim) before they're
+// interpolated into innerHTML, so a booking with HTML/script in one of those
+// fields can't execute in another viewer's session (stored XSS).
+function escapeHTML(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
 
 let currentUserName     = "";
 // Person is saved (and matched against, for the edit-button ownership
@@ -91,7 +100,7 @@ function getInitials(name) {
 
 async function loadAll() {
   try {
-    const snap = await get(ref(rtdb, "/"));
+    const snap = await loadRootTables();
     return snap.exists() ? snap.val() : {};
   } catch(e) { console.error(e); return {}; }
 }
@@ -161,35 +170,35 @@ function renderTable(campaigns) {
       : "";
     return `
       <tr>
-        <td class="td-desk"><div class="client-name">${r.client}</div><div class="brand-name">${r.brand}</div>${r.bo ? `<div class="bo-name">${r.bo}</div>` : ""}</td>
-        <td class="td-desk" style="color:var(--text-secondary);font-size:13px;">${r.asset}</td>
+        <td class="td-desk"><div class="client-name">${escapeHTML(r.client)}</div><div class="brand-name">${escapeHTML(r.brand)}</div>${r.bo ? `<div class="bo-name">${escapeHTML(r.bo)}</div>` : ""}</td>
+        <td class="td-desk" style="color:var(--text-secondary);font-size:13px;">${escapeHTML(r.asset)}</td>
         <td class="td-desk" style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
-          <div style="display:flex;align-items:center;gap:6px;"><span>${r.date}</span>${editDateBtn}</div>
+          <div style="display:flex;align-items:center;gap:6px;"><span>${escapeHTML(r.date)}</span>${editDateBtn}</div>
         </td>
         <td class="td-desk" style="position:relative;">
           <div class="status-cell">
-            <span class="status-pill pill-${statusCls}">${r.status}</span>
+            <span class="status-pill pill-${statusCls}">${escapeHTML(r.status)}</span>
             ${editStatusBtn}
           </div>
         </td>
-        <td class="td-desk" style="color:var(--text-muted);font-size:12px;">${r.person}</td>
+        <td class="td-desk" style="color:var(--text-muted);font-size:12px;">${escapeHTML(r.person)}</td>
         <td class="td-mobile" colspan="5">
           <div class="mob-row">
             <div class="mob-col mob-col-left">
-              <div class="client-name">${r.client}</div>
-              <div class="brand-name">${r.brand}</div>
-              ${r.bo ? `<div class="bo-name">${r.bo}</div>` : ""}
+              <div class="client-name">${escapeHTML(r.client)}</div>
+              <div class="brand-name">${escapeHTML(r.brand)}</div>
+              ${r.bo ? `<div class="bo-name">${escapeHTML(r.bo)}</div>` : ""}
             </div>
             <div class="mob-col mob-col-mid">
-              <div class="mob-circuit">${r.asset}</div>
-              <div class="mob-date"><div style="display:flex;align-items:center;gap:5px;">${r.date}${editDateBtn}</div></div>
+              <div class="mob-circuit">${escapeHTML(r.asset)}</div>
+              <div class="mob-date"><div style="display:flex;align-items:center;gap:5px;">${escapeHTML(r.date)}${editDateBtn}</div></div>
               <div class="status-cell">
-                <span class="status-pill pill-${statusCls}">${r.status}</span>
+                <span class="status-pill pill-${statusCls}">${escapeHTML(r.status)}</span>
                 ${editStatusBtn}
               </div>
             </div>
             <div class="mob-col mob-col-right">
-              <div class="mob-person">${r.person}</div>
+              <div class="mob-person">${escapeHTML(r.person)}</div>
             </div>
           </div>
         </td>
@@ -583,7 +592,7 @@ function setupSuggest(inputId, dropId, getList, onSelect) {
     const list = getList();
     const matches = q ? list.filter(v => v.toLowerCase().includes(q)) : list.slice(0, 8);
     if (!matches.length) { drop.classList.remove("open"); return; }
-    drop.innerHTML = matches.map(v => `<div class="bk-ac-item" data-val="${v}">${v}</div>`).join("");
+    drop.innerHTML = matches.map(v => `<div class="bk-ac-item" data-val="${escapeHTML(v)}">${escapeHTML(v)}</div>`).join("");
     drop.classList.add("open");
   };
 
@@ -1879,9 +1888,10 @@ export async function init(userName) {
   const dateFilterSelect = document.getElementById("dateFilterSelect");
   const dateRangeInputs  = document.getElementById("dateRangeInputs");
 
-  document.addEventListener("click", () => {
+  const closeStatusDropdownsHandler = () => {
     document.querySelectorAll(".inline-status-dropdown.open").forEach(d => d.classList.remove("open"));
-  });
+  };
+  document.addEventListener("click", closeStatusDropdownsHandler);
 
   dateFilterSelect?.addEventListener("change", () => {
     const val     = dateFilterSelect.value;
@@ -1920,12 +1930,13 @@ export async function init(userName) {
     downloadDropdown?.classList.toggle("open");
     downloadBtn.classList.toggle("open");
   });
-  document.addEventListener("click", e => {
+  const closeDownloadDropdownHandler = e => {
     if (!downloadBtn?.contains(e.target) && !downloadDropdown?.contains(e.target)) {
       downloadDropdown?.classList.remove("open");
       downloadBtn?.classList.remove("open");
     }
-  });
+  };
+  document.addEventListener("click", closeDownloadDropdownHandler);
   document.getElementById("downloadPDF")?.addEventListener("click", () => {
     downloadDropdown?.classList.remove("open");
     downloadBtn?.classList.remove("open");
@@ -1945,12 +1956,13 @@ export async function init(userName) {
     calDownloadDropdown?.classList.toggle("open");
     calDownloadBtn.classList.toggle("open");
   });
-  document.addEventListener("click", e => {
+  const closeCalDownloadDropdownHandler = e => {
     if (!calDownloadBtn?.contains(e.target) && !calDownloadDropdown?.contains(e.target)) {
       calDownloadDropdown?.classList.remove("open");
       calDownloadBtn?.classList.remove("open");
     }
-  });
+  };
+  document.addEventListener("click", closeCalDownloadDropdownHandler);
   document.getElementById("calDownloadPDF")?.addEventListener("click", () => {
     calDownloadDropdown?.classList.remove("open");
     calDownloadBtn?.classList.remove("open");
@@ -2141,7 +2153,15 @@ export async function init(userName) {
 
   _cleanupFns = [
     () => appContent?.removeEventListener("scroll", onScroll),
-    () => headerRO?.disconnect()
+    () => headerRO?.disconnect(),
+    // document-level click listeners persist across view navigations unless
+    // explicitly removed (unlike element-scoped listeners inside
+    // #app-content, which are torn down for free when the view's markup is
+    // replaced) — without this, a stale copy of each piled up on every
+    // Bookings visit.
+    () => document.removeEventListener("click", closeStatusDropdownsHandler),
+    () => document.removeEventListener("click", closeDownloadDropdownHandler),
+    () => document.removeEventListener("click", closeCalDownloadDropdownHandler)
   ];
 
   initScrollReveal();

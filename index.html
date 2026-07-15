@@ -15,8 +15,10 @@
     <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="./assets/js/pwa.js"></script>
+    <!-- Chart.js is only used by the Dashboard and Vehicle Traffic views —
+         loaded on demand by those views (assets/js/load-chartjs.js) instead
+         of blocking every page's initial render. -->
+    <script src="./assets/js/pwa.js" defer></script>
     <script type="module" src="./assets/js/app.js"></script>
 
     <!-- Chatbase AI widget -->

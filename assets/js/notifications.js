@@ -4,13 +4,19 @@
    reads manual entries from /notifications,
    and detects service-worker updates.
 ══════════════════════════════════════════ */
-import { rtdb } from "../../firebase/firebase.js";
-import {
-  ref,
-  get,
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { loadRootTables } from "./rtdb-root.js";
 
 let allNotifs = [];
+
+// Escapes notification text before it's interpolated into innerHTML.
+// title/desc can originate from free-text Client/Brand Campaign/Circuits
+// fields (plain <input> text saved verbatim to RTDB by bookings.js) or from
+// manual /notifications entries, so unescaped values could execute HTML/
+// script in every viewer's session (stored XSS) — the bell is reachable
+// from every page.
+function escapeHTML(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
 
 // ── Date helpers ─────────────────────────────────────────────
 function parseDate(v) {
@@ -218,8 +224,8 @@ function renderList() {
         <span class="material-symbols-outlined">${n.icon}</span>
       </div>
       <div class="notif-content">
-        <div class="notif-title">${n.title}</div>
-        <div class="notif-desc">${n.desc}</div>
+        <div class="notif-title">${escapeHTML(n.title)}</div>
+        <div class="notif-desc">${escapeHTML(n.desc)}</div>
         <div class="notif-time">${n.time}</div>
         ${
           n.iconType === "update"
@@ -431,7 +437,7 @@ export async function initNotifications() {
 
   // Load Firebase data
   try {
-    const snap = await get(ref(rtdb, "/"));
+    const snap = await loadRootTables();
     const tables = snap.exists() ? snap.val() : {};
 
     allNotifs = deriveNotifications(tables);
