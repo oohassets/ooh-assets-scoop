@@ -230,13 +230,14 @@ function renderChart(campaigns) {
   const canvas = document.getElementById("trendChart");
   if (!canvas) return;
   if (chartInstance) chartInstance.destroy();
-  const live=new Array(12).fill(0), booked=new Array(12).fill(0), completed=new Array(12).fill(0);
+  const live=new Array(12).fill(0), booked=new Array(12).fill(0), completed=new Array(12).fill(0), pending=new Array(12).fill(0);
   campaigns.forEach(c => {
     const d = parseDate(c.rawStartDate); if (!d) return;
     const m = d.getMonth(); const s = (c.status||"").toLowerCase();
     if (s.includes("live")) live[m]++;
     else if (s.includes("signed")) booked[m]++;
     else if (s.includes("completed")) completed[m]++;
+    else if (s.includes("pending")) pending[m]++;
   });
   const isDark = document.documentElement.getAttribute("data-theme") !== "light";
   const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
@@ -246,6 +247,8 @@ function renderChart(campaigns) {
     data:{
       labels:MONTHS,
       datasets:[
+        // #E0A13A matches --warning/--accent-amber, the app-wide Pending color (see theme.css, .booking-bar.pending in bookings.css).
+        {label:"Pending",data:pending,borderColor:"#E0A13A",backgroundColor:"rgba(224,161,58,0.08)",tension:0.45,fill:true,pointRadius:4,pointHoverRadius:7,borderWidth:2.5},
         {label:"Booked",data:booked,borderColor:"#F43F5E",backgroundColor:"rgba(244,63,94,0.08)",tension:0.45,fill:true,pointRadius:4,pointHoverRadius:7,borderWidth:2.5},
         {label:"Live",data:live,borderColor:"#10B981",backgroundColor:"rgba(16,185,129,0.08)",tension:0.45,fill:true,pointRadius:4,pointHoverRadius:7,borderWidth:2.5},
         {label:"Completed",data:completed,borderColor:"#0496ff",backgroundColor:"rgba(4,150,255,0.08)",tension:0.45,fill:true,pointRadius:4,pointHoverRadius:7,borderWidth:2.5}
