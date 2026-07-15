@@ -2,7 +2,12 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- viewport-fit=cover lets the app render edge-to-edge on notched/
+         Dynamic-Island devices (needed for installed standalone PWA mode —
+         see manifest.json's "display":"standalone") and is required for
+         env(safe-area-inset-*) below to resolve to real values instead of
+         always 0. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>SCOOP OOH Assets</title>
 
     <script>(function(){const t=localStorage.getItem("scoop-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();</script>
