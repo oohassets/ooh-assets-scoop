@@ -194,9 +194,11 @@ function colorFor(id) {
 
 /** Small colored dot (same category color as that circuit's map marker) to
     prefix a circuit's name in the Details/Dimensions floating panels, so a
-    row can be visually matched back to its marker on the map. Purely
-    decorative — contributes no text, so it doesn't affect the plain-text
-    clipboard copy (readCardRows() reads text content only). */
+    row can be visually matched back to its marker on the map. Contributes
+    no text, so it doesn't affect the plain-text clipboard copy
+    (shareCardAsText() reads innerText) — but readCardRows() separately
+    pulls its background color back out by selector so drawFloatingCard()
+    can redraw it in the screenshot export. */
 function circuitDot(id) {
   return `<span class="bk-map-circuit-dot" style="background:${colorFor(id)}"></span>`;
 }
@@ -776,10 +778,13 @@ const EXPORT_ASPECT_W   = 5; // exported image is always a fixed 5:3 landscape f
 const EXPORT_ASPECT_H   = 3; // the on-screen panel's own shape (4:3 desktop, arbitrary mobile fullscreen)
 // Floor on the export width so even a small on-screen panel (e.g. a
 // narrower desktop window, or the fixed-size mobile fullscreen sheet)
-// still exports at Ultra HD-class resolution — 3840px wide at 5:3 is
-// 3840x2304, above 4K UHD's 3840x2160. Panels that are already wider than
-// this (once multiplied by SCREENSHOT_SCALE) go higher still.
-const EXPORT_MIN_WIDTH  = 3840;
+// still exports at Full HD-class resolution — 1920px wide at 5:3 is
+// 1920x1152. Deliberately capped at HD rather than UHD: MapLibre's pin
+// icons render at a fixed CSS pixel size regardless of canvas resolution,
+// so pushing the floor to UHD (3840+) only dilutes those fixed-size pins
+// against a much larger frame, making them look tiny. Panels that are
+// already wider than this (once multiplied by SCREENSHOT_SCALE) go higher.
+const EXPORT_MIN_WIDTH  = 1920;
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -813,11 +818,22 @@ function readCardTheme(panelEl) {
     into the screenshot), skipping the single-cell "No circuits selected"
     placeholder row. Uses innerText (not textContent) so a multi-line
     Dimensions cell's <br>-separated sizes come back as "line1\nline2" —
-    drawFloatingCard() below splits on that to draw each on its own line. */
+    drawFloatingCard() below splits on that to draw each on its own line.
+    Also pulls each row's category-color dot (circuitDot(), see colorFor())
+    off the first cell so drawFloatingCard() can redraw it on the canvas —
+    the dot itself carries no text, so it wouldn't survive innerText alone. */
 function readCardRows(tbody) {
   return [...tbody.querySelectorAll("tr")]
-    .map(tr => [...tr.querySelectorAll("td")].map(td => (td.innerText ?? td.textContent).trim()))
-    .filter(cols => cols.length >= 2);
+    .map(tr => {
+      const cells = [...tr.querySelectorAll("td")];
+      if (cells.length < 2) return null;
+      const dotEl = cells[0].querySelector(".bk-map-circuit-dot");
+      return {
+        cols: cells.map(td => (td.innerText ?? td.textContent).trim()),
+        color: dotEl ? getComputedStyle(dotEl).backgroundColor : null
+      };
+    })
+    .filter(Boolean);
 }
 
 function splitCellLines(v) {
@@ -825,43 +841,103 @@ function splitCellLines(v) {
   return lines.length ? lines : [""];
 }
 
-/** Draws one floating-panel-style card (title + 2-col table [+ total row])
-    onto the export canvas, anchored by its bottom-left corner so callers
-    don't need to know the card's height up front. Cell values may contain
-    "\n" (a multi-line Dimensions cell) — each row's height expands to fit
-    its tallest column. Returns the card's rendered size so the next card
-    can be placed beside it. */
-function drawFloatingCard(ctx, x, bottomY, scale, theme, { title, columns, rows, totalRow, emptyText }) {
+/** Word-wraps a (possibly already "\n"-joined multi-line) cell value to fit
+    maxWidth: each existing line that already fits stays as one line; a line
+    wider than maxWidth is broken across multiple lines on word boundaries
+    instead of overflowing the card. Used for column A (circuit names) when
+    a card is forced to a width narrower than its own natural content — see
+    computeCardLayout()'s forcedWidth. */
+function wrapCellText(ctx, raw, maxWidth) {
+  const paragraphs = splitCellLines(raw);
+  const lines = [];
+  paragraphs.forEach(p => {
+    if (ctx.measureText(p).width <= maxWidth) { lines.push(p); return; }
+    const words = p.split(/\s+/).filter(Boolean);
+    let current = words[0] ?? "";
+    for (let i = 1; i < words.length; i++) {
+      const candidate = `${current} ${words[i]}`;
+      if (ctx.measureText(candidate).width <= maxWidth) current = candidate;
+      else { lines.push(current); current = words[i]; }
+    }
+    if (current) lines.push(current);
+  });
+  return lines.length ? lines : [""];
+}
+
+/** Computes a floating card's full pixel layout (size, wrapped row lines,
+    per-row dot colors) without drawing anything. Split out from
+    drawFloatingCard() so captureScreenshot() can measure the Circuit
+    Dimensions card's natural width up front and pass it as forcedWidth for
+    the Selected Circuits card, so the two end up the same width (Dimensions
+    is the reference — see captureScreenshot()). Column B (short values —
+    "12 Screen", a single dimension) always keeps its own natural width;
+    column A (circuit names) gets whatever's left of forcedWidth and wraps
+    into it via wrapCellText() rather than overflowing the card. Without
+    forcedWidth, cardW is however wide the content naturally needs (which is
+    exactly what Dimensions' own, unforced measurement uses). */
+function computeCardLayout(ctx, scale, theme, { columns, rows, totalRow, emptyText }, forcedWidth) {
   const pad = 14 * scale, gap = 12 * scale, lineH = 15 * scale, rowVPad = 7 * scale, titleH = 20 * scale;
-  const rowFont   = `${Math.round(12 * scale)}px ${theme.fontFamily}`;
-  const headFont  = `700 ${Math.round(10 * scale)}px ${theme.fontFamily}`;
-  const titleFont = `700 ${Math.round(10 * scale)}px ${theme.fontFamily}`;
-  const emptyFont = `italic ${Math.round(11 * scale)}px ${theme.fontFamily}`;
-  const totalFont = `700 ${Math.round(12 * scale)}px ${theme.fontFamily}`;
+  const dotD = 8 * scale, dotGap = 6 * scale; // mirrors .bk-map-circuit-dot's 8px size / 6px margin on screen
+  const rowFontPx = Math.round(10 * scale);
+  const fonts = {
+    row:   `${rowFontPx}px ${theme.fontFamily}`,
+    head:  `700 ${Math.round(10 * scale)}px ${theme.fontFamily}`,
+    title: `700 ${Math.round(10 * scale)}px ${theme.fontFamily}`,
+    empty: `italic ${Math.round(11 * scale)}px ${theme.fontFamily}`,
+    total: `700 ${Math.round(10 * scale)}px ${theme.fontFamily}`
+  };
 
   const isEmpty = rows.length === 0;
-  const rowLines = rows.map(cols => [splitCellLines(cols[0]), splitCellLines(cols[1])]);
-  const totalLines = totalRow ? [splitCellLines(totalRow[0]), splitCellLines(totalRow[1])] : null;
+  const rowColors = rows.map(r => r.color);
 
-  ctx.font = rowFont;
+  ctx.font = fonts.row;
   let colAW = 0, colBW = 0;
-  const lineSets = totalLines ? [...rowLines, totalLines] : rowLines;
-  lineSets.forEach(([a, b]) => {
-    a.forEach(l => { colAW = Math.max(colAW, ctx.measureText(l).width); });
-    b.forEach(l => { colBW = Math.max(colBW, ctx.measureText(l).width); });
+  rows.forEach((r, i) => {
+    const dotSpace = rowColors[i] ? dotD + dotGap : 0; // column A reserves room for its dot, if it has one
+    splitCellLines(r.cols[0]).forEach(l => { colAW = Math.max(colAW, dotSpace + ctx.measureText(l).width); });
+    splitCellLines(r.cols[1]).forEach(l => { colBW = Math.max(colBW, ctx.measureText(l).width); });
   });
+  if (totalRow) {
+    splitCellLines(totalRow[0]).forEach(l => { colAW = Math.max(colAW, ctx.measureText(l).width); });
+    splitCellLines(totalRow[1]).forEach(l => { colBW = Math.max(colBW, ctx.measureText(l).width); });
+  }
   colAW = Math.max(colAW, ctx.measureText(columns[0]).width);
   colBW = Math.max(colBW, ctx.measureText(columns[1]).width);
-  ctx.font = emptyFont;
+  ctx.font = fonts.empty;
   const emptyW = isEmpty ? ctx.measureText(emptyText).width : 0;
 
-  const contentW = isEmpty ? emptyW : (colAW + gap + colBW);
-  const cardW = Math.max(170 * scale, pad * 2 + contentW);
+  const naturalW = Math.max(170 * scale, pad * 2 + (isEmpty ? emptyW : colAW + gap + colBW));
+  const cardW = forcedWidth || naturalW;
+
+  // Column B keeps its natural width always (it's short: "12 Screen", a
+  // single dimension); column A gets whatever's left and wraps into it.
+  // Floored so an unusually long circuit name can't collapse it to nothing.
+  const colAMax = Math.max(60 * scale, cardW - pad * 2 - gap - colBW);
+  ctx.font = fonts.row;
+  const rowLines = rows.map(r => [wrapCellText(ctx, r.cols[0], colAMax), splitCellLines(r.cols[1])]);
+  const totalLines = totalRow ? [wrapCellText(ctx, totalRow[0], colAMax), splitCellLines(totalRow[1])] : null;
+
   const headerRowH = lineH + rowVPad;
   const rowHeights = rowLines.map(([a, b]) => Math.max(a.length, b.length, 1) * lineH + rowVPad);
   const totalRowH = totalLines ? Math.max(totalLines[0].length, totalLines[1].length, 1) * lineH + rowVPad + 4 * scale : 0;
   const bodyH = isEmpty ? (lineH + rowVPad) : (headerRowH + rowHeights.reduce((s, h) => s + h, 0) + totalRowH);
   const cardH = pad * 2 + titleH + bodyH;
+
+  return { pad, gap, lineH, rowVPad, titleH, dotD, dotGap, rowFontPx, fonts, isEmpty, rowLines, rowColors, totalLines, headerRowH, rowHeights, cardW, cardH };
+}
+
+/** Draws one floating-panel-style card (title + 2-col table [+ total row])
+    onto the export canvas, anchored by its bottom-left corner so callers
+    don't need to know the card's height up front. Column A wraps to fit
+    (see computeCardLayout()) — each row's height expands to fit its
+    tallest column. Each row's category-color dot (see readCardRows()) is
+    redrawn beside its circuit name (indenting every wrapped line under it,
+    not just the first), matching the on-screen panel. Returns the card's
+    rendered size so the next card can be placed beside it. */
+function drawFloatingCard(ctx, x, bottomY, scale, theme, config, forcedWidth) {
+  const { title, columns, totalRow, emptyText } = config;
+  const layout = computeCardLayout(ctx, scale, theme, config, forcedWidth);
+  const { pad, lineH, titleH, dotD, dotGap, rowFontPx, fonts, isEmpty, rowLines, rowColors, totalLines, headerRowH, rowHeights, cardW, cardH } = layout;
   const y = bottomY - cardH;
 
   ctx.save();
@@ -876,7 +952,7 @@ function drawFloatingCard(ctx, x, bottomY, scale, theme, { title, columns, rows,
   ctx.textAlign = "left";
   let cy = y + pad;
   ctx.fillStyle = theme.accent;
-  ctx.font = titleFont;
+  ctx.font = fonts.title;
   ctx.fillText(title.toUpperCase(), x + pad, cy);
   cy += titleH;
 
@@ -888,23 +964,39 @@ function drawFloatingCard(ctx, x, bottomY, scale, theme, { title, columns, rows,
 
   if (isEmpty) {
     ctx.fillStyle = theme.muted;
-    ctx.font = emptyFont;
+    ctx.font = fonts.empty;
     ctx.fillText(emptyText, x + pad, cy + 4 * scale);
   } else {
-    ctx.font = headFont;
+    ctx.font = fonts.head;
     ctx.fillStyle = theme.muted;
     drawLines([columns[0].toUpperCase()], x + pad, cy, "left");
     drawLines([columns[1].toUpperCase()], x + cardW - pad, cy, "right");
     cy += headerRowH;
 
-    ctx.font = rowFont;
+    ctx.font = fonts.row;
     rowLines.forEach(([aLines, bLines], i) => {
       ctx.strokeStyle = theme.border;
       ctx.lineWidth = Math.max(1, scale * 0.75);
       ctx.beginPath(); ctx.moveTo(x + pad, cy); ctx.lineTo(x + cardW - pad, cy); ctx.stroke();
       const ty = cy + 5 * scale;
+      let aX = x + pad;
+      const color = rowColors[i];
+      if (color) {
+        // Centered on the row font's own em-size, not lineH — lineH (15*scale)
+        // is padded out for spacing between *wrapped* lines and is taller than
+        // a single 10*scale-px line of text actually renders at, so centering
+        // on it left the dot sitting visibly below the text it's meant to sit
+        // beside instead of level with it.
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x + pad + dotD / 2, ty + rowFontPx / 2, dotD / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        aX += dotD + dotGap;
+      }
       ctx.fillStyle = theme.text;
-      drawLines(aLines, x + pad, ty, "left");
+      drawLines(aLines, aX, ty, "left");
       drawLines(bLines, x + cardW - pad, ty, "right");
       cy += rowHeights[i];
     });
@@ -914,7 +1006,7 @@ function drawFloatingCard(ctx, x, bottomY, scale, theme, { title, columns, rows,
       ctx.lineWidth = Math.max(1.2, scale);
       ctx.beginPath(); ctx.moveTo(x + pad, cy); ctx.lineTo(x + cardW - pad, cy); ctx.stroke();
       const ty = cy + 6 * scale;
-      ctx.font = totalFont;
+      ctx.font = fonts.total;
       ctx.fillStyle = theme.text;
       drawLines(totalLines[0], x + pad, ty, "left");
       drawLines(totalLines[1], x + cardW - pad, ty, "right");
@@ -1132,6 +1224,23 @@ async function captureScreenshot() {
     let cardX = margin;
     const cardBottomY = out.height - margin;
 
+    // Measure Circuit Dimensions' own natural width up front — before either
+    // card is drawn — so it can be passed as Selected Circuits' forcedWidth
+    // below and the two end up the same width, Dimensions unchanged as the
+    // reference (see computeCardLayout()).
+    const dimensionsVisible = dimensionsOn && dom.dimensionsPanel && !dom.dimensionsPanel.hidden;
+    let dimensionsTheme, dimensionsConfig, dimensionsCardW;
+    if (dimensionsVisible) {
+      dimensionsTheme = readCardTheme(dom.dimensionsPanel);
+      dimensionsConfig = {
+        title: "Circuit Dimensions",
+        columns: ["Circuit", "Dimension"],
+        rows: readCardRows(dom.dimensionsBody),
+        emptyText: "No circuits selected"
+      };
+      dimensionsCardW = computeCardLayout(ctx, uiScale, dimensionsTheme, dimensionsConfig).cardW;
+    }
+
     if (detailsOn && dom.detailsPanel && !dom.detailsPanel.hidden) {
       const theme = readCardTheme(dom.detailsPanel);
       const { width } = drawFloatingCard(ctx, cardX, cardBottomY, uiScale, theme, {
@@ -1140,18 +1249,12 @@ async function captureScreenshot() {
         rows: readCardRows(dom.detailsBody),
         totalRow: ["Total", dom.detailsTotal?.textContent || "0"],
         emptyText: "No circuits selected"
-      });
+      }, dimensionsCardW);
       cardX += width + 8 * uiScale;
     }
 
-    if (dimensionsOn && dom.dimensionsPanel && !dom.dimensionsPanel.hidden) {
-      const theme = readCardTheme(dom.dimensionsPanel);
-      drawFloatingCard(ctx, cardX, cardBottomY, uiScale, theme, {
-        title: "Circuit Dimensions",
-        columns: ["Circuit", "Dimension"],
-        rows: readCardRows(dom.dimensionsBody),
-        emptyText: "No circuits selected"
-      });
+    if (dimensionsVisible) {
+      drawFloatingCard(ctx, cardX, cardBottomY, uiScale, dimensionsTheme, dimensionsConfig);
     }
 
     await saveScreenshotCanvas(out, info);
@@ -1200,7 +1303,7 @@ async function copyTextToClipboard(text) {
     reads as its own line. */
 function buildShareTableText({ title, rows, totalLine }) {
   if (rows.length === 0) return `${title}\nNo circuits selected`;
-  const blocks = rows.map(([name, value]) => `${name}\n${value}`);
+  const blocks = rows.map(({ cols: [name, value] }) => `${name}\n${value}`);
   const lines = [title, blocks.join("\n\n")];
   if (totalLine) lines.push(totalLine);
   return lines.join("\n\n");
