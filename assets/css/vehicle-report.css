@@ -491,14 +491,23 @@
   .vr-top-row .kpi-box.circuit-rank-box { flex: 1 1 300px; width: auto; max-width: 420px; }
   .vr-slicer-btns { max-height: 160px; }
 
-  /* The toolbar's tablet width (300–420px, above) leaves too little room for
-     two side-by-side native date inputs once "Select Date Range" reveals
-     #rangeRow — each <input type=date> has its own intrinsic minimum render
-     width that ignores flex-shrink, so the pair overflowed past the card's
-     edge instead of fitting inside it. Stacking them (and dropping the now-
-     pointless inline arrow) keeps both fields inside the card at any tablet
-     width; the 12px padding matches the tighter card everything now has to
-     fit in. */
+  /* Stacking (and dropping the now-pointless inline arrow) was step one, but
+     wasn't enough on its own: a native <input type=date> has its own OS-level
+     minimum render width that no CSS width/min-width on the input can shrink
+     below. The toolbar is a flex item competing with the slicer/KPI cards for
+     room on the same line, and with no min-width of its own, flexbox can
+     still shrink its allotted box smaller than that native minimum — the
+     input then renders at its real minimum width anyway, wider than the box
+     it was given, spilling past the card edge. Fix at the source instead of
+     guessing a magic min-width: only when #rangeRow is actually visible (the
+     one state that needs the room) does the toolbar give up 2-up wrapping
+     and take the full row width, which is always enough regardless of the
+     native control's exact minimum. (:has() is already used this way for
+     .bk-modal in bookings.css.) */
+  .vr-top-row:has(#rangeRow:not([hidden])) .vr-toolbar {
+    flex-basis: 100%;
+    max-width: none;
+  }
   .vr-toolbar { padding: 12px; }
   .vr-select-row { flex-direction: column; align-items: stretch; gap: 10px; }
   .vr-range-arrow { display: none; }
