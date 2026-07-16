@@ -169,6 +169,21 @@ function applyCircuitFilter() {
   });
 }
 
+// brand-300 → brand-500 (theme.css), light → dark. Used to shade the circuit
+// rank bars by their share of the currently-visible max — the higher the
+// total, the darker the bar. Caps at brand-500 (== --accent-indigo, the
+// actual brand color) rather than the even-darker brand-600/700 shades, so
+// the top-ranked bar reads as "the brand color", not past it.
+const RANK_COLOR_LIGHT = [200, 58, 80];  // --brand-300
+const RANK_COLOR_DARK  = [152, 30, 50];  // --brand-500 (--accent-indigo)
+function rankBarColor(value, min, max) {
+  const t = max === min ? 1 : (value - min) / (max - min);
+  const r = Math.round(RANK_COLOR_LIGHT[0] + (RANK_COLOR_DARK[0] - RANK_COLOR_LIGHT[0]) * t);
+  const g = Math.round(RANK_COLOR_LIGHT[1] + (RANK_COLOR_DARK[1] - RANK_COLOR_LIGHT[1]) * t);
+  const b = Math.round(RANK_COLOR_LIGHT[2] + (RANK_COLOR_DARK[2] - RANK_COLOR_LIGHT[2]) * t);
+  return `rgba(${r},${g},${b},0.9)`;
+}
+
 /** Horizontal bar chart ranking the currently selected circuits by total impressions over the selected period. */
 async function renderCircuitRankChart() {
   const canvas = document.getElementById("circuitRankChart");
@@ -181,6 +196,10 @@ async function renderCircuitRankChart() {
 
   const totalEl = document.getElementById("circuitRankTotal");
   if (totalEl) totalEl.textContent = rows.reduce((s, r) => s + r.totalImp, 0).toLocaleString();
+
+  const rankValues = rows.map(r => r.totalImp);
+  const rankMax = rankValues.length ? Math.max(...rankValues) : 0;
+  const rankMin = rankValues.length ? Math.min(...rankValues) : 0;
 
   const isDark     = document.documentElement.getAttribute("data-theme") !== "light";
   const gridColor  = isDark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)";
@@ -196,7 +215,7 @@ async function renderCircuitRankChart() {
       labels: rows.map(r => r.name),
       datasets: [{
         data: rows.map(r => r.totalImp),
-        backgroundColor: rows.map(r => r.category === "static" ? "rgba(200,58,80,0.85)" : "rgba(152,30,50,0.85)"),
+        backgroundColor: rows.map(r => rankBarColor(r.totalImp, rankMin, rankMax)),
         borderRadius: 6,
         borderSkipped: "left"
       }]

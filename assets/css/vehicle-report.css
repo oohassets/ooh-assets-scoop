@@ -88,6 +88,9 @@
 
 .vr-page .date-modern {
   width: 100%;
+  min-width: 0; /* native <input type=date> has its own intrinsic min-content
+                   width that otherwise resists flex-shrinking, letting it
+                   overflow a cramped flex row instead of fitting it */
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-glass);
@@ -487,6 +490,18 @@
   .vr-top-row .kpi-box                  { flex: 1 1 260px; width: auto; max-width: 360px; }
   .vr-top-row .kpi-box.circuit-rank-box { flex: 1 1 300px; width: auto; max-width: 420px; }
   .vr-slicer-btns { max-height: 160px; }
+
+  /* The toolbar's tablet width (300–420px, above) leaves too little room for
+     two side-by-side native date inputs once "Select Date Range" reveals
+     #rangeRow — each <input type=date> has its own intrinsic minimum render
+     width that ignores flex-shrink, so the pair overflowed past the card's
+     edge instead of fitting inside it. Stacking them (and dropping the now-
+     pointless inline arrow) keeps both fields inside the card at any tablet
+     width; the 12px padding matches the tighter card everything now has to
+     fit in. */
+  .vr-toolbar { padding: 12px; }
+  .vr-select-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .vr-range-arrow { display: none; }
 }
 @media (max-width: 768px) {
   .vr-page { padding: 14px; }
