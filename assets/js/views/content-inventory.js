@@ -590,9 +590,14 @@ function onCiDragStart(e) {
 
 function onCiDragOver(e) {
   if (!dragRow) return;
+  // Always grant the drop, even off a row (table padding, row edges, the
+  // header gap) — if the LAST dragover before mouseup never calls this, the
+  // browser treats the drop as rejected and plays a native snap-back
+  // animation before drop/dragend fire, which is what made the pending
+  // checkmark appear to lag.
+  e.preventDefault();
   const tr = e.target.closest("tbody tr");
   if (!tr || tr === dragRow || tr.parentElement !== dragRow.parentElement) return;
-  e.preventDefault();
   const rect = tr.getBoundingClientRect();
   const before = (e.clientY - rect.top) < rect.height / 2;
   tr.parentElement.insertBefore(dragRow, before ? tr : tr.nextSibling);
