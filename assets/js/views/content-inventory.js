@@ -304,12 +304,8 @@ async function downloadAsExcel() {
 // Only cards created with editInfo+isAdmin (loadCarousel.js) render a
 // .ci-actions-col at all, so these handlers only ever touch rows backed by a
 // real d_/s_ RTDB table.
-let dragRow = null;
-
 function toggleEditMode(card) {
-  if (!card) return;
-  const isOn = card.classList.toggle("ci-edit-mode");
-  card.querySelectorAll(".json-table tbody tr").forEach(tr => { tr.draggable = isOn; });
+  card?.classList.toggle("ci-edit-mode");
 }
 
 function renumberSN(card) {
@@ -415,8 +411,7 @@ function escapeAttr(str) {
 
 function startRowEdit(tr, card) {
   if (!tr || !card || tr.classList.contains("ci-row-editing")) return;
-  tr.classList.add("ci-row-editing");
-  tr.draggable = false; // don't let this edit gesture double as a row drag
+  tr.classList.add("ci-row-editing"); // also disqualifies the row from isRowDraggable() below
 
   const columns = getCardColumns(card);
   const cells = Array.from(tr.querySelectorAll("td:not(.ci-actions-col)"));
@@ -451,7 +446,6 @@ function cancelRowEdit(tr) {
     delete td.dataset.original;
   });
   tr.classList.remove("ci-row-editing");
-  tr.draggable = tr.closest(".card")?.classList.contains("ci-edit-mode") ?? false;
 }
 
 async function saveRowEdit(tr, card) {
@@ -501,7 +495,6 @@ async function saveRowEdit(tr, card) {
   if (actionsTd) actionsTd.innerHTML = `<button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button>`;
 
   tr.classList.remove("ci-row-editing");
-  tr.draggable = card.classList.contains("ci-edit-mode");
   flashRowSuccess(tr);
 }
 
@@ -580,47 +573,83 @@ function onDocClickCloseRowMenu(e) {
   closeRowMenu();
 }
 
-function onCiDragStart(e) {
-  const tr = e.target.closest("tr");
-  if (!tr || !tr.draggable) return;
-  dragRow = tr;
-  tr.classList.add("ci-dragging");
-  e.dataTransfer.effectAllowed = "move";
+// ── Row reordering via Pointer Events ──────────────────
+// Native HTML5 Drag-and-Drop (draggable/dragstart/dragover/drop) has no
+// touch support on iOS Safari and is unreliable on Android — Pointer Events
+// unify mouse/touch/stylus in one code path and work on all of them.
+//
+// A drag only "engages" once movement crosses DRAG_THRESHOLD; a plain
+// tap/click on a row (pointerdown+pointerup with no real movement) never
+// engages, so it falls through to the normal click handling below instead of
+// being treated as a (no-op) reorder.
+let dragCandidate = null; // { tr, pointerId, startX, startY } — below threshold
+let dragRow = null;       // set once the drag has actually engaged
+const DRAG_THRESHOLD = 8; // px
+
+function isRowDraggable(tr) {
+  return !!tr.closest(".card")?.classList.contains("ci-edit-mode") && !tr.classList.contains("ci-row-editing");
 }
 
-function onCiDragOver(e) {
+function releasePointerCaptureSafe(el, pointerId) {
+  try { el.releasePointerCapture(pointerId); } catch (_) { /* already released/never captured */ }
+}
+
+function onCiPointerDown(e) {
+  if (e.pointerType === "mouse" && e.button !== 0) return; // left-click/primary touch only
+  if (e.target.closest(".ci-actions-col")) return; // keep row buttons tappable, not drag origins
+  const tr = e.target.closest(".json-table tbody tr");
+  if (!tr || !isRowDraggable(tr)) return;
+  dragCandidate = { tr, pointerId: e.pointerId, startX: e.clientX, startY: e.clientY };
+}
+
+function engageDrag(candidate) {
+  dragRow = candidate.tr;
+  dragRow.classList.add("ci-dragging");
+  try { dragRow.setPointerCapture(candidate.pointerId); } catch (_) { /* best-effort */ }
+}
+
+function onCiPointerMove(e) {
+  if (dragCandidate && !dragRow) {
+    if (dragCandidate.pointerId !== e.pointerId) return;
+    const dx = e.clientX - dragCandidate.startX;
+    const dy = e.clientY - dragCandidate.startY;
+    if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+    engageDrag(dragCandidate);
+  }
   if (!dragRow) return;
-  // Always grant the drop, even off a row (table padding, row edges, the
-  // header gap) — if the LAST dragover before mouseup never calls this, the
-  // browser treats the drop as rejected and plays a native snap-back
-  // animation before drop/dragend fire, which is what made the pending
-  // checkmark appear to lag.
   e.preventDefault();
-  const tr = e.target.closest("tbody tr");
+  // Capture means e.target stays pinned to dragRow — hit-test by coordinate instead.
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  const tr = target?.closest("tbody tr");
   if (!tr || tr === dragRow || tr.parentElement !== dragRow.parentElement) return;
   const rect = tr.getBoundingClientRect();
   const before = (e.clientY - rect.top) < rect.height / 2;
   tr.parentElement.insertBefore(dragRow, before ? tr : tr.nextSibling);
-  // Renumber live as the row moves, not just once on drop.
+  // Renumber live as the row moves, not just once on release.
   renumberSN(tr.closest(".card"));
 }
 
-function onCiDrop(e) {
-  if (!dragRow) return;
-  e.preventDefault();
-  const row  = dragRow;
-  const card = row.closest(".card");
-  row.classList.remove("ci-dragging");
+function endDrag(e) {
+  dragCandidate = null;
+  if (!dragRow) return null;
+  const row = dragRow;
   dragRow = null;
-  renumberSN(card);
+  releasePointerCaptureSafe(row, e.pointerId);
+  row.classList.remove("ci-dragging");
+  return row;
+}
+
+function onCiPointerUp(e) {
+  const row = endDrag(e);
+  if (!row) return; // never engaged as a drag — plain tap, nothing to do
+  renumberSN(row.closest(".card"));
   // Don't write yet — the dropped row's icon becomes a checkmark the admin
   // has to click to actually persist the new order (confirmRowOrderSave).
   markRowOrderPending(row);
 }
 
-function onCiDragEnd() {
-  dragRow?.classList.remove("ci-dragging");
-  dragRow = null;
+function onCiPointerCancel(e) {
+  endDrag(e);
 }
 
 let _cleanupFns = [];
@@ -685,23 +714,23 @@ export async function init() {
 
   appContent?.addEventListener("scroll", onScroll, { passive: true });
 
-  // ── Admin edit mode: more_vert menu + drag/drop (delegated) ───
+  // ── Admin edit mode: more_vert menu + pointer-based drag reorder ───
   const ciPage = document.querySelector(".ci-page");
   ciPage?.addEventListener("click", onCiClick);
-  ciPage?.addEventListener("dragstart", onCiDragStart);
-  ciPage?.addEventListener("dragover", onCiDragOver);
-  ciPage?.addEventListener("drop", onCiDrop);
-  ciPage?.addEventListener("dragend", onCiDragEnd);
+  ciPage?.addEventListener("pointerdown", onCiPointerDown);
+  ciPage?.addEventListener("pointermove", onCiPointerMove);
+  ciPage?.addEventListener("pointerup", onCiPointerUp);
+  ciPage?.addEventListener("pointercancel", onCiPointerCancel);
   document.addEventListener("click", onDocClickCloseRowMenu);
 
   _cleanupFns = [
     () => document.removeEventListener("click", closeDropdown),
     () => appContent?.removeEventListener("scroll", onScroll),
     () => ciPage?.removeEventListener("click", onCiClick),
-    () => ciPage?.removeEventListener("dragstart", onCiDragStart),
-    () => ciPage?.removeEventListener("dragover", onCiDragOver),
-    () => ciPage?.removeEventListener("drop", onCiDrop),
-    () => ciPage?.removeEventListener("dragend", onCiDragEnd),
+    () => ciPage?.removeEventListener("pointerdown", onCiPointerDown),
+    () => ciPage?.removeEventListener("pointermove", onCiPointerMove),
+    () => ciPage?.removeEventListener("pointerup", onCiPointerUp),
+    () => ciPage?.removeEventListener("pointercancel", onCiPointerCancel),
     () => document.removeEventListener("click", onDocClickCloseRowMenu),
     () => { rowMenuEl?.remove(); rowMenuEl = null; },
   ];

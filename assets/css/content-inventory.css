@@ -149,8 +149,14 @@
   50%      { box-shadow: 0 0 0 4px rgba(53,179,126,0); }
 }
 
-/* Row drag affordance — cursor + hover only active while a card is in edit mode */
-.ci-page .card.ci-edit-mode .json-table tbody tr { cursor: grab; }
+/* Row drag affordance — cursor + hover only active while a card is in edit mode.
+   touch-action:none must be declared here (not toggled in JS) so iPad/mobile
+   grants the drag gesture from the very first touch instead of the browser
+   claiming it as a page-scroll before our pointer handlers see it move. */
+.ci-page .card.ci-edit-mode .json-table tbody tr {
+  cursor: grab; touch-action: none;
+  -webkit-user-select: none; user-select: none;
+}
 .ci-page .card.ci-edit-mode .json-table tbody tr:active { cursor: grabbing; }
 .ci-page .card.ci-edit-mode .json-table tbody tr:hover { background: var(--bg-glass); }
 .ci-page .card.ci-edit-mode .json-table tbody tr.ci-dragging { opacity: 0.4; }

@@ -136,10 +136,10 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = [], rowKeys = null
     });
 
     if (actionsEnabled) {
-      // draggable="false" so clicking the row's own edit/save/cancel buttons
-      // always registers as a click, never gets swallowed by the row's own
-      // draggable="true" (set on <tr> while the card is in edit mode).
-      html += `<td class="ci-actions-col" draggable="false"><button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button></td>`;
+      // Row dragging is initiated in JS (content-inventory.js, via Pointer
+      // Events) and explicitly skips any pointerdown inside .ci-actions-col,
+      // so these buttons stay clickable independent of row-drag state.
+      html += `<td class="ci-actions-col"><button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button></td>`;
     }
 
     html += `</tr>`;
