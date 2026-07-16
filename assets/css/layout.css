@@ -19,6 +19,14 @@
   right: 0;
   bottom: 0;
   overflow-y: auto;
+  /* Explicit, not left to the "Y non-visible promotes X to auto" default —
+     .app-frame is position:fixed, so body's own overflow-x:hidden never
+     applies to it (fixed elements aren't clipped by an ancestor's overflow).
+     Without this, any page whose content is even slightly wider than the
+     viewport (long text, a wide table) makes this — effectively the whole
+     app below the nav — horizontally swipeable on touch, since it's the one
+     container that spans nearly the entire screen on every page. */
+  overflow-x: hidden;
   background: transparent;
   z-index: 10;
   transition: top 0.3s ease;
