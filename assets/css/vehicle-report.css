@@ -157,14 +157,57 @@
   min-width: 0;
 }
 
+.vr-slicer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
 .vr-slicer-title {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 10px;
+  line-height: 20px;
+}
+
+/* "Show All" / "Selected" toggle — vertically matched to .vr-slicer-title's
+   own line-height so the two sit level on the same row. */
+.vr-slicer-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
   flex-shrink: 0;
+  transition: all 0.15s;
+}
+.vr-slicer-view-btn:hover { border-color: var(--accent-indigo); color: var(--text-primary); }
+.vr-slicer-view-btn[aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+  border-color: transparent;
+  color: #fff;
+}
+
+.vr-slicer-empty {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 6px 2px;
 }
 
 .vr-slicer-columns {

@@ -17,6 +17,7 @@ let monthKeys = [];
 let assetRateCache = null;
 let circuitConfig = [];   // built from the "assetrate" table: {name, faces, category, source, icon}
 let activeCircuits = new Set(); // circuit names currently shown in the cards grid (slicer state)
+let slicerShowOnlySelected = false; // slicer's own "Show All" / "Selected" view toggle
 
 // Circuits visible by default when the page first loads; everything else starts hidden.
 const DEFAULT_ACTIVE_CIRCUITS = [
@@ -105,7 +106,10 @@ async function loadCircuitConfig() {
   );
 }
 
-/** Renders the excel-slicer-style toggle buttons as two columns: Digital / Static. */
+/** Renders the excel-slicer-style toggle buttons as two columns: Digital / Static.
+ *  slicerShowOnlySelected (toggled by the header button) restricts both
+ *  columns' button lists to only the currently-active circuits — same idea
+ *  as Excel's slicer "Show only selected items". */
 function renderCircuitSlicer() {
   const el = document.getElementById("circuitSlicer");
   if (!el || !circuitConfig.length) return;
@@ -113,29 +117,47 @@ function renderCircuitSlicer() {
   const groups = { digital: [], static: [] };
   circuitConfig.forEach(c => groups[c.category].push(c));
 
-  const columnHTML = (cat, list) => `
+  const columnHTML = (cat, list) => {
+    const visible = slicerShowOnlySelected ? list.filter(c => activeCircuits.has(c.name)) : list;
+    return `
     <div class="vr-slicer-group">
       <span class="vr-slicer-group-label">${cat === "digital" ? "Digital" : "Static"}</span>
       <div class="vr-slicer-btns">
-        ${list.map(c => `<button type="button" class="vr-slicer-btn${activeCircuits.has(c.name) ? " active" : ""}" data-circuit="${c.name}">${c.name}</button>`).join("")}
+        ${visible.length
+          ? visible.map(c => `<button type="button" class="vr-slicer-btn${activeCircuits.has(c.name) ? " active" : ""}" data-circuit="${c.name}">${c.name}</button>`).join("")
+          : `<div class="vr-slicer-empty">No circuits selected</div>`}
       </div>
     </div>`;
+  };
 
   el.innerHTML = `
-    <div class="vr-slicer-title">Circuits</div>
+    <div class="vr-slicer-header">
+      <div class="vr-slicer-title">Circuits</div>
+      <button type="button" class="vr-slicer-view-btn" id="vrSlicerViewBtn" aria-pressed="${slicerShowOnlySelected}">${slicerShowOnlySelected ? "Selected" : "Show All"}</button>
+    </div>
     <div class="vr-slicer-columns">
       ${columnHTML("digital", groups.digital)}
       ${columnHTML("static", groups.static)}
     </div>`;
 
+  document.getElementById("vrSlicerViewBtn")?.addEventListener("click", () => {
+    slicerShowOnlySelected = !slicerShowOnlySelected;
+    renderCircuitSlicer();
+  });
+
   el.querySelectorAll(".vr-slicer-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const name = btn.dataset.circuit;
-      btn.classList.toggle("active");
-      if (btn.classList.contains("active")) activeCircuits.add(name);
+      const nowActive = !btn.classList.contains("active");
+      if (nowActive) activeCircuits.add(name);
       else activeCircuits.delete(name);
       applyCircuitFilter();
       renderCircuitRankChart();
+      // In "Selected" view, deselecting a circuit must drop its button from
+      // view immediately — a plain class toggle would leave it visible but
+      // inactive, contradicting what "Selected" is supposed to show.
+      if (slicerShowOnlySelected) renderCircuitSlicer();
+      else btn.classList.toggle("active", nowActive);
     });
   });
 }
