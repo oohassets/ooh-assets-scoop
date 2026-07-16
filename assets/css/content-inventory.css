@@ -211,7 +211,16 @@
    no effect on internal table-display boxes (tr/thead) in any browser, only
    background-color does. Rounding the table-container itself is what actually
    clips the sticky header's background into rounded top corners. */
-.ci-page .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; border-radius:10px 10px 0 0; }
+/* touch-action:pan-y — setting only overflow-y (not overflow-x) still lets the
+   browser compute overflow-x as auto too (spec: a non-visible Y with a visible
+   X promotes X to auto as well), so this box is technically horizontally
+   scrollable whenever .json-table's white-space:nowrap content (long Client
+   names, the admin actions column) is wider than the card on tablet-width
+   viewports. Without pan-y, a touch swipe intended as page-scroll can get
+   captured as horizontal scroll of this table instead — pan-y constrains
+   touch panning here to vertical only, matching the sticky-header/tbody
+   scroll this container is actually meant for. */
+.ci-page .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; border-radius:10px 10px 0 0; touch-action: pan-y; }
 
 .json-table { white-space: nowrap;width:100%; border-collapse:collapse; font-size:13px; color:var(--text-primary); }
 .json-table td { padding:6px; border-bottom:1px solid var(--border-glass); }
