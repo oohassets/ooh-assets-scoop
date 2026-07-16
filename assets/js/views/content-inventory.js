@@ -1288,6 +1288,15 @@ function closeRowMenu() {
 }
 
 function onCiClick(e) {
+  // #logsSection is a descendant of .ci-page (this listener's own element),
+  // so a click inside it bubbles here too, *after* already being handled by
+  // onLogsClick — without this guard, e.g. .ci-more-btn matches here as well
+  // and immediately closes the menu onLogsClick just opened (moreBtn.closest
+  // (".card") is null for the Logs table, since it's a .ci-logs-card, not a
+  // .card, but that only matters if this block runs at all). Logs owns its
+  // own complete click handling; this table has nothing to do with it.
+  if (e.target.closest("#logsSection")) return;
+
   const moreBtn = e.target.closest(".ci-more-btn");
   if (moreBtn) {
     const alreadyOpen = moreBtn.classList.contains("open");
