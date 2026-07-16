@@ -323,6 +323,13 @@ function parseMDY(str) {
   return new Date(y, m - 1, d);
 }
 
+// "06-Jul-2026" (formatDateDDMMMYYYY's output) → "06 Jul" — the compact form
+// used in the mobile card row's "dd mmm → dd mmm" date range.
+function fmtMobDate(ddmmmyyyy) {
+  const m = String(ddmmmyyyy).match(/^(\d{2})-([A-Za-z]{3})-\d{4}$/);
+  return m ? `${m[1]} ${m[2]}` : ddmmmyyyy;
+}
+
 // "YYYY-MM-DD" (native <input type=date> value) → local Date, no UTC shift.
 function parseISODateLocal(str) {
   if (!str) return null;
@@ -428,32 +435,84 @@ function populateLogsDateSelect(rows) {
 // populateLogsDateSelect()), so a normal render is a small, bounded set;
 // "All Time" or a wide custom range is an explicit admin choice to render
 // more, not the default cost of opening the tab.
+// Each row renders BOTH a full set of desktop cells (.td-desk) and one
+// consolidated .td-mobile cell — same technique bookings.js's schedule table
+// uses for its own mobile card view — with CSS (@media max-width:768px)
+// toggling which set is visible rather than maintaining two render paths.
+// Admin actions are td-desk only; editing a log entry from the compact
+// mobile card isn't supported (not asked for, and there's no room for the
+// more_vert/edit-mode affordance in a 2-line layout).
 function renderLogsTable(rows) {
   const tbody = document.getElementById("logsTableBody");
   if (!tbody) return;
-  const colspan = logsIsAdmin ? 8 : 7;
+  const colspan = logsIsAdmin ? 9 : 8;
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="${colspan}" class="ci-logs-loading">No campaign logs found</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = rows.map(r => {
+  // Mobile-only column-label row (<thead> itself is hidden below 768px —
+  // same reason/technique as bookings.js's own .mob-thead-row: sticky lives
+  // on the *row*, not its td, since a sticky element can't stick past its
+  // own containing block's edge, and a lone td's containing block is just
+  // as tall as the td itself — zero slack to stick within). Labels are
+  // Date/Client/Circuit — a general caption for each of the 3 visual
+  // columns below, not a literal per-line field match (BO sits under
+  // "Client" on line 1 too, same as bookings' mobile card labels its whole
+  // zone "Client" even though brand/BO render underneath it there as well).
+  // No actions/more_vert on mobile — admin row editing is desktop-only here.
+  const mobHeader = `<tr class="mob-thead-row">
+    <td class="td-mobile" colspan="${colspan}">
+      <div class="ci-logs-mob-line ci-logs-mob-hdr">
+        <span>Date</span>
+        <span>Client</span>
+        <span>Circuit</span>
+      </div>
+    </td>
+  </tr>`;
+
+  tbody.innerHTML = mobHeader + rows.map(r => {
     const t = (r.Type || "").toLowerCase();
     const typeCls  = t === "add" ? "ci-logs-type-add" : t === "removed" ? "ci-logs-type-removed" : "";
     const typeCell = typeCls
       ? `<span class="${typeCls}">${escapeHTML(r.Type)}</span>`
       : (escapeHTML(r.Type) || "—");
     const actionsCell = logsIsAdmin
-      ? `<td class="ci-actions-col"><button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button></td>`
+      ? `<td class="ci-actions-col td-desk"><button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button></td>`
       : "";
+    const startMob = fmtMobDate(formatDateDDMMMYYYY(r["Start Date"]));
+    const endMob   = fmtMobDate(formatDateDDMMMYYYY(r["End Date"]));
     return `<tr data-key="${r._key}">
-      <td>${formatDateDDMMMYYYY(r.Date)}</td>
-      <td>${typeCell}</td>
-      <td>${escapeHTML(r.BO)}</td>
-      <td>${escapeHTML(r.Client)}</td>
-      <td>${escapeHTML(r.Circuits)}</td>
-      <td>${formatDateDDMMMYYYY(r["Start Date"])}</td>
-      <td>${formatDateDDMMMYYYY(r["End Date"])}</td>
+      <td class="td-desk">${formatDateDDMMMYYYY(r.Date)}</td>
+      <td class="td-desk">${typeCell}</td>
+      <td class="td-desk">${escapeHTML(r.BO)}</td>
+      <td class="td-desk">${escapeHTML(r.Client)}</td>
+      <td class="td-desk">${escapeHTML(r.Circuits)}</td>
+      <td class="td-desk">${formatDateDDMMMYYYY(r["Start Date"])}</td>
+      <td class="td-desk">${formatDateDDMMMYYYY(r["End Date"])}</td>
+      <td class="td-mobile">
+        <!-- Grouped by column (Date/Type, BO/Client, Circuit/Dates), not by
+             row — each column stacks its own 2 values with its own small
+             gap, independent of the other columns. Grouping by row instead
+             (2 rows of 3) made that gap look inconsistent card to card,
+             since a wrapped Circuit/Client name grows the *whole* row and
+             pushes the gap after it out with it, even though Date's own
+             1-line content sat far above where that taller row actually ends. -->
+        <div class="ci-logs-mob-row">
+          <div class="ci-logs-mob-col">
+            <span>${formatDateDDMMMYYYY(r.Date)}</span>
+            <span>${typeCell}</span>
+          </div>
+          <div class="ci-logs-mob-col">
+            <span>${escapeHTML(r.BO)}</span>
+            <span>${escapeHTML(r.Client)}</span>
+          </div>
+          <div class="ci-logs-mob-col">
+            <span>${escapeHTML(r.Circuits)}</span>
+            <span>${startMob} → ${endMob}</span>
+          </div>
+        </div>
+      </td>
       ${actionsCell}
     </tr>`;
   }).join("");
@@ -765,6 +824,17 @@ function closeLogsDownloadDropdown() {
 }
 
 function onLogsClick(e) {
+  // Same shared more_vert → "Edit"/"Done" panel as the Digital/Static tables
+  // (openRowMenu()/closeRowMenu()/toggleEditMode() are generic over any
+  // "card" element) — just targeting .ci-logs-card instead of a .card.
+  const moreBtn = e.target.closest(".ci-more-btn");
+  if (moreBtn) {
+    const alreadyOpen = moreBtn.classList.contains("open");
+    closeRowMenu();
+    if (!alreadyOpen) openRowMenu(moreBtn, document.querySelector(".ci-logs-card"));
+    return;
+  }
+
   const sortTh = e.target.closest(".th-sortable");
   if (sortTh) { toggleLogsSort(sortTh.dataset.sort); return; }
 
@@ -1361,6 +1431,15 @@ function onCiPointerCancel(e) {
 let _cleanupFns = [];
 
 export async function init() {
+  // Kicked off alongside (not after) loadCarousel()'s own full-root read, so
+  // both share loadRootTables()'s in-flight dedup — Campaign_Logs is already
+  // cached by the time the admin clicks the tab instead of showing "Loading
+  // campaign logs…" (openLogsTab() still does the actual DOM setup on first
+  // click, but fetchCampaignLogs() itself resolves instantly by then).
+  fetchCampaignLogs().catch(err => {
+    console.error("[ContentInventory] Campaign_Logs prefetch failed:", err);
+  });
+
   await loadCarousel();
   initScrollReveal();
 
@@ -1377,12 +1456,26 @@ export async function init() {
       // toolbar/table flex-column sizing (and the "page can't scroll, only
       // the table does" height-lock) actually takes effect.
       document.getElementById("logsSection").style.display     = tab === "logs"     ? "flex"  : "none";
+      // .ci-page's own bottom padding needs to disappear too, or it adds
+      // just enough extra height for the page to scroll — see the CSS.
+      document.querySelector(".ci-page")?.classList.toggle("ci-logs-active", tab === "logs");
 
       // Logs has its own dedicated download button (PDF/Excel of the log
-      // rows) — the top-bar one exports Digital/Static/Activity cards and
-      // doesn't apply here.
-      const digitalDownloadWrap = document.getElementById("ciDigitalDownloadWrap");
-      if (digitalDownloadWrap) digitalDownloadWrap.style.display = tab === "logs" ? "none" : "";
+      // rows) — this one exports Digital/Static cards and doesn't apply to
+      // Logs or Activity (which has no carousel-title to align it with).
+      // It's a single shared element (same #ciDownloadBtn id, same
+      // downloadAsPDF()/downloadAsExcel() via activeSection()) relocated
+      // into whichever tab's own carousel-header is active, rather than a
+      // duplicated one per section.
+      const downloadWrap = document.getElementById("ciDigitalDownloadWrap");
+      if (downloadWrap) {
+        if (tab === "digital" || tab === "static") {
+          document.querySelector(`#${tab}Section .carousel-header`)?.appendChild(downloadWrap);
+          downloadWrap.style.display = "";
+        } else {
+          downloadWrap.style.display = "none";
+        }
+      }
 
       if (tab === "logs") openLogsTab();
 
@@ -1467,4 +1560,12 @@ export async function init() {
 export function cleanup() {
   _cleanupFns.forEach(fn => fn());
   _cleanupFns = [];
+  // The router replaces #app-content's innerHTML on every visit — a fresh
+  // #logsTableBody (back to its "Loading campaign logs…" placeholder) is
+  // injected next time this page loads, even though this module instance
+  // (and campaignLogs' own cache) isn't recreated. Without resetting this,
+  // openLogsTab() would see logsLoaded already true on a repeat visit and
+  // skip re-rendering into that fresh DOM entirely, leaving the placeholder
+  // showing forever. fetchCampaignLogs()'s own cache still avoids a re-fetch.
+  logsLoaded = false;
 }

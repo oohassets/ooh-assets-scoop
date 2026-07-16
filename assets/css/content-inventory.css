@@ -9,6 +9,13 @@
   padding: 0 0 24px;
   box-sizing: border-box;
 }
+/* #logsSection is already height-locked to exactly fill the space below the
+   sticky header (calc(100vh - 132px)) so the page itself never scrolls — but
+   .ci-page's own 24px bottom padding (needed for the other, normally-
+   scrolling tabs) was still adding 24px on top of that, just enough extra
+   height to make the page scrollable again and reveal blank space at the
+   very bottom. Zero it out specifically while Logs is the active tab. */
+.ci-page.ci-logs-active { padding-bottom: 0; }
 
 /* ── Combined sticky header (title + circuit tabs) ───────── */
 .ci-sticky-header {
@@ -246,7 +253,7 @@
    captured as horizontal scroll of this table instead — pan-y constrains
    touch panning here to vertical only, matching the sticky-header/tbody
    scroll this container is actually meant for. */
-.ci-page .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; border-radius:10px 10px 0 0; touch-action: pan-y; }
+.ci-page .table-container { overflow-y:auto; padding-right:8px; margin-top:-4px; border-radius:10px 10px 0 0; touch-action: pan-y; }
 
 .json-table { white-space: nowrap;width:100%; border-collapse:collapse; font-size:13px; color:var(--text-primary); }
 .json-table td { padding:6px; border-bottom:1px solid var(--border-glass); }
@@ -358,13 +365,10 @@
   .circuit-tabs { top: 68px; }   /* smaller header on mobile */
   .carousel-title { top: 120px; }
 
-  /* 4 tabs + the download button no longer fit un-wrapped on a phone width
-     at the desktop padding/font-size — .app-frame is now hard overflow-x:
-     hidden (layout.css), so anything that overflowed here would be silently
-     clipped and unreachable instead of just scrolling the page. Scope this
-     to the download button too (fixed .download-wrap margin-left:auto stops
-     mattering once the row can't shrink further and starts scrolling instead
-     — that's fine, it just sits at the end of the scrollable strip). */
+  /* 4 tabs no longer fit un-wrapped on a phone width at the desktop padding/
+     font-size — .app-frame is now hard overflow-x:hidden (layout.css), so
+     anything that overflowed here would be silently clipped and unreachable
+     instead of just scrolling the page. */
   .circuit-tabs {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -379,7 +383,6 @@
     padding: 0 14px;
     font-size: 12px;
   }
-  .circuit-tabs .download-wrap { flex-shrink: 0; }
 
   /* Grid items must be allowed to shrink below content width */
   .ci-page .card {
@@ -491,7 +494,6 @@
 }
 
 @media(max-width:500px) {
-  .ci-page .table-container { max-height:250px; }
   .carousel-title  { font-size:18px !important; }
 }
 
@@ -645,7 +647,14 @@
 .ci-logs-table-container::-webkit-scrollbar { width: 6px; height: 6px; }
 .ci-logs-table-container::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 999px; }
 
-table.ci-logs-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 700px; }
+/* border-collapse:separate + border-spacing puts an 8px gap above the FIRST
+   row too, not just between rows — meaning the sticky <th> background sat
+   8px below .ci-logs-table-container's own top edge, so that container's
+   border-radius was only ever rounding an empty/transparent sliver above the
+   header, not the header's own visible background. Pulling the table up by
+   that exact 8px (clipped away by the container's overflow:auto) puts the
+   header's real background flush with the container's rounded top edge. */
+table.ci-logs-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 700px; margin-top: -8px; }
 table.ci-logs-table th {
   font-size: 13px; font-weight: 700; font-family: var(--font-body); color: var(--text-muted);
   letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 16px;
@@ -666,6 +675,9 @@ table.ci-logs-table td { padding: 16px; font-size: 13px; background: var(--bg-gl
 table.ci-logs-table tr:hover td { background: var(--bg-glass-hover); }
 table.ci-logs-table td:first-child { border-radius: 12px 0 0 12px; }
 table.ci-logs-table td:last-child  { border-radius: 0 12px 12px 0; }
+/* .td-mobile only ever shows below 768px (see that media block) — hidden
+   here so it doesn't add an extra blank cell to the desktop row. */
+table.ci-logs-table td.td-mobile { display: none; }
 .ci-logs-loading { text-align: center; color: var(--text-muted); padding: 30px !important; background: transparent !important; white-space: normal !important; }
 .ci-logs-type-add, .ci-logs-type-removed {
   display: inline-flex; align-items: center;
@@ -675,18 +687,118 @@ table.ci-logs-table td:last-child  { border-radius: 0 12px 12px 0; }
 .ci-logs-type-add     { background: rgba(53,179,126,0.15); color: var(--success); }
 .ci-logs-type-removed { background: rgba(229,72,77,0.15);  color: var(--error); }
 
-/* Admin-only actions column — reuses .ci-row-edit-btn/.ci-row-save-btn/
-   .ci-row-cancel-btn/.ci-cell-input styling already built for the
-   Digital/Static tables' inline editor. .ci-row-edit-btn defaults to
-   display:none (gated behind .ci-edit-mode there, since it doubles as the
-   drag/reorder handle) — this table has no reorder concept, so it's always
-   visible here once logsIsAdmin renders the column at all. */
+/* Admin-only actions column — same more_vert → "Edit" menu → per-row pencil
+   flow as the Digital/Static tables (reuses their .ci-more-btn/.ci-row-menu/
+   .ci-row-edit-btn/.ci-row-save-btn/.ci-row-cancel-btn/.ci-cell-input
+   styling and the shared row-menu JS, just targeting .ci-logs-card instead
+   of a .card). .ci-row-edit-btn defaults to display:none — gated behind
+   .ci-edit-mode here too, consistent with those tables, even though this
+   table has no reorder/drag concept of its own. */
 table.ci-logs-table th.ci-actions-col,
-table.ci-logs-table td.ci-actions-col { width: 58px; text-align: center; white-space: nowrap; }
-table.ci-logs-table .ci-row-edit-btn { display: inline-flex; }
+table.ci-logs-table td.ci-actions-col { width: 34px; text-align: center; white-space: nowrap; }
+.ci-logs-card.ci-edit-mode .ci-row-edit-btn { display: inline-flex; }
+table.ci-logs-table tbody tr.ci-row-editing td.ci-actions-col { width: 58px; }
 
 @media (max-width: 900px) {
   #logsSection { height: calc(100vh - 120px); padding: 12px; }
   .ci-search-box { flex: 1 1 100%; order: -1; }
   .ci-logs-card { padding: 10px; }
+}
+
+@media (max-width: 768px) {
+  /* Date filter / Type filter / download button on one line — same
+     shrink-to-fit technique bookings.css uses at this exact breakpoint for
+     its own .date-filter-wrap/.filter-box/.download-wrap, and the same
+     unified 12px/text-secondary styling (previously .date-modern and
+     .ci-filter-box select had different font-sizes AND colors from each
+     other — 13px/text-primary vs 14px/text-secondary). */
+  .ci-toolbar { gap: 8px; }
+  .ci-date-filter-wrap,
+  .ci-filter-box {
+    flex: 1 1 0; min-width: 0;
+  }
+  .ci-date-filter-wrap .date-modern {
+    width: 100%; height: 38px; padding: 0 10px; font-size: 12px; color: var(--text-secondary);
+  }
+  .ci-filter-box { height: 38px; padding: 0 10px; }
+  .ci-filter-box select { font-size: 12px; color: var(--text-secondary); }
+  .download-wrap { flex: 0 0 auto; }
+  #logsSection .download-btn { width: 38px; height: 38px; }
+
+  /* Table → 2-line card per entry (td-desk hidden, td-mobile shown) — same
+     technique AND same concrete sizing as bookings.css's table.data-table at
+     this breakpoint (6px row gap, 14px/12px cell padding, background+radius
+     living on the cell itself rather than the row), so the two pages' mobile
+     cards come out visually matching instead of just structurally similar. */
+  table.ci-logs-table { display: block; border-spacing: 0; margin-top: 0; min-width: 0; }
+  table.ci-logs-table thead { display: none; }
+  table.ci-logs-table tbody { display: block; }
+  table.ci-logs-table tr { display: block; margin-bottom: 6px; }
+  table.ci-logs-table td.td-desk { display: none !important; }
+  /* white-space:nowrap is inherited from the base (non-mobile) td rule —
+     override back to normal or the grid below inherits it too and every
+     span refuses to wrap regardless of its own white-space setting being
+     overridden (inheritance still flows through .ci-logs-mob-row itself). */
+  table.ci-logs-table td.td-mobile {
+    display: block; padding: 14px 12px; white-space: normal;
+    border-radius: 12px 12px 0 0 !important;
+  }
+  table.ci-logs-table td:first-child,
+  table.ci-logs-table td:last-child { border-radius: 0; }
+
+  /* Data rows: grouped by COLUMN (Date/Type, BO/Client, Circuit/Dates), not
+     by a row of 3 — each column is its own independent vertical stack with
+     a small, consistent gap, unaffected by how tall the *other* columns get
+     when their own content wraps. Grouping by row instead made the Date-to-
+     Type gap look inconsistent card to card, since a wrapped Circuit/Client
+     name grows the whole row (and the gap after it) even though Date's own
+     1-line content sat far above where that taller row actually ends. */
+  .ci-logs-mob-row {
+    display: grid;
+    /* Fixed fr shares, not auto — see the matching note on .ci-logs-mob-line
+       below; same reasoning applies here. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px; align-items: start;
+  }
+  .ci-logs-mob-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  /* Every plain-text field (Date/Type/BO/Client/Circuit/Dates) shares one
+     size/color; the Add/Removed pill keeps its own semantic color via the
+     :not() exclusions, matching the desktop pill exactly. Wraps instead of
+     truncating (word-break catches a single long unbroken token — e.g. a
+     Circuit name with no spaces — that alone could still overflow its column). */
+  .ci-logs-mob-col span:not(.ci-logs-type-add):not(.ci-logs-type-removed) {
+    font-size: 12px; color: var(--text-secondary);
+    min-width: 0; white-space: normal; word-break: break-word;
+  }
+
+  /* Mobile column-label row ("Date"/"Client"/"Circuit") — one line, same
+     3-column proportions as the data rows above so the labels line up. */
+  .ci-logs-mob-line {
+    display: grid;
+    /* Fixed fr shares, not auto — auto sizes a track to its content's full
+       preferred width first and only shrinks it if the row runs out of
+       room, so a long value could claim nearly the entire row and leave
+       another track's minmax(0, ...) floor with ~0px to work with — word-
+       break then had nowhere to put each word but its own line, wrapping
+       character-by-character down the column. Equal fr shares give every
+       column a real, predictable minimum regardless of what any other
+       column contains (matches bookings.css's own
+       .mob-row { grid-template-columns:2fr 2fr 1fr; } for the same reason). */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px; align-items: center;
+  }
+
+  /* Column-label row (Date/Client/Circuit) — same sticky-on-the-row (not its
+     td) technique as bookings.css's .mob-thead-row, for the same reason: a
+     sticky td's containing block is only as tall as the td itself, so it
+     "sticks" for an instant then scrolls away with everything else. */
+  .mob-thead-row { position: sticky; top: 0; z-index: 5; }
+  .mob-thead-row td {
+    background: var(--bg-secondary) !important;
+    border-radius: 8px !important; padding: 8px 12px !important;
+  }
+  .ci-logs-mob-hdr span {
+    font-size: 10px; font-weight: 700; color: var(--text-muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
 }

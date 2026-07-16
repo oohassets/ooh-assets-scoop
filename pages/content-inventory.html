@@ -15,7 +15,22 @@
       <button class="circuit-tab" data-tab="static">Static</button>
       <button class="circuit-tab" data-tab="activity">Activity</button>
       <button class="circuit-tab" data-tab="logs">Logs</button>
-      <div class="download-wrap" id="ciDigitalDownloadWrap" style="margin-left:auto;">
+    </div>
+  </div>
+</div>
+
+<div class="ci-page">
+
+  <!-- Digital section (default visible) -->
+  <div id="digitalSection">
+    <div class="carousel-header">
+      <div class="carousel-title">Digital Circuits</div>
+      <!-- Home base for the shared download button — content-inventory.js's
+           tab switcher relocates this same element (appendChild, not a copy;
+           duplicate ids would break getElementById) into #staticSection's
+           own carousel-header when Static is active, matching its title
+           there instead. Hidden entirely for Activity/Logs. -->
+      <div class="download-wrap" id="ciDigitalDownloadWrap">
         <button class="download-btn" id="ciDownloadBtn" title="Download report">
           <span class="material-symbols-outlined">download</span>
         </button>
@@ -28,16 +43,6 @@
           </button>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<div class="ci-page">
-
-  <!-- Digital section (default visible) -->
-  <div id="digitalSection">
-    <div class="carousel-header">
-      <div class="carousel-title">Digital Circuits</div>
     </div>
     <div class="carousel-container reveal">
       <div class="carousel" id="carouselTPI"></div>
@@ -118,7 +123,7 @@
               <th class="th-sortable" data-sort="Circuits" role="button" tabindex="0" aria-label="Sort by Circuits"><span class="th-sort-label">Circuits<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
               <th class="th-sortable" data-sort="Start Date" role="button" tabindex="0" aria-label="Sort by Start Date"><span class="th-sort-label">Start Date<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
               <th class="th-sortable" data-sort="End Date" role="button" tabindex="0" aria-label="Sort by End Date"><span class="th-sort-label">End Date<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
-              <th class="ci-actions-col" id="logsActionsTh" style="display:none;">Actions</th>
+              <th class="ci-actions-col" id="logsActionsTh" style="display:none;"><button type="button" class="ci-more-btn" id="logsMoreBtn" aria-label="Row options"><span class="material-symbols-outlined">more_vert</span></button></th>
             </tr>
           </thead>
           <tbody id="logsTableBody">
