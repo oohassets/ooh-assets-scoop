@@ -19,7 +19,7 @@ async function loadAllTables() {
 // ===============================
 // Format date as dd/mmm/yyyy
 // ===============================
-function formatDateDDMMMYYYY(value) {
+export function formatDateDDMMMYYYY(value) {
   if (!value) return "—";
 
   value = value.trim();
@@ -45,60 +45,105 @@ function formatDateDDMMMYYYY(value) {
   return `${day}-${monthNames[mIndex]}-${year}`;
 }
 
+// Sorts [key, row] entries by a numeric `order` field (ascending); entries
+// without one sort after those that have it, keeping their relative order
+// (Array#sort is stable) so untouched tables fall back to natural RTDB order.
+function sortByOrder(entries) {
+  entries.sort(([, a], [, b]) => {
+    const oa = a.order, ob = b.order;
+    const ha = typeof oa === "number", hb = typeof ob === "number";
+    if (ha && hb) return oa - ob;
+    if (ha) return -1;
+    if (hb) return 1;
+    return 0;
+  });
+}
+
+// Renders one <td>...</td> for a given column, applying the same BO
+// free/filler pill + Start/End Date highlight rules used at initial render.
+// Exported so content-inventory.js's inline row editor can re-render a cell
+// after a save exactly as a normal page load would, instead of leaving it as
+// plain unstyled text.
+export function renderCellHTML(field, row, highlightColumns, today) {
+  const cellValue = row[field] ?? "—";
+  let className = "";
+
+  const match = String(cellValue).match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+  let numericDate = null;
+
+  if (match) {
+    const d = parseInt(match[1]);
+    const mmm = match[2];
+    const y = parseInt(match[3]);
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const m = months.indexOf(mmm);
+    numericDate = new Date(y, m, d);
+    numericDate.setHours(0,0,0,0);
+  }
+
+  if (field === "Start Date" && numericDate && numericDate.getTime() === today.getTime()) {
+    className = "date-today";
+  }
+
+  if (highlightColumns.includes(field) && !className && numericDate) {
+    const diff = (numericDate - today) / 86400000;
+    if (diff === 0) className = "date-today";
+    else if (diff === 1) className = "date-tomorrow";
+    else if (diff > 1 && diff <= 7) className = "date-week";
+    else if (diff < 0) className = "date-less-than-today";
+  }
+
+  if (field === "BO" && /free|filler/i.test(String(cellValue))) {
+    return `<td><span class="bo-filler">${cellValue}</span></td>`;
+  } else if (className) {
+    return `<td><span class="${className}">${cellValue}</span></td>`;
+  }
+  return `<td>${cellValue}</td>`;
+}
+
 // ===============================
 // Convert JSON → HTML table
 // ===============================
-function jsonToTableAuto(dataObj, columns, highlightColumns = []) {
+// rowKeys (optional): real RTDB keys parallel to dataObj's positional
+// iteration order — embedded as data-key on each <tr> so admin drag-reorder
+// knows which record to write `order` back to.
+// actionsEnabled: renders a trailing actions column (more_vert in the header,
+// a per-row status icon in the body) — only true for admin-editable cards.
+function jsonToTableAuto(dataObj, columns, highlightColumns = [], rowKeys = null, actionsEnabled = false) {
   if (!dataObj || Object.keys(dataObj).length === 0) return "<p>No data</p>";
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  let html = `<table class="json-table"><thead><tr>${columns.map(col => `<th>${col}</th>`).join("")}</tr></thead><tbody>`;
+  const actionsTh = actionsEnabled
+    ? `<th class="ci-actions-col"><button type="button" class="ci-more-btn" aria-label="Row options"><span class="material-symbols-outlined">more_vert</span></button></th>`
+    : "";
+  let html = `<table class="json-table"><thead><tr>${columns.map(col => `<th>${col}</th>`).join("")}${actionsTh}</tr></thead><tbody>`;
 
+  let pos = 0;
   for (const rowKey in dataObj) {
     const row = dataObj[rowKey] || {};
-    html += `<tr>`;
+    const keyAttr = rowKeys ? ` data-key="${rowKeys[pos]}"` : "";
+    html += `<tr${keyAttr}>`;
 
     columns.forEach(field => {
-      let cellValue = row[field] ?? "—";
-      let className = "";
-
-      let match = cellValue.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
-      let numericDate = null;
-
-      if (match) {
-        const d = parseInt(match[1]);
-        const mmm = match[2];
-        const y = parseInt(match[3]);
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        const m = months.indexOf(mmm);
-        numericDate = new Date(y, m, d);
-        numericDate.setHours(0,0,0,0);
+      // SN is a display position, never stored data — always 1-based row order.
+      if (field === "SN") {
+        html += `<td class="ci-sn">${pos + 1}</td>`;
+        return;
       }
-
-      if (field === "Start Date" && numericDate && numericDate.getTime() === today.getTime()) {
-        className = "date-today";
-      }
-
-      if (highlightColumns.includes(field) && !className && numericDate) {
-        const diff = (numericDate - today) / 86400000;
-        if (diff === 0) className = "date-today";
-        else if (diff === 1) className = "date-tomorrow";
-        else if (diff > 1 && diff <= 7) className = "date-week";
-        else if (diff < 0) className = "date-less-than-today";
-      }
-
-      if (field === "BO" && /free|filler/i.test(String(cellValue))) {
-        html += `<td><span class="bo-filler">${cellValue}</span></td>`;
-      } else if (className) {
-        html += `<td><span class="${className}">${cellValue}</span></td>`;
-      } else {
-        html += `<td>${cellValue}</td>`;
-      }
+      html += renderCellHTML(field, row, highlightColumns, today);
     });
 
+    if (actionsEnabled) {
+      // draggable="false" so clicking the row's own edit/save/cancel buttons
+      // always registers as a click, never gets swallowed by the row's own
+      // draggable="true" (set on <tr> while the card is in edit mode).
+      html += `<td class="ci-actions-col" draggable="false"><button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button></td>`;
+    }
+
     html += `</tr>`;
+    pos++;
   }
 
   html += "</tbody></table>";
@@ -136,9 +181,13 @@ function getDateClass(dateStr, isHighlight) {
 }
 
 // ===============================
-function createCard(title, data, columns, highlightColumns = []) {
+// editInfo (optional): { tableName, rowKeys } — present only for cards backed
+// 1:1 by a real d_/s_ RTDB table, i.e. the ones an admin can reorder. Cards
+// built from aggregated/synthetic data (Ending/Upcoming Campaigns) omit it.
+function createCard(title, data, columns, highlightColumns = [], editInfo = null) {
   const card = document.createElement("div");
   card.className = "card";
+  if (editInfo) card.dataset.table = editInfo.tableName;
 
   // Build mobile slot-list for cards that have Client + date range
   const hasDates  = columns.includes("Start Date") && columns.includes("End Date");
@@ -169,8 +218,9 @@ function createCard(title, data, columns, highlightColumns = []) {
   } else if (hasDates && hasClient) {
     const rows = Object.values(data);
     const isStaticCard = snKey === "Circuit";
-    const items = rows.map(row => {
-      const sn        = snKey ? (row[snKey] ?? "—") : "";
+    const items = rows.map((row, i) => {
+      // SN is a display position, never stored data — matches the desktop table.
+      const sn        = snKey === "SN" ? (i + 1) : (snKey ? (row[snKey] ?? "—") : "");
       const client    = row["Client"] ?? "—";
       const start     = row["Start Date"] ?? "—";
       const end       = row["End Date"]   ?? "—";
@@ -216,10 +266,13 @@ function createCard(title, data, columns, highlightColumns = []) {
       </div>`;
   }
 
+  const isAdmin = window.__currentUser?.rule === "admin";
+  const actionsEnabled = !!(editInfo && isAdmin);
+
   card.innerHTML = `
     <h2>${title}</h2>
     <div class="table-container desk-view">
-      ${jsonToTableAuto(data, columns, highlightColumns)}
+      ${jsonToTableAuto(data, columns, highlightColumns, editInfo?.rowKeys, actionsEnabled)}
     </div>
     ${mobileHtml ? `<div class="mob-view">${mobileHtml}</div>` : ""}
   `;
@@ -522,14 +575,17 @@ export async function loadCarousel() {
     const columns = ["SN", "Client", "BO", "Start Date", "End Date"];
     const highlightCols = ["End Date"];
 
-    const rows = Array.isArray(data) ? data : Object.values(data);
+    // Keep each row's real RTDB key (needed to write `order` back on drag-reorder)
+    // instead of collapsing straight to Object.values().
+    const entries = Array.isArray(data) ? data.map((row, i) => [String(i), row]) : Object.entries(data);
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
-    const validRows = rows.filter(
-      row => row && typeof row === "object" && !Array.isArray(row)
+    const validEntries = entries.filter(
+      ([, row]) => row && typeof row === "object" && !Array.isArray(row)
     );
+    sortByOrder(validEntries);
 
-    validRows.forEach(row => {
+    validEntries.forEach(([, row]) => {
       columns.forEach(col => {
         row[col] = dateCols.includes(col)
           ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
@@ -537,14 +593,15 @@ export async function loadCarousel() {
       });
     });
 
-    if (!validRows.length) return;
+    if (!validEntries.length) return;
 
     container.appendChild(
       createCard(
         tableName.replace(/^d_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
-        Object.fromEntries(validRows.map((r, i) => [i, r])),
+        Object.fromEntries(validEntries.map(([, r], i) => [i, r])),
         columns,
-        highlightCols
+        highlightCols,
+        { tableName, rowKeys: validEntries.map(([k]) => k) }
       )
     );
   };
@@ -625,15 +682,16 @@ export async function loadCarousel() {
     const columns = ["Circuit", "Client", "BO", "Start Date", "End Date"];
     const highlightCols = ["End Date"];
 
-    const rows = Array.isArray(data) ? data : Object.values(data);
+    const entries = Array.isArray(data) ? data.map((row, i) => [String(i), row]) : Object.entries(data);
 
     const dateCols = columns.filter(col => col.toLowerCase().includes("date"));
 
-    const validRows = rows.filter(
-      row => row && typeof row === "object" && !Array.isArray(row)
+    const validEntries = entries.filter(
+      ([, row]) => row && typeof row === "object" && !Array.isArray(row)
     );
+    sortByOrder(validEntries);
 
-    validRows.forEach(row => {
+    validEntries.forEach(([, row]) => {
       columns.forEach(col => {
         row[col] = dateCols.includes(col)
           ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
@@ -641,7 +699,7 @@ export async function loadCarousel() {
       });
     });
 
-    if (validRows.length === 0) return;
+    if (validEntries.length === 0) return;
 
     staticCarousel.appendChild(
       createCard(
@@ -649,9 +707,10 @@ export async function loadCarousel() {
           .replace(/^s_/, "")
           .replace(/_/g, " ")
           .replace(/\b\w/g, c => c.toUpperCase()),
-        Object.fromEntries(validRows.map((r, i) => [i, r])),
+        Object.fromEntries(validEntries.map(([, r], i) => [i, r])),
         columns,
-        highlightCols
+        highlightCols,
+        { tableName, rowKeys: validEntries.map(([k]) => k) }
       )
     );
   });

@@ -107,24 +107,114 @@
   transition: background 0.4s, border-color 0.3s;
 }
 .ci-page .card h2 { font-size:16px; padding-top:5px; margin-top:0; margin-bottom:10px; color:var(--text-primary); }
+
+/* ── Admin edit mode: row-actions column + more_vert menu ── */
+.json-table th.ci-actions-col,
+.json-table td.ci-actions-col { width:34px; padding:4px 2px; text-align:center; white-space:nowrap; }
+
+.ci-more-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%; box-sizing: border-box;
+  border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+}
+.ci-more-btn .material-symbols-outlined { font-size: 18px; }
+.ci-more-btn:hover, .ci-more-btn.open {
+  background: var(--bg-glass); color: var(--text-primary);
+}
+
+/* Per-row indicator — hidden until the card enters edit mode; a transparent
+   pencil that opens inline cell editing, or (while ci-row-pending) a
+   clickable checkmark confirming a just-dropped row's new position. */
+.ci-row-edit-btn {
+  display: none; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: transparent; color: var(--text-muted);
+  cursor: pointer; transition: color 0.2s, background 0.2s;
+}
+.ci-row-edit-btn .material-symbols-outlined { font-size: 15px; }
+.ci-page .card.ci-edit-mode .ci-row-edit-btn { display: inline-flex; }
+.ci-row-edit-btn.ci-row-success { color: var(--success); }
+
+/* Pending reorder — not yet written, waiting on the admin to click it */
+.ci-row-edit-btn.ci-row-pending {
+  color: var(--success);
+  background: rgba(53,179,126,0.15);
+  animation: ciRowPendingPulse 1.4s ease-in-out infinite;
+}
+.ci-row-edit-btn.ci-row-pending:hover { background: rgba(53,179,126,0.28); }
+.ci-row-edit-btn.ci-row-pending:disabled { animation: none; opacity: 0.6; cursor: default; }
+@keyframes ciRowPendingPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(53,179,126,0.35); }
+  50%      { box-shadow: 0 0 0 4px rgba(53,179,126,0); }
+}
+
+/* Row drag affordance — cursor + hover only active while a card is in edit mode */
+.ci-page .card.ci-edit-mode .json-table tbody tr { cursor: grab; }
+.ci-page .card.ci-edit-mode .json-table tbody tr:active { cursor: grabbing; }
+.ci-page .card.ci-edit-mode .json-table tbody tr:hover { background: var(--bg-glass); }
+.ci-page .card.ci-edit-mode .json-table tbody tr.ci-dragging { opacity: 0.4; }
+
+/* Inline cell editing (Client/BO text, Start/End Date via the native picker) */
+.json-table tbody tr.ci-row-editing { background: var(--bg-glass); cursor: default; }
+.ci-cell-input {
+  width: 100%; box-sizing: border-box;
+  font: inherit; color: var(--text-primary);
+  background: var(--bg-primary); border: 1px solid var(--border-glass);
+  border-radius: 6px; padding: 3px 6px;
+}
+.ci-cell-input:focus { outline: none; border-color: var(--accent-indigo); }
+
+.json-table tbody tr.ci-row-editing td.ci-actions-col { width: 58px; }
+.ci-row-save-btn, .ci-row-cancel-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; border: none;
+  background: transparent; cursor: pointer; transition: all 0.2s;
+}
+.ci-row-save-btn .material-symbols-outlined, .ci-row-cancel-btn .material-symbols-outlined { font-size: 15px; }
+.ci-row-save-btn { color: var(--success); }
+.ci-row-save-btn:hover { background: rgba(53,179,126,0.15); }
+.ci-row-cancel-btn { color: var(--text-muted); }
+.ci-row-cancel-btn:hover { background: var(--bg-glass); color: var(--text-primary); }
+
+/* more_vert dropdown — position:fixed (coords set in JS) so it isn't
+   clipped by .table-container's own scroll/overflow box */
+.ci-row-menu {
+  position: fixed; z-index: 600; display: none;
+  background: var(--nav-bg); border: 1px solid var(--border-glass);
+  border-radius: 12px; padding: 6px; min-width: 130px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px);
+}
+.ci-row-menu.open { display: block; }
+.ci-row-menu button {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  padding: 8px 10px; border-radius: 8px; border: none; background: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  color: var(--text-secondary); transition: all 0.15s;
+}
+.ci-row-menu button .material-symbols-outlined { font-size: 16px; }
+.ci-row-menu button:hover { background: var(--bg-glass); color: var(--text-primary); }
+
 #carouselPublishToday .card { width: 100%; }
 #carouselUpcoming .card     { width: 100%; }
 .published-card h2 { color:var(--accent-emerald); }
 .removed-card h2   { color:var(--accent-rose); }
 
 /* ── Scrollable table ─────────────────── */
-.ci-page .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; }
+/* border-radius clips here (a plain div), not on thead/tr — border-radius has
+   no effect on internal table-display boxes (tr/thead) in any browser, only
+   background-color does. Rounding the table-container itself is what actually
+   clips the sticky header's background into rounded top corners. */
+.ci-page .table-container { max-height:65vh; overflow-y:auto; padding-right:8px; margin-top:-4px; border-radius:10px 10px 0 0; }
 
 .json-table { white-space: nowrap;width:100%; border-collapse:collapse; font-size:13px; color:var(--text-primary); }
 .json-table td { padding:6px; border-bottom:1px solid var(--border-glass); }
 .separator td  { border-bottom:2px solid var(--text-muted); }
-.json-table tr:hover { background:var(--bg-glass); }
 .json-table pre { white-space:pre-wrap; word-break:break-word; margin:0; font-size:12px; background:var(--bg-glass); padding:4px 6px; border-radius:6px; }
 
 .card-table-wrapper { max-height:65vh; overflow-y:auto; padding-right:10px; }
-.json-table th { background:var(--bg-secondary); color:var(--text-secondary); position:sticky; top:0; padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); z-index:3; font-size:13px; }
-.json-table th:first-child { border-radius: 10px 0 0 10px; }
-.json-table th:last-child  { border-radius: 0 10px 10px 0; }
+.json-table thead tr { position:sticky; top:0; z-index:3; background:var(--bg-secondary); }
+.json-table th { color:var(--text-secondary); padding:4px 6px; font-weight:bold; border-bottom:2px solid var(--border-glass); font-size:13px; }
 .json-table td.key { font-weight:bold; width:80px; }
 .json-table tr:last-child td { border-bottom:none; }
 
