@@ -1,8 +1,16 @@
 /* ── Content Inventory View Module ───────────────────────── */
 import { loadCarousel, formatDateDDMMMYYYY, renderCellHTML } from "../loadCarousel.js";
 import { initScrollReveal } from "../utils.js";
+import { loadRootTables } from "../rtdb-root.js";
 import { rtdb } from "../../../firebase/firebase.js";
-import { ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { ref, get, set, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+// Escapes free-text fields (Client/Circuits/BO — plain RTDB strings)
+// before they're interpolated into innerHTML, matching bookings.js's
+// escapeHTML() for the same reason (stored XSS via a booking/log field).
+function escapeHTML(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -49,7 +57,7 @@ function activeSection() {
   const active = document.querySelector(".circuit-tab.active");
   const tab = active?.dataset.tab || "digital";
   return document.getElementById(
-    tab === "digital" ? "digitalSection" : tab === "static" ? "staticSection" : "activitySection"
+    tab === "digital" ? "digitalSection" : tab === "static" ? "staticSection" : tab === "logs" ? "logsSection" : "activitySection"
   );
 }
 
@@ -300,6 +308,520 @@ async function downloadAsExcel() {
   }
 }
 
+// ══════════════════════════════════════════════════════════
+// Campaign Logs tab — reads the "Campaign_Logs" RTDB table (the same one
+// the digital/static delete/add-row actions below append to).
+// ══════════════════════════════════════════════════════════
+
+// "3/15/2025" (RTDB's stored format, same as every other date field in this
+// app) → Date. Tolerant of missing/invalid input like the rest of this file.
+function parseMDY(str) {
+  if (!str) return null;
+  const parts = String(str).trim().split("/").map(Number);
+  if (parts.length < 3 || parts.some(Number.isNaN)) return null;
+  const [m, d, y] = parts;
+  return new Date(y, m - 1, d);
+}
+
+// "YYYY-MM-DD" (native <input type=date> value) → local Date, no UTC shift.
+function parseISODateLocal(str) {
+  if (!str) return null;
+  const [y, m, d] = str.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+let campaignLogs   = null;  // cached; fetched once, appendCampaignLog() invalidates it
+let logsFiltered   = [];
+let logsSortField  = null;
+let logsSortDir    = "asc";
+let logsDrpStart   = null, logsDrpEnd = null;
+let logsMonthKeys  = [];
+let logsLoaded     = false; // guards the one-time fetch+setup in openLogsTab()
+let logsIsAdmin    = false; // set once in openLogsTab(); gates the actions column
+
+async function fetchCampaignLogs() {
+  if (campaignLogs) return campaignLogs;
+  // loadRootTables() (not a Campaign_Logs-only ref) — loadCarousel.js's own
+  // loadAllTables() already reads the whole root for the Digital/Static/
+  // Activity tabs, so sharing the same in-flight request here means opening
+  // Content Inventory and immediately switching to Campaign Logs doesn't
+  // fire two separate full-database reads.
+  const snap = await loadRootTables();
+  const raw  = snap.exists() ? (snap.val()?.Campaign_Logs || {}) : {};
+  // Real RTDB key kept as _key (not just re-indexed 0..N) so admin edits can
+  // write back to the exact record — same reason loadCarousel.js does this
+  // for the d_/s_ tables.
+  const entries = Array.isArray(raw) ? raw.map((r, i) => [String(i), r]) : Object.entries(raw);
+  campaignLogs = entries.filter(([, r]) => r).map(([key, r]) => ({
+    _key: key,
+    Date: r.Date || "",
+    Type: r.Type || "",
+    BO: r.BO || "—",
+    Client: r.Client || "—",
+    Circuits: r.Circuits || "—",
+    "Start Date": r["Start Date"] || "—",
+    "End Date": r["End Date"] || "—",
+    _sortDate:  parseMDY(r.Date),
+    _sortStart: parseMDY(r["Start Date"]),
+    _sortEnd:   parseMDY(r["End Date"]),
+  }));
+  return campaignLogs;
+}
+
+/** Contiguous "YYYY-MM" keys spanning every log's own Date, latest first. */
+function buildLogsMonthKeys(rows) {
+  const now = new Date();
+  let min = new Date(now.getFullYear(), now.getMonth(), 1);
+  let max = new Date(now.getFullYear(), now.getMonth(), 1);
+  rows.forEach(r => {
+    if (!r._sortDate) return;
+    const monthStart = new Date(r._sortDate.getFullYear(), r._sortDate.getMonth(), 1);
+    if (monthStart < min) min = monthStart;
+    if (monthStart > max) max = monthStart;
+  });
+  const keys = [];
+  const cur = new Date(min);
+  while (cur <= max) {
+    keys.push(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}`);
+    cur.setMonth(cur.getMonth() + 1);
+  }
+  return keys.reverse();
+}
+
+function logsMonthLabel(key) {
+  const [y, m] = key.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function currentMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+// Shared by the date-filter <select> change handler and the initial default
+// below — "" clears back to All Time (no range filter applied).
+function setLogsMonthRange(key) {
+  if (!key) { logsDrpStart = logsDrpEnd = null; return; }
+  const [y, m] = key.split("-").map(Number);
+  logsDrpStart = new Date(y, m - 1, 1);
+  logsDrpEnd   = new Date(y, m, 0);
+}
+
+// Defaults to the current month (not "All Time") — Campaign_Logs only grows,
+// so opening the tab renders just this month's rows unless the admin
+// explicitly widens the filter; see renderLogsTable().
+function populateLogsDateSelect(rows) {
+  const select = document.getElementById("logsDateFilterSelect");
+  if (!select) return;
+  logsMonthKeys = buildLogsMonthKeys(rows);
+  const curKey = currentMonthKey();
+  const defaultKey = logsMonthKeys.includes(curKey) ? curKey : "";
+  select.innerHTML =
+    `<option value="">All Time</option><option value="range">Select Date Range</option>` +
+    logsMonthKeys.map(k => `<option value="${k}">${logsMonthLabel(k)}</option>`).join("");
+  select.value = defaultKey;
+  setLogsMonthRange(defaultKey);
+}
+
+// Renders every row in `rows` — no pagination. Campaign_Logs is append-only
+// and only grows, but the date filter defaults to the current month (see
+// populateLogsDateSelect()), so a normal render is a small, bounded set;
+// "All Time" or a wide custom range is an explicit admin choice to render
+// more, not the default cost of opening the tab.
+function renderLogsTable(rows) {
+  const tbody = document.getElementById("logsTableBody");
+  if (!tbody) return;
+  const colspan = logsIsAdmin ? 8 : 7;
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="${colspan}" class="ci-logs-loading">No campaign logs found</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const t = (r.Type || "").toLowerCase();
+    const typeCls  = t === "add" ? "ci-logs-type-add" : t === "removed" ? "ci-logs-type-removed" : "";
+    const typeCell = typeCls
+      ? `<span class="${typeCls}">${escapeHTML(r.Type)}</span>`
+      : (escapeHTML(r.Type) || "—");
+    const actionsCell = logsIsAdmin
+      ? `<td class="ci-actions-col"><button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button></td>`
+      : "";
+    return `<tr data-key="${r._key}">
+      <td>${formatDateDDMMMYYYY(r.Date)}</td>
+      <td>${typeCell}</td>
+      <td>${escapeHTML(r.BO)}</td>
+      <td>${escapeHTML(r.Client)}</td>
+      <td>${escapeHTML(r.Circuits)}</td>
+      <td>${formatDateDDMMMYYYY(r["Start Date"])}</td>
+      <td>${formatDateDDMMMYYYY(r["End Date"])}</td>
+      ${actionsCell}
+    </tr>`;
+  }).join("");
+}
+
+// ── Admin inline edit for a log row — same pencil/check/x pattern as the
+// Digital/Static tables (startRowEdit()/saveRowEdit()/cancelRowEdit()), but
+// simpler: a flat log entry has no SN/reorder/drag concept, so the actions
+// column here is just always-on edit, gated entirely by logsIsAdmin at
+// render time rather than a separate "edit mode" toggle. ──
+const LOGS_COLUMNS = ["Date", "Type", "BO", "Client", "Circuits", "Start Date", "End Date"];
+const LOGS_DATE_FIELDS = new Set(["Date", "Start Date", "End Date"]);
+
+function startLogRowEdit(tr) {
+  if (!tr || tr.classList.contains("ci-row-editing")) return;
+  tr.classList.add("ci-row-editing");
+
+  const cells = Array.from(tr.querySelectorAll("td:not(.ci-actions-col)"));
+  cells.forEach((td, i) => {
+    const field = LOGS_COLUMNS[i];
+    td.dataset.original = td.innerHTML;
+    const current = td.textContent.trim();
+
+    if (LOGS_DATE_FIELDS.has(field)) {
+      td.innerHTML = `<input type="date" class="ci-cell-input" value="${ddmmmyyyyToISO(current)}">`;
+    } else if (field === "Type") {
+      td.innerHTML = `
+        <select class="ci-cell-input">
+          <option value="Add"${current === "Add" ? " selected" : ""}>Add</option>
+          <option value="Removed"${current === "Removed" ? " selected" : ""}>Removed</option>
+        </select>`;
+    } else {
+      const val = current === "—" ? "" : current;
+      td.innerHTML = `<input type="text" class="ci-cell-input" value="${escapeAttr(val)}">`;
+    }
+  });
+
+  const actionsTd = tr.querySelector("td.ci-actions-col");
+  if (actionsTd) {
+    actionsTd.dataset.original = actionsTd.innerHTML;
+    actionsTd.innerHTML = `
+      <button type="button" class="ci-row-save-btn" aria-label="Save row"><span class="material-symbols-outlined">check</span></button>
+      <button type="button" class="ci-row-cancel-btn" aria-label="Cancel edit"><span class="material-symbols-outlined">close</span></button>`;
+  }
+}
+
+function cancelLogRowEdit(tr) {
+  if (!tr) return;
+  tr.querySelectorAll("td[data-original]").forEach(td => {
+    td.innerHTML = td.dataset.original;
+    delete td.dataset.original;
+  });
+  tr.classList.remove("ci-row-editing");
+}
+
+async function saveLogRowEdit(tr) {
+  if (!tr) return;
+  const key = tr.dataset.key;
+  if (key === undefined) return;
+
+  const cells = Array.from(tr.querySelectorAll("td:not(.ci-actions-col)"));
+  const updates = {};
+  const rowData = {};
+
+  cells.forEach((td, i) => {
+    const field = LOGS_COLUMNS[i];
+    const input = td.querySelector(".ci-cell-input");
+    if (!input) { rowData[field] = td.textContent.trim(); return; }
+    const val = LOGS_DATE_FIELDS.has(field) ? isoToMDY(input.value) : input.value.trim();
+    updates[field] = val;
+    rowData[field] = val;
+  });
+
+  try {
+    await update(ref(rtdb, `Campaign_Logs/${key}`), updates);
+  } catch (err) {
+    console.error("[ContentInventory] Failed to save log edit:", err);
+    cancelLogRowEdit(tr);
+    return;
+  }
+
+  // Keep the in-memory cache in sync (rather than invalidating it outright —
+  // that would empty the table until the next fetch, since applyLogsFilters()
+  // reads from campaignLogs).
+  const entry = campaignLogs?.find(r => r._key === key);
+  if (entry) {
+    Object.assign(entry, rowData);
+    entry._sortDate  = parseMDY(entry.Date);
+    entry._sortStart = parseMDY(entry["Start Date"]);
+    entry._sortEnd   = parseMDY(entry["End Date"]);
+  }
+
+  cells.forEach((td, i) => {
+    const field = LOGS_COLUMNS[i];
+    if (field === "Type") {
+      const t = (rowData.Type || "").toLowerCase();
+      const typeCls = t === "add" ? "ci-logs-type-add" : t === "removed" ? "ci-logs-type-removed" : "";
+      td.innerHTML = typeCls ? `<span class="${typeCls}">${escapeHTML(rowData.Type)}</span>` : (escapeHTML(rowData.Type) || "—");
+    } else if (LOGS_DATE_FIELDS.has(field)) {
+      td.textContent = formatDateDDMMMYYYY(rowData[field]);
+    } else {
+      td.textContent = rowData[field] || "—";
+    }
+  });
+
+  const actionsTd = tr.querySelector("td.ci-actions-col");
+  if (actionsTd) actionsTd.innerHTML = `<button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button>`;
+  tr.classList.remove("ci-row-editing");
+  flashRowSuccess(tr);
+}
+
+function applyLogsFilters() {
+  const search = (document.getElementById("logsSearch")?.value || "").toLowerCase();
+  const type   = document.getElementById("logsTypeFilter")?.value || "";
+  let f = [...(campaignLogs || [])];
+  if (search) f = f.filter(r => [r.Client, r.Circuits, r.BO].join(" ").toLowerCase().includes(search));
+  if (type)   f = f.filter(r => (r.Type || "").toLowerCase() === type.toLowerCase());
+  if (logsDrpStart && logsDrpEnd) {
+    const lo = logsDrpStart < logsDrpEnd ? logsDrpStart : logsDrpEnd;
+    const hi = logsDrpStart < logsDrpEnd ? logsDrpEnd   : logsDrpStart;
+    f = f.filter(r => r._sortDate && r._sortDate >= lo && r._sortDate <= hi);
+  }
+  if (logsSortField) applyLogsSortInPlace(f);
+  else f.sort((a, b) => (b._sortDate?.getTime() || 0) - (a._sortDate?.getTime() || 0)); // newest first by default
+  logsFiltered = f;
+  renderLogsTable(f);
+}
+
+function applyLogsSortInPlace(f) {
+  const dirMul = logsSortDir === "asc" ? 1 : -1;
+  const cmpStr = (a, b) => (a || "").localeCompare(b || "", undefined, { sensitivity: "base" });
+  switch (logsSortField) {
+    case "Date":       f.sort((a, b) => dirMul * ((a._sortDate?.getTime()  || 0) - (b._sortDate?.getTime()  || 0))); break;
+    case "Type":       f.sort((a, b) => dirMul * cmpStr(a.Type, b.Type)); break;
+    case "BO":         f.sort((a, b) => dirMul * cmpStr(a.BO, b.BO)); break;
+    case "Client":     f.sort((a, b) => dirMul * cmpStr(a.Client, b.Client)); break;
+    case "Circuits":   f.sort((a, b) => dirMul * cmpStr(a.Circuits, b.Circuits)); break;
+    case "Start Date": f.sort((a, b) => dirMul * ((a._sortStart?.getTime() || 0) - (b._sortStart?.getTime() || 0))); break;
+    case "End Date":   f.sort((a, b) => dirMul * ((a._sortEnd?.getTime()   || 0) - (b._sortEnd?.getTime()   || 0))); break;
+  }
+}
+
+function toggleLogsSort(field) {
+  if (logsSortField === field) logsSortDir = logsSortDir === "asc" ? "desc" : "asc";
+  else { logsSortField = field; logsSortDir = "asc"; }
+  updateLogsSortHeaderUI();
+  applyLogsFilters();
+}
+
+function updateLogsSortHeaderUI() {
+  document.querySelectorAll("#logsSection .th-sortable").forEach(th => {
+    const isActive = th.dataset.sort === logsSortField;
+    th.classList.toggle("sort-active", isActive);
+    const icon = th.querySelector(".th-sort-icon");
+    if (!icon) return;
+    icon.textContent = !isActive ? "unfold_more" : (logsSortDir === "asc" ? "stat_1" : "stat_minus_1");
+  });
+}
+
+// Same pattern as bookings.js's setupSuggest(): suggestions from the values
+// already loaded (Client/Circuits/BO), shown on focus and filtered as you
+// type; mousedown (not click) on an item so it fires before the input's blur.
+function setupLogsSearchSuggest() {
+  const input = document.getElementById("logsSearch");
+  const drop  = document.getElementById("logsSearchSuggest");
+  if (!input || !drop) return;
+
+  const showMatches = () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { drop.classList.remove("open"); return; }
+    const pool = new Set();
+    (campaignLogs || []).forEach(r => {
+      [r.Client, r.Circuits, r.BO].forEach(v => { if (v && v !== "—") pool.add(v); });
+    });
+    const matches = [...pool].filter(v => v.toLowerCase().includes(q)).slice(0, 8);
+    if (!matches.length) { drop.classList.remove("open"); return; }
+    drop.innerHTML = matches.map(v => `<div class="ci-search-item" data-val="${escapeHTML(v)}">${escapeHTML(v)}</div>`).join("");
+    drop.classList.add("open");
+  };
+
+  input.addEventListener("input", () => { showMatches(); applyLogsFilters(); });
+  input.addEventListener("focus", showMatches);
+  drop.addEventListener("mousedown", e => {
+    const item = e.target.closest(".ci-search-item");
+    if (!item) return;
+    e.preventDefault();
+    input.value = item.dataset.val;
+    drop.classList.remove("open");
+    applyLogsFilters();
+  });
+  input.addEventListener("blur", () => setTimeout(() => drop.classList.remove("open"), 150));
+}
+
+async function downloadLogsAsPDF() {
+  const btn = document.getElementById("logsDownloadBtn");
+  if (btn) btn.classList.add("loading");
+  try {
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js");
+    const { jsPDF } = window.jspdf;
+
+    const M   = 8;
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const PAGE_W = doc.internal.pageSize.getWidth();
+
+    let logoData = null;
+    try { logoData = await loadImageForPDF("images/scooplogo.png"); } catch (_) {}
+    const LOGO_H = 10;
+    const logoW  = logoData ? (LOGO_H * logoData.w) / logoData.h : 0;
+
+    let y = M + 2;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(20, 20, 50);
+    doc.text("SCOOP Media and Communication Co.", M, y + 5);
+    if (logoData) doc.addImage(logoData.dataUrl, "PNG", PAGE_W - M - logoW, y, logoW, LOGO_H);
+    y += 10;
+
+    const now = new Date();
+    const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const dateStr = `Date: ${now.getDate()} ${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(20, 20, 50);
+    doc.text("Campaign Logs", M, y + 3.5);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+    doc.text(dateStr, PAGE_W - M - doc.getTextWidth(dateStr), y + 3.5);
+    y += 8;
+
+    const columns = ["Date", "Type", "BO", "Client", "Circuits", "Start Date", "End Date"];
+    const rows = logsFiltered.map(r => [
+      formatDateDDMMMYYYY(r.Date), r.Type, r.BO, r.Client, r.Circuits,
+      formatDateDDMMMYYYY(r["Start Date"]), formatDateDDMMMYYYY(r["End Date"]),
+    ]);
+
+    doc.autoTable({
+      startY: y, head: [columns], body: rows,
+      styles: { font: "helvetica", fontSize: 8, cellPadding: 2, overflow: "linebreak", valign: "middle" },
+      headStyles: { fillColor: [100, 116, 139], textColor: 255, fontStyle: "bold", fontSize: 8 },
+      alternateRowStyles: { fillColor: [245, 245, 255] },
+      margin: { left: M, right: M },
+      didParseCell: data => {
+        if (data.section !== "body" || data.column.index !== 1) return;
+        const t = String(data.cell.raw).toLowerCase();
+        if (t === "add") data.cell.styles.textColor = [53, 179, 126];
+        else if (t === "removed") data.cell.styles.textColor = BO_RED;
+      },
+    });
+
+    doc.save(`SCOOP_OOH_Campaign_Logs.pdf`);
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
+async function downloadLogsAsExcel() {
+  const btn = document.getElementById("logsDownloadBtn");
+  if (btn) btn.classList.add("loading");
+  try {
+    await loadScript("https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js");
+    const ExcelJS = window.ExcelJS;
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "SCOOP OOH"; wb.created = new Date();
+    const ws = wb.addWorksheet("Campaign Logs");
+
+    const HEAD_FILL = { type: "pattern", pattern: "solid", fgColor: { argb: "FF64748B" } };
+    const columns = ["Date", "Type", "BO", "Client", "Circuits", "Start Date", "End Date"];
+    const headRow = ws.getRow(1);
+    columns.forEach((c, i) => { headRow.getCell(i + 1).value = c; });
+    headRow.eachCell(cell => { cell.font = { bold: true, color: { argb: "FFFFFFFF" } }; cell.fill = HEAD_FILL; });
+
+    logsFiltered.forEach((r, i) => {
+      const row = ws.getRow(i + 2);
+      const vals = [
+        formatDateDDMMMYYYY(r.Date), r.Type, r.BO, r.Client, r.Circuits,
+        formatDateDDMMMYYYY(r["Start Date"]), formatDateDDMMMYYYY(r["End Date"]),
+      ];
+      vals.forEach((v, ci) => {
+        const cell = row.getCell(ci + 1);
+        cell.value = v;
+        if (ci === 1) cell.font = { bold: true, color: { argb: v === "Add" ? "FF35B37E" : "FFE5484D" } };
+      });
+    });
+
+    for (let i = 1; i <= columns.length; i++) ws.getColumn(i).width = 20;
+
+    const buf  = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = "SCOOP_OOH_Campaign_Logs.xlsx"; a.click();
+    URL.revokeObjectURL(url);
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
+async function openLogsTab() {
+  if (logsLoaded) return;
+  logsLoaded = true;
+  logsIsAdmin = window.__currentUser?.rule === "admin";
+  const actionsTh = document.getElementById("logsActionsTh");
+  if (actionsTh) actionsTh.style.display = logsIsAdmin ? "" : "none";
+  const rows = await fetchCampaignLogs();
+  populateLogsDateSelect(rows);
+  setupLogsSearchSuggest();
+  applyLogsFilters();
+}
+
+function closeLogsDownloadDropdown() {
+  document.getElementById("logsDownloadDropdown")?.classList.remove("open");
+  document.getElementById("logsDownloadBtn")?.classList.remove("open");
+}
+
+function onLogsClick(e) {
+  const sortTh = e.target.closest(".th-sortable");
+  if (sortTh) { toggleLogsSort(sortTh.dataset.sort); return; }
+
+  if (e.target.closest("#logsApplyCustomDate")) {
+    const f = document.getElementById("logsDateFrom")?.value;
+    const t = document.getElementById("logsDateTo")?.value;
+    if (f && t) {
+      logsDrpStart = parseISODateLocal(f);
+      logsDrpEnd   = parseISODateLocal(t);
+      applyLogsFilters();
+    }
+    return;
+  }
+
+  const dlBtn = e.target.closest("#logsDownloadBtn");
+  if (dlBtn) {
+    const willOpen = !document.getElementById("logsDownloadDropdown")?.classList.contains("open");
+    document.getElementById("logsDownloadDropdown")?.classList.toggle("open", willOpen);
+    dlBtn.classList.toggle("open", willOpen);
+    return;
+  }
+  if (e.target.closest("#logsDownloadPDF"))    { closeLogsDownloadDropdown(); downloadLogsAsPDF();   return; }
+  if (e.target.closest("#logsDownloadExcel"))  { closeLogsDownloadDropdown(); downloadLogsAsExcel(); return; }
+
+  const editBtn = e.target.closest(".ci-row-edit-btn");
+  if (editBtn) { startLogRowEdit(editBtn.closest("tr")); return; }
+
+  const saveBtn = e.target.closest(".ci-row-save-btn");
+  if (saveBtn) { saveLogRowEdit(saveBtn.closest("tr")); return; }
+
+  const cancelBtn = e.target.closest(".ci-row-cancel-btn");
+  if (cancelBtn) { cancelLogRowEdit(cancelBtn.closest("tr")); return; }
+}
+
+function onLogsChange(e) {
+  if (e.target.id === "logsDateFilterSelect") {
+    const val = e.target.value;
+    const rangeInputs = document.getElementById("logsDateRangeInputs");
+    if (val === "range") {
+      if (rangeInputs) rangeInputs.hidden = false;
+      logsDrpStart = logsDrpEnd = null;
+    } else {
+      if (rangeInputs) rangeInputs.hidden = true;
+      setLogsMonthRange(val); // "" clears back to All Time
+    }
+    applyLogsFilters();
+    return;
+  }
+  if (e.target.id === "logsTypeFilter") applyLogsFilters();
+}
+
+function onDocClickCloseLogsDownload(e) {
+  const btn = document.getElementById("logsDownloadBtn");
+  const dropdown = document.getElementById("logsDownloadDropdown");
+  if (!btn?.contains(e.target) && !dropdown?.contains(e.target)) closeLogsDownloadDropdown();
+}
+
 // ── Admin edit mode: more_vert menu → Edit → draggable rows ────
 // Only cards created with editInfo+isAdmin (loadCarousel.js) render a
 // .ci-actions-col at all, so these handlers only ever touch rows backed by a
@@ -309,7 +831,9 @@ function toggleEditMode(card) {
 }
 
 function renumberSN(card) {
-  card.querySelectorAll(".json-table tbody tr").forEach((tr, i) => {
+  // :not(.ci-add-row) — that row's own "SN" cell holds the green add button,
+  // not a number; matching it here would stomp the button with plain text.
+  card.querySelectorAll(".json-table tbody tr:not(.ci-add-row)").forEach((tr, i) => {
     const sn = tr.querySelector("td.ci-sn");
     if (sn) sn.textContent = i + 1;
   });
@@ -384,6 +908,10 @@ async function confirmRowOrderSave(btn, card) {
 // identity, not campaign data) are never editable inline.
 const EDITABLE_COLUMNS = new Set(["Client", "BO", "Start Date", "End Date"]);
 const MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+// A row's normal (non-editing) actions cell contents — shared so every place
+// that restores it after edit/save/cancel stays in sync (loadCarousel.js's
+// initial render is the other source of this exact markup).
+const ROW_ACTIONS_HTML = `<button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button><button type="button" class="ci-row-delete-btn" aria-label="Delete row"><span class="material-symbols-outlined">delete</span></button>`;
 
 function getCardColumns(card) {
   return Array.from(card.querySelectorAll(".json-table thead th:not(.ci-actions-col)")).map(th => th.textContent.trim());
@@ -492,10 +1020,167 @@ async function saveRowEdit(tr, card) {
   });
 
   const actionsTd = tr.querySelector("td.ci-actions-col");
-  if (actionsTd) actionsTd.innerHTML = `<button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button>`;
+  if (actionsTd) actionsTd.innerHTML = ROW_ACTIONS_HTML;
 
   tr.classList.remove("ci-row-editing");
   flashRowSuccess(tr);
+}
+
+// ── Delete row (digital: fully removes the record; static: clears the slot
+// back to empty/"Available", it's a fixed physical circuit, not deleted) ──
+function cleanCircuitName(tableName) {
+  return tableName.replace(/^d_|^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+async function appendCampaignLog(entry) {
+  const today = new Date();
+  const dateStr = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+  const snap = await get(ref(rtdb, "Campaign_Logs"));
+  const existing = snap.exists() ? snap.val() : {};
+  const keys = Array.isArray(existing)
+    ? existing.map((_, i) => i)
+    : Object.keys(existing).map(Number).filter(n => !Number.isNaN(n));
+  const nextKey = keys.length ? Math.max(...keys) + 1 : 0;
+  await set(ref(rtdb, `Campaign_Logs/${nextKey}`), { Date: dateStr, ...entry });
+  campaignLogs = null; // invalidate the Logs tab's cache so it re-fetches next time it's opened
+}
+
+async function deleteInventoryRow(tr, card) {
+  if (!tr || !card) return;
+  const tableName = card.dataset.table;
+  const key = tr.dataset.key;
+  if (!tableName || key === undefined) return;
+
+  const isStatic = tableName.startsWith("s_");
+  const columns  = getCardColumns(card);
+  const cells    = Array.from(tr.querySelectorAll("td:not(.ci-actions-col)"));
+  const rowData  = {};
+  cells.forEach((td, i) => { rowData[columns[i]] = td.textContent.trim(); });
+
+  const client = rowData["Client"];
+  if (!client || client === "—") return; // nothing booked here (e.g. an already-cleared static slot)
+
+  if (!confirm(`Remove this campaign?\n\n${client}`)) return;
+
+  const circuitLabel = cleanCircuitName(tableName) + (isStatic && rowData["Circuit"] ? ` ${rowData["Circuit"]}` : "");
+
+  try {
+    await appendCampaignLog({
+      Type: "Removed",
+      BO: rowData["BO"] && rowData["BO"] !== "—" ? rowData["BO"] : "—",
+      Client: client,
+      Circuits: circuitLabel,
+      "Start Date": rowData["Start Date"] || "—",
+      "End Date": rowData["End Date"] || "—",
+    });
+
+    if (isStatic) {
+      await update(ref(rtdb, `${tableName}/${key}`), { Client: null, BO: null, "Start Date": null, "End Date": null });
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      cells.forEach((td, i) => {
+        const field = columns[i];
+        if (field === "Circuit") return;
+        td.outerHTML = renderCellHTML(field, {}, ["End Date"], today);
+      });
+    } else {
+      await remove(ref(rtdb, `${tableName}/${key}`));
+      tr.remove();
+      renumberSN(card);
+    }
+  } catch (err) {
+    console.error("[ContentInventory] Failed to delete row:", err);
+  }
+}
+
+// ── Add row (digital tables only — static rows are fixed physical slots) ──
+function startAddRow(addRowTr, card) {
+  if (!addRowTr || !card) return;
+  const columns = getCardColumns(card);
+  const snCell = addRowTr.querySelector("td.ci-sn");
+  const dataCells = Array.from(addRowTr.querySelectorAll("td")).slice(1, -1); // between SN and actions
+
+  const nextSN = card.querySelectorAll(".json-table tbody tr:not(.ci-add-row)").length + 1;
+  if (snCell) snCell.textContent = nextSN;
+
+  dataCells.forEach((td, i) => {
+    const field = columns[i + 1]; // columns[0] is "SN"
+    if (field === "Start Date" || field === "End Date") {
+      td.innerHTML = `<input type="date" class="ci-cell-input">`;
+    } else {
+      td.innerHTML = `<input type="text" class="ci-cell-input" placeholder="${escapeAttr(field)}">`;
+    }
+  });
+
+  const actionsTd = addRowTr.querySelector("td.ci-actions-col");
+  if (actionsTd) {
+    actionsTd.innerHTML = `
+      <button type="button" class="ci-row-save-btn" aria-label="Save row"><span class="material-symbols-outlined">check</span></button>
+      <button type="button" class="ci-row-cancel-btn" aria-label="Cancel add"><span class="material-symbols-outlined">close</span></button>`;
+  }
+  addRowTr.classList.add("ci-row-adding");
+}
+
+function cancelAddRow(addRowTr) {
+  if (!addRowTr) return;
+  const snCell = addRowTr.querySelector("td.ci-sn");
+  if (snCell) snCell.innerHTML = `<button type="button" class="ci-row-add-btn" aria-label="Add row"><span class="material-symbols-outlined">add</span></button>`;
+  Array.from(addRowTr.querySelectorAll("td")).slice(1, -1).forEach(td => { td.innerHTML = ""; });
+  const actionsTd = addRowTr.querySelector("td.ci-actions-col");
+  if (actionsTd) actionsTd.innerHTML = "";
+  addRowTr.classList.remove("ci-row-adding");
+}
+
+async function saveAddRow(addRowTr, card) {
+  if (!addRowTr || !card) return;
+  const tableName = card.dataset.table;
+  if (!tableName) return;
+
+  const columns = getCardColumns(card);
+  const dataCells = Array.from(addRowTr.querySelectorAll("td")).slice(1, -1);
+  const record = {};
+  let client = "";
+
+  dataCells.forEach((td, i) => {
+    const field = columns[i + 1];
+    const input = td.querySelector(".ci-cell-input");
+    if (!input) return;
+    record[field] = field === "Start Date" || field === "End Date" ? isoToMDY(input.value) : input.value.trim();
+    if (field === "Client") client = record[field];
+  });
+
+  if (!client) { alert("Client is required."); return; }
+
+  let nextKey;
+  try {
+    const snap = await get(ref(rtdb, tableName));
+    const existing = snap.exists() ? snap.val() : {};
+    const keys = Array.isArray(existing)
+      ? existing.map((_, i) => i)
+      : Object.keys(existing).map(Number).filter(n => !Number.isNaN(n));
+    nextKey = keys.length ? Math.max(...keys) + 1 : 0;
+
+    await set(ref(rtdb, `${tableName}/${nextKey}`), record);
+    await appendCampaignLog({
+      Type: "Add",
+      BO: record["BO"] || "—",
+      Client: client,
+      Circuits: cleanCircuitName(tableName),
+      "Start Date": record["Start Date"] || "—",
+      "End Date": record["End Date"] || "—",
+    });
+  } catch (err) {
+    console.error("[ContentInventory] Failed to add row:", err);
+    return;
+  }
+
+  // Insert the now-saved row (rendered exactly like a normal page load)
+  // above the add-row affordance, then reset that affordance for next time.
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let rowHTML = `<tr data-key="${nextKey}"><td class="ci-sn">${addRowTr.querySelector("td.ci-sn").textContent}</td>`;
+  columns.slice(1).forEach(field => { rowHTML += renderCellHTML(field, record, ["End Date"], today); });
+  rowHTML += `<td class="ci-actions-col">${ROW_ACTIONS_HTML}</td></tr>`;
+  addRowTr.insertAdjacentHTML("beforebegin", rowHTML);
+  cancelAddRow(addRowTr);
 }
 
 // ── more_vert row-actions menu (single shared panel, fixed-positioned) ──
@@ -556,13 +1241,30 @@ function onCiClick(e) {
   const saveBtn = e.target.closest(".ci-row-save-btn");
   if (saveBtn) {
     const tr = saveBtn.closest("tr");
-    saveRowEdit(tr, tr?.closest(".card"));
+    if (tr?.classList.contains("ci-add-row")) saveAddRow(tr, tr.closest(".card"));
+    else saveRowEdit(tr, tr?.closest(".card"));
     return;
   }
 
   const cancelBtn = e.target.closest(".ci-row-cancel-btn");
   if (cancelBtn) {
-    cancelRowEdit(cancelBtn.closest("tr"));
+    const tr = cancelBtn.closest("tr");
+    if (tr?.classList.contains("ci-add-row")) cancelAddRow(tr);
+    else cancelRowEdit(tr);
+    return;
+  }
+
+  const deleteBtn = e.target.closest(".ci-row-delete-btn");
+  if (deleteBtn) {
+    const tr = deleteBtn.closest("tr");
+    deleteInventoryRow(tr, tr?.closest(".card"));
+    return;
+  }
+
+  const addBtn = e.target.closest(".ci-row-add-btn");
+  if (addBtn) {
+    const tr = addBtn.closest("tr.ci-add-row");
+    startAddRow(tr, tr?.closest(".card"));
     return;
   }
 }
@@ -587,7 +1289,9 @@ let dragRow = null;       // set once the drag has actually engaged
 const DRAG_THRESHOLD = 8; // px
 
 function isRowDraggable(tr) {
-  return !!tr.closest(".card")?.classList.contains("ci-edit-mode") && !tr.classList.contains("ci-row-editing");
+  return !!tr.closest(".card")?.classList.contains("ci-edit-mode")
+    && !tr.classList.contains("ci-row-editing")
+    && !tr.classList.contains("ci-add-row");
 }
 
 function releasePointerCaptureSafe(el, pointerId) {
@@ -619,8 +1323,10 @@ function onCiPointerMove(e) {
   if (!dragRow) return;
   e.preventDefault();
   // Capture means e.target stays pinned to dragRow — hit-test by coordinate instead.
+  // :not(.ci-add-row) — that placeholder must always stay last; it's not a
+  // real row to reorder against.
   const target = document.elementFromPoint(e.clientX, e.clientY);
-  const tr = target?.closest("tbody tr");
+  const tr = target?.closest("tbody tr:not(.ci-add-row)");
   if (!tr || tr === dragRow || tr.parentElement !== dragRow.parentElement) return;
   const rect = tr.getBoundingClientRect();
   const before = (e.clientY - rect.top) < rect.height / 2;
@@ -667,6 +1373,18 @@ export async function init() {
       document.getElementById("digitalSection").style.display  = tab === "digital"  ? "block" : "none";
       document.getElementById("staticSection").style.display   = tab === "static"   ? "block" : "none";
       document.getElementById("activitySection").style.display = tab === "activity" ? "block" : "none";
+      // #logsSection is display:flex (see content-inventory.css) so its own
+      // toolbar/table flex-column sizing (and the "page can't scroll, only
+      // the table does" height-lock) actually takes effect.
+      document.getElementById("logsSection").style.display     = tab === "logs"     ? "flex"  : "none";
+
+      // Logs has its own dedicated download button (PDF/Excel of the log
+      // rows) — the top-bar one exports Digital/Static/Activity cards and
+      // doesn't apply here.
+      const digitalDownloadWrap = document.getElementById("ciDigitalDownloadWrap");
+      if (digitalDownloadWrap) digitalDownloadWrap.style.display = tab === "logs" ? "none" : "";
+
+      if (tab === "logs") openLogsTab();
 
       // Sections start hidden (display:none), so their .reveal children have a
       // zero-size rect when initScrollReveal() first runs and never satisfy the
@@ -723,6 +1441,12 @@ export async function init() {
   ciPage?.addEventListener("pointercancel", onCiPointerCancel);
   document.addEventListener("click", onDocClickCloseRowMenu);
 
+  // ── Campaign Logs tab (search/sort/filter/download — delegated) ───
+  const logsSection = document.getElementById("logsSection");
+  logsSection?.addEventListener("click", onLogsClick);
+  logsSection?.addEventListener("change", onLogsChange);
+  document.addEventListener("click", onDocClickCloseLogsDownload);
+
   _cleanupFns = [
     () => document.removeEventListener("click", closeDropdown),
     () => appContent?.removeEventListener("scroll", onScroll),
@@ -730,6 +1454,9 @@ export async function init() {
     () => ciPage?.removeEventListener("pointerdown", onCiPointerDown),
     () => ciPage?.removeEventListener("pointermove", onCiPointerMove),
     () => ciPage?.removeEventListener("pointerup", onCiPointerUp),
+    () => logsSection?.removeEventListener("click", onLogsClick),
+    () => logsSection?.removeEventListener("change", onLogsChange),
+    () => document.removeEventListener("click", onDocClickCloseLogsDownload),
     () => ciPage?.removeEventListener("pointercancel", onCiPointerCancel),
     () => document.removeEventListener("click", onDocClickCloseRowMenu),
     () => { rowMenuEl?.remove(); rowMenuEl = null; },

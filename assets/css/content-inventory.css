@@ -148,6 +148,33 @@
   50%      { box-shadow: 0 0 0 4px rgba(53,179,126,0); }
 }
 
+/* Delete — always sits next to the edit/pending icon, so the actions column
+   widens in edit mode to fit both (base 34px only ever needs to fit one). */
+.ci-row-delete-btn {
+  display: none; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: transparent; color: var(--error);
+  cursor: pointer; transition: background 0.2s;
+}
+.ci-row-delete-btn .material-symbols-outlined { font-size: 15px; }
+.ci-page .card.ci-edit-mode .ci-row-delete-btn { display: inline-flex; }
+.ci-row-delete-btn:hover { background: rgba(229,72,77,0.15); }
+.ci-page .card.ci-edit-mode .json-table tbody td.ci-actions-col { width: 58px; }
+
+/* Add-row affordance — an extra always-rendered <tr> after the real data
+   rows (see loadCarousel.js), hidden outside edit mode. Clicking the plus
+   turns this same row into an editable new-record row (content-inventory.js). */
+.ci-add-row { display: none; }
+.ci-page .card.ci-edit-mode .ci-add-row { display: table-row; }
+.ci-row-add-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: transparent; color: var(--success);
+  cursor: pointer; transition: background 0.2s;
+}
+.ci-row-add-btn .material-symbols-outlined { font-size: 16px; }
+.ci-row-add-btn:hover { background: rgba(53,179,126,0.15); }
+
 /* Row drag affordance — cursor + hover only active while a card is in edit mode.
    touch-action:none must be declared here (not toggled in JS) so iPad/mobile
    grants the drag gesture from the very first touch instead of the browser
@@ -331,6 +358,29 @@
   .circuit-tabs { top: 68px; }   /* smaller header on mobile */
   .carousel-title { top: 120px; }
 
+  /* 4 tabs + the download button no longer fit un-wrapped on a phone width
+     at the desktop padding/font-size — .app-frame is now hard overflow-x:
+     hidden (layout.css), so anything that overflowed here would be silently
+     clipped and unreachable instead of just scrolling the page. Scope this
+     to the download button too (fixed .download-wrap margin-left:auto stops
+     mattering once the row can't shrink further and starts scrolling instead
+     — that's fine, it just sits at the end of the scrollable strip). */
+  .circuit-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .circuit-tabs::-webkit-scrollbar { display: none; }
+  .circuit-tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+  .circuit-tabs .download-wrap { flex-shrink: 0; }
+
   /* Grid items must be allowed to shrink below content width */
   .ci-page .card {
     min-width: 0;
@@ -477,4 +527,166 @@
   font-size:11px; font-weight:600; font-family:var(--font-body);
   color:var(--text-muted); white-space:nowrap; flex-shrink:0;
   padding:3px 8px; border-radius:6px; background:var(--bg-glass); border:1px solid var(--border-glass);
+}
+
+/* ══════════════════════════════════════════
+   CAMPAIGN LOGS (mirrors bookings.css's toolbar/
+   table look — that CSS isn't loaded on this page,
+   so the pieces are duplicated here rather than shared)
+══════════════════════════════════════════ */
+
+/* #logsSection is height-locked to fit exactly below the sticky header
+   (132px, same value .carousel-title already uses for this) so the table is
+   the only thing that scrolls — the page itself never does, since nothing
+   here can ever be taller than the space it's allotted. */
+#logsSection {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 132px);
+  padding: 16px 20px 20px;
+  box-sizing: border-box;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ci-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+.ci-search-box {
+  position: relative;
+  flex: 1; min-width: 200px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; height: 44px;
+  background: var(--bg-glass); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+.ci-search-box:focus-within { border-color: var(--accent-indigo); box-shadow: 0 0 0 3px var(--glow-indigo); }
+.ci-search-box .material-symbols-outlined { font-size: 20px; flex-shrink: 0; }
+.ci-search-box input {
+  flex: 1; height: 100%; border: none; outline: none; background: transparent;
+  color: var(--text-primary); font-family: var(--font-body); font-size: 14px;
+  min-width: 0;
+}
+.ci-search-box input::placeholder { color: var(--text-muted); }
+
+/* Search suggestions — same pattern as bookings.js's setupSuggest()/.bk-ac-drop */
+.ci-search-drop {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
+  background: var(--nav-bg); border: 1px solid var(--border-glass);
+  border-radius: 12px; padding: 6px; max-height: 260px; overflow-y: auto;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px);
+  display: none;
+}
+.ci-search-drop.open { display: block; }
+.ci-search-item {
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  font-size: 13px; color: var(--text-secondary); transition: all 0.15s;
+}
+.ci-search-item:hover { background: var(--bg-glass); color: var(--text-primary); }
+.ci-search-item mark { background: none; color: var(--accent-indigo); font-weight: 700; }
+
+.ci-date-filter-wrap { position: relative; display: inline-flex; }
+.ci-page .date-modern {
+  height: 44px; padding: 0 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-glass); background: var(--bg-glass);
+  color: var(--text-primary); font-size: 13px; font-family: var(--font-body);
+  cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ci-page .date-modern:hover { border-color: var(--accent-indigo); }
+.ci-page .date-modern:focus { outline: none; border-color: var(--accent-indigo); box-shadow: 0 0 0 3px var(--focus-ring); }
+
+.ci-date-range-inputs { display: flex; align-items: center; gap: 8px; }
+.ci-date-range-inputs[hidden] { display: none; }
+.ci-date-range-arrow { font-size: 16px; color: var(--text-muted); }
+.ci-date-apply-btn {
+  padding: 0 16px; height: 44px; border-radius: var(--radius-sm); border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+  color: white; font-family: var(--font-body); font-weight: 700; font-size: 13px;
+  transition: all 0.2s; white-space: nowrap;
+}
+.ci-date-apply-btn:hover { opacity: 0.9; }
+
+.ci-filter-box {
+  display: flex; align-items: center; gap: 8px; padding: 0 16px; height: 44px;
+  background: var(--bg-glass); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm); min-width: 140px; transition: all 0.2s;
+}
+.ci-filter-box select {
+  border: none; outline: none; background: transparent; color: var(--text-secondary);
+  font-family: var(--font-body); font-size: 14px; cursor: pointer; width: 100%; height: 100%;
+}
+.ci-filter-box select option { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* ── Logs table — deliberately sized like bookings.css's table.data-table
+   ("the table will be the same size as the booking page"), not the compact
+   .json-table used by the Digital/Static cards. ── */
+.ci-logs-card {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+  background: var(--bg-card); border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+  padding: 12px; box-sizing: border-box;
+}
+.ci-logs-table-container {
+  flex: 1 1 auto; min-height: 0;
+  height: 100%; /* fills .ci-logs-card's remaining height (below the toolbar) */
+  overflow: auto;
+  /* Top corners only — same technique as .ci-page .table-container: this
+     div's own overflow:auto clips its content to match, which is what
+     actually rounds the sticky <th> background's corners (border-radius has
+     no effect on thead/tr directly, only background-color does). */
+  border-radius: 16px 16px 0 0;
+}
+.ci-logs-table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+.ci-logs-table-container::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 999px; }
+
+table.ci-logs-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 700px; }
+table.ci-logs-table th {
+  font-size: 13px; font-weight: 700; font-family: var(--font-body); color: var(--text-muted);
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 16px;
+  text-align: left; position: sticky; top: 0; background: var(--bg-secondary); z-index: 5;
+}
+table.ci-logs-table .th-sortable { cursor: pointer; user-select: none; transition: color 0.15s; white-space: nowrap; }
+table.ci-logs-table .th-sortable:hover { color: var(--text-primary); }
+table.ci-logs-table .th-sort-label { display: inline-flex; align-items: center; gap: 2px; }
+/* The icon font's own glyph metrics sit lower than the label's text baseline
+   by default — inline-flex + align-items:center keeps it optically centered
+   against the text next to it (same fix as bookings.css's .th-sort-icon). */
+table.ci-logs-table .th-sort-icon {
+  font-size: 14px !important; line-height: 1; opacity: 0.45; transition: opacity 0.15s;
+  display: inline-flex; align-items: center;
+}
+table.ci-logs-table .th-sortable.sort-active .th-sort-icon { opacity: 1; color: var(--accent-indigo); }
+table.ci-logs-table td { padding: 16px; font-size: 13px; background: var(--bg-glass); transition: background 0.2s; white-space: nowrap; }
+table.ci-logs-table tr:hover td { background: var(--bg-glass-hover); }
+table.ci-logs-table td:first-child { border-radius: 12px 0 0 12px; }
+table.ci-logs-table td:last-child  { border-radius: 0 12px 12px 0; }
+.ci-logs-loading { text-align: center; color: var(--text-muted); padding: 30px !important; background: transparent !important; white-space: normal !important; }
+.ci-logs-type-add, .ci-logs-type-removed {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700;
+}
+.ci-logs-type-add     { background: rgba(53,179,126,0.15); color: var(--success); }
+.ci-logs-type-removed { background: rgba(229,72,77,0.15);  color: var(--error); }
+
+/* Admin-only actions column — reuses .ci-row-edit-btn/.ci-row-save-btn/
+   .ci-row-cancel-btn/.ci-cell-input styling already built for the
+   Digital/Static tables' inline editor. .ci-row-edit-btn defaults to
+   display:none (gated behind .ci-edit-mode there, since it doubles as the
+   drag/reorder handle) — this table has no reorder concept, so it's always
+   visible here once logsIsAdmin renders the column at all. */
+table.ci-logs-table th.ci-actions-col,
+table.ci-logs-table td.ci-actions-col { width: 58px; text-align: center; white-space: nowrap; }
+table.ci-logs-table .ci-row-edit-btn { display: inline-flex; }
+
+@media (max-width: 900px) {
+  #logsSection { height: calc(100vh - 120px); padding: 12px; }
+  .ci-search-box { flex: 1 1 100%; order: -1; }
+  .ci-logs-card { padding: 10px; }
 }

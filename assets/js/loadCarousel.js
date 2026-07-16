@@ -1,14 +1,16 @@
 // Firebase Imports
-import { rtdb } from "../../firebase/firebase.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { loadRootTables } from "./rtdb-root.js";
 
 // ===============================
 // Load all top-level nodes
 // ===============================
+// Shared with content-inventory.js's fetchCampaignLogs() (and every other
+// full-root reader — Dashboard, Bookings) via loadRootTables()'s in-flight
+// dedup, so opening the Content Inventory page and immediately switching to
+// the Campaign Logs tab doesn't fire two separate full-database reads.
 async function loadAllTables() {
   try {
-    const rootRef = ref(rtdb, "/");
-    const snap = await get(rootRef);
+    const snap = await loadRootTables();
     return snap.exists() ? snap.val() : {};
   } catch (error) {
     console.error("❌ Error loading database:", error);
@@ -139,11 +141,27 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = [], rowKeys = null
       // Row dragging is initiated in JS (content-inventory.js, via Pointer
       // Events) and explicitly skips any pointerdown inside .ci-actions-col,
       // so these buttons stay clickable independent of row-drag state.
-      html += `<td class="ci-actions-col"><button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button></td>`;
+      html += `<td class="ci-actions-col">
+        <button type="button" class="ci-row-edit-btn" aria-label="Edit row"><span class="material-symbols-outlined">edit</span></button>
+        <button type="button" class="ci-row-delete-btn" aria-label="Delete row"><span class="material-symbols-outlined">delete</span></button>
+      </td>`;
     }
 
     html += `</tr>`;
     pos++;
+  }
+
+  // Add-row affordance — only for SN-based (digital) tables: static rows are
+  // fixed physical circuit slots (cleared to "Available" on delete, never
+  // added/removed), so there's nothing to "add" there. Always rendered when
+  // editable, hidden outside edit mode via CSS — see content-inventory.js's
+  // onCiClick(".ci-row-add-btn") for what clicking it does.
+  if (actionsEnabled && columns.includes("SN")) {
+    html += `<tr class="ci-add-row">
+      <td class="ci-sn"><button type="button" class="ci-row-add-btn" aria-label="Add row"><span class="material-symbols-outlined">add</span></button></td>
+      ${columns.slice(1).map(() => `<td></td>`).join("")}
+      <td class="ci-actions-col"></td>
+    </tr>`;
   }
 
   html += "</tbody></table>";

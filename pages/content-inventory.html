@@ -14,7 +14,8 @@
       <button class="circuit-tab active" data-tab="digital">Digital</button>
       <button class="circuit-tab" data-tab="static">Static</button>
       <button class="circuit-tab" data-tab="activity">Activity</button>
-      <div class="download-wrap" style="margin-left:auto;">
+      <button class="circuit-tab" data-tab="logs">Logs</button>
+      <div class="download-wrap" id="ciDigitalDownloadWrap" style="margin-left:auto;">
         <button class="download-btn" id="ciDownloadBtn" title="Download report">
           <span class="material-symbols-outlined">download</span>
         </button>
@@ -59,6 +60,73 @@
   <!-- Campaign Activity section (hidden by default) -->
   <div id="activitySection" style="display:none;">
     <div class="ci-activity-grid reveal" id="ciActivityGrid"></div>
+  </div>
+
+  <!-- Campaign Logs section (hidden by default) — height-locked to the
+       viewport (see content-inventory.css) so only the table scrolls, the
+       page itself doesn't. -->
+  <div id="logsSection" style="display:none;">
+    <div class="ci-toolbar">
+      <div class="ci-search-box">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" id="logsSearch" placeholder="Search client, circuit, BO…" autocomplete="off">
+        <div class="ci-search-drop" id="logsSearchSuggest"></div>
+      </div>
+
+      <div class="ci-date-filter-wrap">
+        <select class="date-modern" id="logsDateFilterSelect"></select>
+      </div>
+      <div class="ci-date-range-inputs" id="logsDateRangeInputs" hidden>
+        <input type="date" class="date-modern" id="logsDateFrom">
+        <span class="ci-date-range-arrow material-symbols-outlined">arrow_forward</span>
+        <input type="date" class="date-modern" id="logsDateTo">
+        <button class="ci-date-apply-btn" id="logsApplyCustomDate">Apply</button>
+      </div>
+
+      <div class="ci-filter-box">
+        <select id="logsTypeFilter">
+          <option value="">All Types</option>
+          <option value="Add">Add</option>
+          <option value="Removed">Removed</option>
+        </select>
+      </div>
+
+      <div class="download-wrap">
+        <button class="download-btn" id="logsDownloadBtn" title="Download report">
+          <span class="material-symbols-outlined">download</span>
+        </button>
+        <div class="download-dropdown" id="logsDownloadDropdown">
+          <button class="dl-opt" id="logsDownloadPDF">
+            <span class="material-symbols-outlined">picture_as_pdf</span>PDF
+          </button>
+          <button class="dl-opt" id="logsDownloadExcel">
+            <span class="material-symbols-outlined">table_view</span>Excel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ci-logs-card">
+      <div class="table-container ci-logs-table-container">
+        <table class="ci-logs-table">
+          <thead>
+            <tr>
+              <th class="th-sortable" data-sort="Date" role="button" tabindex="0" aria-label="Sort by Date"><span class="th-sort-label">Date<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+              <th class="th-sortable" data-sort="Type" role="button" tabindex="0" aria-label="Sort by Type"><span class="th-sort-label">Type<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+              <th class="th-sortable" data-sort="BO" role="button" tabindex="0" aria-label="Sort by BO"><span class="th-sort-label">BO<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+              <th class="th-sortable" data-sort="Client" role="button" tabindex="0" aria-label="Sort by Client"><span class="th-sort-label">Client<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+              <th class="th-sortable" data-sort="Circuits" role="button" tabindex="0" aria-label="Sort by Circuits"><span class="th-sort-label">Circuits<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+              <th class="th-sortable" data-sort="Start Date" role="button" tabindex="0" aria-label="Sort by Start Date"><span class="th-sort-label">Start Date<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+              <th class="th-sortable" data-sort="End Date" role="button" tabindex="0" aria-label="Sort by End Date"><span class="th-sort-label">End Date<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+              <th class="ci-actions-col" id="logsActionsTh" style="display:none;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody">
+            <tr><td colspan="7" class="ci-logs-loading">Loading campaign logs…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
 </div>
