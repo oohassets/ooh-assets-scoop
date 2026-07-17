@@ -120,6 +120,28 @@ requireAuth(async (user) => {
   }
 });
 
+// ── PWA version (user dropdown footer) ─────────────────────
+// Asks the active service worker for its own CACHE_NAME via the GET_VERSION
+// message it already responds to (see service-worker.js) rather than
+// hardcoding the version a second place. "scoop-ooh-cache-v243" → "PWA v243".
+function initPwaVersionLabel() {
+  const versionEl = document.getElementById("userDropdownVersion");
+  if (!versionEl || !("serviceWorker" in navigator)) return;
+
+  navigator.serviceWorker.addEventListener("message", (e) => {
+    if (e.data?.type !== "SW_VERSION") return;
+    const v = e.data.version.match(/v[\d.]+$/i)?.[0] || e.data.version;
+    versionEl.textContent = `PWA ${v}`;
+  });
+
+  const askForVersion = () => navigator.serviceWorker.controller?.postMessage({ type: "GET_VERSION" });
+  askForVersion();
+  // On a fresh install the new worker doesn't control this page yet when the
+  // above fires — ask again once it takes over (see clients.claim() in
+  // service-worker.js's activate handler).
+  navigator.serviceWorker.addEventListener("controllerchange", askForVersion);
+}
+
 // ── DOMContentLoaded bootstrap ────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -133,6 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Notification bell
   initNotifications();
+
+  // PWA version footer (user dropdown)
+  initPwaVersionLabel();
 
   // Assets Location menus (desktop mega-dropdown + mobile dock panel)
   assetMapReady.then(() => {

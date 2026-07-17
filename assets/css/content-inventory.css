@@ -381,6 +381,7 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   .circuit-tabs::-webkit-scrollbar { display: none; }
   .circuit-tab {

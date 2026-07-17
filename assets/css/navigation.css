@@ -527,6 +527,18 @@ nav.nav-hidden {
   background: rgba(229,72,77,0.10); color: var(--accent-rose);
 }
 
+/* PWA version footer — filled in from the active service worker's own
+   CACHE_NAME via a GET_VERSION message (see app.js/service-worker.js),
+   rather than hardcoding the version a second place. Empty until that
+   response arrives, so it collapses to nothing rather than showing a blank
+   row while waiting. */
+.user-dropdown-version:empty { display: none; }
+.user-dropdown-version {
+  font-size: 10px; color: var(--text-muted);
+  text-align: right; letter-spacing: 0.04em;
+  padding: 8px 10px 4px;
+}
+
 /* Theme toggle previews the mode it switches TO (its own label/icon already
    say "Dark Mode" / "Light Mode") rather than the current mode — so in
    light mode it hovers dark, and in dark mode it hovers light. These are
