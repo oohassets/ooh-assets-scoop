@@ -21,7 +21,7 @@
 }
 .bookings-sticky-header.bk-scrolled {
   background: var(--nav-bg);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   border-bottom-color: var(--border-glass);
 }
@@ -88,6 +88,11 @@
   flex-direction: column;
   overflow: hidden;
 }
+/* Tab-switching (Schedule ↔ Calendar) toggles this instead of an inline
+   style — !important is needed here since it must also beat the mobile
+   bottom-sheet override below, which unconditionally sets display:flex for
+   that breakpoint regardless of this class's normal cascade position. */
+#calendarSection.cal-section-hidden { display: none !important; }
 #calendarSection .card {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
@@ -190,7 +195,7 @@
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 500;
   background: var(--nav-bg); border: 1px solid var(--border-glass);
   border-radius: 14px; padding: 8px; min-width: 150px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   display: none;
 }
 .download-dropdown.open { display: block; }
@@ -226,6 +231,9 @@
 .date-apply-btn:hover { opacity:0.9; }
 
 /* ── Data table ───────────────────────── */
+/* Loading/empty placeholder row — shared by the static "Loading campaigns…"
+   markup in bookings.html and renderTable()'s "No campaigns found" row. */
+.bk-table-placeholder { text-align:center; color:var(--text-muted); padding:30px; }
 .table-container { margin-top:30px; margin-bottom:30px; overflow:auto; border-radius:16px; max-height:550px; }
 .table-container::-webkit-scrollbar { width:6px; height:6px; }
 .table-container::-webkit-scrollbar-thumb { background:var(--border-glass); border-radius:999px; }
@@ -241,7 +249,7 @@ table.data-table th { font-size:13px; font-weight:700; font-family:var(--font-bo
    spreading across their own columns — a real bug this shipped with once).
    The <th> itself must stay a plain table-cell; the icon/label alignment
    lives on the inline-flex wrapper span inside it instead. */
-.th-sortable { cursor:pointer; user-select:none; transition:color 0.15s; white-space:nowrap; }
+.th-sortable { cursor:pointer; -webkit-user-select:none; user-select:none; transition:color 0.15s; white-space:nowrap; }
 .th-sortable:hover { color:var(--text-primary); }
 .th-sort-label { display:inline-flex; align-items:center; gap:2px; }
 /* The icon font's own glyph metrics sit lower than the label's text
@@ -280,7 +288,7 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
 .inline-status-dropdown {
   position:absolute; z-index:400; background:var(--nav-bg); border:1px solid var(--border-glass);
   border-radius:12px; padding:8px; min-width:160px; box-shadow:0 12px 32px rgba(0,0,0,0.3);
-  backdrop-filter:blur(20px); display:none; flex-direction:column; gap:6px;
+  -webkit-backdrop-filter: blur(20px); backdrop-filter:blur(20px); display:none; flex-direction:column; gap:6px;
 }
 .inline-status-dropdown.open { display:flex; }
 /* Status options reuse the same .status-pill/.pill-* look as the pill shown
@@ -289,7 +297,7 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
 .status-option.status-pill:hover { filter:brightness(1.15); }
 
 /* ── Calendar (inline, full-width) ───── */
-.cal-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); display:none; align-items:center; justify-content:center; z-index:2000; padding:20px; }
+.cal-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); -webkit-backdrop-filter: blur(12px); backdrop-filter:blur(12px); display:none; align-items:center; justify-content:center; z-index:2000; padding:20px; }
 .cal-modal-overlay.active { display:flex; }
 .cal-modal-box  { background:var(--bg-secondary); border:1px solid var(--border-glass); border-radius:var(--radius-xl); padding:28px; width:95%; max-height:90vh; display:flex; flex-direction:column; animation:modalIn 0.25s ease; }
 .cal-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px; }
@@ -353,7 +361,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 @keyframes modalIn { from{opacity:0;transform:scale(0.95) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);} }
 @keyframes bkUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
 
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(12px); display:none; align-items:center; justify-content:center; z-index:10000; padding:20px; }
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); -webkit-backdrop-filter: blur(12px); backdrop-filter:blur(12px); display:none; align-items:center; justify-content:center; z-index:10000; padding:20px; }
 .modal-overlay.active { display:flex; }
 
 .bk-overlay { align-items: flex-end; padding: 0; }
@@ -422,7 +430,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 }
 
 /* Select */
-.bk-sel { appearance:none; }
+.bk-sel { -webkit-appearance:none; -moz-appearance:none; appearance:none; }
 .bk-sel:focus {
   border-color:transparent;
   background:
@@ -553,7 +561,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 }
 
 /* Month scroll — vertical */
-.bk-picker-months { flex:1; display:flex; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
+.bk-picker-months { flex:1; display:flex; flex-direction:column; overflow-y:auto; scroll-behavior:smooth; }
 .bk-picker-months::-webkit-scrollbar { width:3px; }
 .bk-picker-months::-webkit-scrollbar-track { background:transparent; }
 .bk-picker-months::-webkit-scrollbar-thumb { background:var(--border-glass); border-radius:2px; }
@@ -900,7 +908,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 
 /* Toggle switch — "View Circuit Map" */
 .bk-map-toggle-row { display:flex; align-items:center; margin:2px 0 18px; }
-.bk-map-toggle { display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; }
+.bk-map-toggle { display:flex; align-items:center; gap:10px; cursor:pointer; -webkit-user-select:none; user-select:none; }
 .bk-map-toggle input { position:absolute; opacity:0; width:0; height:0; }
 .bk-map-toggle-track {
   width:38px; height:22px; border-radius:999px; flex-shrink:0;
@@ -1004,7 +1012,7 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 /* #bkMapViewSelect is a <select> wearing .bk-map-dim-btn's styling — strip
    native select chrome so its box is sized purely by our own padding/font,
    same as the sibling chip buttons. */
-#bkMapViewSelect { appearance:none; -webkit-appearance:none; -moz-appearance:none; }
+#bkMapViewSelect { -webkit-appearance:none; -moz-appearance:none; appearance:none; }
 /* theme.css forces every <select> to font-size:16px on mobile so iOS Safari
    doesn't zoom the page when it's focused — that's aimed at real text
    fields, but this control is a compact view-mode picker (a native option

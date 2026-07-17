@@ -8,8 +8,6 @@
 <link rel="stylesheet" href="../assets/css/theme.css">
 <script>(function(){const t=localStorage.getItem("scoop-theme");if(t)document.documentElement.setAttribute("data-theme",t);window.addEventListener("message",function(e){if(e.data&&e.data.type==="scoop-theme"){document.documentElement.setAttribute("data-theme",e.data.theme);localStorage.setItem("scoop-theme",e.data.theme);}});})();</script>
 
-<body style="display:none;">
-
 <script type="module">
   import { requireAuth } from "../assets/js/authGuard.js";
   requireAuth();
@@ -17,6 +15,7 @@
 
 <style>
 body {
+    display: none;
     font-family: var(--font-body);
     margin: 0;
     background: var(--bg-primary);
@@ -48,6 +47,7 @@ h3 {
     padding: 20px 24px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
 }
 
@@ -120,6 +120,7 @@ h3 {
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-lg);
     padding: 16px;
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     overflow-x: auto;
 }
@@ -178,6 +179,7 @@ tbody tr:hover {
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-sm);
     box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
     padding: 10px;
     z-index: 999;
@@ -233,6 +235,28 @@ tfoot th {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+#loader {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+.ac-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid var(--accent-indigo);
+    border-top: 6px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+.ac-ok  { color: var(--success); font-weight: bold; }
+.ac-bad { color: var(--error); font-weight: bold; }
 
 /* ── Responsive ───────────────────────── */
 @media (max-width: 1024px) {
@@ -489,8 +513,8 @@ function addResultRow(id, name, dim, dur, size, valid) {
     tr.dataset.fileId = id;
 
     let remarks = valid
-        ? `<span style="color:var(--success);font-weight:bold;">✔</span> Correct Dimension`
-        : `<span style="color:var(--error);font-weight:bold;">✖</span> Wrong Dimension`;
+        ? `<span class="ac-ok">✔</span> Correct Dimension`
+        : `<span class="ac-bad">✖</span> Wrong Dimension`;
 
     tr.innerHTML = `
         <td>${name}</td>
@@ -613,7 +637,7 @@ downloadBtn.onclick = async () => {
 
         if (!item.valid) {
             row.cells[4].innerHTML =
-                `<span style="color:var(--error);font-weight:bold;">✖</span> Skipped`;
+                `<span class="ac-bad">✖</span> Skipped`;
             continue;
         }
 
@@ -624,7 +648,7 @@ downloadBtn.onclick = async () => {
         usedNames.add(newName);
 
         row.cells[4].innerHTML =
-            `<span style="color:var(--success);font-weight:bold;">✔</span> ${newName}`;
+            `<span class="ac-ok">✔</span> ${newName}`;
 
         const data = await item.file.arrayBuffer();
         zip.file(newName, data);
@@ -640,24 +664,8 @@ downloadBtn.onclick = async () => {
 </script>
 
 
-<div id="loader" style="
-    display:none;
-    position: fixed;
-    inset: 0;
-    background: var(--bg-overlay);
-    backdrop-filter: blur(3px);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-">
-    <div style="
-        width: 60px;
-        height: 60px;
-        border: 6px solid var(--accent-indigo);
-        border-top: 6px solid transparent;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    "></div>
+<div id="loader">
+    <div class="ac-spinner"></div>
 </div>
 
 </body>

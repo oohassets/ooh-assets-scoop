@@ -811,7 +811,7 @@ async function openLogsTab() {
   logsLoaded = true;
   logsIsAdmin = window.__currentUser?.rule === "admin";
   const actionsTh = document.getElementById("logsActionsTh");
-  if (actionsTh) actionsTh.style.display = logsIsAdmin ? "" : "none";
+  actionsTh?.classList.toggle("ci-hidden", !logsIsAdmin);
   const rows = await fetchCampaignLogs();
   populateLogsDateSelect(rows);
   setupLogsSearchSuggest();

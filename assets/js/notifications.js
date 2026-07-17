@@ -196,9 +196,9 @@ function updateBadge() {
   const count = allNotifs.filter((n) => n.unread).length;
   if (count > 0) {
     badge.textContent = count > 99 ? "99+" : String(count);
-    badge.style.display = "flex";
+    badge.classList.remove("notif-badge-hidden");
   } else {
-    badge.style.display = "none";
+    badge.classList.add("notif-badge-hidden");
   }
 }
 

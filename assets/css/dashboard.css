@@ -28,7 +28,7 @@
   background:transparent !important; border:1px solid var(--border-glass);
   border-radius:var(--radius-lg); padding:20px; position:relative;
   min-height:180px; overflow:hidden; transition:all 0.3s; cursor:default;
-  backdrop-filter:blur(20px); white-space:nowrap;
+  -webkit-backdrop-filter: blur(20px); backdrop-filter:blur(20px); white-space:nowrap;
 }
 .stat-card::before { content:""; position:absolute; inset:0; border-radius:var(--radius-lg); background:linear-gradient(135deg,var(--card-accent,var(--accent-indigo)) 0%,transparent 60%); opacity:0; transition:opacity 0.3s; }
 .stat-card:hover::before { opacity:0.04; }
@@ -89,7 +89,7 @@ main { padding:2rem 2rem 4rem; max-width:1400px; margin:0 auto; }
 .stat-overlay {
   position:fixed; inset:0; z-index:299;
   background:rgba(0,0,0,0.55);
-  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter:blur(6px);
   display:flex; align-items:center; justify-content:center;
   padding:16px;
   opacity:0; pointer-events:none;
@@ -104,7 +104,7 @@ main { padding:2rem 2rem 4rem; max-width:1400px; margin:0 auto; }
   border:1px solid var(--border-glass);
   border-top:3px solid var(--sp-accent, var(--accent-indigo));
   border-radius:var(--radius-lg);
-  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter: blur(24px); backdrop-filter:blur(24px);
   display:flex; flex-direction:column;
   transform:scale(0.94) translateY(14px);
   transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);

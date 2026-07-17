@@ -7,6 +7,13 @@
 
     <script>(function(){const t=localStorage.getItem("scoop-theme");if(t)document.documentElement.setAttribute("data-theme",t);})();</script>
 
+    <!-- Hidden until authGuard.js confirms the user is logged in (see
+         assets/js/authGuard.js's requireAuth(), which reveals it by setting
+         body.style.display = "block") — kept page-scoped here rather than in
+         theme.css, since that stylesheet is shared by pages (e.g. login.html)
+         that must NOT start hidden. -->
+    <style>body { display: none; }</style>
+
     <!-- Warm up the connection to Google Maps ahead of time — the Assets
          Location embed (assets/js/maps.js) is a cross-origin iframe whose
          DNS/TLS handshake would otherwise only start once a location is
@@ -48,7 +55,7 @@
 
   </head>
 
-  <body style="display:none">
+  <body>
     <!-- ══════════════════════════════════════════
         TOP NAV
     ══════════════════════════════════════════ -->
@@ -62,36 +69,36 @@
       <div class="nav-center">
 
         <div class="nav-item">
-          <button class="nav-link" id="homeLink" onclick="openHome()">Dashboard</button>
+          <button type="button" class="nav-link" id="homeLink" onclick="openHome()">Dashboard</button>
         </div>
 
         <div class="nav-item">
-          <button class="nav-link" id="bookingsLink" onclick="openBookings()">Bookings</button>
+          <button type="button" class="nav-link" id="bookingsLink" onclick="openBookings()">Bookings</button>
         </div>
 
         <div class="nav-item">
-          <button class="nav-link" id="contentInventoryLink" onclick="openContentInventory()">Content Inventory</button>
+          <button type="button" class="nav-link" id="contentInventoryLink" onclick="openContentInventory()">Content Inventory</button>
         </div>
 
         <div class="nav-item dropdown-parent">
-          <button class="nav-link">
+          <button type="button" class="nav-link">
             Assets Location <span class="chevron">▾</span>
           </button>
           <div class="mega-dropdown">
 
             <!-- Digital/Static/Assets columns are rendered from RTDB `assetmap` — see asset-location-menu.js -->
-            <div id="assetsMegaColumns" style="display:contents"></div>
+            <div id="assetsMegaColumns"></div>
 
           </div>
         </div>
 
         <div class="nav-item">
-          <button class="nav-link" id="vehicleTrafficLink" onclick="openVehicleReport()">Visitors</button>
+          <button type="button" class="nav-link" id="vehicleTrafficLink" onclick="openVehicleReport()">Visitors</button>
         </div>
 
         <div class="nav-item dropdown-parent">
-          <button class="nav-link">Services <span class="chevron">▾</span></button>
-          <div class="mega-dropdown" style="min-width:240px;">
+          <button type="button" class="nav-link">Services <span class="chevron">▾</span></button>
+          <div class="mega-dropdown mega-dropdown-narrow">
             <div class="mega-column">
               <div class="mega-title">Services</div>
               <div class="hover-item"><div class="hover-title"><a onclick="openAssetDimensionChecker()">Asset Dimension Checker</a></div></div>
@@ -101,30 +108,30 @@
         </div>
 
         <div class="nav-item">
-          <button class="nav-link" id="viewScreenLink" onclick="openViewScreen()">View Screen</button>
+          <button type="button" class="nav-link" id="viewScreenLink" onclick="openViewScreen()">View Screen</button>
         </div>
 
       </div>
 
       <div class="nav-actions">
         <!-- Chatbase — desktop only -->
-        <button class="btn-theme btn-scoop-agent" id="chatbaseNavBtn" title="Scoop Agent"
+        <button type="button" class="btn-theme btn-scoop-agent" id="chatbaseNavBtn" title="Scoop Agent"
           onclick="window.chatbase && window.chatbase('open')">
-          <span class="material-symbols-outlined" style="font-size:20px;">quickreply</span>
+          <span class="material-symbols-outlined">quickreply</span>
         </button>
 
         <!-- Notification bell -->
         <div class="notif-bell" id="notifBell">
-          <button class="btn-theme notif-btn" id="notifBtn" title="Notifications">
-            <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
-            <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+          <button type="button" class="btn-theme notif-btn" id="notifBtn" title="Notifications">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="notif-badge notif-badge-hidden" id="notifBadge">0</span>
           </button>
           <div class="notif-panel" id="notifPanel">
             <div class="notif-panel-hdr">
               <span class="notif-panel-title">Notifications</span>
               <div class="notif-hdr-btns">
-                <button class="notif-mark-read" id="notifMarkRead">Mark all read</button>
-                <button class="notif-clear-btn" id="notifClearAll" title="Clear all">
+                <button type="button" class="notif-mark-read" id="notifMarkRead">Mark all read</button>
+                <button type="button" class="notif-clear-btn" id="notifClearAll" title="Clear all">
                   <span class="material-symbols-outlined">delete_sweep</span>
                 </button>
               </div>
@@ -140,7 +147,7 @@
 
         <!-- User profile avatar + dropdown -->
         <div class="user-avatar-wrap" id="userAvatarWrap">
-          <button class="user-avatar" id="userAvatarBtn" title="My Account">
+          <button type="button" class="user-avatar" id="userAvatarBtn" title="My Account">
             <span id="navAvatarInitials"><span class="material-symbols-outlined">person</span></span>
           </button>
           <div class="user-dropdown" id="userDropdown">
@@ -155,11 +162,11 @@
               </div>
             </div>
             <div class="user-dropdown-divider"></div>
-            <button class="user-dropdown-item" id="userThemeToggle">
+            <button type="button" class="user-dropdown-item" id="userThemeToggle">
               <span class="material-symbols-outlined" id="userThemeIcon">dark_mode</span>
               <span id="userThemeLabel">Dark Mode</span>
             </button>
-            <button class="user-dropdown-item user-dropdown-item--signout" id="userSignOutBtn">
+            <button type="button" class="user-dropdown-item user-dropdown-item--signout" id="userSignOutBtn">
               <span class="material-symbols-outlined">logout</span>
               Sign Out
             </button>
@@ -185,10 +192,10 @@
       </div>
 
       <div class="map-overlay">
-        <button class="info-btn" onclick="toggleInfoCard()" title="View Asset Details">
+        <button type="button" class="info-btn" onclick="toggleInfoCard()" title="View Asset Details">
           <img src="https://img.icons8.com/softteal-line/ffffff/info.png" alt="Info">
         </button>
-        <button class="share-btn" onclick="copyGoogleMapLink()" title="Copy Map Link">
+        <button type="button" class="share-btn" onclick="copyGoogleMapLink()" title="Copy Map Link">
           <img src="https://img.icons8.com/?size=100&id=98959&format=png&color=ffffff" alt="Share">
         </button>
       </div>
@@ -204,7 +211,7 @@
       </div>
 
       <!-- FRAME SOURCE-->
-      <iframe id="mapFrame" style="display:none;"></iframe>
+      <iframe id="mapFrame"></iframe>
 
       <!-- Global decorative orbs — persistent app background -->
       <div id="page-orbs">
@@ -213,7 +220,7 @@
         <div class="page-orb page-orb3"></div>
       </div>
 
-      <div id="app-content" class="app-frame" style="display:none;"></div>
+      <div id="app-content" class="app-frame"></div>
 
     </div>
 
@@ -222,23 +229,23 @@
     ══════════════════════════════════════════ -->
     <div class="mobile-dock" id="mobileDock">
 
-      <button class="dock-item active" id="btnHome" title="Dashboard">
+      <button type="button" class="dock-item active" id="btnHome" title="Dashboard">
         <span class="material-symbols-outlined">home</span>
       </button>
 
-      <button class="dock-item" id="btnBookings" title="Bookings">
+      <button type="button" class="dock-item" id="btnBookings" title="Bookings">
         <span class="material-symbols-outlined">event_note</span>
       </button>
 
-      <button class="dock-item" id="btnContentInventory" title="Contents">
+      <button type="button" class="dock-item" id="btnContentInventory" title="Contents">
         <span class="material-symbols-outlined">format_align_left</span>
       </button>
 
-      <button class="dock-item" id="btnAssetsLocation" title="Assets">
+      <button type="button" class="dock-item" id="btnAssetsLocation" title="Assets">
         <span class="material-symbols-outlined">pin_drop</span>
       </button>
 
-      <button class="dock-item" id="btnServices" title="Services">
+      <button type="button" class="dock-item" id="btnServices" title="Services">
         <span class="material-symbols-outlined">apps</span>
       </button>
 
@@ -247,7 +254,7 @@
     <!-- Assets Panel -->
     <div class="dock-panel" id="assetsPanel">
       <div class="panel-header">
-        <button class="asset-header" onclick="setMapAndClose('assets')">Asset Location</button>
+        <button type="button" class="asset-header" onclick="setMapAndClose('assets')">Asset Location</button>
       </div>
 
       <div class="panel-body">
@@ -261,10 +268,10 @@
       <div class="panel-header">Services</div>
       <div class="panel-body">
         <div class="panel-content">
-          <button onclick="openVehicleReport()">Visitors</button>
-          <button onclick="openAssetDimensionChecker()">Asset Dimension Checker</button>
-          <button onclick="openImageCompressor()">Bulk Image Compressor</button>
-          <button onclick="openViewScreen()">View Screen</button>
+          <button type="button" onclick="openVehicleReport()">Visitors</button>
+          <button type="button" onclick="openAssetDimensionChecker()">Asset Dimension Checker</button>
+          <button type="button" onclick="openImageCompressor()">Bulk Image Compressor</button>
+          <button type="button" onclick="openViewScreen()">View Screen</button>
         </div>
       </div>
     </div>

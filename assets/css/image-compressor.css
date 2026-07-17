@@ -23,7 +23,7 @@ body {
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border-glass);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   padding: 32px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);

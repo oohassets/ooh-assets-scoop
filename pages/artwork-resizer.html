@@ -26,6 +26,7 @@
         width: 90%;
         max-width: 900px;
         background: rgba(255,255,255,0.05);
+        -webkit-backdrop-filter: blur(15px);
         backdrop-filter: blur(15px);
         border-radius: 20px;
         padding: 25px;
@@ -116,7 +117,7 @@
     </label>
 
     <div class="controls">
-        <select id="preset">
+        <select id="preset" aria-label="Resize preset">
             <option value="">Select Preset</option>
             <option value="3670">Resize to 3670 width (for 6240x420)</option>
             <option value="2816">Resize to 2816 width (for 6656x1040)</option>
@@ -124,31 +125,11 @@
 
         <input type="number" id="customWidth" placeholder="Or Enter Custom Width">
 
-        <button onclick="resizeMedia()">Resize</button>
+        <button type="button" onclick="resizeMedia()">Resize</button>
     </div>
 
     <div class="preview" id="preview"></div>
 </div>
-
-<script type="module">
-import { createFFmpeg, fetchFile } from "https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/esm/index.js";
-
-let ffmpeg;
-let file, originalWidth, originalHeight;
-
-async function initFFmpeg() {
-    if (!ffmpeg) {
-        ffmpeg = createFFmpeg({ log: true });
-    }
-    if (!ffmpeg.isLoaded()) {
-        await ffmpeg.load();
-    }
-}
-
-window.initFFmpeg = initFFmpeg;
-window.fetchFile = fetchFile;
-window.ffmpegRef = () => ffmpeg;
-</script>
 
 <script>
 let ffmpeg;
@@ -243,7 +224,7 @@ async function resizeMedia() {
                     <img src="${resizedData}">
                     <div class="info">Resized: ${width} x ${height}</div>
                     <a href="${resizedData}" download="${fileName}">
-                        <button>Download Image</button>
+                        <button type="button">Download Image</button>
                     </a>
                 `;
             };
@@ -286,7 +267,7 @@ async function resizeMedia() {
                 <video src="${videoURL}" controls></video>
                 <div class="info">Resized: ${width} x ${height}</div>
                 <a href="${videoURL}" download="${fileName}">
-                    <button>Download Video</button>
+                    <button type="button">Download Video</button>
                 </a>
             `;
         }

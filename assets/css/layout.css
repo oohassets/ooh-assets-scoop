@@ -10,6 +10,12 @@
   margin-top:64px;
 }
 .map-container iframe { display:block; width:100%; height:100%; border:none; }
+/* Hidden until router.js's setMap()/switchView() explicitly show it (always
+   an explicit "block", never left to defer back to the rule above) — default
+   hidden here so it never flashes visible during the gap between page load
+   and that first JS call actually running (same reasoning as .map-overlay
+   below). ID specificity already beats ".map-container iframe" above. */
+#mapFrame { display:none; }
 
 /* ── SPA page container ───────────────── */
 .app-frame {
@@ -31,6 +37,9 @@
   z-index: 10;
   transition: top 0.3s ease;
 }
+/* Hidden until switchView() shows it (also always an explicit "block") —
+   same default-hidden reasoning as #mapFrame above. */
+#app-content { display:none; }
 
 /* When the top nav hides on scroll-down, let the page container reclaim
    its 64px so any sticky in-page header (e.g. .ci-sticky-header) sticks
@@ -107,7 +116,7 @@ nav.nav-hidden ~ .map-container .app-frame {
   background:var(--bg-card); border:1px solid var(--border-glass);
   border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.25);
   overflow-y:auto; z-index:999; display:none;
-  animation:fadeInCard 0.25s ease; backdrop-filter:blur(20px);
+  animation:fadeInCard 0.25s ease; -webkit-backdrop-filter: blur(20px); backdrop-filter:blur(20px);
 }
 @keyframes fadeInCard {
   from { opacity:0; transform:translateY(-8px); }
@@ -173,7 +182,7 @@ nav.nav-hidden ~ .map-container .app-frame {
 .info-table td { padding:14px 16px; font-size:13px; color:var(--text-primary); overflow-wrap:break-word; }
 
 /* ── Shared card + section utilities ─── */
-.card { background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-lg); padding:28px; backdrop-filter:blur(20px); transition:border-color 0.3s; }
+.card { background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius-lg); padding:28px; -webkit-backdrop-filter: blur(20px); backdrop-filter:blur(20px); transition:border-color 0.3s; }
 .card:hover { border-color:var(--border-glow); }
 
 .section-divider { height:1px; background:var(--border-glass); margin:2rem 0; }

@@ -114,7 +114,7 @@
   padding: 16px 36px; border-radius: 999px; cursor: pointer;
   background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
   color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 15px;
-  transition: all 0.25s; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(12px);
+  transition: all 0.25s; display: flex; align-items: center; gap: 8px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
 }
 .btn-cta-secondary:hover { border-color: #fff; transform: translateY(-3px); background: rgba(255,255,255,0.18); }
 .btn-arrow {

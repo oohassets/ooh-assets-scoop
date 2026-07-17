@@ -9,6 +9,14 @@
   padding: 0 0 24px;
   box-sizing: border-box;
 }
+
+/* Shared "hidden by default" utility for tab sections/columns whose visible
+   state is set via JS (circuit-tab switcher, admin-only Logs actions
+   column) — replaces static inline style="display:none" in the markup.
+   #logsSection needs the extra ID-scoped override since its own base rule
+   below sets display:flex at higher specificity than a bare class alone. */
+.ci-hidden { display: none; }
+#logsSection.ci-hidden { display: none; }
 /* #logsSection is already height-locked to exactly fill the space below the
    sticky header (calc(100vh - 132px)) so the page itself never scrolls — but
    .ci-page's own 24px bottom padding (needed for the other, normally-
@@ -28,7 +36,7 @@
 }
 .ci-sticky-header.ci-scrolled {
   background: var(--nav-bg);
-  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   border-bottom-color: var(--border-glass);
 }
@@ -56,7 +64,7 @@
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 500;
   background: var(--nav-bg); border: 1px solid var(--border-glass);
   border-radius: 14px; padding: 8px; min-width: 150px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px); display: none;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); display: none;
 }
 .download-dropdown.open { display: block; }
 .dl-opt {
@@ -222,7 +230,7 @@
   position: fixed; z-index: 600; display: none;
   background: var(--nav-bg); border: 1px solid var(--border-glass);
   border-radius: 12px; padding: 6px; min-width: 130px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
 }
 .ci-row-menu.open { display: block; }
 .ci-row-menu button {
@@ -299,7 +307,7 @@
 .date-less-than-today  { background-color: red;         color: white; }
 
 /* ── Fullscreen overlay ───────────────── */
-#fullscreenOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); display:none; z-index:9999; overflow-y:auto; padding:1rem; }
+#fullscreenOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); -webkit-backdrop-filter: blur(4px); backdrop-filter:blur(4px); display:none; z-index:9999; overflow-y:auto; padding:1rem; }
 #fullscreenOverlay.show { display:block; }
 #fullscreenOverlay .overlay-column { background:#fff; padding:1rem; margin:1rem auto; max-width:95%; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.25); }
 #fullscreenOverlay .table-container { overflow-x:auto; }
@@ -372,7 +380,6 @@
   .circuit-tabs {
     flex-wrap: nowrap;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .circuit-tabs::-webkit-scrollbar { display: none; }
@@ -581,7 +588,7 @@
   position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
   background: var(--nav-bg); border: 1px solid var(--border-glass);
   border-radius: 12px; padding: 6px; max-height: 260px; overflow-y: auto;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.3); backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   display: none;
 }
 .ci-search-drop.open { display: block; }
@@ -660,7 +667,7 @@ table.ci-logs-table th {
   letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 16px;
   text-align: left; position: sticky; top: 0; background: var(--bg-secondary); z-index: 5;
 }
-table.ci-logs-table .th-sortable { cursor: pointer; user-select: none; transition: color 0.15s; white-space: nowrap; }
+table.ci-logs-table .th-sortable { cursor: pointer; -webkit-user-select: none; user-select: none; transition: color 0.15s; white-space: nowrap; }
 table.ci-logs-table .th-sortable:hover { color: var(--text-primary); }
 table.ci-logs-table .th-sort-label { display: inline-flex; align-items: center; gap: 2px; }
 /* The icon font's own glyph metrics sit lower than the label's text baseline

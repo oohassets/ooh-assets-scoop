@@ -11,10 +11,10 @@
 <div class="ci-sticky-header">
   <div class="ci-header-inner">
     <div class="circuit-tabs">
-      <button class="circuit-tab active" data-tab="digital">Digital</button>
-      <button class="circuit-tab" data-tab="static">Static</button>
-      <button class="circuit-tab" data-tab="activity">Activity</button>
-      <button class="circuit-tab" data-tab="logs">Logs</button>
+      <button type="button" class="circuit-tab active" data-tab="digital">Digital</button>
+      <button type="button" class="circuit-tab" data-tab="static">Static</button>
+      <button type="button" class="circuit-tab" data-tab="activity">Activity</button>
+      <button type="button" class="circuit-tab" data-tab="logs">Logs</button>
     </div>
   </div>
 </div>
@@ -31,14 +31,14 @@
            own carousel-header when Static is active, matching its title
            there instead. Hidden entirely for Activity/Logs. -->
       <div class="download-wrap" id="ciDigitalDownloadWrap">
-        <button class="download-btn" id="ciDownloadBtn" title="Download report">
+        <button type="button" class="download-btn" id="ciDownloadBtn" title="Download report">
           <span class="material-symbols-outlined">download</span>
         </button>
         <div class="download-dropdown" id="ciDownloadDropdown">
-          <button class="dl-opt" id="ciDownloadPDF">
+          <button type="button" class="dl-opt" id="ciDownloadPDF">
             <span class="material-symbols-outlined">picture_as_pdf</span>PDF
           </button>
-          <button class="dl-opt" id="ciDownloadExcel">
+          <button type="button" class="dl-opt" id="ciDownloadExcel">
             <span class="material-symbols-outlined">table_view</span>Excel
           </button>
         </div>
@@ -53,7 +53,7 @@
   </div>
 
   <!-- Static section (hidden by default) -->
-  <div id="staticSection" style="display:none;">
+  <div id="staticSection" class="ci-hidden">
     <div class="carousel-header">
       <div class="carousel-title">Static Circuits</div>
     </div>
@@ -63,14 +63,14 @@
   </div>
 
   <!-- Campaign Activity section (hidden by default) -->
-  <div id="activitySection" style="display:none;">
+  <div id="activitySection" class="ci-hidden">
     <div class="ci-activity-grid reveal" id="ciActivityGrid"></div>
   </div>
 
   <!-- Campaign Logs section (hidden by default) — height-locked to the
        viewport (see content-inventory.css) so only the table scrolls, the
        page itself doesn't. -->
-  <div id="logsSection" style="display:none;">
+  <div id="logsSection" class="ci-hidden">
     <div class="ci-toolbar">
       <div class="ci-search-box">
         <span class="material-symbols-outlined">search</span>
@@ -79,17 +79,17 @@
       </div>
 
       <div class="ci-date-filter-wrap">
-        <select class="date-modern" id="logsDateFilterSelect"></select>
+        <select class="date-modern" id="logsDateFilterSelect" aria-label="Filter logs by date range"></select>
       </div>
       <div class="ci-date-range-inputs" id="logsDateRangeInputs" hidden>
         <input type="date" class="date-modern" id="logsDateFrom">
         <span class="ci-date-range-arrow material-symbols-outlined">arrow_forward</span>
         <input type="date" class="date-modern" id="logsDateTo">
-        <button class="ci-date-apply-btn" id="logsApplyCustomDate">Apply</button>
+        <button type="button" class="ci-date-apply-btn" id="logsApplyCustomDate">Apply</button>
       </div>
 
       <div class="ci-filter-box">
-        <select id="logsTypeFilter">
+        <select id="logsTypeFilter" aria-label="Filter logs by type">
           <option value="">All Types</option>
           <option value="Add">Add</option>
           <option value="Removed">Removed</option>
@@ -97,14 +97,14 @@
       </div>
 
       <div class="download-wrap">
-        <button class="download-btn" id="logsDownloadBtn" title="Download report">
+        <button type="button" class="download-btn" id="logsDownloadBtn" title="Download report">
           <span class="material-symbols-outlined">download</span>
         </button>
         <div class="download-dropdown" id="logsDownloadDropdown">
-          <button class="dl-opt" id="logsDownloadPDF">
+          <button type="button" class="dl-opt" id="logsDownloadPDF">
             <span class="material-symbols-outlined">picture_as_pdf</span>PDF
           </button>
-          <button class="dl-opt" id="logsDownloadExcel">
+          <button type="button" class="dl-opt" id="logsDownloadExcel">
             <span class="material-symbols-outlined">table_view</span>Excel
           </button>
         </div>
@@ -123,7 +123,7 @@
               <th class="th-sortable" data-sort="Circuits" role="button" tabindex="0" aria-label="Sort by Circuits"><span class="th-sort-label">Circuits<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
               <th class="th-sortable" data-sort="Start Date" role="button" tabindex="0" aria-label="Sort by Start Date"><span class="th-sort-label">Start Date<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
               <th class="th-sortable" data-sort="End Date" role="button" tabindex="0" aria-label="Sort by End Date"><span class="th-sort-label">End Date<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
-              <th class="ci-actions-col" id="logsActionsTh" style="display:none;"><button type="button" class="ci-more-btn" id="logsMoreBtn" aria-label="Row options"><span class="material-symbols-outlined">more_vert</span></button></th>
+              <th class="ci-actions-col ci-hidden" id="logsActionsTh"><button type="button" class="ci-more-btn" id="logsMoreBtn" aria-label="Row options"><span class="material-symbols-outlined">more_vert</span></button></th>
             </tr>
           </thead>
           <tbody id="logsTableBody">

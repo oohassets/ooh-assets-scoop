@@ -32,7 +32,7 @@
       </div>
 
       <div class="date-filter-wrap">
-        <select class="date-modern" id="dateFilterSelect"></select>
+        <select class="date-modern" id="dateFilterSelect" aria-label="Filter by date range"></select>
       </div>
       <div class="date-range-inputs" id="dateRangeInputs" hidden>
         <input type="date" class="date-modern" id="customDateFrom">
@@ -42,7 +42,7 @@
       </div>
 
       <div class="filter-box">
-        <select id="campaignStatusFilter">
+        <select id="campaignStatusFilter" aria-label="Filter by status">
           <option value="">All Status</option>
           <option value="Live">Live</option>
           <option value="BO Signed">BO Signed</option>
@@ -87,7 +87,7 @@
               </tr>
             </thead>
             <tbody id="campaignTableBody">
-              <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">Loading campaigns…</td></tr>
+              <tr><td class="bk-table-placeholder" colspan="5">Loading campaigns…</td></tr>
             </tbody>
           </table>
         </div>
@@ -97,7 +97,7 @@
   </div>
 
   <!-- CALENDAR SECTION -->
-  <div id="calendarSection" style="display:none;">
+  <div id="calendarSection" class="cal-section-hidden">
     <div class="calendar-content reveal">
       <div class="card">
         <div class="cal-section-hdr">
@@ -110,7 +110,7 @@
 
           <div class="bookings-cal-bar">
             <div class="date-filter-wrap">
-              <select class="date-modern" id="calDateFilterSelect"></select>
+              <select class="date-modern" id="calDateFilterSelect" aria-label="Filter calendar by date range"></select>
             </div>
             <div class="date-range-inputs" id="calDateRangeInputs" hidden>
               <input type="date" class="date-modern" id="calFrom">
@@ -233,7 +233,7 @@
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
           </select>
-          <label class="bk-lbl">Status</label>
+          <label class="bk-lbl" for="campaignStatus">Status</label>
         </div>
 
         <div class="bk-booked-bar">

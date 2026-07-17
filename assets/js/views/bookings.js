@@ -39,6 +39,11 @@ let bkPickMode    = "start";
 let allCircuits   = [];
 let allClients    = [];
 let allBrands     = [];
+// Pooled Client/Brand/Circuit/Status/Person values for the schedule search
+// box's suggestion dropdown — mirrors what applyFilters() itself matches
+// against, kept in sync with allCampaigns in populateAssets() rather than
+// rebuilt on every keystroke (see setupCampaignSearchSuggest()).
+let allSearchTerms = [];
 
 const MONTHS      = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const FULL_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -136,7 +141,7 @@ function renderTable(campaigns) {
   const tbody = document.getElementById("campaignTableBody");
   if (!tbody) return;
   if (!campaigns.length) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">No campaigns found</td></tr>`;
+    tbody.innerHTML = `<tr><td class="bk-table-placeholder" colspan="5">No campaigns found</td></tr>`;
     return;
   }
   const mobHeader = `<tr class="mob-thead-row">
@@ -452,11 +457,17 @@ function populateAssets(tables) {
   allCircuits = [...new Set(rows.map(r => r.Circuits).filter(Boolean))].sort();
   allClients  = [...new Set(allCampaigns.map(c => c.client).filter(c => c !== "—"))].sort();
   allBrands   = [...new Set(allCampaigns.map(c => c.brand).filter(c  => c !== "—"))].sort();
+  // Same 5 fields applyFilters() itself searches across, so the search box's
+  // suggestions never omit a term that would actually produce a match.
+  allSearchTerms = [...new Set(
+    allCampaigns.flatMap(c => [c.client, c.brand, c.asset, c.status, c.person])
+      .filter(v => v && v !== "—")
+  )].sort();
 }
 
 function initAutoSuggest() {
-  setupSuggest("bookingClient", "clientSuggestions", () => allClients, null);
-  setupSuggest("bookingBrand",  "brandSuggestions",  () => allBrands,  null);
+  setupSuggest("bookingClient", "clientSuggestions", () => allClients, null, { afterSelect: checkFormComplete });
+  setupSuggest("bookingBrand",  "brandSuggestions",  () => allBrands,  null, { afterSelect: checkFormComplete });
   resetCircuitRows();
 }
 
@@ -514,7 +525,7 @@ function renderCircuitRow() {
     setValue(`circuitVal-${n}`, val);
     autoAssignSlot();
     checkFormComplete();
-  });
+  }, { afterSelect: checkFormComplete });
   document.getElementById(`circuitText-${n}`)?.addEventListener("input", () => {
     // Typing without picking a suggestion clears the confirmed value —
     // matches the Client/Brand fields, and keeps checkFormComplete/slot
@@ -582,7 +593,23 @@ function getBookingHeaderInfo() {
   return { bo, client, brand, dates };
 }
 
-function setupSuggest(inputId, dropId, getList, onSelect) {
+/**
+ * Generic autocomplete-dropdown wiring, shared by the booking form's
+ * Client/Brand/Circuit fields and the schedule search box.
+ * - getList(): returns the full candidate pool (caller decides how it's built).
+ * - onSelect(val): optional, run after a suggestion is picked.
+ * - opts.afterSelect(): optional, run after onSelect on every pick — kept
+ *   separate from onSelect (rather than folded into it) so callers that just
+ *   want "fill the value" don't also have to know about form-completeness
+ *   checks that are specific to the booking-form fields.
+ * - opts.showOnEmpty (default true): whether focusing/clearing an empty field
+ *   shows the first 8 items (booking-form fields want this — clicking an
+ *   empty field should show options) or keeps the dropdown hidden until
+ *   there's a query (the search box wants this, matching its own "empty
+ *   query = no filter" behavior in applyFilters()).
+ */
+function setupSuggest(inputId, dropId, getList, onSelect, opts = {}) {
+  const { afterSelect, showOnEmpty = true } = opts;
   const input = document.getElementById(inputId);
   const drop  = document.getElementById(dropId);
   if (!input || !drop) return;
@@ -590,7 +617,7 @@ function setupSuggest(inputId, dropId, getList, onSelect) {
   const showMatches = () => {
     const q = input.value.trim().toLowerCase();
     const list = getList();
-    const matches = q ? list.filter(v => v.toLowerCase().includes(q)) : list.slice(0, 8);
+    const matches = q ? list.filter(v => v.toLowerCase().includes(q)) : (showOnEmpty ? list.slice(0, 8) : []);
     if (!matches.length) { drop.classList.remove("open"); return; }
     drop.innerHTML = matches.map(v => `<div class="bk-ac-item" data-val="${escapeHTML(v)}">${escapeHTML(v)}</div>`).join("");
     drop.classList.add("open");
@@ -608,47 +635,26 @@ function setupSuggest(inputId, dropId, getList, onSelect) {
     input.value = item.dataset.val;
     drop.classList.remove("open");
     if (onSelect) onSelect(item.dataset.val);
-    checkFormComplete();
+    afterSelect?.();
   });
 
   input.addEventListener("blur", () => setTimeout(() => drop.classList.remove("open"), 150));
 }
 
-/** Suggestion dropdown for the schedule table's search box — pools distinct
-    Client/Brand/Circuit values out of allCampaigns (read fresh on every
-    keystroke, so it stays in sync as bookings load/change) rather than
-    reusing allClients/allBrands/allCircuits separately, since the search box
-    matches across all three at once. Picking a suggestion fills the box and
-    re-applies the filter immediately, same as typing it out would. */
+/** Search-as-you-type + suggestion dropdown for the schedule table's search
+    box. The core "input" → applyFilters() wiring is bound directly to
+    #campaignSearch and does not depend on #campaignSearchSuggestions —
+    filtering must keep working even if that dropdown element is ever
+    removed/renamed. setupSuggest() (only reached when the dropdown element
+    exists) layers the suggestion list on top, pooled from allSearchTerms
+    (the same 5 fields applyFilters() matches against, cached/kept in sync in
+    populateAssets() — see there for why this isn't rebuilt per keystroke). */
 function setupCampaignSearchSuggest() {
   const input = document.getElementById("campaignSearch");
-  const drop  = document.getElementById("campaignSearchSuggestions");
-  if (!input || !drop) return;
+  if (!input) return;
+  input.addEventListener("input", applyFilters);
 
-  const showMatches = () => {
-    const q = input.value.trim().toLowerCase();
-    if (!q) { drop.classList.remove("open"); return; }
-    const pool = new Set();
-    allCampaigns.forEach(c => {
-      [c.client, c.brand, c.asset].forEach(v => { if (v && v !== "—") pool.add(v); });
-    });
-    const matches = [...pool].filter(v => v.toLowerCase().includes(q)).slice(0, 8);
-    if (!matches.length) { drop.classList.remove("open"); return; }
-    drop.innerHTML = matches.map(v => `<div class="bk-ac-item" data-val="${escapeHTML(v)}">${escapeHTML(v)}</div>`).join("");
-    drop.classList.add("open");
-  };
-
-  input.addEventListener("input", () => { showMatches(); applyFilters(); });
-  input.addEventListener("focus", showMatches);
-  drop.addEventListener("mousedown", e => {
-    const item = e.target.closest(".bk-ac-item");
-    if (!item) return;
-    e.preventDefault();
-    input.value = item.dataset.val;
-    drop.classList.remove("open");
-    applyFilters();
-  });
-  input.addEventListener("blur", () => setTimeout(() => drop.classList.remove("open"), 150));
+  setupSuggest("campaignSearch", "campaignSearchSuggestions", () => allSearchTerms, () => applyFilters(), { showOnEmpty: false });
 }
 
 // ── DATE CALCULATOR ───────────────────────────────────────
@@ -2100,14 +2106,14 @@ export async function init(userName) {
 
   tabSchedule?.addEventListener("click", () => {
     scheduleSection.style.display = "";
-    calendarSection.style.display = "none";
+    calendarSection.classList.add("cal-section-hidden");
     tabSchedule.classList.add("active");
     tabCalendar.classList.remove("active");
   });
 
   tabCalendar?.addEventListener("click", async () => {
     scheduleSection.style.display = "none";
-    calendarSection.style.display = "";
+    calendarSection.classList.remove("cal-section-hidden");
     tabCalendar.classList.add("active");
     const calSearchEl = document.getElementById("calSearch");
     if (calSearchEl) calSearchEl.value = "";
