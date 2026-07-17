@@ -151,7 +151,7 @@
 
 /* ── Toolbar + search ─────────────────── */
 .toolbar    { display:flex; gap:12px; align-items:center; flex-wrap:wrap; max-width:1400px; margin:0 auto; }
-.search-box { flex:1; min-width:200px; display:flex; align-items:center; gap:10px; padding:0 16px; height:44px; background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:var(--radius-sm); transition:all 0.2s; }
+.search-box { position:relative; flex:1; min-width:200px; display:flex; align-items:center; gap:10px; padding:0 16px; height:44px; background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:var(--radius-sm); transition:all 0.2s; }
 .search-box:focus-within { border-color:var(--accent-indigo); box-shadow:0 0 0 3px var(--glow-indigo); }
 /* height:100% + line-height + appearance reset: mobile browsers (iOS Safari
    in particular) give a bare <input> its own intrinsic line box that can sit

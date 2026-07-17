@@ -614,6 +614,43 @@ function setupSuggest(inputId, dropId, getList, onSelect) {
   input.addEventListener("blur", () => setTimeout(() => drop.classList.remove("open"), 150));
 }
 
+/** Suggestion dropdown for the schedule table's search box — pools distinct
+    Client/Brand/Circuit values out of allCampaigns (read fresh on every
+    keystroke, so it stays in sync as bookings load/change) rather than
+    reusing allClients/allBrands/allCircuits separately, since the search box
+    matches across all three at once. Picking a suggestion fills the box and
+    re-applies the filter immediately, same as typing it out would. */
+function setupCampaignSearchSuggest() {
+  const input = document.getElementById("campaignSearch");
+  const drop  = document.getElementById("campaignSearchSuggestions");
+  if (!input || !drop) return;
+
+  const showMatches = () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { drop.classList.remove("open"); return; }
+    const pool = new Set();
+    allCampaigns.forEach(c => {
+      [c.client, c.brand, c.asset].forEach(v => { if (v && v !== "—") pool.add(v); });
+    });
+    const matches = [...pool].filter(v => v.toLowerCase().includes(q)).slice(0, 8);
+    if (!matches.length) { drop.classList.remove("open"); return; }
+    drop.innerHTML = matches.map(v => `<div class="bk-ac-item" data-val="${escapeHTML(v)}">${escapeHTML(v)}</div>`).join("");
+    drop.classList.add("open");
+  };
+
+  input.addEventListener("input", () => { showMatches(); applyFilters(); });
+  input.addEventListener("focus", showMatches);
+  drop.addEventListener("mousedown", e => {
+    const item = e.target.closest(".bk-ac-item");
+    if (!item) return;
+    e.preventDefault();
+    input.value = item.dataset.val;
+    drop.classList.remove("open");
+    applyFilters();
+  });
+  input.addEventListener("blur", () => setTimeout(() => drop.classList.remove("open"), 150));
+}
+
 // ── DATE CALCULATOR ───────────────────────────────────────
 function calcDays() {
   const sVal = document.getElementById("bookingStartDate")?.value;
@@ -1912,7 +1949,7 @@ export async function init(userName) {
     }
   });
 
-  document.getElementById("campaignSearch")?.addEventListener("input", applyFilters);
+  setupCampaignSearchSuggest();
   document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
   document.querySelectorAll(".th-sortable").forEach(th => {
     th.addEventListener("click", () => toggleSort(th.dataset.sort));
