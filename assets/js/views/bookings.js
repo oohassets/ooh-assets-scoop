@@ -137,6 +137,42 @@ function getCampaigns(tables) {
   return list.sort((a,b) => b.sortDate - a.sortDate);
 }
 
+// ── SLOT CONFLICT DETECTION ───────────────────────────────
+/**
+ * Maps campaign key -> the other campaign it double-books (same Circuits +
+ * same Slot, overlapping date range). Built from allCampaigns (not the
+ * filtered/sorted list passed to renderTable) so a conflict is still found
+ * even if the other half of the pair is hidden by the current search/status
+ * filter. Cancelled bookings don't hold their slot, so they're excluded on
+ * both sides of the comparison — a booking that only "conflicts" with a
+ * cancelled one isn't actually double-booked.
+ */
+function findSlotConflicts(campaigns) {
+  const conflicts = new Map();
+  const groups = new Map();
+  campaigns.forEach(c => {
+    if (!c.asset || c.asset === "—") return;
+    if (getStatusClass(c.status) === "cancelled") return;
+    const sd = parseDate(c.rawStartDate), ed = parseDate(c.rawEndDate);
+    if (!sd || !ed) return;
+    const gKey = `${c.asset.trim().toLowerCase()}|${c.slot || 1}`;
+    if (!groups.has(gKey)) groups.set(gKey, []);
+    groups.get(gKey).push({ ...c, _s: sd, _e: ed });
+  });
+  groups.forEach(list => {
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i], b = list[j];
+        if (a._s <= b._e && a._e >= b._s) {
+          if (!conflicts.has(a.key)) conflicts.set(a.key, b);
+          if (!conflicts.has(b.key)) conflicts.set(b.key, a);
+        }
+      }
+    }
+  });
+  return conflicts;
+}
+
 // ── RENDER TABLE ──────────────────────────────────────────
 function renderTable(campaigns) {
   const tbody = document.getElementById("campaignTableBody");
@@ -154,8 +190,13 @@ function renderTable(campaigns) {
       </div>
     </td>
   </tr>`;
+  const slotConflicts = findSlotConflicts(allCampaigns);
   tbody.innerHTML = mobHeader + campaigns.map(r => {
     const statusCls = getStatusClass(r.status);
+    const conflict = slotConflicts.get(r.key);
+    const conflictHTML = conflict
+      ? `<div class="bk-date-conflict">Already reserved — overlaps ${escapeHTML(conflict.client)} (${escapeHTML(conflict.date)})</div>`
+      : "";
     // Person is now saved as initials (see saveBooking()) — match against
     // that, not the full name. Bookings saved before this change stored the
     // full name instead, so their own edit button may no longer show; that's
@@ -184,6 +225,7 @@ function renderTable(campaigns) {
         <td class="td-desk" style="color:var(--text-secondary);font-size:13px;">${escapeHTML(r.asset)}</td>
         <td class="td-desk" style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
           <div style="display:flex;align-items:center;gap:6px;"><span>${escapeHTML(r.date)}</span>${editDateBtn}</div>
+          ${conflictHTML}
         </td>
         <td class="td-desk" style="position:relative;">
           <div class="status-cell">
@@ -201,7 +243,7 @@ function renderTable(campaigns) {
             </div>
             <div class="mob-col mob-col-mid">
               <div class="mob-circuit">${escapeHTML(r.asset)}</div>
-              <div class="mob-date"><div style="display:flex;align-items:center;gap:5px;">${escapeHTML(r.date)}${editDateBtn}</div></div>
+              <div class="mob-date"><div style="display:flex;align-items:center;gap:5px;">${escapeHTML(r.date)}${editDateBtn}</div>${conflictHTML}</div>
               <div class="status-cell">
                 <span class="status-pill pill-${statusCls}">${escapeHTML(r.status)}</span>
                 ${editStatusBtn}

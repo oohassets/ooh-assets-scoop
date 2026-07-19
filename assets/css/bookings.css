@@ -273,6 +273,14 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
 /* Inline status edit */
 .status-cell { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 
+/* Double-booking warning shown under a row's Dates cell — the parent .td-desk
+   is white-space:nowrap for the date range itself, so this needs its own
+   white-space:normal or a long conflict message can't wrap. */
+.bk-date-conflict {
+  white-space:normal; color:var(--error); font-size:11px; font-weight:500;
+  margin-top:3px; line-height:1.3;
+}
+
 /* Edit buttons — dates (.edit-row-btn) and status (.edit-status-btn) share
    one look: same size/shape/hover, always visible (not hover-to-reveal). */
 .edit-status-btn,
