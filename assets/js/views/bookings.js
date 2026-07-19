@@ -21,6 +21,7 @@ let currentUserInitials = "";
 // admin/sales can view, add and edit; anything else (view, or unset) is
 // view-only. See dashboard/app.js loadUserProfile() for how rule is set.
 let canEdit         = false;
+let isAdminUser      = false;
 let allCampaigns    = [];
 let currentFiltered = [];
 // Column sort state — null sortField means "no sort applied" (falls back to
@@ -159,12 +160,16 @@ function renderTable(campaigns) {
     // that, not the full name. Bookings saved before this change stored the
     // full name instead, so their own edit button may no longer show; that's
     // an inherent one-time consequence of switching the stored format.
+    // Admins bypass the ownership check entirely — they can edit any booking,
+    // not just their own (matching the same admin-edits-everything convention
+    // as Content Inventory's editInfo/isAdmin gating in loadCarousel.js).
     const isOwner = canEdit && currentUserInitials && r.person &&
       r.person.trim().toLowerCase() === currentUserInitials.trim().toLowerCase();
-    const editDateBtn = isOwner
+    const canEditRow = canEdit && (isAdminUser || isOwner);
+    const editDateBtn = canEditRow
       ? `<button class="edit-row-btn" data-key="${r.key}" title="Edit booking"><span class="material-symbols-outlined" style="font-size:14px;">edit</span></button>`
       : "";
-    const editStatusBtn = isOwner
+    const editStatusBtn = canEditRow
       ? `<button class="edit-status-btn" data-key="${r.key}" title="Edit status"><span class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
          <div class="inline-status-dropdown" id="statusDrop-${r.key}">
            <button class="status-option status-pill pill-live"      data-key="${r.key}" data-val="Live">Live</button>
@@ -1916,6 +1921,7 @@ export async function init(userName) {
   // Role gate — admin/sales can add + edit; view (or unset) is read-only.
   const rule = window.__currentUser?.rule || "view";
   canEdit = rule === "admin" || rule === "sales";
+  isAdminUser = rule === "admin";
   document.getElementById("openBookingBtn")?.toggleAttribute("hidden", !canEdit);
 
   // Move overlays to <body> so they escape the app-frame stacking context
