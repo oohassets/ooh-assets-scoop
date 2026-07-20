@@ -713,6 +713,35 @@ function setupCampaignSearchSuggest() {
   setupSuggest("campaignSearch", "campaignSearchSuggestions", () => allSearchTerms, () => applyFilters(), { showOnEmpty: false });
 }
 
+/** Same suggestion dropdown as setupCampaignSearchSuggest(), for the
+ * calendar tab's own search box (#calSearch) — pools from the same
+ * allSearchTerms list and filters the calendar's bars instead of the
+ * schedule table rows. */
+function setupCalSearchSuggest() {
+  const input = document.getElementById("calSearch");
+  if (!input) return;
+  input.addEventListener("input", filterAndRenderBars);
+
+  setupSuggest("calSearch", "calSearchSuggestions", () => allSearchTerms, () => filterAndRenderBars(), { showOnEmpty: false });
+}
+
+/** Wires a .bk-clear-btn's click to empty its paired input, close an
+ * optional suggestion dropdown, and re-run whatever that field's own
+ * "input" handling would (passed in explicitly as `after` rather than
+ * synthesizing an "input" event — bookingOrder in particular reformats on
+ * "input" in a way that would leave it at "BO-" instead of truly empty). */
+function wireClearButton(btnId, inputId, { dropId, after, focus = true } = {}) {
+  const btn = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  if (!btn || !input) return;
+  btn.addEventListener("click", () => {
+    input.value = "";
+    if (dropId) document.getElementById(dropId)?.classList.remove("open");
+    after?.();
+    if (focus) input.focus();
+  });
+}
+
 // ── DATE CALCULATOR ───────────────────────────────────────
 function calcDays() {
   const sVal = document.getElementById("bookingStartDate")?.value;
@@ -1925,45 +1954,44 @@ function getPopulatedDateRange(bookings, fallbackStart, fallbackEnd) {
   return { start, end };
 }
 
-function getCalFilteredBookings() {
-  if (!calBookings.length) return [];
-  const lo = calRangeStart ? new Date(calRangeStart) : null;
-  const hi = calRangeEnd   ? new Date(calRangeEnd)   : null;
-  if (lo) lo.setHours(0, 0, 0, 0);
-  if (hi) hi.setHours(0, 0, 0, 0);
-  return calBookings
-    .filter(b => {
-      if (!b) return false;
-      const s = parseDate(b["Start Date"]); const e = parseDate(b["End Date"]);
-      if (!s || !e) return false;
-      s.setHours(0,0,0,0); e.setHours(0,0,0,0);
-      return (!lo || s <= hi) && (!hi || e >= lo);
-    })
-    .sort((a, b) => {
-      const ad = parseDate(a["Start Date"]); const bd = parseDate(b["Start Date"]);
-      return (ad || 0) - (bd || 0);
-    });
-}
-
 async function downloadCalendarAsPDF() {
   const btn = document.getElementById("calDownloadBtn");
   if (btn) btn.classList.add("loading");
   const hiddenEls = [];
   let expStart = null, expEnd = null;
+  // The PDF screenshots the live table, which normally only shows the
+  // currently-selected date filter and only the bars matching the search
+  // box — "download all data" means the export shouldn't be limited to
+  // whatever happens to be on screen, so the table is rebuilt around the
+  // full span of every booking (search cleared) for the screenshot, then
+  // rebuilt back to what the user actually had selected once it's done.
+  const savedDrpStart = calDrpStart, savedDrpEnd = calDrpEnd;
+  const calSearchEl   = document.getElementById("calSearch");
+  const savedSearch   = calSearchEl?.value || "";
   try {
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
     const { jsPDF } = window.jspdf;
 
+    const allBookings = await loadBookings();
+    ({ start: expStart, end: expEnd } = getPopulatedDateRange(allBookings, null, null));
+    if (expStart && expEnd) {
+      calDrpStart = expStart; calDrpEnd = expEnd;
+      if (calSearchEl) calSearchEl.value = "";
+      await buildCalendar();
+    }
+
     const table = document.getElementById("bookingCalendar");
     if (!table) return;
 
-    // Hide date columns outside the range that actually has booking data —
-    // exporting the full selected window (e.g. "All Year" = 365 columns)
-    // regardless of data pushes the screenshot past the browser's max
-    // canvas width and silently fails to produce a PDF at all.
-    const filteredForExport = getCalFilteredBookings();
-    ({ start: expStart, end: expEnd } = getPopulatedDateRange(filteredForExport, calRangeStart, calRangeEnd));
+    // Even at the full data span, still hide any stray columns outside the
+    // populated range (buildCalendar() renders exactly [expStart,expEnd]
+    // already, so this is normally a no-op — kept as a safety net) rather
+    // than exporting a mostly-empty window, which is what was silently
+    // breaking the PDF export before (html2canvas/canvas can't produce a
+    // canvas wider than ~32,767px, which a wide, mostly-empty table at
+    // scale:2 comes right up against).
+    const filteredForExport = allBookings;
     if (expStart && expEnd) {
       table.querySelectorAll("[data-date]").forEach(el => {
         const d = new Date(el.dataset.date);
@@ -2116,6 +2144,11 @@ async function downloadCalendarAsPDF() {
     alert("Couldn't generate the calendar PDF. Please try again.");
   } finally {
     hiddenEls.forEach(el => { el.style.display = ""; });
+    // Rebuild back to whatever the user actually had selected/searched —
+    // the full-data view above was only for the screenshot.
+    calDrpStart = savedDrpStart; calDrpEnd = savedDrpEnd;
+    if (calSearchEl) calSearchEl.value = savedSearch;
+    await buildCalendar();
     if (btn) btn.classList.remove("loading");
   }
 }
@@ -2126,14 +2159,15 @@ async function downloadCalendarAsExcel() {
   try {
     await loadScript("https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js");
 
-    // Fetch same data sources as buildCalendar
+    // Fetch same data sources as buildCalendar — "download all data" means
+    // every booking regardless of the calendar's currently-selected date
+    // filter or search box, not just what's presently on screen.
     const [circuitSlots, allBookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
-    const filtered  = getCalFilteredBookings();
-    const bookings  = filtered.length ? filtered : allBookings;
+    const bookings = allBookings;
 
-    // Trim to the range that actually has booking data instead of the full
-    // selected calendar window (e.g. "All Year" = 365 mostly-empty columns).
-    const { start: expStart, end: expEnd } = getPopulatedDateRange(bookings, calRangeStart, calRangeEnd);
+    // Trim to the range that actually has booking data instead of an
+    // absurdly wide (or, with no data, empty) sheet.
+    const { start: expStart, end: expEnd } = getPopulatedDateRange(bookings, null, null);
     const dates = [];
     if (expStart && expEnd) {
       const cur = new Date(expStart);
@@ -2397,6 +2431,7 @@ export async function init(userName) {
   });
 
   setupCampaignSearchSuggest();
+  wireClearButton("campaignSearchClear", "campaignSearch", { dropId: "campaignSearchSuggestions", after: applyFilters });
   document.getElementById("campaignStatusFilter")?.addEventListener("change", applyFilters);
   document.querySelectorAll(".th-sortable").forEach(th => {
     th.addEventListener("click", () => toggleSort(th.dataset.sort));
@@ -2404,7 +2439,8 @@ export async function init(userName) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSort(th.dataset.sort); }
     });
   });
-  document.getElementById("calSearch")?.addEventListener("input", filterAndRenderBars);
+  setupCalSearchSuggest();
+  wireClearButton("calSearchClear", "calSearch", { dropId: "calSearchSuggestions", after: filterAndRenderBars });
 
   // ── Download ──────────────────────────────────────────
   const downloadBtn      = document.getElementById("downloadBtn");
@@ -2476,6 +2512,8 @@ export async function init(userName) {
     document.getElementById(id)?.addEventListener("input", checkFormComplete)
   );
   document.getElementById("campaignStatus")?.addEventListener("change", checkFormComplete);
+  wireClearButton("bookingClientClear", "bookingClient", { dropId: "clientSuggestions", after: checkFormComplete });
+  wireClearButton("bookingBrandClear", "bookingBrand", { dropId: "brandSuggestions", after: checkFormComplete });
 
   // BO NO: "BO-0000" template on first focus (user only edits the digits),
   // always exactly 4 digits after "BO-", and a "-<year>" suffix appended
@@ -2510,6 +2548,10 @@ export async function init(userName) {
     if (e.key === "Enter") { e.preventDefault(); confirmBoNumber(); }
   });
   bookingOrderInput?.addEventListener("blur", confirmBoNumber);
+  // focus:false — the "focus" handler above re-fills an empty field with
+  // the "BO-0000" template, so auto-focusing straight after clearing would
+  // immediately undo the clear.
+  wireClearButton("bookingOrderClear", "bookingOrder", { focus: false });
 
   // ── Date picker wiring ────────────────────────────────
   document.getElementById("bkPickStart")?.addEventListener("click", () => openDatePicker("start"));

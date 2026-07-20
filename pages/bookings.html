@@ -28,6 +28,9 @@
       <div class="search-box">
         <span class="cal-icon material-symbols-outlined">search</span>
         <input type="text" id="campaignSearch" placeholder="Search campaign, client, circuit…" autocomplete="off">
+        <button type="button" class="bk-clear-btn" id="campaignSearchClear" title="Clear search" aria-label="Clear search">
+          <span class="material-symbols-outlined">close</span>
+        </button>
         <div class="bk-ac-drop" id="campaignSearchSuggestions"></div>
       </div>
 
@@ -101,10 +104,15 @@
     <div class="calendar-content reveal">
       <div class="card">
         <div class="cal-section-hdr">
+          <h2 class="cal-section-title">Booking Calendar</h2>
           <div class="cal-search-wrap">
             <div class="search-box">
               <span class="material-symbols-outlined cal-icon">search</span>
-              <input type="text" id="calSearch" placeholder="Search campaign, client, circuit…">
+              <input type="text" id="calSearch" placeholder="Search campaign, client, circuit…" autocomplete="off">
+              <button type="button" class="bk-clear-btn" id="calSearchClear" title="Clear search" aria-label="Clear search">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+              <div class="bk-ac-drop" id="calSearchSuggestions"></div>
             </div>
           </div>
 
@@ -169,19 +177,28 @@
         <input type="hidden" id="bookingEditKey">
 
         <div class="bk-field">
-          <input class="bk-inp" id="bookingOrder" type="text" placeholder=" ">
+          <input class="bk-inp bk-inp-clearable" id="bookingOrder" type="text" placeholder=" ">
           <label class="bk-lbl" for="bookingOrder">BO NO</label>
+          <button type="button" class="bk-clear-btn" id="bookingOrderClear" title="Clear" aria-label="Clear BO NO">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
 
         <div class="bk-field bk-ac">
-          <input class="bk-inp" id="bookingClient" type="text" placeholder=" " autocomplete="off">
+          <input class="bk-inp bk-inp-clearable" id="bookingClient" type="text" placeholder=" " autocomplete="off">
           <label class="bk-lbl" for="bookingClient">Client</label>
+          <button type="button" class="bk-clear-btn" id="bookingClientClear" title="Clear" aria-label="Clear Client">
+            <span class="material-symbols-outlined">close</span>
+          </button>
           <div class="bk-ac-drop" id="clientSuggestions"></div>
         </div>
 
         <div class="bk-field bk-ac">
-          <input class="bk-inp" id="bookingBrand" type="text" placeholder=" " autocomplete="off">
+          <input class="bk-inp bk-inp-clearable" id="bookingBrand" type="text" placeholder=" " autocomplete="off">
           <label class="bk-lbl" for="bookingBrand">Brand Campaign</label>
+          <button type="button" class="bk-clear-btn" id="bookingBrandClear" title="Clear" aria-label="Clear Brand Campaign">
+            <span class="material-symbols-outlined">close</span>
+          </button>
           <div class="bk-ac-drop" id="brandSuggestions"></div>
         </div>
 

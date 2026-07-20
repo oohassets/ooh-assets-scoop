@@ -100,12 +100,21 @@
 }
 .cal-section-hdr {
   flex-shrink: 0;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 16px;
   margin-bottom: 12px; position: relative;
 }
+.cal-section-title {
+  flex-shrink: 0; margin: 0; white-space: nowrap;
+  font-family: var(--font-body); font-size: 20px; font-weight: 800;
+  color: var(--text-primary);
+}
+/* flex:1 (capped) rather than the old absolute-centered fixed 320px box —
+   grows to fill the row between the title and .bookings-cal-bar (whose own
+   margin-left:auto below soaks up whatever the cap leaves over), so the
+   search box's width now actually relates to where the filters sit instead
+   of floating independently center-screen. */
 .cal-search-wrap {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  width: 320px;
+  flex: 1 1 auto; min-width: 160px; max-width: 420px;
 }
 .cal-search-wrap .search-box { width: 100%; }
 .bookings-cal-bar {
@@ -616,6 +625,27 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
 .bk-circuit-clear .material-symbols-outlined { font-size:16px; }
 .bk-circuit-clear:hover { background:var(--bg-glass); color:var(--accent-rose); }
 .bk-circuit-row .bk-inp:not(:placeholder-shown) ~ .bk-circuit-clear { display:flex; }
+
+/* Generic "clear text" (x) button — same look/behavior as the Circuit
+   row's own .bk-circuit-clear above, reused for the schedule/calendar
+   search boxes and the BO/Client/Brand booking-form fields. Transparent
+   background, centered on the field's own right edge; shown purely via
+   CSS (:not(:placeholder-shown), same trick as .bk-lbl's floating-label
+   toggle above) so no JS is needed beyond the click-to-clear handler. */
+.bk-clear-btn {
+  display:none; position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  width:24px; height:24px; border:none; background:none; border-radius:50%;
+  align-items:center; justify-content:center; color:var(--text-muted);
+  cursor:pointer; transition:all 0.15s; z-index:2;
+}
+.bk-clear-btn .material-symbols-outlined { font-size:16px; }
+.bk-clear-btn:hover { background:var(--bg-glass); color:var(--accent-rose); }
+
+.bk-inp-clearable { padding-right:38px; }
+.bk-field .bk-inp-clearable:not(:placeholder-shown) ~ .bk-clear-btn { display:flex; }
+
+.search-box input { padding-right:30px; }
+.search-box input:not(:placeholder-shown) ~ .bk-clear-btn { display:flex; }
 .bk-circuit-btn {
   flex-shrink:0; width:48px; height:48px; margin-top:1px;
   border:1.5px solid var(--border-glass); border-radius:12px;
@@ -983,7 +1013,8 @@ td.slot-col    { position:sticky; left:200px;  z-index:10; }
     display: flex; flex-direction: column; gap: 8px;
     padding: 14px 52px 10px 16px; position: relative;
   }
-  .cal-search-wrap { position: static; transform: none; width: 100%; }
+  .cal-section-title { font-size: 17px; }
+  .cal-search-wrap { position: static; transform: none; width: 100%; max-width: none; }
   .bookings-cal-bar { margin: 0; padding-right: 0; }
   .cal-close-btn { position: absolute; top: 12px; right: 12px; margin-left: 0; }
 
