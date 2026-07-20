@@ -1634,6 +1634,18 @@ function filenameDateRange(start, end) {
   return ` (${fmt(start)}-${fmt(end)})`;
 }
 
+/** `_<query>` appended to a calendar export filename when the search box
+ * was non-empty at export time, e.g. "..._Ooredoo.xlsx" — omitted
+ * entirely when there's no query. Takes the query as a parameter rather
+ * than reading #calSearch itself since the PDF export temporarily clears
+ * it for the full-data screenshot (see downloadCalendarAsPDF()). */
+function filenameSearchSuffix(query) {
+  const q = (query || "").trim();
+  if (!q) return "";
+  const safe = q.replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
+  return safe ? `_${safe}` : "";
+}
+
 function loadImageForPDF(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -1954,6 +1966,36 @@ function getPopulatedDateRange(bookings, fallbackStart, fallbackEnd) {
   return { start, end };
 }
 
+/**
+ * Applies the calendar tab's own currently-active filters — the selected
+ * date range (calRangeStart/calRangeEnd) and, if the user has typed one,
+ * the #calSearch query (same 5 fields filterAndRenderBars() itself matches
+ * against) — to a booking list. Used by the Excel export so "download"
+ * reflects what the user has actually filtered down to, rather than always
+ * dumping every booking regardless of it.
+ */
+function getCalActiveFilteredBookings(bookings) {
+  const lo = calRangeStart ? new Date(calRangeStart) : null;
+  const hi = calRangeEnd   ? new Date(calRangeEnd)   : null;
+  if (lo) lo.setHours(0, 0, 0, 0);
+  if (hi) hi.setHours(0, 0, 0, 0);
+  const q = (document.getElementById("calSearch")?.value || "").toLowerCase().trim();
+  return bookings.filter(b => {
+    if (!b) return false;
+    const s = parseDate(b["Start Date"]); const e = parseDate(b["End Date"]);
+    if (!s || !e) return false;
+    s.setHours(0,0,0,0); e.setHours(0,0,0,0);
+    if (lo && e < lo) return false;
+    if (hi && s > hi) return false;
+    if (q) {
+      const hay = [b.Client||"", b["Brand Campaign"]||"", b.Circuits||b.Circuit||"", b.Status||"", b.Person||""]
+        .join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
 async function downloadCalendarAsPDF() {
   const btn = document.getElementById("calDownloadBtn");
   if (btn) btn.classList.add("loading");
@@ -2138,7 +2180,7 @@ async function downloadCalendarAsPDF() {
       }
     }
 
-    doc.save(`SCOOP_OOH_Campaign_Calendar${filenameDateRange(expStart, expEnd)}.pdf`);
+    doc.save(`SCOOP_OOH_Campaign_Calendar${filenameDateRange(expStart, expEnd)}${filenameSearchSuffix(savedSearch)}.pdf`);
   } catch (err) {
     console.error("Calendar PDF export failed:", err);
     alert("Couldn't generate the calendar PDF. Please try again.");
@@ -2159,15 +2201,15 @@ async function downloadCalendarAsExcel() {
   try {
     await loadScript("https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js");
 
-    // Fetch same data sources as buildCalendar — "download all data" means
-    // every booking regardless of the calendar's currently-selected date
-    // filter or search box, not just what's presently on screen.
+    // Fetch same data sources as buildCalendar, then apply whatever the
+    // calendar's date-range filter / search box are currently set to — the
+    // export should reflect what the user has actually filtered down to.
     const [circuitSlots, allBookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
-    const bookings = allBookings;
+    const bookings = getCalActiveFilteredBookings(allBookings);
 
     // Trim to the range that actually has booking data instead of an
     // absurdly wide (or, with no data, empty) sheet.
-    const { start: expStart, end: expEnd } = getPopulatedDateRange(bookings, null, null);
+    const { start: expStart, end: expEnd } = getPopulatedDateRange(bookings, calRangeStart, calRangeEnd);
     const dates = [];
     if (expStart && expEnd) {
       const cur = new Date(expStart);
@@ -2366,7 +2408,7 @@ async function downloadCalendarAsExcel() {
     });
     const url = URL.createObjectURL(blob);
     const a   = document.createElement("a");
-    a.href = url; a.download = `SCOOP_OOH_Campaign_Calendar${filenameDateRange(expStart, expEnd)}.xlsx`; a.click();
+    a.href = url; a.download = `SCOOP_OOH_Campaign_Calendar${filenameDateRange(expStart, expEnd)}${filenameSearchSuffix(document.getElementById("calSearch")?.value)}.xlsx`; a.click();
     URL.revokeObjectURL(url);
   } catch (err) {
     console.error("Calendar Excel export failed:", err);
