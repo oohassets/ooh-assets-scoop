@@ -138,6 +138,14 @@ export async function openImageCompressor() {
   setNavPageTitle("Bulk Image Compressor", "Resize and compress images for faster uploads");
 }
 
+export async function openArtworkResizer() {
+  await switchView(BASE_PAGES + "artwork-resizer.html", BASE_CSS + "artwork-resizer.css", null);
+  setURL({ map: null, page: "artwork-resizer" });
+  setDockActive(4);
+  closeAllPanels();
+  setNavPageTitle("Artwork Resizer", "Auto-resize OOH artwork to its matching output size");
+}
+
 export async function openViewScreen() {
   await switchView(BASE_PAGES + "asset-digital-content.html", null, null);
   setURL({ map: null, page: "view-screen" });
@@ -205,6 +213,7 @@ export function loadFromURL() {
   if (page === "vehicle")           return openVehicleReport();
   if (page === "asset-checker")     return openAssetDimensionChecker();
   if (page === "image-compressor")  return openImageCompressor();
+  if (page === "artwork-resizer")   return openArtworkResizer();
   if (page === "view-screen")       return openViewScreen();
   if (map && maps[map])             return setMap(map);
 

@@ -1,283 +1,365 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Media Resizer Tool</title>
+<title>Artwork Resizer</title>
+<link rel="icon" href="../images/scooplogo_black_192x192.png">
 <link rel="stylesheet" href="../assets/css/theme.css">
-
-<style>
-    * {
-        box-sizing: border-box;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    body {
-        margin: 0;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-
-    .container {
-        width: 90%;
-        max-width: 900px;
-        background: rgba(255,255,255,0.05);
-        -webkit-backdrop-filter: blur(15px);
-        backdrop-filter: blur(15px);
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 24px;
-    }
-
-    .upload {
-        border: 2px dashed rgba(255,255,255,0.2);
-        padding: 30px;
-        text-align: center;
-        border-radius: 15px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .upload:hover {
-        border-color: #38bdf8;
-        background: rgba(56,189,248,0.1);
-    }
-
-    input[type="file"] {
-        display: none;
-    }
-
-    .controls {
-        margin-top: 20px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    select, input, button {
-        padding: 10px;
-        border-radius: 10px;
-        border: none;
-        outline: none;
-    }
-
-    select, input {
-        flex: 1;
-    }
-
-    button {
-        background: #38bdf8;
-        color: black;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    button:hover {
-        background: #0ea5e9;
-    }
-
-    .preview {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    img, video {
-        max-width: 100%;
-        border-radius: 10px;
-        margin-top: 10px;
-    }
-
-    .info {
-        margin-top: 10px;
-        font-size: 14px;
-        color: #94a3b8;
-    }
-</style>
+<link rel="stylesheet" href="../assets/css/artwork-resizer.css">
+<script>(function(){const t=localStorage.getItem("scoop-theme");if(t)document.documentElement.setAttribute("data-theme",t);window.addEventListener("message",function(e){if(e.data&&e.data.type==="scoop-theme"){document.documentElement.setAttribute("data-theme",e.data.theme);localStorage.setItem("scoop-theme",e.data.theme);}});})();</script>
 </head>
 
 <body>
 
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
 <div class="container">
-    <h1>📐 Media Resizer Tool</h1>
+  <h1>Artwork Resizer</h1>
+  <p class="subtitle">Upload artwork images or videos — each is matched by pixel size and resized to its output automatically.</p>
 
-    <label class="upload">
-        Upload Image / Video
-        <input type="file" id="fileInput" accept="image/*,video/*">
-    </label>
+  <div class="size-legend">
+    <span class="size-legend-item"><span class="material-symbols-outlined">arrow_forward</span><b>6656 × 1040</b>&nbsp;→&nbsp;<b>1920 × 300</b></span>
+    <span class="size-legend-item"><span class="material-symbols-outlined">arrow_forward</span><b>6240 × 420</b>&nbsp;→&nbsp;<b>1800 × 121</b></span>
+  </div>
 
-    <div class="controls">
-        <select id="preset" aria-label="Resize preset">
-            <option value="">Select Preset</option>
-            <option value="3670">Resize to 3670 width (for 6240x420)</option>
-            <option value="2816">Resize to 2816 width (for 6656x1040)</option>
-        </select>
-
-        <input type="number" id="customWidth" placeholder="Or Enter Custom Width">
-
-        <button type="button" onclick="resizeMedia()">Resize</button>
+  <div>
+    <div class="upload-btn" id="uploadBtn">
+      Upload Artwork (<span id="count">0</span>)
     </div>
+    <div class="download-all" id="downloadAll">
+      Download All
+    </div>
+  </div>
 
-    <div class="preview" id="preview"></div>
+  <input type="file" id="fileInput" multiple accept="image/*,video/*">
+  <div class="artwork-list" id="artworkList"></div>
 </div>
 
-<script>
-let ffmpeg;
-let file, originalWidth, originalHeight;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- ffmpeg.wasm — these two UMD wrapper libraries are small and safe to load
+     eagerly (they just define the FFmpegWASM/FFmpegUtil globals); the
+     actual ~25MB core is what's fetched lazily, only once a video file is
+     uploaded (see getFFmpeg()), so an image-only visit never pays for it.
+     Pinned versions, single-threaded @ffmpeg/core (not core-mt) since that
+     one needs no COOP/COEP response headers, which this app (GitHub Pages /
+     Firebase Hosting, static "as-is" deploy) does not set. -->
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
 
-async function initFFmpeg() {
-    if (!ffmpeg) {
-        ffmpeg = FFmpeg.createFFmpeg({ log: true });
-    }
-    if (!ffmpeg.isLoaded()) {
-        await ffmpeg.load();
-    }
+<script>
+// Source (uploaded) pixel dimensions → output dimensions. Matched exactly
+// (see findTarget()) — a file that isn't exactly one of these sizes is
+// reported as unsupported rather than guessed at.
+const SIZE_MAP = [
+  { fromW: 6656, fromH: 1040, toW: 1920, toH: 300 },
+  { fromW: 6240, fromH: 420,  toW: 1800, toH: 121 },
+];
+
+function findTarget(w, h) {
+  return SIZE_MAP.find(m => m.fromW === w && m.fromH === h) || null;
 }
 
-document.getElementById("fileInput").addEventListener("change", function(e) {
-    file = e.target.files[0];
-    const preview = document.getElementById("preview");
-    preview.innerHTML = "";
+let converted = [];   // { url, name } for every successfully resized file
+let completed = 0;
+let total = 0;
 
-    if (!file) return;
+// ── Video (ffmpeg.wasm) ────────────────────────────────────
+let ffmpegInstance = null;   // resolved FFmpeg() instance, created once and reused
+let ffmpegLoading   = null;  // in-flight load promise, so a 2nd video queued while
+                              // the core is still downloading awaits the same load
+let activeProgressIndex = null; // which item's progress bar the single shared
+                                 // ffmpeg instance's 'progress' event is currently for
+let videoQueue = Promise.resolve(); // serializes video jobs — one shared ffmpeg
+                                     // instance can't run two encodes at once
 
-    const url = URL.createObjectURL(file);
+const uploadBtn      = document.getElementById('uploadBtn');
+const downloadAllBtn = document.getElementById('downloadAll');
+const fileInput      = document.getElementById('fileInput');
+const artworkList    = document.getElementById('artworkList');
+const count          = document.getElementById('count');
 
-    if (file.type.startsWith("image")) {
-        const img = new Image();
-        img.src = url;
+uploadBtn.onclick = () => {
+  fileInput.value = '';
+  fileInput.click();
+};
 
-        img.onload = () => {
-            originalWidth = img.width;
-            originalHeight = img.height;
+downloadAllBtn.onclick = async () => {
+  // 10 files or less → normal individual downloads
+  if (converted.length <= 10) {
+    converted.forEach(f => {
+      const a = document.createElement('a');
+      a.href = f.url;
+      a.download = f.name;
+      a.click();
+    });
+    return;
+  }
 
-            preview.innerHTML = `
-                <img src="${url}">
-                <div class="info">Original: ${originalWidth} x ${originalHeight}</div>
-            `;
+  // More than 10 → bundle into a ZIP
+  const zip = new JSZip();
+  const folder = zip.folder("resized-artwork");
+
+  for (const file of converted) {
+    const response = await fetch(file.url);
+    const blob = await response.blob();
+    folder.file(file.name, blob);
+  }
+
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+  const zipUrl = URL.createObjectURL(zipBlob);
+
+  const a = document.createElement('a');
+  a.href = zipUrl;
+  a.download = "resized-artwork.zip";
+  a.click();
+
+  URL.revokeObjectURL(zipUrl);
+};
+
+fileInput.onchange = e => {
+  artworkList.innerHTML = '';
+  converted = [];
+  completed = 0;
+  total = e.target.files.length;
+  count.textContent = total;
+  downloadAllBtn.style.display = 'none';
+
+  [...e.target.files].forEach((file, i) => createItem(file, i));
+};
+
+function createItem(file, i) {
+  const div = document.createElement('div');
+  div.className = 'artwork-item';
+  div.id = `item-${i}`;
+  div.innerHTML = `
+    <strong>${file.name}</strong>
+    <div class="progress-bar">
+      <div class="progress-fill" id="p-${i}"></div>
+    </div>
+    <div class="artwork-actions">
+      <span id="s-${i}">Reading dimensions…</span>
+      <button type="button" class="download-btn" id="d-${i}" disabled>Download</button>
+    </div>
+  `;
+  artworkList.appendChild(div);
+  processFile(file, i);
+}
+
+function update(i, v) {
+  const el = document.getElementById(`p-${i}`);
+  if (el) el.style.width = v + '%';
+}
+
+function markDone() {
+  completed++;
+  if (completed === total && converted.length) {
+    downloadAllBtn.style.display = 'inline-block';
+  }
+}
+
+function markError(i, msg) {
+  document.getElementById(`item-${i}`)?.classList.add('is-error');
+  update(i, 100);
+  document.getElementById(`s-${i}`).textContent = msg;
+  markDone();
+}
+
+function markUnsupported(i, w, h) {
+  markError(i, `Unsupported size ${w}×${h} — expected 6656×1040 or 6240×420`);
+}
+
+function processFile(file, i) {
+  if (file.type.startsWith('image')) return processImage(file, i);
+  if (file.type.startsWith('video')) return processVideo(file, i);
+  markError(i, 'Unsupported file type — upload an image or video.');
+}
+
+function processImage(file, i) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      update(i, 40);
+
+      const target = findTarget(w, h);
+      if (!target) { markUnsupported(i, w, h); return; }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = target.toW;
+      canvas.height = target.toH;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, target.toW, target.toH);
+      update(i, 80);
+
+      // PNG artwork keeps its transparency; anything else exports as a
+      // high-quality JPEG (matches the Bulk Image Compressor's convention).
+      const isPng = file.type === 'image/png';
+      const mime  = isPng ? 'image/png' : 'image/jpeg';
+      const ext   = isPng ? 'png' : 'jpg';
+
+      canvas.toBlob(blob => {
+        if (!blob) { markError(i, 'Failed to encode image — try again.'); return; }
+
+        update(i, 100);
+        const originalName = file.name.replace(/\.[^/.]+$/, '');
+        const name = `${originalName}_${target.toW}x${target.toH}.${ext}`;
+        const url = URL.createObjectURL(blob);
+        converted.push({ url, name });
+
+        document.getElementById(`s-${i}`).textContent =
+          `${w}×${h} → ${target.toW}×${target.toH} · ${(blob.size / 1024).toFixed(0)} KB`;
+
+        const btn = document.getElementById(`d-${i}`);
+        btn.disabled = false;
+        btn.onclick = () => {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          a.click();
         };
 
-    } else if (file.type.startsWith("video")) {
-        const video = document.createElement("video");
-        video.src = url;
-        video.controls = true;
+        markDone();
+      }, mime, isPng ? undefined : 0.95);
+    };
+    img.onerror = () => markError(i, "Couldn't read this image.");
+    img.src = e.target.result;
+  };
+  reader.onerror = () => markError(i, "Couldn't read this file.");
+  reader.readAsDataURL(file);
+}
 
-        video.onloadedmetadata = () => {
-            originalWidth = video.videoWidth;
-            originalHeight = video.videoHeight;
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
 
-            preview.innerHTML = `
-                <video src="${url}" controls></video>
-                <div class="info">Original: ${originalWidth} x ${originalHeight}</div>
-            `;
-        };
-    }
-});
+/** Lazily creates (once) and returns the shared FFmpeg instance — the two
+ * UMD wrapper scripts are already loaded eagerly (see <head>), so this
+ * only has to fetch+init the actual ~25MB core, and only the first time a
+ * video file shows up. Every video after that reuses the same instance. */
+async function getFFmpeg() {
+  if (ffmpegInstance) return ffmpegInstance;
+  if (!ffmpegLoading) {
+    ffmpegLoading = (async () => {
+      try {
+        const { FFmpeg } = FFmpegWASM;
+        const { toBlobURL } = FFmpegUtil;
+        const ff = new FFmpeg();
+        ff.on('log', ({ message }) => console.log('[ffmpeg]', message));
+        ff.on('progress', ({ progress }) => {
+          if (activeProgressIndex !== null) update(activeProgressIndex, Math.min(99, Math.round(progress * 100)));
+        });
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        await ff.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        });
+        ffmpegInstance = ff;
+        return ff;
+      } catch (err) {
+        // Let the next call retry cleanly instead of staying stuck forever
+        // on a permanently-rejected load promise.
+        ffmpegLoading = null;
+        throw err;
+      }
+    })();
+  }
+  return ffmpegLoading;
+}
 
-async function resizeMedia() {
-    try {
-        if (!file) return alert("Upload file first!");
+function processVideo(file, i) {
+  const url = URL.createObjectURL(file);
+  const video = document.createElement('video');
+  video.preload = 'metadata';
+  video.onloadedmetadata = () => {
+    const w = video.videoWidth, h = video.videoHeight;
+    URL.revokeObjectURL(url);
 
-        let width = document.getElementById("preset").value || 
-                    document.getElementById("customWidth").value;
+    const target = findTarget(w, h);
+    if (!target) { markUnsupported(i, w, h); return; }
 
-        if (!width) return alert("Select or enter width!");
+    update(i, 10);
+    document.getElementById(`s-${i}`).textContent =
+      `${w}×${h} → ${target.toW}×${target.toH} · queued…`;
 
-        width = parseInt(width);
-        const height = Math.round((originalHeight / originalWidth) * width);
-
-        const preview = document.getElementById("preview");
-
-        // Extract filename (without extension)
-        const originalName = file.name.replace(/\.[^/.]+$/, "");
-
-        // ================= IMAGE =================
-        if (file.type.startsWith("image")) {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
-            canvas.width = width;
-            canvas.height = height;
-
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // ✅ Export as JPEG (high quality)
-                const resizedData = canvas.toDataURL("image/jpeg", 0.95);
-
-                const fileName = `${originalName}_${width}x${height}.jpg`;
-
-                preview.innerHTML = `
-                    <img src="${resizedData}">
-                    <div class="info">Resized: ${width} x ${height}</div>
-                    <a href="${resizedData}" download="${fileName}">
-                        <button type="button">Download Image</button>
-                    </a>
-                `;
-            };
-        } 
-        
-        // ================= VIDEO =================
-        else {
-            preview.innerHTML = `<div class="info">⏳ Processing video...</div>`;
-
-            await initFFmpeg();
-
-            const inputExt = file.name.split('.').pop();
-            const inputName = "input." + inputExt;
-            const outputName = "output.mp4";
-
-            ffmpeg.FS("writeFile", inputName, await FFmpeg.fetchFile(file));
-
-            // ✅ High-quality MP4 export
-            await ffmpeg.run(
-                "-i", inputName,
-                "-vf", `scale=${width}:${height}`,
-                "-c:v", "libx264",
-                "-crf", "18",          // 🔥 higher quality (lower = better)
-                "-preset", "medium",
-                "-c:a", "aac",
-                "-b:a", "192k",
-                "-movflags", "faststart",
-                outputName
-            );
-
-            const data = ffmpeg.FS("readFile", outputName);
-
-            const videoURL = URL.createObjectURL(
-                new Blob([data.buffer], { type: "video/mp4" })
-            );
-
-            const fileName = `${originalName}_${width}x${height}.mp4`;
-
-            preview.innerHTML = `
-                <video src="${videoURL}" controls></video>
-                <div class="info">Resized: ${width} x ${height}</div>
-                <a href="${videoURL}" download="${fileName}">
-                    <button type="button">Download Video</button>
-                </a>
-            `;
-        }
-
-    } catch (err) {
+    // Videos share one ffmpeg instance, so they're encoded one at a time —
+    // chain onto the shared queue rather than kicking off in parallel.
+    videoQueue = videoQueue
+      .then(() => encodeVideo(file, i, target, w, h))
+      .catch(err => {
         console.error(err);
-        document.getElementById("preview").innerHTML = `
-            <div class="info">❌ Error processing file.</div>
-        `;
-    }
+        markError(i, `Video conversion failed — ${err?.message || 'try again'}`);
+      });
+  };
+  video.onerror = () => { URL.revokeObjectURL(url); markError(i, "Couldn't read this video."); };
+  video.src = url;
+}
+
+async function encodeVideo(file, i, target, w, h) {
+  document.getElementById(`s-${i}`).textContent = 'Loading video engine…';
+  const ff = await getFFmpeg();
+  const { fetchFile } = FFmpegUtil;
+
+  const inputExt  = (file.name.split('.').pop() || 'mp4').toLowerCase();
+  const inputName = `in-${i}.${inputExt}`;
+  const outputName = `out-${i}.mp4`;
+
+  activeProgressIndex = i;
+  document.getElementById(`s-${i}`).textContent = 'Converting…';
+  try {
+    await ff.writeFile(inputName, await fetchFile(file));
+    await ff.exec([
+      '-i', inputName,
+      '-vf', `scale=${target.toW}:${target.toH}`,
+      '-c:v', 'libx264',
+      '-crf', '18',            // higher quality (lower = better)
+      '-preset', 'medium',
+      '-c:a', 'aac',
+      '-b:a', '192k',
+      '-movflags', 'faststart',
+      outputName,
+    ]);
+    const data = await ff.readFile(outputName);
+    const blob = new Blob([data.buffer], { type: 'video/mp4' });
+
+    update(i, 100);
+    const originalName = file.name.replace(/\.[^/.]+$/, '');
+    const name = `${originalName}_${target.toW}x${target.toH}.mp4`;
+    const outUrl = URL.createObjectURL(blob);
+    converted.push({ url: outUrl, name });
+
+    document.getElementById(`s-${i}`).textContent =
+      `${w}×${h} → ${target.toW}×${target.toH} · ${(blob.size / (1024 * 1024)).toFixed(1)} MB`;
+
+    const btn = document.getElementById(`d-${i}`);
+    btn.disabled = false;
+    btn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = outUrl;
+      a.download = name;
+      a.click();
+    };
+
+    markDone();
+  } finally {
+    activeProgressIndex = null;
+    // Best-effort cleanup — wrapped in try/catch rather than .catch()
+    // chaining, since a *synchronous* throw here (e.g. if this ffmpeg
+    // build doesn't expose deleteFile under that exact name) would
+    // otherwise escape this finally block and mask an already-successful
+    // conversion above as a failure.
+    try { await ff.deleteFile(inputName); } catch (_) {}
+    try { await ff.deleteFile(outputName); } catch (_) {}
+  }
 }
 </script>
 

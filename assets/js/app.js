@@ -17,7 +17,7 @@ import { getCurrentMapUrl } from "./router.js";
 import {
   loadFromURL,
   openSplash, openHome, openContentInventory, openBookings, openVehicleReport,
-  openAssetDimensionChecker, openImageCompressor, openViewScreen,
+  openAssetDimensionChecker, openImageCompressor, openArtworkResizer, openViewScreen,
   setMap, setMapAndClose,
 } from "./router.js";
 import { copyGoogleMapLink } from "./utils.js";
@@ -32,6 +32,7 @@ window.openBookings            = openBookings;
 window.openVehicleReport       = openVehicleReport;
 window.openAssetDimensionChecker = openAssetDimensionChecker;
 window.openImageCompressor     = openImageCompressor;
+window.openArtworkResizer      = openArtworkResizer;
 window.openViewScreen          = openViewScreen;
 window.setMap                  = setMap;
 window.setMapAndClose          = setMapAndClose;
