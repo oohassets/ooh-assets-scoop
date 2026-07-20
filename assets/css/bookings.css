@@ -354,11 +354,139 @@ th.slot-col    { z-index:103; top:0; left:200px; background:var(--bg-tertiary); 
 /* Body sticky columns — must re-declare position+left to beat .booking-calendar td { position:relative } (0,1,1) */
 td.circuit-col { position:sticky; left:0;      z-index:11; }
 td.slot-col    { position:sticky; left:200px;  z-index:10; }
-.booking-bar { position:absolute; top:5px; left:0; height:30px; border-radius:6px; display:flex; align-items:center; font-size:10px; font-weight:600; padding:0 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:rgba(0,0,0,0.8); }
-.booking-bar.live      { background:var(--accent-emerald); }
+.booking-bar { position:absolute; top:5px; left:0; height:30px; border-radius:6px; overflow:hidden; color:rgba(0,0,0,0.8); cursor:default; transition:box-shadow 0.15s, outline-color 0.15s; }
+.booking-bar.live      { background:var(--accent-emerald); color:#fff; }
 .booking-bar.signed    { background:var(--accent-rose); color:white; }
-.booking-bar.pending   { background:var(--accent-amber); }
+.booking-bar.pending   { background:var(--accent-amber); color:#fff; }
 .booking-bar.completed { background:var(--info); color:#fff; }
+
+/* Label sits inside the bar and is repositioned in JS (bookings.js'
+   updateBarLabelPositions()) as the calendar's .cal-scroll container is
+   scrolled horizontally — it tracks the visible slice of the bar so the
+   text stays readable rather than scrolling out of view with the rest of
+   a (possibly many-day-wide) bar. Absolute + top:50%/translateY so the JS
+   only ever has to set `left`, not recompute vertical centering too. */
+.booking-bar-label {
+  position:absolute; top:50%; left:8px; transform:translateY(-50%);
+  font-size:10px; font-weight:600; white-space:nowrap;
+  max-width:calc(100% - 16px); overflow:hidden; text-overflow:ellipsis;
+  pointer-events:none;
+}
+
+/* Owner/admin only — right-click "Edit" arms a bar for drag-to-reschedule
+   (see armBarForEdit() in bookings.js). */
+.booking-bar.bk-bar-armed { outline:2px dashed rgba(255,255,255,0.9); outline-offset:1px; cursor:grab; touch-action:none; }
+.booking-bar.bk-bar-dragging { opacity:0.35; cursor:grabbing; }
+.booking-bar.bk-bar-drag-error { animation:bkBarShake 0.4s; outline:2px solid var(--error); }
+@keyframes bkBarShake {
+  0%,100% { transform:translateX(0); }
+  20%,60% { transform:translateX(-4px); }
+  40%,80% { transform:translateX(4px); }
+}
+
+/* Pending (dragged-not-yet-saved) state — confirm/undo affordance pinned to
+   the bar's own right edge, matching the "checkmark and x button on the
+   inside right side of the booking bar" spec; the label shrinks to make
+   room via the max-width above. */
+.booking-bar.bk-bar-pending { outline:2px solid #fff; outline-offset:1px; }
+.booking-bar.bk-bar-pending .booking-bar-label { max-width:calc(100% - 62px); }
+.booking-bar-pending-actions {
+  position:absolute; top:50%; right:4px; transform:translateY(-50%);
+  display:flex; align-items:center; gap:3px; z-index:1;
+}
+.bar-pending-btn {
+  width:20px; height:20px; border-radius:5px; border:none; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:13px; line-height:1; padding:0; color:#fff;
+  transition:filter 0.15s;
+}
+.bar-pending-btn:hover { filter:brightness(1.2); }
+/* The material-symbols-outlined ligature glyph carries its own internal
+   leading/baseline offset — flexing + line-height:1 on the icon itself
+   (not just its button parent) is what actually centers it, a parent-only
+   flex still leaves it visually low/off-center. */
+.bar-pending-btn .material-symbols-outlined {
+  display:flex; align-items:center; justify-content:center;
+  width:100%; height:100%; line-height:1;
+}
+.bar-confirm-btn { background:var(--success, #35b37e); }
+.bar-undo-btn    { background:var(--error, #e5484d); }
+
+/* Hover tooltip (BO/Client/Brand/Circuit/Dates/Status) — a single shared
+   element created once and repositioned/repopulated per hover (see
+   ensureBarOverlays()/showBarTooltip() in bookings.js), appended to
+   <body> (same pattern as #bookingModal/#calendarSection) so position:fixed
+   isn't broken by a transformed ancestor (e.g. .reveal's scroll-in animation). */
+.bk-bar-tooltip {
+  position:fixed; z-index:5000; display:none;
+  width:max-content; min-width:180px; max-width:min(300px, 90vw);
+  background:var(--nav-bg); border:1px solid var(--border-glass); border-radius:14px;
+  padding:clamp(10px,2.6vw,14px) clamp(12px,3vw,16px);
+  box-shadow:0 12px 32px rgba(0,0,0,0.35);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter:blur(20px);
+  font-family:var(--font-body); pointer-events:none;
+}
+.bk-bar-tooltip.open { display:block; }
+/* Values only, no field-name labels — row order (BO/Client/Brand/Circuit/
+   Dates/Status) is what tells them apart, see showBarTooltip(). Sizes use
+   clamp() (viewport-relative, bounded) rather than one fixed px so the
+   popup reads the same relative scale from a phone up to a wide desktop
+   instead of being fixed-tiny everywhere. A light type scale (BO as a
+   small caps "eyebrow", Client as the prominent line, the rest quieter)
+   is what actually reads as "clean" — uniform 10px everywhere didn't. */
+.bk-bar-tooltip-row {
+  font-size:clamp(11px, 2.4vw, 12.5px); line-height:1.45; font-weight:400;
+  padding:2px 0; color:var(--text-primary);
+}
+.bk-tt-bo {
+  color:var(--brand-500); font-weight:700;
+  font-size:clamp(10px, 2vw, 11px); letter-spacing:0.4px; text-transform:uppercase;
+}
+.bk-tt-client {font-size:clamp(10.5px, 2.2vw, 11.5px);}
+.bk-tt-brand  { color:var(--text-secondary); font-weight:600;font-size:clamp(12.5px, 2.9vw, 13px); }
+.bk-tt-circuit, .bk-tt-dates { color:var(--text-secondary); font-size:clamp(10.5px, 2.2vw, 11.5px); }
+.bk-tt-status { margin-top:4px; }
+.bk-tt-status .status-pill { font-size:clamp(10px, 2.2vw, 11px); padding:3px 9px; }
+
+@media (max-width:768px) {
+  .bk-bar-tooltip { max-width:min(260px, 86vw); padding:10px 12px; }
+}
+
+/* Right-click context panel — Edit-only, arms the bar for drag (see
+   showBarContextMenu()/armBarForEdit()). Same floating/appended-to-body
+   convention as the tooltip above. */
+.bk-bar-ctxmenu {
+  position:fixed; z-index:5001; display:none; min-width:140px;
+  background:var(--nav-bg); border:1px solid var(--border-glass); border-radius:10px;
+  padding:6px; box-shadow:0 12px 32px rgba(0,0,0,0.35);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter:blur(20px);
+  flex-direction:column; gap:2px;
+}
+.bk-bar-ctxmenu.open { display:flex; }
+.bk-bar-ctxmenu-item {
+  display:flex; align-items:center; gap:8px; width:100%; border:none; background:none;
+  color:var(--text-primary); font-family:var(--font-body); font-size:13px; font-weight:600;
+  padding:8px 10px; border-radius:7px; cursor:pointer; text-align:left; transition:background 0.15s;
+}
+.bk-bar-ctxmenu-item:hover { background:var(--bg-glass); color:var(--accent-indigo); }
+.bk-bar-ctxmenu-item .material-symbols-outlined { font-size:16px; }
+
+/* Drag ghost — a single fixed-position element that follows the pointer
+   while a bar is being dragged; the real bar stays put (dimmed via
+   .bk-bar-dragging) until drop. Green/red border communicates whether the
+   date/slot currently under the pointer is a valid drop target. */
+.bk-bar-drag-ghost {
+  position:fixed; z-index:5002; display:none; height:30px; border-radius:6px;
+  align-items:center; padding:0 8px; font-size:10px; font-weight:600; color:#fff;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; pointer-events:none;
+  border:2px solid rgba(255,255,255,0.6);
+}
+.bk-bar-drag-ghost.open { display:flex; }
+.bk-bar-drag-ghost.invalid { border-color:var(--error); background:var(--error)!important; }
+
+/* Candidate drop-target cells, highlighted under the ghost while dragging. */
+.booking-calendar td.bk-drop-target        { background:rgba(53,179,126,0.25); }
+.booking-calendar td.bk-drop-target-invalid { background:rgba(229,72,77,0.25); }
 
 [data-theme="light"] .circuit-col { background:#E8EEF8; }
 [data-theme="light"] .slot-col    { background:#DDE5F5; }

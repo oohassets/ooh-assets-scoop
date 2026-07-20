@@ -32,6 +32,15 @@ let sortDir   = "asc";
 let drpStart = null, drpEnd = null;
 let calDrpStart = null, calDrpEnd = null;
 let calBookings = [], calDates = [], calRangeStart = null, calRangeEnd = null;
+// Booking-bar interaction state (calendar tab) — see the "CALENDAR BAR
+// INTERACTIONS" section below for how these are used.
+let barTooltipEl = null, barCtxMenuEl = null, barDragGhostEl = null;
+let ctxMenuBooking = null;      // booking the open context menu refers to
+let armedBarKey = null;         // key of the bar currently armed for drag (right-click → Edit)
+let dragState = null;           // active drag session, see startBarDrag()
+// key -> { startISO, endISO, slot } — dragged-but-not-yet-saved positions,
+// applied on top of calBookings by renderBars() until confirmed/undone.
+let pendingMoves = new Map();
 
 // Date picker state
 let bkPickerStart = null;
@@ -1063,6 +1072,11 @@ async function saveBooking() {
 // ── CALENDAR (booking schedule view) ─────────────────────
 async function buildCalendar() {
   const table = document.getElementById("bookingCalendar"); if (!table) return;
+  // A rebuild replaces the whole table (new date range/rows), so any
+  // in-flight drag-armed/pending state from the previous render no longer
+  // refers to anything real.
+  pendingMoves.clear();
+  disarmBar();
   const startD = calDrpStart || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   const endD   = calDrpEnd   || new Date(new Date().getFullYear(), new Date().getMonth()+1, 0);
   const [circuitSlots, bookings] = await Promise.all([loadCircuitSlots(), loadBookings()]);
@@ -1089,6 +1103,10 @@ async function buildCalendar() {
   circuitSlots.forEach(circuit => {
     for (let slot=1; slot<=circuit.slots; slot++) {
       const tr = document.createElement("tr");
+      // Read back during drag (getRowMeta()) to restrict a drag to rows of
+      // the same circuit and to resolve the target slot under the pointer.
+      tr.dataset.circuit = circuit.name;
+      tr.dataset.slot = String(slot);
       if (slot===1) {
         const td = document.createElement("td");
         td.className="circuit-col"; td.rowSpan=circuit.slots; td.textContent=circuit.name;
@@ -1127,16 +1145,23 @@ function renderBars(bookings, dates, startD, endD) {
   startD.setHours(0,0,0,0); endD.setHours(0,0,0,0);
   const rows = document.querySelectorAll("#bookingCalendar tbody tr");
   bookings.forEach(b => {
-    const start = parseDate(b["Start Date"]||b.startDate);
-    const end   = parseDate(b["End Date"]||b.endDate);
+    // A drag-to-reschedule move that hasn't been confirmed/undone yet
+    // overrides where this booking renders — see pendingMoves/dragState.
+    const pending = b._key ? pendingMoves.get(b._key) : null;
+    const start = pending ? parseISOLocal(pending.startISO) : parseDate(b["Start Date"]||b.startDate);
+    const end   = pending ? parseISOLocal(pending.endISO)   : parseDate(b["End Date"]||b.endDate);
     if (!start||!end) return;
     start.setHours(0,0,0,0); end.setHours(0,0,0,0);
     const asset  = (b.Circuits||b.Circuit||"").toLowerCase().replace(/[_-]/g," ").trim();
-    const slotVal = Number(b.Slot||b.slot||1);
+    const slotVal = Number(pending ? pending.slot : (b.Slot||b.slot||1));
     const client  = b.Client||"Booking";
     const brand   = b["Brand Campaign"]||"";
+    const bo      = b.BO||"";
     const status  = (b.Status||"").toLowerCase();
     const person  = b.Person||"";
+    const isOwner = canEdit && currentUserInitials && person &&
+      person.trim().toLowerCase() === currentUserInitials.trim().toLowerCase();
+    const canEditBar = !!(b._key && canEdit && (isAdminUser || isOwner));
     rows.forEach(row => {
       const slotCell = row.querySelector(".slot-cell,.slot-col:not(.head)"); if (!slotCell) return;
       let rowCircuit = "";
@@ -1166,10 +1191,371 @@ function renderBars(bookings, dates, startD, endD) {
       else if (status.includes("pending")) bar.classList.add("pending");
       else bar.classList.add("completed");
       bar.style.width = `calc(${(ei-si+1)*100}% + ${ei-si}px)`;
-      bar.textContent = brand ? `${client} | ${brand} - ${person}` : client;
+
+      bar.dataset.key     = b._key || "";
+      bar.dataset.circuit = row.dataset.circuit || "";
+      bar.dataset.slot    = String(slotVal);
+      bar.dataset.start   = toISO(start);
+      bar.dataset.end     = toISO(end);
+      bar.dataset.canEdit = canEditBar ? "1" : "0";
+
+      const label = document.createElement("span");
+      label.className = "booking-bar-label";
+      label.textContent = brand ? `${client} | ${brand} - ${person}` : client;
+      bar.appendChild(label);
+
+      // Booking details used by the hover tooltip / context menu / drag
+      // logic — kept off the DOM (a plain object on the element) rather
+      // than re-parsed from dataset strings each time.
+      bar._booking = { key: b._key, bo, client, brand, circuit: row.dataset.circuit || b.Circuits || asset,
+        status: b.Status || "", person, startISO: toISO(start), endISO: toISO(end), slot: slotVal, canEdit: canEditBar };
+
+      wireBarInteractions(bar);
+
+      if (b._key && pendingMoves.has(b._key)) renderBarPendingActions(bar);
+      if (b._key && b._key === armedBarKey) bar.classList.add("bk-bar-armed");
+
       cells[si].style.position = "relative"; cells[si].appendChild(bar);
     });
   });
+  updateBarLabelPositions();
+}
+
+// ── CALENDAR BAR INTERACTIONS (hover tooltip, right-click edit, drag-to-
+//    reschedule) ─────────────────────────────────────────
+/** Lazily creates the shared floating elements (tooltip/context menu/drag
+ * ghost), appended to <body> — same escape-the-stacking-context convention
+ * as #bookingModal/#calendarSection above (see init()). Idempotent. */
+function ensureBarOverlays() {
+  if (barTooltipEl) return;
+
+  barTooltipEl = document.createElement("div");
+  barTooltipEl.className = "bk-bar-tooltip";
+  document.body.appendChild(barTooltipEl);
+
+  barCtxMenuEl = document.createElement("div");
+  barCtxMenuEl.className = "bk-bar-ctxmenu";
+  barCtxMenuEl.innerHTML = `<button type="button" class="bk-bar-ctxmenu-item" id="barCtxEditBtn"><span class="material-symbols-outlined">edit</span>Edit booking</button>`;
+  document.body.appendChild(barCtxMenuEl);
+  barCtxMenuEl.querySelector("#barCtxEditBtn").addEventListener("click", () => {
+    if (ctxMenuBooking?.barEl) armBarForEdit(ctxMenuBooking.barEl);
+    hideBarContextMenu();
+  });
+
+  barDragGhostEl = document.createElement("div");
+  barDragGhostEl.className = "bk-bar-drag-ghost";
+  document.body.appendChild(barDragGhostEl);
+}
+
+function wireBarInteractions(bar) {
+  bar.addEventListener("mouseenter", e => showBarTooltip(bar, e));
+  bar.addEventListener("mousemove",  e => { if (barTooltipEl?.classList.contains("open")) positionFloatingNearPointer(barTooltipEl, e); });
+  bar.addEventListener("mouseleave", hideBarTooltip);
+  if (bar.dataset.canEdit === "1") {
+    bar.addEventListener("contextmenu", e => {
+      e.preventDefault();
+      showBarContextMenu(bar, e);
+    });
+    bar.addEventListener("pointerdown", onBarPointerDown);
+  }
+}
+
+// ── Hover tooltip ──────────────────────────────────────────
+function showBarTooltip(bar, e) {
+  if (dragState) return; // don't clutter the view mid-drag
+  ensureBarOverlays();
+  const d = bar._booking; if (!d) return;
+  const statusCls = getStatusClass(d.status);
+  // Values only — no field-name labels (BO/Client/Brand/... are just the
+  // row order, not printed text); Status still reuses the exact
+  // .status-pill/.pill-* look from the schedule table.
+  barTooltipEl.innerHTML = `
+    <div class="bk-bar-tooltip-row bk-tt-bo">${escapeHTML(d.bo || "—")}</div>
+    <div class="bk-bar-tooltip-row bk-tt-client">${escapeHTML(d.client || "—")}</div>
+    <div class="bk-bar-tooltip-row bk-tt-brand">${escapeHTML(d.brand || "—")}</div>
+    <div class="bk-bar-tooltip-row bk-tt-circuit">${escapeHTML(d.circuit || "—")}</div>
+    <div class="bk-bar-tooltip-row bk-tt-dates">${fmtShort(toMMDDYYYY(d.startISO))} → ${fmtShort(toMMDDYYYY(d.endISO))}</div>
+    <div class="bk-bar-tooltip-row bk-tt-status"><span class="status-pill pill-${statusCls}">${escapeHTML(d.status || "—")}</span></div>`;
+  barTooltipEl.classList.add("open");
+  positionFloatingNearPointer(barTooltipEl, e);
+}
+function hideBarTooltip() { barTooltipEl?.classList.remove("open"); }
+
+function positionFloatingNearPointer(el, e) {
+  if (!el) return;
+  const pad = 14;
+  let x = e.clientX + pad, y = e.clientY + pad;
+  const rect = el.getBoundingClientRect();
+  if (x + rect.width  > window.innerWidth  - 8) x = e.clientX - rect.width  - pad;
+  if (y + rect.height > window.innerHeight - 8) y = e.clientY - rect.height - pad;
+  el.style.left = `${Math.max(8, x)}px`;
+  el.style.top  = `${Math.max(8, y)}px`;
+}
+
+// ── Right-click context panel ─────────────────────────────
+function showBarContextMenu(bar, e) {
+  ensureBarOverlays();
+  hideBarTooltip();
+  ctxMenuBooking = { ...bar._booking, barEl: bar };
+  barCtxMenuEl.classList.add("open");
+  positionFloatingNearPointer(barCtxMenuEl, e);
+}
+function hideBarContextMenu() {
+  barCtxMenuEl?.classList.remove("open");
+  ctxMenuBooking = null;
+}
+
+// ── Arm / disarm (right-click → Edit enables dragging for one bar) ──
+function armBarForEdit(bar) {
+  if (!bar) return;
+  disarmBar();
+  armedBarKey = bar.dataset.key;
+  bar.classList.add("bk-bar-armed");
+}
+function disarmBar() {
+  document.querySelector("#bookingCalendar .booking-bar.bk-bar-armed")?.classList.remove("bk-bar-armed");
+  armedBarKey = null;
+  if (dragState) {
+    document.removeEventListener("pointermove", onBarPointerMove);
+    document.removeEventListener("pointerup", onBarPointerUp);
+    dragState.bar?.classList.remove("bk-bar-dragging");
+    clearDropHighlight();
+    hideDragGhost();
+    dragState = null;
+  }
+}
+
+// ── Drag-to-reschedule ─────────────────────────────────────
+/** Fuzzy circuit-name match, same normalization used elsewhere in this file
+ * (renderBars()/findSlotConflicts()) so a booking's stored `Circuits` value
+ * matches the calendar row it's actually rendered under. */
+function circuitsFuzzyMatch(a, b) {
+  const na = (a||"").toLowerCase().replace(/[_-]/g," ").trim();
+  const nb = (b||"").toLowerCase().replace(/[_-]/g," ").trim();
+  return !!na && !!nb && (na.includes(nb) || nb.includes(na));
+}
+
+/** Any other (non-cancelled) booking on the same circuit+slot whose range
+ * overlaps [startISO,endISO] — mirrors findSlotConflicts()'s definition of
+ * a double-booking, applied against a single dragged candidate range. */
+function findDragOverlap(circuitRaw, slot, startISO, endISO, excludeKey) {
+  const s = parseISOLocal(startISO), e = parseISOLocal(endISO);
+  return calBookings.find(b => {
+    if (!b._key || b._key === excludeKey) return false;
+    if ((b.Status||"").toLowerCase().includes("cancel")) return false;
+    if (Number(b.Slot||b.slot||1) !== slot) return false;
+    if (!circuitsFuzzyMatch(circuitRaw, b.Circuits||b.Circuit||"")) return false;
+    const bs = parseDate(b["Start Date"]); const be = parseDate(b["End Date"]);
+    if (!bs||!be) return false;
+    bs.setHours(0,0,0,0); be.setHours(0,0,0,0);
+    return s <= be && e >= bs;
+  }) || null;
+}
+
+function clearDropHighlight() {
+  document.querySelectorAll("#bookingCalendar .bk-drop-target, #bookingCalendar .bk-drop-target-invalid")
+    .forEach(td => td.classList.remove("bk-drop-target", "bk-drop-target-invalid"));
+}
+function hideDragGhost() { barDragGhostEl?.classList.remove("open"); }
+
+function onBarPointerDown(e) {
+  const bar = e.currentTarget;
+  if (bar.dataset.key !== armedBarKey) return; // only the bar just armed via right-click → Edit is draggable
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  e.preventDefault();
+  hideBarTooltip();
+
+  const td = bar.parentElement;
+  const row = td?.closest("tr");
+  const cells = row ? Array.from(row.querySelectorAll("td[data-date]")) : [];
+  const si = cells.indexOf(td);
+  if (si === -1) return;
+
+  const startD = parseISOLocal(bar.dataset.start), endD = parseISOLocal(bar.dataset.end);
+  const spanDays = Math.round((endD - startD) / 86400000) + 1;
+
+  // How many day-columns in from the bar's own start the user actually
+  // grabbed — preserved through the drag so the bar doesn't jump to have
+  // its start snap under the cursor.
+  const grabTd = document.elementFromPoint(e.clientX, e.clientY)?.closest("td[data-date]");
+  const grabIdx = grabTd ? cells.indexOf(grabTd) : si;
+  const offsetDays = Math.max(0, grabIdx - si);
+
+  ensureBarOverlays();
+  dragState = {
+    bar, key: bar.dataset.key,
+    originalCircuit: bar.dataset.circuit,
+    startISO: bar.dataset.start, endISO: bar.dataset.end, slot: Number(bar.dataset.slot),
+    spanDays, offsetDays,
+    color: getComputedStyle(bar).backgroundColor,
+    label: bar.querySelector(".booking-bar-label")?.textContent || "",
+    lastValid: null, conflictAtRelease: false,
+  };
+  bar.classList.add("bk-bar-dragging");
+  document.addEventListener("pointermove", onBarPointerMove);
+  document.addEventListener("pointerup", onBarPointerUp);
+}
+
+function onBarPointerMove(e) {
+  if (!dragState) return;
+  e.preventDefault();
+  clearDropHighlight();
+  dragState.lastValid = null;
+  dragState.conflictAtRelease = false;
+
+  const td = document.elementFromPoint(e.clientX, e.clientY)?.closest("td[data-date]");
+  const row = td?.closest("tr");
+  if (!td || !row || row.dataset.circuit !== dragState.originalCircuit) { hideDragGhost(); return; }
+
+  const cells = Array.from(row.querySelectorAll("td[data-date]"));
+  const overIdx = cells.indexOf(td);
+  const newStartIdx = overIdx - dragState.offsetDays;
+  const newEndIdx   = newStartIdx + dragState.spanDays - 1;
+  // Dragging a range partly outside the currently-rendered date window
+  // isn't supported — nothing meaningful to preview/drop onto.
+  if (newStartIdx < 0 || newEndIdx > cells.length - 1) { hideDragGhost(); return; }
+
+  const newStartISO = cells[newStartIdx].dataset.date;
+  const newEndISO   = cells[newEndIdx].dataset.date;
+  const newSlot     = Number(row.dataset.slot);
+  const conflict    = findDragOverlap(dragState.originalCircuit, newSlot, newStartISO, newEndISO, dragState.key);
+
+  const targetCells = cells.slice(newStartIdx, newEndIdx + 1);
+  targetCells.forEach(c => c.classList.add(conflict ? "bk-drop-target-invalid" : "bk-drop-target"));
+
+  const sRect = targetCells[0].getBoundingClientRect();
+  const eRect = targetCells[targetCells.length - 1].getBoundingClientRect();
+  barDragGhostEl.style.left   = `${sRect.left}px`;
+  barDragGhostEl.style.top    = `${sRect.top + 5}px`;
+  barDragGhostEl.style.width  = `${eRect.right - sRect.left}px`;
+  barDragGhostEl.style.background = conflict ? "" : dragState.color;
+  barDragGhostEl.textContent = dragState.label;
+  barDragGhostEl.classList.toggle("invalid", !!conflict);
+  barDragGhostEl.classList.add("open");
+
+  if (conflict) dragState.conflictAtRelease = true;
+  else dragState.lastValid = { startISO: newStartISO, endISO: newEndISO, slot: newSlot };
+}
+
+function onBarPointerUp() {
+  if (!dragState) return;
+  const { bar, key, lastValid, conflictAtRelease, startISO, endISO, slot } = dragState;
+  document.removeEventListener("pointermove", onBarPointerMove);
+  document.removeEventListener("pointerup", onBarPointerUp);
+  clearDropHighlight();
+  hideDragGhost();
+  bar.classList.remove("bk-bar-dragging");
+  dragState = null;
+
+  if (!lastValid) {
+    if (conflictAtRelease) {
+      bar.classList.add("bk-bar-drag-error");
+      setTimeout(() => bar.classList.remove("bk-bar-drag-error"), 400);
+    }
+    return; // stays armed — user can immediately try dragging again
+  }
+
+  const unchanged = lastValid.startISO === startISO && lastValid.endISO === endISO && lastValid.slot === slot;
+  if (unchanged) { disarmBar(); return; }
+
+  pendingMoves.set(key, lastValid);
+  disarmBar();
+  filterAndRenderBars();
+}
+
+/** Adds the checkmark (save)/x (undo) affordance to a bar that has an
+ * unconfirmed drag pending — see pendingMoves. */
+function renderBarPendingActions(bar) {
+  bar.classList.add("bk-bar-pending");
+  const wrap = document.createElement("span");
+  wrap.className = "booking-bar-pending-actions";
+  wrap.innerHTML = `
+    <button type="button" class="bar-pending-btn bar-confirm-btn" title="Save new date/slot"><span class="material-symbols-outlined" style="font-size:13px;">check</span></button>
+    <button type="button" class="bar-pending-btn bar-undo-btn" title="Undo"><span class="material-symbols-outlined" style="font-size:13px;">close</span></button>`;
+  wrap.querySelector(".bar-confirm-btn").addEventListener("click", e => { e.stopPropagation(); confirmPendingMove(bar); });
+  wrap.querySelector(".bar-undo-btn").addEventListener("click", e => { e.stopPropagation(); undoPendingMove(bar); });
+  bar.appendChild(wrap);
+}
+
+async function confirmPendingMove(bar) {
+  const key = bar.dataset.key;
+  const move = pendingMoves.get(key);
+  if (!key || !move) return;
+  const btn = bar.querySelector(".bar-confirm-btn");
+  if (btn) btn.disabled = true;
+  try {
+    await update(ref(rtdb, `Campaigns_Booking/${key}`), {
+      "Start Date": toMMDDYYYY(move.startISO),
+      "End Date":   toMMDDYYYY(move.endISO),
+      Slot: move.slot,
+    });
+    pendingMoves.delete(key);
+    const tables = await loadAll();
+    allCampaigns = getCampaigns(tables);
+    applyFilters();
+    calBookings = await loadBookings();
+    filterAndRenderBars();
+  } catch (err) {
+    console.error(err);
+    if (btn) btn.disabled = false;
+    alert("Failed to save the new date/slot — try again.");
+  }
+}
+
+function undoPendingMove(bar) {
+  pendingMoves.delete(bar.dataset.key);
+  filterAndRenderBars();
+}
+
+// ── Scroll-adaptive bar label (stays visible while horizontally
+//    scrolling) ─────────────────────────────────────────────
+/**
+ * Default position is plain left:8px, same as a static bar — a fully
+ * visible bar's label reads at its left edge, not centered. It only moves
+ * once the bar's own left edge has scrolled behind the sticky Circuit/Slot
+ * columns (or off the left of the viewport): the label then sticks to that
+ * visible boundary (same idea as `position:sticky; left:`), clamped so it
+ * never runs past whatever's still visible on the right of the bar either
+ * — which is what produces the "slides toward center/right as more of the
+ * bar gets scrolled away" feel without ever centering a fully-visible bar.
+ */
+function updateBarLabelPositions() {
+  const scrollEl = document.querySelector(".bookings-cal-wrap .cal-scroll");
+  const bars = document.querySelectorAll("#bookingCalendar .booking-bar");
+  if (!scrollEl || !bars.length) return;
+  const containerRect = scrollEl.getBoundingClientRect();
+  // The sticky Circuit + Slot columns cover the left edge of the scroll
+  // viewport — measured live off the slot column rather than hardcoded so
+  // this keeps working if those column widths ever change.
+  const slotColEl = document.querySelector("#bookingCalendar td.slot-col, #bookingCalendar th.slot-col");
+  const leftBound  = slotColEl ? slotColEl.getBoundingClientRect().right : containerRect.left;
+  const rightBound = containerRect.right;
+
+  bars.forEach(bar => {
+    const label = bar.querySelector(".booking-bar-label");
+    if (!label) return;
+    const barRect = bar.getBoundingClientRect();
+    if (barRect.width <= 0) return;
+    const reserveRight = bar.classList.contains("bk-bar-pending") ? 58 : 8;
+    const lw = label.offsetWidth || 0;
+    const minLeft = 8;
+    const maxLeft = Math.max(minLeft, barRect.width - reserveRight - lw);
+
+    let left = minLeft;
+    if (barRect.left < leftBound) left = Math.max(minLeft, leftBound - barRect.left + 8);
+
+    const visRight   = Math.min(barRect.right, rightBound);
+    const rightClamp = Math.max(minLeft, visRight - barRect.left - lw - 8);
+    left = Math.min(left, rightClamp, maxLeft);
+
+    label.style.left = `${left}px`;
+  });
+}
+
+let _barLabelRAF = null;
+function scheduleUpdateBarLabelPositions() {
+  if (_barLabelRAF) return;
+  _barLabelRAF = requestAnimationFrame(() => { _barLabelRAF = null; updateBarLabelPositions(); });
 }
 
 async function loadCircuitSlots() {
@@ -1182,7 +1568,14 @@ async function loadCircuitSlots() {
 async function loadBookings() {
   try {
     const snap = await get(ref(rtdb,"Campaigns_Booking")); if (!snap.exists()) return [];
-    const d = snap.val(); return Array.isArray(d) ? d : Object.values(d);
+    const d = snap.val();
+    // Tag each row with its real RTDB key (_key) — needed to persist a
+    // drag-to-reschedule move (see confirmPendingMove()) and to match a
+    // booking against currentUserInitials for the right-click owner check.
+    // Object.values()/a plain array copy would lose it.
+    return Array.isArray(d)
+      ? d.map((row, i) => row ? { ...row, _key: String(i) } : row).filter(Boolean)
+      : Object.entries(d).map(([k, row]) => ({ ...row, _key: k }));
   } catch(e) { return []; }
 }
 
@@ -2227,6 +2620,25 @@ export async function init(userName) {
 
   appContent?.addEventListener("scroll", onScroll, { passive: true });
 
+  // ── Calendar bar label repositioning + context-menu/drag teardown ──
+  const calScrollEl = document.querySelector(".bookings-cal-wrap .cal-scroll");
+  calScrollEl?.addEventListener("scroll", scheduleUpdateBarLabelPositions, { passive: true });
+  window.addEventListener("resize", scheduleUpdateBarLabelPositions);
+
+  const closeBarCtxMenuHandler = e => {
+    if (barCtxMenuEl && barCtxMenuEl.classList.contains("open") && !barCtxMenuEl.contains(e.target)) {
+      hideBarContextMenu();
+    }
+  };
+  document.addEventListener("click", closeBarCtxMenuHandler);
+
+  const barEscHandler = e => {
+    if (e.key !== "Escape") return;
+    hideBarContextMenu();
+    disarmBar();
+  };
+  document.addEventListener("keydown", barEscHandler);
+
   _cleanupFns = [
     () => appContent?.removeEventListener("scroll", onScroll),
     // document-level click listeners persist across view navigations unless
@@ -2236,7 +2648,11 @@ export async function init(userName) {
     // Bookings visit.
     () => document.removeEventListener("click", closeStatusDropdownsHandler),
     () => document.removeEventListener("click", closeDownloadDropdownHandler),
-    () => document.removeEventListener("click", closeCalDownloadDropdownHandler)
+    () => document.removeEventListener("click", closeCalDownloadDropdownHandler),
+    () => calScrollEl?.removeEventListener("scroll", scheduleUpdateBarLabelPositions),
+    () => window.removeEventListener("resize", scheduleUpdateBarLabelPositions),
+    () => document.removeEventListener("click", closeBarCtxMenuHandler),
+    () => document.removeEventListener("keydown", barEscHandler),
   ];
 
   initScrollReveal();
@@ -2248,6 +2664,16 @@ export function cleanup() {
   bkPickerStart = bkPickerEnd = null;
   sortField = null; sortDir = "asc";
   teardownCircuitMap();
+  disarmBar();
+  pendingMoves.clear();
+  // Overlays created lazily via ensureBarOverlays() are appended to <body>
+  // (see there for why), so — like #bookingModal/#calendarSection below —
+  // they need an explicit remove() rather than being cleaned up for free
+  // by the view's markup swap.
+  barTooltipEl?.remove();  barTooltipEl = null;
+  barCtxMenuEl?.remove();  barCtxMenuEl = null;
+  barDragGhostEl?.remove(); barDragGhostEl = null;
+  ctxMenuBooking = null;
   // Remove overlays moved to body during init
   document.getElementById("bookingModal")?.remove();
   document.getElementById("calendarSection")?.remove();
