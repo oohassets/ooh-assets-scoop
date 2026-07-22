@@ -909,9 +909,52 @@ function renumberSN(card) {
   });
 }
 
+// Digital (SN-based) tables: the record's own RTDB key mirrors its 1-based
+// SN position, so any change to row order (drag-reorder, delete) re-keys the
+// affected records instead of relying on a separate `order` field. Fetches
+// full record data fresh (not the rendered DOM row) so fields outside the
+// visible columns — e.g. "Days" — survive the move. `rowKeysInOrder` is the
+// list of *current* keys in the row's new display order; callers must then
+// sync each row's `dataset.key` to its new 1-based position themselves.
+async function renumberDigitalKeys(tableName, rowKeysInOrder) {
+  const snap = await get(ref(rtdb, tableName));
+  const existing = snap.exists() ? snap.val() : {};
+  const getRecord = (key) => (Array.isArray(existing) ? existing[Number(key)] : existing[key]) || {};
+
+  const updates = {};
+  const targetKeys = new Set(rowKeysInOrder.map((_, i) => String(i + 1)));
+
+  rowKeysInOrder.forEach((oldKey, i) => {
+    const { order, ...record } = getRecord(oldKey);
+    updates[String(i + 1)] = { ...record, SN: i + 1 };
+  });
+
+  // Drop any stray key left outside the new contiguous 1..N range (e.g. a
+  // leftover bad key from a past bug) so it doesn't linger next to the
+  // renumbered rows.
+  const existingKeys = Array.isArray(existing)
+    ? existing.map((_, i) => String(i))
+    : Object.keys(existing);
+  existingKeys.forEach(k => {
+    if (!targetKeys.has(k) && !(k in updates)) updates[k] = null;
+  });
+
+  await update(ref(rtdb, tableName), updates);
+}
+
 async function persistRowOrder(card) {
   const tableName = card.dataset.table;
   if (!tableName) return;
+
+  if (tableName.startsWith("d_")) {
+    const rows = Array.from(card.querySelectorAll(".json-table tbody tr:not(.ci-add-row)"));
+    await renumberDigitalKeys(tableName, rows.map(tr => tr.dataset.key));
+    rows.forEach((tr, i) => { tr.dataset.key = String(i + 1); });
+    return;
+  }
+
+  // Static tables: the key identifies a fixed physical slot, not a
+  // position, so it must never be rewritten — keep sorting via `order`.
   const rows = Array.from(card.querySelectorAll(".json-table tbody tr"));
   await Promise.all(rows.map((tr, i) => {
     const key = tr.dataset.key;
@@ -1156,6 +1199,14 @@ async function deleteInventoryRow(tr, card) {
       await remove(ref(rtdb, `${tableName}/${key}`));
       tr.remove();
       renumberSN(card);
+
+      // Close the gap the removed key left behind so the remaining rows'
+      // RTDB keys keep matching their (now shifted) SN positions.
+      const rows = Array.from(card.querySelectorAll(".json-table tbody tr:not(.ci-add-row)"));
+      if (rows.length) {
+        await renumberDigitalKeys(tableName, rows.map(r => r.dataset.key));
+        rows.forEach((r, i) => { r.dataset.key = String(i + 1); });
+      }
     }
   } catch (err) {
     console.error("[ContentInventory] Failed to delete row:", err);
@@ -1220,15 +1271,14 @@ async function saveAddRow(addRowTr, card) {
 
   if (!client) { alert("Client is required."); return; }
 
-  let nextKey;
-  try {
-    const snap = await get(ref(rtdb, tableName));
-    const existing = snap.exists() ? snap.val() : {};
-    const keys = Array.isArray(existing)
-      ? existing.map((_, i) => i)
-      : Object.keys(existing).map(Number).filter(n => !Number.isNaN(n));
-    nextKey = keys.length ? Math.max(...keys) + 1 : 0;
+  // The row's key mirrors its own SN position (see renumberDigitalKeys), so
+  // the new row's key is simply the current row count + 1 — not the max
+  // existing numeric key, which drifted (occasionally to NaN, if a stray
+  // non-numeric key ever slipped in) once rows had been deleted/reordered.
+  const nextKey = card.querySelectorAll(".json-table tbody tr:not(.ci-add-row)").length + 1;
+  record.SN = nextKey;
 
+  try {
     await set(ref(rtdb, `${tableName}/${nextKey}`), record);
     await appendCampaignLog({
       Type: "Add",
