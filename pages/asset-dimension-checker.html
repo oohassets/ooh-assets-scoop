@@ -37,9 +37,9 @@ h3 {
 }
 
 .header {
-    display: grid;
-    grid-template-columns: 180px 1fr 180px 1fr;
-    gap: 24px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 48px;
     align-items: center;
     margin-bottom: 20px;
     background: var(--bg-card);
@@ -51,14 +51,24 @@ h3 {
     backdrop-filter: blur(20px);
 }
 
+.header .field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 320px;
+    min-width: 260px;
+}
+
 .header label {
     font-family: var(--font-body);
     font-weight: 600;
     font-size: 13px;
     color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 .header input[type="text"] {
+    flex: 1;
     padding: 10px 14px;
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-sm);
@@ -89,7 +99,7 @@ h3 {
 
 #downloadBtn {
     display: none;
-    margin-top: 10px;
+    margin-top: 24px;
     padding: 10px 22px;
     background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
     border: none;
@@ -110,7 +120,7 @@ h3 {
 
 .tables {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 480px 1fr;
     gap: 24px;
     align-items: start;
 }
@@ -145,9 +155,9 @@ thead th {
     text-transform: uppercase;
     padding: 10px 12px;
     text-align: left;
-    position: sticky;
-    top: 0;
 }
+thead th:first-child { border-top-left-radius: var(--radius-sm); }
+thead th:last-child { border-top-right-radius: var(--radius-sm); }
 tbody td {
     padding: 10px 12px;
     border-bottom: 1px solid var(--border-glass);
@@ -205,6 +215,21 @@ tbody tr:hover {
     color: var(--error);
 }
 
+#resultTable {
+    min-width: 640px;
+}
+
+#resultTable th:nth-child(2),
+#resultTable td:nth-child(2),
+#resultTable th:nth-child(3),
+#resultTable td:nth-child(3),
+#resultTable th:nth-child(4),
+#resultTable td:nth-child(4),
+#resultTable th:nth-child(5),
+#resultTable td:nth-child(5) {
+    white-space: nowrap;
+}
+
 tfoot th {
     background: var(--bg-secondary);
     color: var(--text-secondary);
@@ -260,15 +285,15 @@ tfoot th {
 
 /* ── Responsive ───────────────────────── */
 @media (max-width: 1024px) {
-    .header { grid-template-columns: repeat(2, 1fr); gap: 16px 24px; }
+    .header { gap: 16px 24px; }
 }
 @media (max-width: 900px) {
     .ac-page { padding: 16px 1.25rem 3rem; }
     .tables { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-    .header { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
-    .header label, .header input, .header button { width: 100%; }
+    .header { gap: 12px; padding: 16px; }
+    .header .field { flex: 1 1 100%; min-width: 0; }
     #downloadBtn { width: 100%; }
 }
 @media (max-width: 480px) {
@@ -288,10 +313,14 @@ tfoot th {
 <h3> Artwork Dimension Checker</h3>
 
 <div class="header">
-    <label for="abbr">Abbreviation Name</label>
-    <input type="text" id="abbr" placeholder="Write Abbreviation Name" />
-    <label>Artwork Path</label>
-    <input type="text" id="pathDisplay" readonly placeholder="Click to browse folder" />
+    <div class="field">
+        <label for="abbr">Abbreviation Name</label>
+        <input type="text" id="abbr" placeholder="Write Abbreviation Name" />
+    </div>
+    <div class="field">
+        <label for="pathDisplay">Artwork Path</label>
+        <input type="text" id="pathDisplay" readonly placeholder="Click to browse folder" />
+    </div>
     <input type="file" id="folderPicker" webkitdirectory multiple hidden />
 </div>
 
@@ -360,6 +389,29 @@ const loadImage = file => new Promise(res => { const img = new Image(); img.onlo
 const loadVideo = file => new Promise(res => { const v=document.createElement("video"); v.preload="metadata"; v.onloadedmetadata=()=>res({videoWidth:v.videoWidth,videoHeight:v.videoHeight,duration:v.duration}); v.src=URL.createObjectURL(file); });
 const formatMMSS = sec => sec ? `${String(Math.floor(sec/60)).padStart(2,"0")}:${String(Math.floor(sec%60)).padStart(2,"0")}` : "";
 const formatBytes = bytes => { if(bytes===0)return"0 B"; const k=1024,sizes=["B","KB","MB","GB"]; const i=Math.floor(Math.log(bytes)/Math.log(k)); return (bytes/Math.pow(k,i)).toFixed(2)+" "+sizes[i]; };
+
+/* ============================================================
+   ASSET NAME -> ALLOWED DIMENSION GROUPS
+   If a filename references a specific asset, its dimension is only
+   checked against that asset's own sizes (not the full allowed list).
+   Order matters: more specific patterns must come before broader ones.
+============================================================ */
+const ASSET_GROUPS = [
+    { match: /CRYSTAL[\s_-]?WALK/i, dims: ["512X640", "384X640", "640X384", "384X512", "640X640"] },
+    { match: /GEWAN[\s_-]?BUILDING/i, dims: ["1296X756"] },
+    { match: /UDC/i, dims: ["6656X1040"] },
+    { match: /UNDERPASS/i, dims: ["6240X420"] },
+    { match: /\bQQ\b/i, dims: ["3742X432"] },
+    { match: /MONOPRIX/i, dims: ["1080X1920"] },
+    { match: /DIGITAL[\s_-]?MUPI/i, dims: ["256X384"] },
+];
+
+function getAllowedDimensionsForFile(fileName, fallback) {
+    for (const group of ASSET_GROUPS) {
+        if (group.match.test(fileName)) return group.dims;
+    }
+    return fallback;
+}
 
 let processedFiles = [];
 
@@ -434,7 +486,8 @@ folderPicker.onchange = async () => {
         }
 
         const dimText = (w && h) ? `${w}X${h}` : "N/A";
-        const valid = allowedDimensions.includes(dimText);
+        const allowedForFile = getAllowedDimensionsForFile(file.name, allowedDimensions);
+        const valid = allowedForFile.includes(dimText);
 
         if (!valid) wrong++;
         if (dimensionCounts[dimText] !== undefined) dimensionCounts[dimText]++;
