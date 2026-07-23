@@ -1,5 +1,5 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v264'; // Update this version to force cache refresh
+const CACHE_NAME = 'scoop-ooh-cache-v265'; // Update this version to force cache refresh
 
 const ASSETS_TO_CACHE = [
   './',
@@ -16,11 +16,13 @@ const ASSETS_TO_CACHE = [
   './assets/css/splash.css',
   './assets/css/image-compressor.css',
   './assets/css/artwork-resizer.css',
+  './assets/css/login.css',
   // Organized JS
   './assets/js/pwa.js',
   './assets/js/app.js',
   './assets/js/router.js',
   './assets/js/theme.js',
+  './assets/js/login-ui.js',
   './assets/js/maps.js',
   './assets/js/asset-location-menu.js',
   './assets/js/asset-rates.js',
@@ -52,6 +54,7 @@ const ASSETS_TO_CACHE = [
   './images/screenshot-desktop.png',
   './images/screenshot-mobile.png',
   './images/thepearlisland.jpg',
+  './images/the_pearl.jpg',
   './images/udcpattern.png',
 ];
 
