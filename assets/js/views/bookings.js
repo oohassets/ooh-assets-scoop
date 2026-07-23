@@ -23,6 +23,15 @@ let currentUserInitials = "";
 let canEdit         = false;
 let isAdminUser      = false;
 let allCampaigns    = [];
+// The Person (initials) of the booking currently open in the edit modal —
+// captured from the existing record in openEditModal() so an admin editing
+// someone else's booking doesn't overwrite Person with their own initials
+// in saveBooking(). Empty string means "not editing" (a brand-new booking).
+let editingOriginalPerson = "";
+// Full RTDB root snapshot from the most recent loadAll() — reused by
+// renderTable()/addBookingToInventory() to look up Content Inventory (d_/s_)
+// tables synchronously at render time without a second full-database read.
+let latestTables = {};
 let currentFiltered = [];
 // Column sort state — null sortField means "no sort applied" (falls back to
 // allCampaigns' own order, newest-first — see getCampaigns()). Currently
@@ -116,8 +125,9 @@ function getInitials(name) {
 async function loadAll() {
   try {
     const snap = await loadRootTables();
-    return snap.exists() ? snap.val() : {};
-  } catch(e) { console.error(e); return {}; }
+    latestTables = snap.exists() ? snap.val() : {};
+    return latestTables;
+  } catch(e) { console.error(e); latestTables = {}; return latestTables; }
 }
 
 // ── GET CAMPAIGNS ─────────────────────────────────────────
@@ -144,6 +154,218 @@ function getCampaigns(tables) {
     });
   });
   return list.sort((a,b) => b.sortDate - a.sortDate);
+}
+
+// ── ADD TO CONTENT INVENTORY (admin, Live campaigns only) ─────────────────
+// A d_/s_ table's display name is always its key with the d_/s_ prefix
+// stripped, underscores turned to spaces, and title-cased (see loadCarousel.js
+// ENDING CAMPAIGNS / content-inventory.js's own cleanCircuitName()) — reusing
+// that exact transform here (rather than a hardcoded circuit->table map) is
+// what lets this reverse-match a booking's Circuits value back to its table
+// regardless of the underlying naming scheme.
+function cleanCircuitName(tableName) {
+  return tableName.replace(/^d_|^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Content Inventory only ever wants the "BO-####" form — a booking's own BO
+// field is free text (see #bookingOrder), so this pulls out the first run of
+// digits and reformats it rather than trusting whatever the booker typed.
+function formatBOForInventory(raw) {
+  const digits = String(raw || "").match(/\d+/);
+  if (digits) return `BO-${digits[0]}`;
+  const trimmed = String(raw || "").trim();
+  return trimmed ? `BO-${trimmed}` : "—";
+}
+
+// Inclusive day count between two "MM/DD/YYYY" strings (parseDate() already
+// handles that format — see HELPERS above).
+function computeCampaignDays(rawStart, rawEnd) {
+  const s = parseDate(rawStart), e = parseDate(rawEnd);
+  if (!s || !e) return "";
+  return Math.round((e - s) / 86400000) + 1;
+}
+
+// Finds the Content Inventory table (and, for a static location, the exact
+// existing row) a booking's Circuits value refers to. Static locations are a
+// fixed set of physical circuit slots — see CLAUDE.md — so a match there is
+// an existing row to fill in, never a new one; a digital match is just the
+// table itself, since digital rows are freely added/reordered by SN.
+//
+// A booking's Circuits value isn't an exact match for a table's clean name —
+// it's typically wrapped in extra context the table key itself doesn't carry
+// (e.g. booking "TPI Light Poles Main Entrance Circuit 1" vs table
+// s_light_poles_main_entrance's clean name "Light Poles Main Entrance"), so
+// this reuses the same fuzzy substring match (circuitsFuzzyMatch(), used
+// elsewhere in this file to line up a booking's Circuits against a calendar
+// row) for the location itself, then — for a static location, which can have
+// several rows/physical circuits sharing one clean name — disambiguates
+// between them by comparing each row's own Circuit trailing number (e.g. the
+// "1" in "Circuit 1") against the trailing number in the booking's Circuits
+// value, so "Circuit 1" doesn't accidentally match "Circuit 11".
+function trailingNumber(str) {
+  const m = String(str || "").match(/(\d+)\s*$/);
+  return m ? m[1] : null;
+}
+
+function findInventoryTarget(tables, circuitDisplayName) {
+  const wanted = String(circuitDisplayName || "").toLowerCase().replace(/[_-]/g, " ").trim();
+  if (!wanted || !tables) return null;
+  const wantedNum = trailingNumber(wanted);
+
+  let digitalMatch = null;
+  let staticMatch  = null;
+
+  for (const tableName of Object.keys(tables)) {
+    if (tableName.startsWith("d_")) {
+      const clean = cleanCircuitName(tableName).toLowerCase();
+      if (!clean || !circuitsFuzzyMatch(wanted, clean)) continue;
+      if (!digitalMatch || clean.length > digitalMatch.clean.length) {
+        digitalMatch = { tableName, isStatic: false, clean };
+      }
+    } else if (tableName.startsWith("s_")) {
+      const clean = cleanCircuitName(tableName).toLowerCase();
+      if (!clean || !circuitsFuzzyMatch(wanted, clean)) continue;
+
+      const data = tables[tableName];
+      if (!data) continue;
+      const entries = Array.isArray(data)
+        ? data.map((row, i) => [String(i), row]).filter(([,row]) => row)
+        : Object.entries(data);
+
+      let candidate = null;
+      for (const [rowKey, row] of entries) {
+        if (!row) continue;
+        const suffix = String(row.Circuit || "").trim();
+        const suffixNum = trailingNumber(suffix) || (/^\d+$/.test(suffix) ? suffix : null);
+        if (suffixNum && wantedNum && suffixNum === wantedNum) {
+          candidate = { tableName, isStatic: true, rowKey, clean };
+          break; // exact circuit-number match — stop looking within this table
+        }
+        // No numbered rows found yet — fall back to the first row so a
+        // single-slot static location (no Circuit sub-field at all) still
+        // resolves once its location name alone has matched.
+        if (!candidate && !suffixNum) {
+          candidate = { tableName, isStatic: true, rowKey, clean };
+        }
+      }
+      if (candidate && (!staticMatch || candidate.clean.length > staticMatch.clean.length)) {
+        staticMatch = candidate;
+      }
+    }
+  }
+
+  if (digitalMatch && staticMatch) {
+    return digitalMatch.clean.length >= staticMatch.clean.length ? digitalMatch : staticMatch;
+  }
+  return digitalMatch || staticMatch || null;
+}
+
+// True once a booking has already been written to its matched inventory
+// target — matched by BO + Brand + Circuit, not Client/dates: Circuit is
+// already guaranteed by `target` itself (findInventoryTarget() only matches
+// a table/row for this exact circuit), and Content Inventory's tables have a
+// single free-text "Client" column that (per this table's own write below)
+// holds the Brand Campaign name, not the booking's separate Client company
+// field — so that's what a Brand match compares against.
+function isAlreadyInInventory(tables, target, campaign) {
+  if (!target) return false;
+  const wantBO    = formatBOForInventory(campaign.bo).trim().toLowerCase();
+  const wantBrand = (campaign.brand || "").trim().toLowerCase();
+
+  const matches = row => row &&
+    (row.BO || "").trim().toLowerCase() === wantBO &&
+    (row.Client || "").trim().toLowerCase() === wantBrand;
+
+  if (target.isStatic) {
+    const data = tables[target.tableName];
+    const row = Array.isArray(data) ? data[Number(target.rowKey)] : data?.[target.rowKey];
+    return matches(row);
+  }
+
+  const data = tables[target.tableName];
+  if (!data) return false;
+  const rows = Array.isArray(data) ? data : Object.values(data);
+  return rows.some(matches);
+}
+
+// Mirrors content-inventory.js's own appendCampaignLog() (same shape/next-key
+// convention) so a booking added here shows up in Campaign Logs identically
+// to one added directly from the Content Inventory page.
+async function appendInventoryAddLog(entry) {
+  const today = new Date();
+  const dateStr = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+  const snap = await get(ref(rtdb, "Campaign_Logs"));
+  const existing = snap.exists() ? snap.val() : {};
+  const keys = Array.isArray(existing)
+    ? existing.map((_, i) => i)
+    : Object.keys(existing).map(Number).filter(n => !Number.isNaN(n));
+  const nextKey = keys.length ? Math.max(...keys) + 1 : 0;
+  await set(ref(rtdb, `Campaign_Logs/${nextKey}`), { Date: dateStr, ...entry });
+}
+
+async function addBookingToInventory(campaignKey) {
+  const campaign = allCampaigns.find(c => c.key === campaignKey);
+  if (!campaign) return;
+
+  const target = findInventoryTarget(latestTables, campaign.asset);
+  if (!target) {
+    alert(`No matching Content Inventory location found for "${campaign.asset}".`);
+    return;
+  }
+
+  // Content Inventory's single "Client" column holds the Brand Campaign name
+  // (see isAlreadyInInventory() above) — not the booking's separate Client
+  // company field.
+  // Start/End Date are stored as raw "MM/DD/YYYY" in d_/s_ tables — same as
+  // Campaigns_Booking — NOT the "DD-MMM-YYYY" form; that conversion only
+  // happens at display time (see loadCarousel.js's renderCard(), which runs
+  // formatDateDDMMMYYYY() on read). Pre-formatting here would double-format
+  // once Content Inventory reads it back, and formatDateDDMMMYYYY() returns
+  // "—" for a value with no "/" in it — which is why dates went missing.
+  const record = {
+    Client: campaign.brand !== "—" ? campaign.brand : "",
+    BO: formatBOForInventory(campaign.bo),
+    "Start Date": campaign.rawStartDate,
+    "End Date": campaign.rawEndDate,
+    Days: computeCampaignDays(campaign.rawStartDate, campaign.rawEndDate)
+  };
+
+  if (target.isStatic) {
+    // Fixed physical slot — fill in its existing row, nothing to reorder.
+    await update(ref(rtdb, `${target.tableName}/${target.rowKey}`), record);
+  } else {
+    // Digital tables are SN-ordered by RTDB key — "always the first row"
+    // means every existing row's key shifts down by one and the new record
+    // takes key "1" (mirrors content-inventory.js's renumberDigitalKeys(),
+    // just prepending instead of closing a gap).
+    const snap = await get(ref(rtdb, target.tableName));
+    const existing = snap.exists() ? snap.val() : {};
+    const entries = (Array.isArray(existing)
+      ? existing.map((row, i) => [i, row])
+      : Object.entries(existing).map(([k, row]) => [Number(k), row]))
+      .filter(([, row]) => row)
+      .sort((a, b) => a[0] - b[0]);
+
+    const updates = { "1": { ...record, SN: 1 } };
+    entries.forEach(([, row], i) => {
+      const newKey = String(i + 2);
+      updates[newKey] = { ...row, SN: i + 2 };
+    });
+    await update(ref(rtdb, target.tableName), updates);
+  }
+
+  await appendInventoryAddLog({
+    Type: "Add",
+    BO: record.BO,
+    Client: record.Client || "—",
+    Circuits: target.isStatic ? campaign.asset : cleanCircuitName(target.tableName),
+    "Start Date": record["Start Date"],
+    "End Date": record["End Date"]
+  });
+
+  const tables = await loadAll();
+  allCampaigns = getCampaigns(tables);
+  applyFilters();
 }
 
 // ── SLOT CONFLICT DETECTION ───────────────────────────────
@@ -228,6 +450,15 @@ function renderTable(campaigns) {
            <button class="status-option status-pill pill-completed" data-key="${r.key}" data-val="Completed">Completed</button>
          </div>`
       : "";
+    // Admin-only, Live campaigns only, and only while the circuit isn't
+    // already represented in Content Inventory — see addBookingToInventory().
+    let addInventoryBtn = "";
+    if (isAdminUser && r.status === "Live") {
+      const invTarget = findInventoryTarget(latestTables, r.asset);
+      if (invTarget && !isAlreadyInInventory(latestTables, invTarget, r)) {
+        addInventoryBtn = `<button class="add-inventory-btn" data-key="${r.key}" type="button" title="Add to Content Inventory"><span class="material-symbols-outlined">queue_play_next</span></button>`;
+      }
+    }
     return `
       <tr>
         <td class="td-desk"><div class="client-name">${escapeHTML(r.client)}</div><div class="brand-name">${escapeHTML(r.brand)}</div>${r.bo ? `<div class="bo-name">${escapeHTML(r.bo)}</div>` : ""}</td>
@@ -240,6 +471,7 @@ function renderTable(campaigns) {
           <div class="status-cell">
             <span class="status-pill pill-${statusCls}">${escapeHTML(r.status)}</span>
             ${editStatusBtn}
+            ${addInventoryBtn}
           </div>
         </td>
         <td class="td-desk" style="color:var(--text-muted);font-size:12px;">${escapeHTML(r.person)}</td>
@@ -256,6 +488,7 @@ function renderTable(campaigns) {
               <div class="status-cell">
                 <span class="status-pill pill-${statusCls}">${escapeHTML(r.status)}</span>
                 ${editStatusBtn}
+                ${addInventoryBtn}
               </div>
             </div>
             <div class="mob-col mob-col-right">
@@ -295,6 +528,26 @@ function renderTable(campaigns) {
       } catch(err) { console.error(err); opt.textContent = "Error"; }
     });
   });
+
+  tbody.querySelectorAll(".add-inventory-btn").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      e.stopPropagation();
+      if (btn.disabled) return;
+      btn.disabled = true;
+      const icon = btn.querySelector(".material-symbols-outlined");
+      icon.textContent = "hourglass_top";
+      try {
+        await addBookingToInventory(btn.dataset.key);
+        // On success addBookingToInventory() re-renders the table (the
+        // button disappears since it's no longer un-added), so there's
+        // nothing left to restore here.
+      } catch (err) {
+        console.error("[Bookings] Failed to add to Content Inventory:", err);
+        alert("Failed to add to Content Inventory. Please try again.");
+        if (document.body.contains(btn)) { btn.disabled = false; icon.textContent = "queue_play_next"; }
+      }
+    });
+  });
 }
 
 // ── MODAL OPEN / RESET ────────────────────────────────────
@@ -306,6 +559,7 @@ function openEditModal(campaign) {
   const clearBtn = document.getElementById("clearFormBtn");
   if (clearBtn) clearBtn.hidden = true;
 
+  editingOriginalPerson = campaign.person && campaign.person !== "—" ? campaign.person : "";
   setValue("bookingEditKey",  campaign.key);
   setValue("bookingOrder",    campaign.bo);
   setValue("bookingClient",   campaign.client !== "—" ? campaign.client : "");
@@ -378,6 +632,7 @@ function resetModal() {
   const clearBtn = document.getElementById("clearFormBtn");
   if (clearBtn) clearBtn.hidden = false;
   setValue("bookingEditKey", "");
+  editingOriginalPerson = "";
   ["bookingOrder","bookingClient","bookingBrand",
    "bookingStartDate","bookingEndDate","bookingTotalDays"].forEach(id => setValue(id, ""));
   resetCircuitRows();
@@ -1019,6 +1274,11 @@ async function saveBooking() {
   const start    = document.getElementById("bookingStartDate")?.value;
   const end      = document.getElementById("bookingEndDate")?.value;
   // Saved as initials, not the full name shown in the "Booked by" bar.
+  // New records (a brand-new booking, or extra circuit rows added while
+  // editing) are attributed to whoever is saving right now; the row being
+  // edited in place keeps its original owner (see editingOriginalPerson —
+  // otherwise an admin editing e.g. just the Status would reassign
+  // ownership of the whole booking to themselves).
   const person   = currentUserInitials;
   const status   = document.getElementById("campaignStatus")?.value || "Pending";
   const editKey  = document.getElementById("bookingEditKey")?.value;
@@ -1046,11 +1306,11 @@ async function saveBooking() {
       return;
     }
 
-    const makeRecord = a => ({
+    const makeRecord = (a, personForRecord) => ({
       BO: booking, Client: client, "Brand Campaign": brand,
       Circuits: a.circuit, Slot: a.assigned,
       "Start Date": toMMDDYYYY(start), "End Date": toMMDDYYYY(end),
-      Status: status, Person: person
+      Status: status, Person: personForRecord
     });
 
     const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
@@ -1062,15 +1322,17 @@ async function saveBooking() {
 
     if (editKey) {
       // Editing always starts from a single circuit row (see openEditModal),
-      // so update that record in place; any *additional* rows the user adds
-      // while editing become new records rather than overwriting it.
-      await update(ref(rtdb, `Campaigns_Booking/${editKey}`), makeRecord(assignments[0]));
+      // so update that record in place, keeping its original owner as
+      // Person rather than reassigning it to whoever is editing now; any
+      // *additional* rows the user adds while editing are brand-new records
+      // attributed to them, not the original owner.
+      await update(ref(rtdb, `Campaigns_Booking/${editKey}`), makeRecord(assignments[0], editingOriginalPerson || person));
       for (let i = 1; i < assignments.length; i++) {
-        await set(ref(rtdb, `Campaigns_Booking/${nextKey++}`), makeRecord(assignments[i]));
+        await set(ref(rtdb, `Campaigns_Booking/${nextKey++}`), makeRecord(assignments[i], person));
       }
     } else {
       for (const a of assignments) {
-        await set(ref(rtdb, `Campaigns_Booking/${nextKey++}`), makeRecord(a));
+        await set(ref(rtdb, `Campaigns_Booking/${nextKey++}`), makeRecord(a, person));
       }
     }
 

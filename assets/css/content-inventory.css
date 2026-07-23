@@ -291,6 +291,14 @@
   display: inline-block;
 }
 
+/* Desktop-table equivalent of the mobile slot-list's .ml-available — an
+   empty static circuit slot's Client cell (see renderCellHTML()). Plain text
+   color (not the mobile view's green) to match every other cell in the table. */
+.ci-available {
+  color: inherit;
+  font-weight: inherit;
+}
+
 /* ── Date highlight cells ─────────────── */
 .date-today,
 .date-tomorrow,
@@ -548,11 +556,17 @@
 /* #logsSection is height-locked to fit exactly below the sticky header
    (132px, same value .carousel-title already uses for this) so the table is
    the only thing that scrolls — the page itself never does, since nothing
-   here can ever be taller than the space it's allotted. */
+   here can ever be taller than the space it's allotted.
+   100vh on mobile browsers includes/excludes the address bar depending on
+   whether it's currently collapsed or expanded, so a plain `calc(100vh -
+   132px)` visibly grows/shrinks between page visits as that bar shows or
+   hides — 100dvh tracks the actual visible viewport instead and overrides
+   the vh fallback above it wherever it's supported. */
 #logsSection {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 132px);
+  height: calc(100dvh - 132px);
   padding: 16px 20px 20px;
   box-sizing: border-box;
   max-width: 1400px;
@@ -640,7 +654,7 @@
   display: flex; flex-direction: column;
   background: var(--bg-card); border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
-  padding: 12px; box-sizing: border-box;
+  padding: 20px; box-sizing: border-box;
 }
 .ci-logs-table-container {
   flex: 1 1 auto; min-height: 0;
@@ -705,10 +719,17 @@ table.ci-logs-table td.td-mobile { display: none; }
 table.ci-logs-table th.ci-actions-col,
 table.ci-logs-table td.ci-actions-col { width: 34px; text-align: center; white-space: nowrap; }
 .ci-logs-card.ci-edit-mode .ci-row-edit-btn { display: inline-flex; }
-table.ci-logs-table tbody tr.ci-row-editing td.ci-actions-col { width: 58px; }
+/* Delete (edit-mode only — startLogRowEdit() injects it alongside
+   save/cancel, same as .ci-row-save-btn/.ci-row-cancel-btn) — .ci-row-delete-btn
+   defaults to display:none for the Digital/Static tables' own always-in-DOM
+   usage (see above), which the Logs table isn't part of, so it needs its own
+   override here; column widens from 34px (edit pencil alone) to fit all
+   three action buttons while a row is being edited. */
+table.ci-logs-table tbody tr.ci-row-editing .ci-row-delete-btn { display: inline-flex; }
+table.ci-logs-table tbody tr.ci-row-editing td.ci-actions-col { width: 84px; }
 
 @media (max-width: 900px) {
-  #logsSection { height: calc(100vh - 120px); padding: 12px; }
+  #logsSection { height: calc(100vh - 120px); height: calc(100dvh - 120px); padding: 12px; }
   .ci-search-box { flex: 1 1 100%; order: -1; }
   .ci-logs-card { padding: 10px; }
 }

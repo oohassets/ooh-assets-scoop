@@ -555,8 +555,33 @@ function startLogRowEdit(tr) {
     actionsTd.dataset.original = actionsTd.innerHTML;
     actionsTd.innerHTML = `
       <button type="button" class="ci-row-save-btn" aria-label="Save row"><span class="material-symbols-outlined">check</span></button>
-      <button type="button" class="ci-row-cancel-btn" aria-label="Cancel edit"><span class="material-symbols-outlined">close</span></button>`;
+      <button type="button" class="ci-row-cancel-btn" aria-label="Cancel edit"><span class="material-symbols-outlined">close</span></button>
+      <button type="button" class="ci-row-delete-btn" aria-label="Delete row"><span class="material-symbols-outlined">delete</span></button>`;
   }
+}
+
+async function deleteLogRow(tr) {
+  if (!tr) return;
+  const key = tr.dataset.key;
+  if (key === undefined) return;
+
+  const entry = campaignLogs?.find(r => r._key === key);
+  const label = entry ? `${entry.Client || "—"} — ${entry.Circuits || "—"}` : "this entry";
+  if (!confirm(`Delete this log entry?\n\n${label}`)) return;
+
+  try {
+    await remove(ref(rtdb, `Campaign_Logs/${key}`));
+  } catch (err) {
+    console.error("[ContentInventory] Failed to delete log entry:", err);
+    return;
+  }
+
+  // Same in-place cache update convention as saveLogRowEdit() — drop the
+  // entry from campaignLogs (the source cache) and let applyLogsFilters()
+  // re-derive logsFiltered and re-render, rather than invalidating the
+  // whole cache and losing every row until the next fetch.
+  if (campaignLogs) campaignLogs = campaignLogs.filter(r => r._key !== key);
+  applyLogsFilters();
 }
 
 function cancelLogRowEdit(tr) {
@@ -867,6 +892,9 @@ function onLogsClick(e) {
 
   const cancelBtn = e.target.closest(".ci-row-cancel-btn");
   if (cancelBtn) { cancelLogRowEdit(cancelBtn.closest("tr")); return; }
+
+  const deleteBtn = e.target.closest(".ci-row-delete-btn");
+  if (deleteBtn) { deleteLogRow(deleteBtn.closest("tr")); return; }
 }
 
 function onLogsChange(e) {
@@ -1064,9 +1092,15 @@ function startRowEdit(tr, card) {
     const current = td.textContent.trim();
 
     if (field === "Start Date" || field === "End Date") {
+      // "-" (an available static slot's placeholder, see renderCellHTML())
+      // isn't a real dd-MMM-yyyy value either — ddmmmyyyyToISO() already
+      // returns "" for anything that doesn't match, so it needs no special-case.
       td.innerHTML = `<input type="date" class="ci-cell-input" value="${ddmmmyyyyToISO(current)}">`;
     } else {
-      const val = current === "—" ? "" : current;
+      // Neither "—" (BO/Client, general) nor "Available" (Client, an empty
+      // static slot — see renderCellHTML()) is real data to prefill an edit
+      // with; both should start the input blank.
+      const val = (current === "—" || current === "Available") ? "" : current;
       td.innerHTML = `<input type="text" class="ci-cell-input" value="${escapeAttr(val)}">`;
     }
   });
@@ -1125,11 +1159,15 @@ async function saveRowEdit(tr, card) {
 
   // Re-render from the saved values so BO-filler / date-highlight styling
   // matches a normal page load instead of being left as plain edited text.
+  // A static row whose Client was just cleared out this way is just as much
+  // "available" as one cleared via the delete button — same isAvailable
+  // treatment (see renderCellHTML()) either way.
   const today = new Date(); today.setHours(0, 0, 0, 0);
+  const isAvailable = tableName.startsWith("s_") && (!rowData.Client || rowData.Client === "—");
   cells.forEach((td, i) => {
     const field = columns[i];
     if (!EDITABLE_COLUMNS.has(field)) return;
-    td.outerHTML = renderCellHTML(field, rowData, ["End Date"], today);
+    td.outerHTML = renderCellHTML(field, rowData, ["End Date"], today, isAvailable);
   });
 
   const actionsTd = tr.querySelector("td.ci-actions-col");
@@ -1171,7 +1209,7 @@ async function deleteInventoryRow(tr, card) {
   cells.forEach((td, i) => { rowData[columns[i]] = td.textContent.trim(); });
 
   const client = rowData["Client"];
-  if (!client || client === "—") return; // nothing booked here (e.g. an already-cleared static slot)
+  if (!client || client === "—" || client === "Available") return; // nothing booked here (e.g. an already-cleared static slot)
 
   if (!confirm(`Remove this campaign?\n\n${client}`)) return;
 
@@ -1193,7 +1231,7 @@ async function deleteInventoryRow(tr, card) {
       cells.forEach((td, i) => {
         const field = columns[i];
         if (field === "Circuit") return;
-        td.outerHTML = renderCellHTML(field, {}, ["End Date"], today);
+        td.outerHTML = renderCellHTML(field, {}, ["End Date"], today, true);
       });
     } else {
       await remove(ref(rtdb, `${tableName}/${key}`));

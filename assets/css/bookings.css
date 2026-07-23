@@ -302,6 +302,28 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
 .edit-status-btn:hover,
 .edit-row-btn:hover { color:var(--accent-indigo); background:rgba(152,30,50,0.1); }
 
+/* "Add to Content Inventory" — admin-only, shown on Live campaigns not yet
+   in inventory (see renderTable()/addBookingToInventory() in bookings.js).
+   No background/border like the edit buttons above — just the icon, colored
+   like Content Inventory's own success/checkmark affordance (--success) so
+   it reads as a positive/confirming action rather than another edit control. */
+.add-inventory-btn {
+  width:26px; height:26px; padding:0; border-radius:8px; border:none; cursor:pointer;
+  background:transparent; color:var(--success);
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:all 0.2s; flex-shrink:0;
+}
+.add-inventory-btn:hover { background:rgba(53,179,126,0.12); }
+.add-inventory-btn:disabled { opacity:0.6; cursor:default; }
+/* The icon font's own line-height otherwise adds uneven leading above/below
+   the glyph, which throws off the button's flex centering — collapsing it
+   to 1 and centering the span itself is what actually lands the glyph in
+   the middle of the button. */
+.add-inventory-btn .material-symbols-outlined {
+  display:flex; align-items:center; justify-content:center;
+  line-height:1; font-size:19px;
+}
+
 .inline-status-dropdown {
   position:absolute; z-index:400; background:var(--nav-bg); border:1px solid var(--border-glass);
   border-radius:12px; padding:8px; min-width:160px; box-shadow:0 12px 32px rgba(0,0,0,0.3);

@@ -66,7 +66,20 @@ function sortByOrder(entries) {
 // Exported so content-inventory.js's inline row editor can re-render a cell
 // after a save exactly as a normal page load would, instead of leaving it as
 // plain unstyled text.
-export function renderCellHTML(field, row, highlightColumns, today) {
+// isAvailable (static tables only — a fixed physical circuit slot with no
+// current booking, i.e. an empty Client): overrides the normal "—" filler
+// with the same "Available" treatment the mobile slot-list already uses for
+// Client, blank (not "—") for BO, and "-" for the date columns — see
+// jsonToTableAuto() below for how it's derived, and content-inventory.js's
+// deleteInventoryRow()/saveRowEdit() for the other places a static row can
+// end up in this state.
+export function renderCellHTML(field, row, highlightColumns, today, isAvailable = false) {
+  if (isAvailable) {
+    if (field === "Client") return `<td><span class="ci-available">Available</span></td>`;
+    if (field === "BO") return `<td></td>`;
+    if (field === "Start Date" || field === "End Date") return `<td>-</td>`;
+  }
+
   const cellValue = row[field] ?? "—";
   let className = "";
 
@@ -117,6 +130,11 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = [], rowKeys = null
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Static tables use "Circuit" as their first column instead of "SN" (see
+  // getCardColumns() callers elsewhere) — used below to decide whether an
+  // empty Client means "available slot" (renderCellHTML's isAvailable).
+  const isStaticTable = columns.includes("Circuit");
+
   const actionsTh = actionsEnabled
     ? `<th class="ci-actions-col"><button type="button" class="ci-more-btn" aria-label="Row options"><span class="material-symbols-outlined">more_vert</span></button></th>`
     : "";
@@ -127,6 +145,11 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = [], rowKeys = null
     const row = dataObj[rowKey] || {};
     const keyAttr = rowKeys ? ` data-key="${rowKeys[pos]}"` : "";
     html += `<tr${keyAttr}>`;
+    // __ciAvailable (set above in the digital/static render loops, before
+    // their own "—" fallback masks an empty Client) takes precedence when
+    // present; callers that pass a raw row straight through (deleteInventoryRow()/
+    // saveRowEdit() in content-inventory.js) fall back to a direct check.
+    const isAvailable = isStaticTable && (row.__ciAvailable ?? !row["Client"]);
 
     columns.forEach(field => {
       // SN is a display position, never stored data — always 1-based row order.
@@ -134,7 +157,7 @@ function jsonToTableAuto(dataObj, columns, highlightColumns = [], rowKeys = null
         html += `<td class="ci-sn">${pos + 1}</td>`;
         return;
       }
-      html += renderCellHTML(field, row, highlightColumns, today);
+      html += renderCellHTML(field, row, highlightColumns, today, isAvailable);
     });
 
     if (actionsEnabled) {
@@ -710,6 +733,11 @@ export async function loadCarousel() {
     sortByOrder(validEntries);
 
     validEntries.forEach(([, row]) => {
+      // Captured before the "—" fallback below overwrites an empty Client
+      // with a truthy placeholder string — jsonToTableAuto() reads this to
+      // know a row is an available slot rather than re-deriving it from a
+      // Client value that, by then, is never actually empty.
+      row.__ciAvailable = !row["Client"];
       columns.forEach(col => {
         row[col] = dateCols.includes(col)
           ? (row[col] ? formatDateDDMMMYYYY(row[col]) : "—")
