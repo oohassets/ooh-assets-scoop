@@ -436,7 +436,10 @@ function initStatPanel(campaigns, tables) {
     if (statusKey[type]) {
       items = campaigns
         .filter(c => c.status.toLowerCase().includes(statusKey[type]))
-        .map(c => ({ client: c.client, brand: c.brand, circuit: c.asset, bo: c.bo, date: c.date, rawEndDate: c.rawEndDate }));
+        .map(c => ({ client: c.client, brand: c.brand, circuit: c.asset, bo: c.bo, date: c.date, rawEndDate: c.rawEndDate, sortDate: c.sortDate }));
+      // Paid Campaigns (live) stay newest→oldest (campaigns' own default order);
+      // Booked Assets/Pending Approvals flip to oldest→newest.
+      if (type !== "live") items.sort((a,b) => a.sortDate - b.sortDate);
     } else if (type === "free") {
       Object.entries(tables).forEach(([tName, tData]) => {
         if (!tName.startsWith("d_") && !tName.startsWith("s_")) return;
@@ -447,15 +450,20 @@ function initStatPanel(campaigns, tables) {
           if (!r) return;
           const bo = (r.BO || "").toString();
           if (!/free|filler/i.test(bo)) return;
+          const sd = r["Start Date"] || "";
+          let sortDate = new Date(9999,0,1);
+          if (sd) { const p = sd.split("/").map(Number); sortDate = new Date(p[2]||new Date().getFullYear(),p[0]-1,p[1]); }
           items.push({
             client:  r.Client && r.Client !== "—" ? r.Client : "—",
             brand:   "",
             circuit: r.Circuit ? `${tLabel} – ${r.Circuit}` : tLabel,
             bo,
-            date: `${fmtShort(r["Start Date"])} → ${fmtShort(r["End Date"])}`
+            date: `${fmtShort(r["Start Date"])} → ${fmtShort(r["End Date"])}`,
+            sortDate
           });
         });
       });
+      items.sort((a,b) => a.sortDate - b.sortDate);
     }
 
     titleEl.textContent = titleMap[type] || "";
