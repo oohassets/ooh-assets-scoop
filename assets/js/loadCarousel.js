@@ -1,6 +1,14 @@
 // Firebase Imports
 import { loadRootTables } from "./rtdb-root.js";
 
+// Escapes free-text RTDB fields (Client/BO/Circuits/Circuit — plain <input>
+// text saved verbatim by bookings.js/content-inventory.js) before they're
+// interpolated into innerHTML here, so a value containing HTML/script can't
+// execute in another viewer's session (stored XSS). Same helper as dashboard.js.
+function escapeHTML(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
 // ===============================
 // Load all top-level nodes
 // ===============================
@@ -108,12 +116,13 @@ export function renderCellHTML(field, row, highlightColumns, today, isAvailable 
     else if (diff < 0) className = "date-less-than-today";
   }
 
+  const safeValue = escapeHTML(cellValue);
   if (field === "BO" && /free|filler/i.test(String(cellValue))) {
-    return `<td><span class="bo-filler">${cellValue}</span></td>`;
+    return `<td><span class="bo-filler">${safeValue}</span></td>`;
   } else if (className) {
-    return `<td><span class="${className}">${cellValue}</span></td>`;
+    return `<td><span class="${className}">${safeValue}</span></td>`;
   }
-  return `<td>${cellValue}</td>`;
+  return `<td>${safeValue}</td>`;
 }
 
 // ===============================
@@ -241,8 +250,8 @@ function createCard(title, data, columns, highlightColumns = [], editInfo = null
   if (hasClient && !hasDates && hasCircuits) {
     // Simple client+circuits list (e.g. Published/Removed Today)
     const items = Object.values(data).map(row => {
-      const client   = row["Client"]   ?? "—";
-      const circuits = row["Circuits"] ?? "—";
+      const client   = escapeHTML(row["Client"]   ?? "—");
+      const circuits = escapeHTML(row["Circuits"] ?? "—");
       return `
         <div class="ml-row">
           <div class="ml-body">
@@ -271,7 +280,7 @@ function createCard(title, data, columns, highlightColumns = [], editInfo = null
       if (isStaticCard && noDate) {
         return `
           <div class="ml-row">
-            <span class="ml-sn">${sn}</span>
+            <span class="ml-sn">${escapeHTML(sn)}</span>
             <div class="ml-body">
               <div class="ml-client ml-available">Available</div>
             </div>
@@ -284,11 +293,11 @@ function createCard(title, data, columns, highlightColumns = [], editInfo = null
       const endCls    = getDateClass(end,   true);
       return `
         <div class="ml-row">
-          ${snKey ? `<span class="ml-sn">${sn}</span>` : ""}
+          ${snKey ? `<span class="ml-sn">${escapeHTML(sn)}</span>` : ""}
           <div class="ml-body">
-            <div class="ml-client">${client}</div>
+            <div class="ml-client">${escapeHTML(client)}</div>
             <div class="ml-dates">
-              ${bo && bo !== "—" ? `<div class="ml-bo${boFiller ? " bo-filler" : ""}">${bo}</div>` : ""}
+              ${bo && bo !== "—" ? `<div class="ml-bo${boFiller ? " bo-filler" : ""}">${escapeHTML(bo)}</div>` : ""}
               <span class="ml-date ${startCls}">${fmtMobileDate(start)}</span>
               <span class="ml-arrow">→</span>
               <span class="ml-date ${endCls}">${fmtMobileDate(end)}</span>
@@ -328,8 +337,8 @@ function createActivityCard(title, items, headClass, dotClass) {
   const rows = items.map((item, i) => `
     <div class="update-item" style="animation-delay:${i * 0.05}s">
       <div>
-        <div class="update-item-label">${item.Client ?? "—"}</div>
-        <div class="update-item-sub">${item.Circuits ?? "—"}</div>
+        <div class="update-item-label">${escapeHTML(item.Client ?? "—")}</div>
+        <div class="update-item-sub">${escapeHTML(item.Circuits ?? "—")}</div>
       </div>
     </div>`).join("");
   card.innerHTML = `
@@ -543,10 +552,10 @@ function renderActivityGrid(allTables, container) {
       ? items.map((u, i) => `
           <div class="update-item" style="animation-delay:${i * 0.05}s">
             <div>
-              <div class="update-item-label">${u.brand}</div>
-              <div class="update-item-sub">${u.asset}</div>
+              <div class="update-item-label">${escapeHTML(u.brand)}</div>
+              <div class="update-item-sub">${escapeHTML(u.asset)}</div>
               ${(id === "upcoming" || id === "ending") && u.statusLabel
-                ? `<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${u.statusLabel}</span>`
+                ? `<span class="status-pill pill-${u.statusCls}" style="margin-top:4px;font-size:10px;">${escapeHTML(u.statusLabel)}</span>`
                 : ""}
             </div>
             <div class="update-date-badge"${id === "ending" && u.sortDate < today ? ` style="background:rgba(229,72,77,0.08)"` : ""}>${u.label}</div>

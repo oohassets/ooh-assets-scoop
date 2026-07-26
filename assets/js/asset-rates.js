@@ -4,6 +4,13 @@ import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-dat
 
 let assetRateCache = null;
 
+// Defense-in-depth: assetrate has no in-app write path today (populated via
+// external import), but escape its display fields anyway before innerHTML —
+// same convention as loadCarousel.js/dashboard.js's escapeHTML.
+function escapeHTML(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
 /**
  * Fetches the "assetrate" table once and caches it, keyed by each record's
  * own "id" field (e.g. "underpass-entrance") — the RTDB rows themselves are
@@ -44,18 +51,18 @@ export async function updateInfoCard(mapKey) {
 
   const isStatic = (details.category || "").toLowerCase() === "static";
   card.dataset.hasdata = "true";
-  header.innerHTML = `<span class="info-header-text">Asset Rate Card › ${details.name || "Asset"}</span><span class="close-info" onclick="toggleInfoCard()">✕</span>`;
+  header.innerHTML = `<span class="info-header-text">Asset Rate Card › ${escapeHTML(details.name || "Asset")}</span><span class="close-info" onclick="toggleInfoCard()">✕</span>`;
 
   const countLabel = isStatic ? "Faces" : "Screens";
   const feeLabel   = isStatic ? "Production &amp; Installation" : "Upload Fee";
   const count      = details.faces_screen ?? details.faces ?? "-";
 
   tbody.innerHTML = `
-    <tr><th>${countLabel}</th><td>${count}</td></tr>
+    <tr><th>${countLabel}</th><td>${escapeHTML(count)}</td></tr>
     <tr><th>Rate</th><td>${formatQAR(details.Rate)}</td></tr>
     <tr><th>${feeLabel}</th><td>${formatQAR(details["Service Fee"])}</td></tr>
-    <tr><th>Campaign Duration</th><td>${details.Duration || "-"}</td></tr>
-    <tr><th>Dimension W×H</th><td>${details.Dimensions || "-"}</td></tr>`;
+    <tr><th>Campaign Duration</th><td>${escapeHTML(details.Duration || "-")}</td></tr>
+    <tr><th>Dimension W×H</th><td>${escapeHTML(details.Dimensions || "-")}</td></tr>`;
 }
 
 export function toggleInfoCard() {

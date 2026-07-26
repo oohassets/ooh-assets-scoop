@@ -15,6 +15,14 @@ let vehicleDataCache = null;
 let monthKeys = [];
 
 let assetRateCache = null;
+
+// Defense-in-depth: assetrate has no in-app write path (populated via
+// external import), but its `name` field still round-trips into innerHTML
+// (slicer buttons) below — escaped so a stray quote can't break out of the
+// data-circuit="..." attribute.
+function escAttr(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
 let circuitConfig = [];   // built from the "assetrate" table: {name, faces, category, source, icon}
 let activeCircuits = new Set(); // circuit names currently shown in the cards grid (slicer state)
 let slicerShowOnlySelected = false; // slicer's own "Show All" / "Selected" view toggle
@@ -124,7 +132,7 @@ function renderCircuitSlicer() {
       <span class="vr-slicer-group-label">${cat === "digital" ? "Digital" : "Static"}</span>
       <div class="vr-slicer-btns">
         ${visible.length
-          ? visible.map(c => `<button type="button" class="vr-slicer-btn${activeCircuits.has(c.name) ? " active" : ""}" data-circuit="${c.name}">${c.name}</button>`).join("")
+          ? visible.map(c => `<button type="button" class="vr-slicer-btn${activeCircuits.has(c.name) ? " active" : ""}" data-circuit="${escAttr(c.name)}">${escAttr(c.name)}</button>`).join("")
           : `<div class="vr-slicer-empty">No circuits selected</div>`}
       </div>
     </div>`;

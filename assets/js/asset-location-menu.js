@@ -4,6 +4,20 @@ import { getAssetTree } from "./maps.js";
 
 const isLeaf = (node) => !node.children || node.children.length === 0;
 
+// assetmap has no in-app write path (populated externally), but its id/name
+// fields still round-trip into innerHTML below — escaped defensively so a
+// stray quote can't break out of the inline onclick="fn('...')" handlers.
+function escAttr(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+// Safe inside a single-quoted JS string literal that itself sits inside a
+// double-quoted HTML attribute — JS-escape first, then HTML-attribute-escape,
+// so the browser's attribute-decode pass reconstructs the intended \' rather
+// than an unescaped quote that would terminate the string early.
+function escJsAttr(s) {
+  return escAttr(String(s ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'"));
+}
+
 /* ── Desktop mega-dropdown ─────────────────────────────────
    depth 1 = top-level item in a column (Underpass, Mupi, …)
    depth 2+ = nested flyout (.sub / .deep), matching the original markup */
@@ -11,7 +25,8 @@ function renderDesktopNode(node, depth) {
   // Google Earth isn't a map embed — it's an external 3D view, opened in a
   // new tab like the original hardcoded link (its URL lives in map_link).
   if (node.id === "assets-google-earth") {
-    return `<a class="mega-earth-link" href="${node.map_link}" target="_blank" rel="noopener noreferrer">${node.name}</a>`;
+    const href = /^https?:/i.test(node.map_link || "") ? escAttr(node.map_link) : "#";
+    return `<a class="mega-earth-link" href="${href}" target="_blank" rel="noopener noreferrer">${escAttr(node.name)}</a>`;
   }
   if (isLeaf(node)) {
     // Top-level leaves (e.g. UDC Tower) still get the .hover-item/.hover-title
@@ -19,16 +34,16 @@ function renderDesktopNode(node, depth) {
     // just without a chevron or submenu. Only nested leaves (depth 2+, inside
     // a .hover-submenu) render as bare links, matching the original markup.
     if (depth === 1) {
-      return `<div class="hover-item"><div class="hover-title"><a onclick="setMap('${node.id}')">${node.name}</a></div></div>`;
+      return `<div class="hover-item"><div class="hover-title"><a onclick="setMap('${escJsAttr(node.id)}')">${escAttr(node.name)}</a></div></div>`;
     }
-    return `<a onclick="setMap('${node.id}')">${node.name}</a>`;
+    return `<a onclick="setMap('${escJsAttr(node.id)}')">${escAttr(node.name)}</a>`;
   }
   const subClass  = depth >= 2 ? " sub"  : "";
   const deepClass = depth >= 2 ? " deep" : "";
   const children  = node.children.map(c => renderDesktopNode(c, depth + 1)).join("");
   return `
     <div class="hover-item${subClass}">
-      <div class="hover-title"><a onclick="setMap('${node.id}')">${node.name}</a><span>›</span></div>
+      <div class="hover-title"><a onclick="setMap('${escJsAttr(node.id)}')">${escAttr(node.name)}</a><span>›</span></div>
       <div class="hover-submenu${deepClass}">${children}</div>
     </div>`;
 }
@@ -40,7 +55,7 @@ function renderDesktopColumn(root) {
   const style = root.id === "assets" ? ` style="min-width:160px;max-width:180px;"` : "";
   return `
     <div class="mega-column"${style}>
-      <div class="mega-title"><a onclick="setMap('${root.id}')">${root.name}</a></div>
+      <div class="mega-title"><a onclick="setMap('${escJsAttr(root.id)}')">${escAttr(root.name)}</a></div>
       ${items}
     </div>`;
 }
@@ -76,7 +91,7 @@ function renderMobileSection(root) {
   const flushLeaves = () => {
     if (!leafBuffer.length) return;
     const buttons = leafBuffer
-      .map(n => `<button class="asset-group-title" onclick="setMapAndClose('${n.id}')">${n.name}</button>`)
+      .map(n => `<button class="asset-group-title" onclick="setMapAndClose('${escJsAttr(n.id)}')">${escAttr(n.name)}</button>`)
       .join("");
     html.push(`<div class="asset-group">${buttons}</div>`);
     leafBuffer = [];
@@ -86,17 +101,17 @@ function renderMobileSection(root) {
     if (isLeaf(node)) { leafBuffer.push(node); return; }
     flushLeaves();
     const subButtons = node.children
-      .map(c => `<button class="asset-group-submenu" onclick="setMapAndClose('${c.id}')">${c.name}</button>`)
+      .map(c => `<button class="asset-group-submenu" onclick="setMapAndClose('${escJsAttr(c.id)}')">${escAttr(c.name)}</button>`)
       .join("");
     html.push(`
       <div class="asset-group">
-        <button class="asset-group-title" onclick="setMapAndClose('${node.id}')">${node.name}</button>
+        <button class="asset-group-title" onclick="setMapAndClose('${escJsAttr(node.id)}')">${escAttr(node.name)}</button>
         ${subButtons}
       </div>`);
   });
   flushLeaves();
 
-  return `<button class="asset-section-title" onclick="setMapAndClose('${root.id}')">${root.name}</button>${html.join("")}`;
+  return `<button class="asset-section-title" onclick="setMapAndClose('${escJsAttr(root.id)}')">${escAttr(root.name)}</button>${html.join("")}`;
 }
 
 export function renderAssetsMobilePanel() {
