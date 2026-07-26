@@ -649,8 +649,16 @@
 /* ── Logs table — deliberately sized like bookings.css's table.data-table
    ("the table will be the same size as the booking page"), not the compact
    .json-table used by the Digital/Static cards. ── */
+/* flex:0 1 auto (not 1 1 auto) — the card sizes to its actual content (toolbar
+   + however many log rows there are) instead of always stretching to fill
+   #logsSection's full height-locked space, which used to leave a large dead
+   gap below the table on a lightly-filtered day. max-height:100% is the cap
+   that still kicks in once a wider date range's row count *would* overflow
+   #logsSection's allotted height — at that point the card fills it exactly
+   like before, and .ci-logs-table-container (flex:1 1 auto below) is what
+   actually scrolls, not the card itself. */
 .ci-logs-card {
-  flex: 1 1 auto; min-height: 0;
+  flex: 0 1 auto; min-height: 0; max-height: 100%;
   display: flex; flex-direction: column;
   background: var(--bg-card); border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
@@ -658,7 +666,6 @@
 }
 .ci-logs-table-container {
   flex: 1 1 auto; min-height: 0;
-  height: 100%; /* fills .ci-logs-card's remaining height (below the toolbar) */
   overflow: auto;
   /* Top corners only — same technique as .ci-page .table-container: this
      div's own overflow:auto clips its content to match, which is what
