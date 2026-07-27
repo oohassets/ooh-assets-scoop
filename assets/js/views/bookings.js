@@ -1557,6 +1557,9 @@ function showBarTooltip(bar, e) {
   ensureBarOverlays();
   const d = bar._booking; if (!d) return;
   const statusCls = getStatusClass(d.status);
+  // Inclusive day count (booking occupies both its start and end date).
+  const startD = parseISOLocal(d.startISO), endD = parseISOLocal(d.endISO);
+  const dayCount = startD && endD ? Math.round((endD - startD) / 86400000) + 1 : null;
   // Values only — no field-name labels (BO/Client/Brand/... are just the
   // row order, not printed text); Status still reuses the exact
   // .status-pill/.pill-* look from the schedule table.
@@ -1565,7 +1568,7 @@ function showBarTooltip(bar, e) {
     <div class="bk-bar-tooltip-row bk-tt-client">${escapeHTML(d.client || "—")}</div>
     <div class="bk-bar-tooltip-row bk-tt-brand">${escapeHTML(d.brand || "—")}</div>
     <div class="bk-bar-tooltip-row bk-tt-circuit">${escapeHTML(d.circuit || "—")}</div>
-    <div class="bk-bar-tooltip-row bk-tt-dates">${fmtShort(toMMDDYYYY(d.startISO))} → ${fmtShort(toMMDDYYYY(d.endISO))}</div>
+    <div class="bk-bar-tooltip-row bk-tt-dates">${fmtShort(toMMDDYYYY(d.startISO))} → ${fmtShort(toMMDDYYYY(d.endISO))}${dayCount ? ` (${dayCount} Day${dayCount === 1 ? "" : "s"})` : ""}</div>
     <div class="bk-bar-tooltip-row bk-tt-status"><span class="status-pill pill-${statusCls}">${escapeHTML(d.status || "—")}</span></div>`;
   barTooltipEl.classList.add("open");
   positionFloatingNearPointer(barTooltipEl, e);
