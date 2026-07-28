@@ -79,7 +79,7 @@
 
       <div class="card">
         <div class="table-container">
-          <table class="data-table">
+          <table class="data-table" id="bookingsTable">
             <thead>
               <tr>
                 <th>Client / Brand</th>
@@ -87,10 +87,11 @@
                 <th class="th-sortable" data-sort="date" role="button" tabindex="0" aria-label="Sort by Dates"><span class="th-sort-label">Dates<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
                 <th class="th-sortable" data-sort="status" role="button" tabindex="0" aria-label="Sort by Status"><span class="th-sort-label">Status<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
                 <th class="th-sortable" id="sortPersonHdr" data-sort="person" role="button" tabindex="0" aria-label="Sort by Person"><span class="th-sort-label">Person<span class="material-symbols-outlined th-sort-icon">unfold_more</span></span></th>
+                <th class="bk-actions-th bk-th-hidden" id="bkActionsTh"><button type="button" class="bk-more-btn" id="bkTableMoreBtn" aria-label="Row options"><span class="material-symbols-outlined">more_vert</span></button></th>
               </tr>
             </thead>
             <tbody id="campaignTableBody">
-              <tr><td class="bk-table-placeholder" colspan="5">Loading campaigns…</td></tr>
+              <tr><td class="bk-table-placeholder" colspan="6">Loading campaigns…</td></tr>
             </tbody>
           </table>
         </div>

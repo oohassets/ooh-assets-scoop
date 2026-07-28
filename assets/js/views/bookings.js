@@ -23,6 +23,13 @@ let currentUserInitials = "";
 let canEdit         = false;
 let isAdminUser      = false;
 let allCampaigns    = [];
+// Whether the schedule table's per-row edit buttons (.edit-row-btn/
+// .edit-status-btn) are currently revealed — toggled via the more_vert menu
+// (#bkTableMoreBtn/.bk-row-menu, see below), mirroring Content Inventory's
+// ci-edit-mode. Buttons are hidden by default so the table isn't cluttered
+// with edit affordances on every row.
+let bkEditMode  = false;
+let bkRowMenuEl = null;
 // The Person (initials) of the booking currently open in the edit modal —
 // captured from the existing record in openEditModal() so an admin editing
 // someone else's booking doesn't overwrite Person with their own initials
@@ -409,11 +416,11 @@ function renderTable(campaigns) {
   const tbody = document.getElementById("campaignTableBody");
   if (!tbody) return;
   if (!campaigns.length) {
-    tbody.innerHTML = `<tr><td class="bk-table-placeholder" colspan="5">No campaigns found</td></tr>`;
+    tbody.innerHTML = `<tr><td class="bk-table-placeholder" colspan="6">No campaigns found</td></tr>`;
     return;
   }
   const mobHeader = `<tr class="mob-thead-row">
-    <td class="td-mobile" colspan="5">
+    <td class="td-mobile" colspan="6">
       <div class="mob-row mob-hdr">
         <div class="mob-col">Client</div>
         <div class="mob-col">Circuits</div>
@@ -475,7 +482,7 @@ function renderTable(campaigns) {
           </div>
         </td>
         <td class="td-desk" style="color:var(--text-muted);font-size:12px;">${escapeHTML(r.person)}</td>
-        <td class="td-mobile" colspan="5">
+        <td class="td-mobile" colspan="6">
           <div class="mob-row">
             <div class="mob-col mob-col-left">
               <div class="client-name">${escapeHTML(r.client)}</div>
@@ -550,6 +557,63 @@ function renderTable(campaigns) {
   });
 }
 
+// ── Schedule table row-options menu (more_vert → Edit) ─────
+// Single shared panel, fixed-positioned so it isn't clipped by
+// .table-container's own scroll box — same pattern as Content Inventory's
+// .ci-row-menu (content-inventory.js), just for the whole table at once
+// rather than per-row, since bookings' edit buttons already live inline in
+// the Dates/Status cells instead of a dedicated actions column.
+function ensureBkRowMenu() {
+  if (bkRowMenuEl) return bkRowMenuEl;
+  bkRowMenuEl = document.createElement("div");
+  bkRowMenuEl.className = "bk-row-menu";
+  bkRowMenuEl.innerHTML = `<button type="button" class="bk-row-menu-edit"><span class="material-symbols-outlined">edit</span><span class="bk-row-menu-label">Edit</span></button>`;
+  bkRowMenuEl.querySelector(".bk-row-menu-edit").addEventListener("click", () => {
+    toggleBkEditMode();
+    closeBkRowMenu();
+  });
+  document.body.appendChild(bkRowMenuEl);
+  return bkRowMenuEl;
+}
+
+function openBkRowMenu(btn) {
+  const menu = ensureBkRowMenu();
+  menu.querySelector(".bk-row-menu-label").textContent = bkEditMode ? "Done" : "Edit";
+  const rect = btn.getBoundingClientRect();
+  menu.style.top  = `${rect.bottom + 4}px`;
+  menu.style.left = `${Math.min(rect.left, window.innerWidth - 150)}px`;
+  menu.classList.add("open");
+  btn.classList.add("open");
+}
+
+function closeBkRowMenu() {
+  bkRowMenuEl?.classList.remove("open");
+  document.getElementById("bkTableMoreBtn")?.classList.remove("open");
+}
+
+function toggleBkEditMode() {
+  bkEditMode = !bkEditMode;
+  document.getElementById("bookingsTable")?.classList.toggle("bk-edit-mode", bkEditMode);
+}
+
+// Resolves a stored Person value (initials — occasionally a legacy full
+// name, see the Person convention note in openEditModal() below) to a
+// display name for the "Booked by" bar, by matching it against the "user"
+// roster table. Reuses latestTables (the full-root snapshot loadAll()
+// already caches — see its own comment above) rather than a second read.
+// Falls back to the raw stored value when no roster row matches (e.g. a
+// legacy full-name Person, or initials with no corresponding user).
+function resolvePersonDisplayName(person) {
+  if (!person) return currentUserName;
+  const users = latestTables?.user;
+  if (users) {
+    const match = Object.values(users).find(u =>
+      u?.initials && u.initials.trim().toLowerCase() === person.trim().toLowerCase());
+    if (match?.name) return match.name;
+  }
+  return person;
+}
+
 // ── MODAL OPEN / RESET ────────────────────────────────────
 function openEditModal(campaign) {
   const title = document.getElementById("bookingModalTitle");
@@ -560,6 +624,11 @@ function openEditModal(campaign) {
   if (clearBtn) clearBtn.hidden = true;
 
   editingOriginalPerson = campaign.person && campaign.person !== "—" ? campaign.person : "";
+  // "Booked by" must always reflect the booking's original owner, not
+  // whoever's currently editing — an admin opening someone else's booking
+  // should still see that person's name here, not their own.
+  const personLbl = document.getElementById("bookingPersonLabel");
+  if (personLbl) personLbl.textContent = resolvePersonDisplayName(editingOriginalPerson);
   setValue("bookingEditKey",  campaign.key);
   setValue("bookingOrder",    campaign.bo);
   setValue("bookingClient",   campaign.client !== "—" ? campaign.client : "");
@@ -633,6 +702,9 @@ function resetModal() {
   if (clearBtn) clearBtn.hidden = false;
   setValue("bookingEditKey", "");
   editingOriginalPerson = "";
+  // A brand-new booking is attributed to whoever's opening the form.
+  const personLbl = document.getElementById("bookingPersonLabel");
+  if (personLbl) personLbl.textContent = currentUserName;
   ["bookingOrder","bookingClient","bookingBrand",
    "bookingStartDate","bookingEndDate","bookingTotalDays"].forEach(id => setValue(id, ""));
   resetCircuitRows();
@@ -2699,6 +2771,12 @@ export async function init(userName) {
   canEdit = rule === "admin" || rule === "sales";
   isAdminUser = rule === "admin";
   document.getElementById("openBookingBtn")?.toggleAttribute("hidden", !canEdit);
+  // The row-options column only has anything to reveal for admin/sales —
+  // a view-only user's rows never render an .edit-row-btn/.edit-status-btn
+  // regardless of bk-edit-mode (see renderTable()'s canEditRow), so there's
+  // no point offering the toggle at all.
+  document.getElementById("bkActionsTh")?.classList.toggle("bk-th-hidden", !canEdit);
+  bkEditMode = false;
 
   // Move overlays to <body> so they escape the app-frame stacking context
   // and render above the nav bar and mobile dock on all browsers / iOS Safari.
@@ -2717,6 +2795,20 @@ export async function init(userName) {
     document.querySelectorAll(".inline-status-dropdown.open").forEach(d => d.classList.remove("open"));
   };
   document.addEventListener("click", closeStatusDropdownsHandler);
+
+  const bkMoreBtn = document.getElementById("bkTableMoreBtn");
+  bkMoreBtn?.addEventListener("click", e => {
+    e.stopPropagation();
+    const alreadyOpen = bkMoreBtn.classList.contains("open");
+    closeBkRowMenu();
+    if (!alreadyOpen) openBkRowMenu(bkMoreBtn);
+  });
+  const onDocClickCloseBkRowMenu = e => {
+    if (!bkRowMenuEl) return;
+    if (bkRowMenuEl.contains(e.target) || e.target.closest("#bkTableMoreBtn")) return;
+    closeBkRowMenu();
+  };
+  document.addEventListener("click", onDocClickCloseBkRowMenu);
 
   dateFilterSelect?.addEventListener("change", () => {
     const val     = dateFilterSelect.value;
@@ -2996,6 +3088,8 @@ export async function init(userName) {
     // replaced) — without this, a stale copy of each piled up on every
     // Bookings visit.
     () => document.removeEventListener("click", closeStatusDropdownsHandler),
+    () => document.removeEventListener("click", onDocClickCloseBkRowMenu),
+    () => { bkRowMenuEl?.remove(); bkRowMenuEl = null; },
     () => document.removeEventListener("click", closeDownloadDropdownHandler),
     () => document.removeEventListener("click", closeCalDownloadDropdownHandler),
     () => calScrollEl?.removeEventListener("scroll", scheduleUpdateBarLabelPositions),
@@ -3012,6 +3106,7 @@ export function cleanup() {
   calDrpStart = calDrpEnd = null;
   bkPickerStart = bkPickerEnd = null;
   sortField = null; sortDir = "asc";
+  bkEditMode = false;
   teardownCircuitMap();
   disarmBar();
   pendingMoves.clear();

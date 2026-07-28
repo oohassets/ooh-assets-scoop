@@ -243,7 +243,11 @@
 /* Loading/empty placeholder row — shared by the static "Loading campaigns…"
    markup in bookings.html and renderTable()'s "No campaigns found" row. */
 .bk-table-placeholder { text-align:center; color:var(--text-muted); padding:30px; }
-.table-container { margin-top:30px; margin-bottom:30px; overflow:auto; border-radius:16px; max-height:550px; }
+/* padding-right leaves a gap between the table's own right edge and the
+   scrollbar track (same convention as .ci-page .table-container in
+   content-inventory.css) — without it the scrollbar thumb sits flush
+   against the last column's content. */
+.table-container { margin-top:30px; margin-bottom:30px; overflow:auto; border-radius:16px; max-height:550px; padding-right:8px; }
 .table-container::-webkit-scrollbar { width:6px; height:6px; }
 .table-container::-webkit-scrollbar-thumb { background:var(--border-glass); border-radius:999px; }
 table.data-table { width:100%; border-collapse:separate; border-spacing:0 8px; min-width:700px; }
@@ -270,7 +274,53 @@ table.data-table th { font-size:13px; font-weight:700; font-family:var(--font-bo
   display:inline-flex; align-items:center;
 }
 .th-sortable.sort-active .th-sort-icon { opacity:1; color:var(--accent-indigo); }
-table.data-table td { padding:16px; font-size:13px; background:var(--bg-glass); transition:background 0.2s; }
+
+/* Person column only ever holds a 2-letter initials value (see Person in
+   CLAUDE.md's Data section) — sized down from the auto-width every other
+   (variable-length) column gets, both on the header and its data cell
+   (:nth-child(5) — the 5th td-desk in each row; the last row child is the
+   hidden .td-mobile card, which nth-child still counts positionally but
+   doesn't affect layout since it's display:none on desktop). */
+#sortPersonHdr, table.data-table td:nth-child(5) { width:60px; white-space:nowrap; }
+
+/* Row-options column — a more_vert trigger for the whole table (not per-row,
+   since edit buttons already live inline in the Dates/Status cells) that
+   opens .bk-row-menu to toggle table.data-table.bk-edit-mode. Mirrors
+   Content Inventory's .ci-actions-col/.ci-more-btn/.ci-row-menu
+   (content-inventory.css) — hidden via .bk-th-hidden for view-only users
+   who canEdit no rows anyway (see init()/bookings.js). thead is already
+   display:none on mobile (below), so this never shows there either, same
+   as Content Inventory's own "no actions/more_vert on mobile" convention. */
+.bk-actions-th { width:34px; text-align:center; }
+.bk-th-hidden { display:none; }
+.bk-more-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%; box-sizing:border-box;
+  border:none; background:transparent;
+  color:var(--text-secondary); cursor:pointer; transition:all 0.2s;
+}
+.bk-more-btn .material-symbols-outlined { font-size:18px; }
+.bk-more-btn:hover, .bk-more-btn.open { background:var(--bg-glass); color:var(--text-primary); }
+
+/* more_vert dropdown — position:fixed (coords set in JS) so it isn't
+   clipped by .table-container's own scroll/overflow box. */
+.bk-row-menu {
+  position:fixed; z-index:600; display:none;
+  background:var(--nav-bg); border:1px solid var(--border-glass);
+  border-radius:12px; padding:6px; min-width:130px;
+  box-shadow:0 16px 40px rgba(0,0,0,0.3); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+}
+.bk-row-menu.open { display:block; }
+.bk-row-menu button {
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+  padding:8px 10px; border-radius:8px; border:none; background:none; cursor:pointer;
+  font-family:var(--font-body); font-size:13px; font-weight:600;
+  color:var(--text-secondary); transition:all 0.15s;
+}
+.bk-row-menu button .material-symbols-outlined { font-size:16px; }
+.bk-row-menu button:hover { background:var(--bg-glass); color:var(--text-primary); }
+
+table.data-table td { padding:16px; font-size:13px; background:var(--bg-glass); transition:background 0.2s; border-bottom:1px solid var(--border-glass); }
 table.data-table tr:hover td { background:var(--bg-glass-hover); }
 table.data-table td:first-child { border-radius:12px 0 0 12px; font-weight:600; }
 table.data-table td:last-child  { border-radius:0 12px 12px 0; }
@@ -291,14 +341,21 @@ table.data-table td:last-child  { border-radius:0 12px 12px 0; }
 }
 
 /* Edit buttons — dates (.edit-row-btn) and status (.edit-status-btn) share
-   one look: same size/shape/hover, always visible (not hover-to-reveal). */
+   one look: same size/shape/hover. Hidden by default; revealed once the
+   table's more_vert menu (#bkTableMoreBtn/.bk-row-menu, below) is used to
+   toggle table.data-table.bk-edit-mode — same more_vert → "Edit" → per-row
+   buttons flow as Content Inventory's ci-edit-mode (loadCarousel.js/
+   content-inventory.js), so admins/owners aren't shown edit affordances on
+   every row by default. */
 .edit-status-btn,
 .edit-row-btn {
   width:26px; height:26px; border-radius:8px; border:none; cursor:pointer;
   background:var(--bg-glass); color:var(--text-muted); font-size:13px;
-  display:inline-flex; align-items:center; justify-content:center;
+  display:none; align-items:center; justify-content:center;
   transition:all 0.2s; flex-shrink:0;
 }
+table.data-table.bk-edit-mode .edit-status-btn,
+table.data-table.bk-edit-mode .edit-row-btn { display:inline-flex; }
 .edit-status-btn:hover,
 .edit-row-btn:hover { color:var(--accent-indigo); background:rgba(152,30,50,0.1); }
 
