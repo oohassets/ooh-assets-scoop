@@ -1,6 +1,6 @@
 /* ── Bookings View Module ─────────────────────────────────── */
 import { rtdb } from "../../../firebase/firebase.js";
-import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { ref, get, set, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { initScrollReveal } from "../utils.js";
 import { initCircuitMapUI, syncCircuitMapSelection, teardownCircuitMap } from "../circuit-map.js";
 import { loadRootTables } from "../rtdb-root.js";
@@ -466,6 +466,15 @@ function renderTable(campaigns) {
         addInventoryBtn = `<button class="add-inventory-btn" data-key="${r.key}" type="button" title="Add to Content Inventory"><span class="material-symbols-outlined">queue_play_next</span></button>`;
       }
     }
+    const deleteBtn = canEditRow
+      ? `<button class="delete-row-btn" data-key="${r.key}" type="button" title="Delete booking"><span class="material-symbols-outlined" style="font-size:14px;">delete</span></button>`
+      : "";
+    // Only rendered at all when canEdit is true (global admin/sales
+    // permission) — matching #bkActionsTh's own .bk-th-hidden gate in init()
+    // — so a view-only user (whose header cell is hidden) never ends up with
+    // a body column the header doesn't have. Whether the button inside is
+    // actually visible for *this* row still depends on canEditRow.
+    const actionsTd = canEdit ? `<td class="td-desk bk-actions-td">${deleteBtn}</td>` : "";
     return `
       <tr>
         <td class="td-desk"><div class="client-name">${escapeHTML(r.client)}</div><div class="brand-name">${escapeHTML(r.brand)}</div>${r.bo ? `<div class="bo-name">${escapeHTML(r.bo)}</div>` : ""}</td>
@@ -482,6 +491,7 @@ function renderTable(campaigns) {
           </div>
         </td>
         <td class="td-desk" style="color:var(--text-muted);font-size:12px;">${escapeHTML(r.person)}</td>
+        ${actionsTd}
         <td class="td-mobile" colspan="6">
           <div class="mob-row">
             <div class="mob-col mob-col-left">
@@ -500,6 +510,7 @@ function renderTable(campaigns) {
             </div>
             <div class="mob-col mob-col-right">
               <div class="mob-person">${escapeHTML(r.person)}</div>
+              ${deleteBtn}
             </div>
           </div>
         </td>
@@ -536,6 +547,30 @@ function renderTable(campaigns) {
     });
   });
 
+  tbody.querySelectorAll(".delete-row-btn").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      e.stopPropagation();
+      if (btn.disabled) return;
+      const campaign = allCampaigns.find(c => c.key === btn.dataset.key);
+      if (!campaign) return;
+      const label = campaign.brand !== "—" ? campaign.brand : campaign.client;
+      if (!confirm(`Delete this booking?\n\n${label} — ${campaign.asset}\n${campaign.date}\n\nThis cannot be undone.`)) return;
+      btn.disabled = true;
+      const icon = btn.querySelector(".material-symbols-outlined");
+      icon.textContent = "hourglass_top";
+      try {
+        await remove(ref(rtdb, `Campaigns_Booking/${btn.dataset.key}`));
+        const tables = await loadAll();
+        allCampaigns = getCampaigns(tables);
+        applyFilters();
+      } catch (err) {
+        console.error("[Bookings] Failed to delete booking:", err);
+        alert("Failed to delete booking. Please try again.");
+        if (document.body.contains(btn)) { btn.disabled = false; icon.textContent = "delete"; }
+      }
+    });
+  });
+
   tbody.querySelectorAll(".add-inventory-btn").forEach(btn => {
     btn.addEventListener("click", async e => {
       e.stopPropagation();
@@ -561,8 +596,10 @@ function renderTable(campaigns) {
 // Single shared panel, fixed-positioned so it isn't clipped by
 // .table-container's own scroll box — same pattern as Content Inventory's
 // .ci-row-menu (content-inventory.js), just for the whole table at once
-// rather than per-row, since bookings' edit buttons already live inline in
-// the Dates/Status cells instead of a dedicated actions column.
+// rather than per-row: the Edit/Status buttons live inline in the Dates/
+// Status cells, and even the delete button's own .bk-actions-td (see
+// renderTable()) only ever offers the one destructive action, so there's
+// nothing per-row to open a menu for.
 function ensureBkRowMenu() {
   if (bkRowMenuEl) return bkRowMenuEl;
   bkRowMenuEl = document.createElement("div");
