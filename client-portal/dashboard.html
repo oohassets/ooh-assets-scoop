@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOOP Client Portal — My Bookings</title>
+<link rel="icon" type="image/png" href="../images/scooplogo_black_192x192.png">
+<link rel="stylesheet" href="./css/portal.css">
+</head>
+<body>
+
+<button class="cp-theme-toggle" id="cpThemeToggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+  <span id="cpThemeIcon">&#9789;</span>
+</button>
+
+<div class="cp-shell">
+
+  <div class="cp-topbar">
+    <div class="cp-brand-mark"><span class="dot"></span> SCOOP Client Portal</div>
+    <div class="cp-who">
+      <span class="cp-who-name" id="cpWhoName"></span>
+      <button class="cp-signout-btn" id="cpSignOutBtn" type="button">Sign out</button>
+    </div>
+  </div>
+
+  <div id="cpLoadingState" class="cp-loading">Loading your bookings…</div>
+  <div id="cpErrorState" class="cp-card" style="display:none;">
+    <p class="cp-empty" id="cpErrorMsg"></p>
+  </div>
+
+  <div id="cpContent" style="display:none;">
+    <div class="cp-tabs">
+      <button class="cp-tab active" id="cpTabBookings" type="button">My Bookings</button>
+      <button class="cp-tab" id="cpTabCalendar" type="button">Campaign Calendar</button>
+    </div>
+
+    <section id="cpBookingsSection">
+      <div class="cp-card">
+        <h2 class="cp-card-title">My Bookings</h2>
+        <div class="cp-table-wrap">
+          <table class="cp-table" id="cpBookingsTable">
+            <thead>
+              <tr>
+                <th>Brand Campaign</th>
+                <th>BO</th>
+                <th>Circuit</th>
+                <th>Dates</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="cpBookingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="cpCalendarSection" style="display:none;">
+      <div class="cp-card">
+        <div class="cp-cal-controls">
+          <button class="cp-cal-nav-btn" id="cpCalPrev" type="button" aria-label="Previous month">&#8249;</button>
+          <span class="cp-cal-month-label" id="cpCalMonthLabel"></span>
+          <button class="cp-cal-nav-btn" id="cpCalNext" type="button" aria-label="Next month">&#8250;</button>
+          <div class="cp-cal-legend">
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-success);"></span>Your booking (Live)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-info);"></span>Your booking (BO Signed)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-warning);"></span>Your booking (Pending)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-danger);"></span>Booked / Reserve (other clients)</span>
+          </div>
+        </div>
+        <div class="cp-cal-scroll">
+          <table class="cp-cal-table" id="cpCalTable"></table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<script type="module" src="./js/portal-theme.js"></script>
+<script type="module" src="./js/portal-dashboard.js"></script>
+
+</body>
+</html>

@@ -57,7 +57,19 @@ function getInitials(name) {
  * Looks up the signed-in user's row in the "user" RTDB table by matching
  * its own `id` field against the Firebase Auth email (rows are keyed by a
  * plain sequential index, not by email — same convention as `assetrate`).
+ *
+ * Every internal staff account can read this (database.rules.json grants
+ * root .read to any signed-in user). A client-portal account (see
+ * clientUsers in database.rules.json) is the one exception — it gets a
+ * hard root .read:false, so this throws permission-denied for them
+ * specifically. That's used as the signal to bounce them out to the
+ * client portal below, rather than leaving them stuck on an internal
+ * shell where every subsequent data fetch would also silently fail.
  */
+function isPermissionDenied(e) {
+  return e.code === "PERMISSION_DENIED" || /permission_denied/i.test(e.message || "");
+}
+
 async function loadUserProfile(email) {
   try {
     const snap = await get(ref(rtdb, "user"));
@@ -66,6 +78,7 @@ async function loadUserProfile(email) {
     const rows = Array.isArray(data) ? data : Object.values(data);
     return rows.find(row => row && (row.id || "").toLowerCase() === email.toLowerCase()) || null;
   } catch (e) {
+    if (isPermissionDenied(e)) throw e;
     console.error("[SCOOP] Failed to load user profile:", e);
     return null;
   }
@@ -74,7 +87,21 @@ async function loadUserProfile(email) {
 // ── Auth guard ────────────────────────────────────────────
 let firstLoad = true;
 requireAuth(async (user) => {
-  const profile  = await loadUserProfile(user.email);
+  let profile;
+  try {
+    profile = await loadUserProfile(user.email);
+  } catch (e) {
+    if (isPermissionDenied(e)) {
+      // Not an internal staff account — almost certainly a client-portal
+      // login that ended up on the wrong page (Firebase Auth sessions are
+      // shared across the whole origin). Send them to where they actually
+      // belong instead of leaving every widget on this page broken.
+      await signOut(auth).catch(() => {});
+      window.location.href = "./client-portal/login.html";
+      return;
+    }
+    throw e;
+  }
   const userName = profile?.name || user.displayName || user.email.split("@")[0];
   const initials = profile?.initials || getInitials(userName);
   // Least-privilege default: an email not yet added to the "user" table

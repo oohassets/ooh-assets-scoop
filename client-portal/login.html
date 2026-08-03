@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOOP Client Portal — Sign In</title>
+<link rel="icon" type="image/png" href="../images/scooplogo_black_192x192.png">
+<link rel="stylesheet" href="./css/portal.css">
+</head>
+<body>
+
+<button class="cp-theme-toggle" id="cpThemeToggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+  <span id="cpThemeIcon">&#9789;</span>
+</button>
+
+<div class="cp-login-wrap">
+  <div class="cp-login-card">
+    <div class="cp-login-badge">S</div>
+    <h1 class="cp-login-title">Client Portal</h1>
+    <p class="cp-login-sub">Sign in to view your OOH campaign bookings.</p>
+
+    <div class="cp-field">
+      <label for="cpEmail">Email</label>
+      <input id="cpEmail" type="email" autocomplete="username" placeholder="you@company.com">
+    </div>
+    <div class="cp-field">
+      <label for="cpPassword">Password</label>
+      <input id="cpPassword" type="password" autocomplete="current-password" placeholder="Enter your password">
+    </div>
+
+    <p class="cp-login-msg" id="cpLoginMsg"></p>
+
+    <button class="cp-login-btn" id="cpLoginBtn" type="button">Sign In</button>
+  </div>
+</div>
+
+<script type="module" src="./js/portal-theme.js"></script>
+<script type="module" src="./js/portal-login.js"></script>
+
+</body>
+</html>

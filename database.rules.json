@@ -1,9 +1,13 @@
 {
   "rules": {
-    ".read": "auth != null",
+    ".read": "auth != null && !root.child('clientUsers').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists()",
     ".write": false,
 
     "user": {
+      ".write": false
+    },
+
+    "clientUsers": {
       ".write": false
     },
 

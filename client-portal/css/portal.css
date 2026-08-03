@@ -1,0 +1,189 @@
+/* ══════════════════════════════════════════════════════════
+   SCOOP Client Portal — self-contained styles.
+   Deliberately not sharing assets/css/theme.css: this folder has no
+   dependency on the internal app's code at all, so isolation holds even
+   if the internal app's styling/tokens change shape later.
+══════════════════════════════════════════════════════════ */
+:root {
+  --cp-bg:        #f4f5f7;
+  --cp-surface:   #ffffff;
+  --cp-border:    rgba(15,23,42,0.10);
+  --cp-text:      #14181f;
+  --cp-text-sub:  #5b6472;
+  --cp-brand:     #981e32;
+  --cp-brand-600: #7a1828;
+  --cp-brand-wash: rgba(152,30,50,0.08);
+  --cp-success:   #1f9d63;
+  --cp-warning:   #c98a1a;
+  --cp-info:      #2f6fed;
+  --cp-danger:    #d9403f;
+  --cp-radius:    16px;
+  --cp-shadow:    0 8px 28px rgba(15,23,42,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cp-bg:        #0f1216;
+    --cp-surface:   #1a1e24;
+    --cp-border:    rgba(255,255,255,0.08);
+    --cp-text:      #eef1f5;
+    --cp-text-sub:  #99a2ae;
+    --cp-brand:     #e0596e;
+    --cp-brand-600: #c9435a;
+    --cp-brand-wash: rgba(224,89,110,0.12);
+    --cp-shadow:    0 8px 28px rgba(0,0,0,0.4);
+  }
+}
+:root[data-cp-theme="dark"] {
+  --cp-bg: #0f1216; --cp-surface:#1a1e24; --cp-border:rgba(255,255,255,0.08);
+  --cp-text:#eef1f5; --cp-text-sub:#99a2ae; --cp-brand:#e0596e; --cp-brand-600:#c9435a;
+  --cp-brand-wash: rgba(224,89,110,0.12); --cp-shadow:0 8px 28px rgba(0,0,0,0.4);
+}
+:root[data-cp-theme="light"] {
+  --cp-bg:#f4f5f7; --cp-surface:#ffffff; --cp-border:rgba(15,23,42,0.10);
+  --cp-text:#14181f; --cp-text-sub:#5b6472; --cp-brand:#981e32; --cp-brand-600:#7a1828;
+  --cp-brand-wash: rgba(152,30,50,0.08); --cp-shadow:0 8px 28px rgba(15,23,42,0.08);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh;
+  background: var(--cp-bg); color: var(--cp-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+
+.cp-theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 20;
+  width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--cp-border);
+  background: var(--cp-surface); color: var(--cp-text-sub); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-appearance: none; appearance: none;
+}
+.cp-theme-toggle:hover { color: var(--cp-brand); border-color: var(--cp-brand); }
+
+/* ── Login page ───────────────────────────────────── */
+.cp-login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.cp-login-card {
+  width: 100%; max-width: 380px;
+  background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow); padding: 32px 28px;
+}
+.cp-login-badge {
+  width: 44px; height: 44px; border-radius: 12px; background: var(--cp-brand-wash); color: var(--cp-brand);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+  font-weight: 800; font-size: 18px;
+}
+.cp-login-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
+.cp-login-sub { margin: 0 0 24px; color: var(--cp-text-sub); font-size: 13px; }
+.cp-field { margin-bottom: 14px; }
+.cp-field label { display: block; font-size: 12px; font-weight: 600; color: var(--cp-text-sub); margin-bottom: 6px; }
+.cp-field input {
+  width: 100%; height: 44px; padding: 0 14px; border-radius: 10px;
+  border: 1px solid var(--cp-border); background: var(--cp-bg); color: var(--cp-text);
+  font-size: 15px; outline: none;
+}
+.cp-field input:focus { border-color: var(--cp-brand); box-shadow: 0 0 0 3px var(--cp-brand-wash); }
+.cp-login-btn {
+  width: 100%; height: 46px; margin-top: 6px; border: none; border-radius: 10px; cursor: pointer;
+  background: var(--cp-brand); color: #fff; font-size: 15px; font-weight: 700;
+}
+.cp-login-btn:hover { background: var(--cp-brand-600); }
+.cp-login-btn:disabled { opacity: 0.6; cursor: default; }
+.cp-login-msg { min-height: 18px; margin: 10px 0 0; font-size: 13px; color: var(--cp-danger); }
+
+/* ── Dashboard shell ──────────────────────────────── */
+.cp-shell { max-width: 1200px; margin: 0 auto; padding: 20px 20px 60px; }
+.cp-topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 0 20px;
+}
+.cp-brand-mark { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+.cp-brand-mark .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--cp-brand); }
+.cp-who { display: flex; align-items: center; gap: 12px; }
+.cp-who-name { font-size: 13px; color: var(--cp-text-sub); }
+.cp-signout-btn {
+  height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--cp-border);
+  background: var(--cp-surface); color: var(--cp-text-sub); cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.cp-signout-btn:hover { border-color: var(--cp-danger); color: var(--cp-danger); }
+
+.cp-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+.cp-tab {
+  padding: 9px 16px; border-radius: 999px; border: 1px solid var(--cp-border); background: var(--cp-surface);
+  color: var(--cp-text-sub); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.cp-tab.active { background: var(--cp-brand); border-color: var(--cp-brand); color: #fff; }
+
+.cp-card { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: var(--cp-radius); padding: 20px; }
+.cp-card + .cp-card { margin-top: 16px; }
+.cp-card-title { margin: 0 0 14px; font-size: 15px; font-weight: 800; }
+.cp-empty { color: var(--cp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
+.cp-loading { color: var(--cp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
+
+/* ── My Bookings table ────────────────────────────── */
+.cp-table-wrap { overflow-x: auto; }
+.cp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cp-table th {
+  text-align: left; padding: 10px 12px; color: var(--cp-text-sub); font-weight: 700; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid var(--cp-border);
+  white-space: nowrap;
+}
+.cp-table td { padding: 12px; border-bottom: 1px solid var(--cp-border); vertical-align: top; }
+.cp-table tr:last-child td { border-bottom: none; }
+.cp-pill { display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.cp-pill-live      { background: rgba(31,157,99,0.14);  color: var(--cp-success); }
+.cp-pill-signed    { background: rgba(47,111,237,0.14); color: var(--cp-info); }
+.cp-pill-pending   { background: rgba(201,138,26,0.16); color: var(--cp-warning); }
+.cp-pill-completed { background: rgba(91,100,114,0.16); color: var(--cp-text-sub); }
+
+/* ── Campaign calendar ────────────────────────────── */
+.cp-cal-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.cp-cal-nav-btn {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--cp-border); background: var(--cp-bg);
+  color: var(--cp-text); cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.cp-cal-nav-btn:hover { border-color: var(--cp-brand); color: var(--cp-brand); }
+.cp-cal-month-label { font-weight: 700; font-size: 14px; min-width: 130px; text-align: center; }
+.cp-cal-legend { display: flex; gap: 16px; margin-left: auto; font-size: 12px; color: var(--cp-text-sub); }
+.cp-cal-legend-item { display: flex; align-items: center; gap: 6px; }
+.cp-cal-legend-swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+.cp-cal-scroll { overflow: auto; max-height: 65vh; border-radius: 12px; border: 1px solid var(--cp-border); }
+.cp-cal-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.cp-cal-table th {
+  border: 1px solid var(--cp-border); height: 34px; text-align: center; position: sticky; top: 0; z-index: 5;
+  background: var(--cp-bg); color: var(--cp-text-sub); font-weight: 700; font-size: 10px;
+}
+.cp-cal-table td { border: 1px solid var(--cp-border); height: 38px; position: relative; }
+.cp-cal-circuit-col {
+  position: sticky; left: 0; z-index: 3; width: 190px; min-width: 190px; text-align: left;
+  padding: 0 10px; background: var(--cp-surface); font-weight: 700; font-size: 12px;
+}
+.cp-cal-slot-col {
+  position: sticky; left: 190px; z-index: 3; width: 60px; min-width: 60px;
+  background: var(--cp-bg); color: var(--cp-text-sub); font-size: 10px;
+}
+th.cp-cal-circuit-col { z-index: 6; top: 0; left: 0; }
+th.cp-cal-slot-col    { z-index: 6; top: 0; left: 190px; }
+.cp-cal-today { background: rgba(201,138,26,0.18) !important; }
+
+.cp-bar {
+  position: absolute; top: 5px; bottom: 5px; left: 2px; right: 2px;
+  border-radius: 6px; color: #fff; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; padding: 0 8px; overflow: hidden; white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cp-bar-mine-live      { background: var(--cp-success); }
+.cp-bar-mine-signed    { background: var(--cp-info); }
+.cp-bar-mine-pending   { background: var(--cp-warning); }
+.cp-bar-mine-completed { background: var(--cp-text-sub); }
+.cp-bar-other          { background: var(--cp-danger); justify-content: center; }
+
+@media (max-width: 720px) {
+  .cp-shell { padding: 14px 12px 40px; }
+  .cp-who-name { display: none; }
+  .cp-cal-legend { display: none; }
+}
