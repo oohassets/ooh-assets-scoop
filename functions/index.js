@@ -1,8 +1,6 @@
 const functions = require("firebase-functions");
 const admin     = require("firebase-admin");
-const https     = require("https");
 const corsLib   = require("cors");
-const jwt       = require("jsonwebtoken");
 
 admin.initializeApp();
 
@@ -32,111 +30,6 @@ async function verifyAuth(req) {
     return null;
   }
 }
-
-// ═══════════════════════════════════════════════════════════
-// SCOOP AI  — HTTP proxy to Anthropic Claude API
-// POST { system, messages } → { content: [{ text }] }
-// ═══════════════════════════════════════════════════════════
-exports.scoopAI = functions
-  .runWith({ secrets: ["ANTHROPIC_API_KEY"], memory: "256MB", timeoutSeconds: 60 })
-  .https.onRequest((req, res) => {
-    corsMiddleware(req, res, async () => {
-    if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
-
-    const decoded = await verifyAuth(req);
-    if (!decoded) { res.status(401).json({ error: "Unauthorized" }); return; }
-
-    const { system, messages } = req.body || {};
-
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      res.status(400).json({ error: "messages array is required" });
-      return;
-    }
-
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      console.error("ANTHROPIC_API_KEY secret not set");
-      res.status(500).json({ error: "AI service not configured" });
-      return;
-    }
-
-    // Build request body for Claude
-    const body = JSON.stringify({
-      model:      "claude-sonnet-4-6",
-      max_tokens: 1024,
-      system:     system || "You are Scoop AI, an OOH advertising assistant.",
-      messages:   messages.map(m => ({
-        role:    m.role === "bot" ? "assistant" : m.role,
-        content: String(m.content),
-      })),
-    });
-
-    // Call Anthropic Messages API
-    const claudeRes = await new Promise((resolve, reject) => {
-      const reqOptions = {
-        hostname: "api.anthropic.com",
-        path:     "/v1/messages",
-        method:   "POST",
-        headers:  {
-          "Content-Type":      "application/json",
-          "anthropic-version": "2023-06-01",
-          "x-api-key":         apiKey,
-          "Content-Length":    Buffer.byteLength(body),
-        },
-      };
-
-      const r = https.request(reqOptions, (response) => {
-        let data = "";
-        response.on("data", chunk => { data += chunk; });
-        response.on("end",  ()    => resolve({ status: response.statusCode, body: data }));
-      });
-
-      r.on("error", reject);
-      r.write(body);
-      r.end();
-    });
-
-    if (claudeRes.status !== 200) {
-      console.error("Anthropic error:", claudeRes.body);
-      res.status(502).json({ error: "Upstream AI error", detail: claudeRes.body });
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(claudeRes.body);
-      res.status(200).json(parsed);
-    } catch (parseErr) {
-      console.error("Parse error:", parseErr);
-      res.status(500).json({ error: "Failed to parse AI response" });
-    }
-    }); // end corsMiddleware callback
-  });   // end onRequest
-
-
-// ═══════════════════════════════════════════════════════════
-// CHATBASE TOKEN  — signs a JWT so Chatbase can identify the user
-// POST (Authorization: Bearer <Firebase ID token>) → { token }
-// uid/email come from the verified token, never from the request
-// body, so a caller can't mint an identity token for someone else.
-// Requires CHATBOT_IDENTITY_SECRET in Firebase Secrets Manager
-// ═══════════════════════════════════════════════════════════
-exports.chatbaseToken = functions
-  .runWith({ secrets: ["CHATBOT_IDENTITY_SECRET"] })
-  .https.onRequest((req, res) => {
-    corsMiddleware(req, res, async () => {
-      if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
-
-      const decoded = await verifyAuth(req);
-      if (!decoded) { res.status(401).json({ error: "Unauthorized" }); return; }
-
-      const secret = process.env.CHATBOT_IDENTITY_SECRET;
-      if (!secret) { res.status(500).json({ error: "Secret not configured" }); return; }
-
-      const token = jwt.sign({ user_id: decoded.uid, email: decoded.email }, secret, { expiresIn: "1h" });
-      res.status(200).json({ token });
-    });
-  });
-
 
 // ═══════════════════════════════════════════════════════════
 // CLIENT PORTAL DATA  — the *only* way a client-portal account can ever
