@@ -434,6 +434,13 @@ table.data-table.bk-edit-mode .delete-row-btn { display:inline-flex; }
 .booking-calendar td { border:1px solid rgba(255,255,255,0.04); height:42px; text-align:center; position:relative; overflow:visible; }
 [data-theme="light"] .booking-calendar td { border-color:rgba(152,30,50,0.08); }
 
+/* Divider between one circuit's block of slot rows and the next (see
+   buildCalendar() in bookings.js) — a thick colored border-bottom, since
+   margin doesn't apply to td/tr under border-collapse:collapse. Uses the
+   same theme-aware border token as .card (--border-glass) so it reads as
+   a visible divider line rather than blank space in either theme. */
+.booking-calendar td.bk-cal-circuit-end { border-bottom:3px solid var(--border-glass); }
+
 /* Circuit column — sticky left in both th and td */
 .circuit-col {
   position:sticky; left:0;

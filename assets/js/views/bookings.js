@@ -1500,23 +1500,36 @@ async function buildCalendar() {
   });
   thead.appendChild(hrow); table.appendChild(thead);
   const tbody = document.createElement("tbody");
-  circuitSlots.forEach(circuit => {
+  circuitSlots.forEach((circuit, ci) => {
+    // Every circuit but the final one gets a thick colored border-bottom
+    // (bk-cal-circuit-end) on its last slot row to read as a divider
+    // separating one circuit's block of rows from the next — plain margin
+    // doesn't apply to <tr>/<td> under border-collapse:collapse. This is a
+    // per-circuit flag, not per-slot-row: the circuit-col cell (rowSpan
+    // over every slot row) needs the class too so its own bottom border —
+    // which renders at the bottom of its whole rowSpan, not per-row —
+    // lines up with the slot/date columns' border on that same last row.
+    const isLastCircuit = ci === circuitSlots.length - 1;
+    const isGroupEnd = !isLastCircuit;
     for (let slot=1; slot<=circuit.slots; slot++) {
       const tr = document.createElement("tr");
       // Read back during drag (getRowMeta()) to restrict a drag to rows of
       // the same circuit and to resolve the target slot under the pointer.
       tr.dataset.circuit = circuit.name;
       tr.dataset.slot = String(slot);
+      const isLastSlotRow = slot === circuit.slots;
       if (slot===1) {
         const td = document.createElement("td");
-        td.className="circuit-col"; td.rowSpan=circuit.slots; td.textContent=circuit.name;
+        td.className="circuit-col" + (isGroupEnd ? " bk-cal-circuit-end" : ""); td.rowSpan=circuit.slots; td.textContent=circuit.name;
         tr.appendChild(td);
       }
       const st = document.createElement("td");
-      st.className="slot-col"; st.textContent=`Slot ${slot}`; tr.appendChild(st);
+      st.className="slot-col" + (isGroupEnd && isLastSlotRow ? " bk-cal-circuit-end" : ""); st.textContent=`Slot ${slot}`; tr.appendChild(st);
       dates.forEach(d => {
         const td = document.createElement("td");
-        td.dataset.date = toISO(d); tr.appendChild(td);
+        td.dataset.date = toISO(d);
+        if (isGroupEnd && isLastSlotRow) td.classList.add("bk-cal-circuit-end");
+        tr.appendChild(td);
       });
       tbody.appendChild(tr);
     }
