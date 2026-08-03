@@ -15,7 +15,7 @@ SCOOP OOH Assets is a Progressive Web App (PWA) and Firebase-hosted dashboard fo
 There is no root `package.json`. All commands run from `functions/`:
 
 ```bash
-cd functions && npm install        # Install dependencies (Node.js 24 required)
+cd functions && npm install        # Install dependencies (Node.js 20 required — see firebase.json's runtime)
 npm run serve                      # Start Firebase emulator (functions only)
 npm run shell                      # Interactive functions shell
 npm run deploy                     # Deploy functions to Firebase
@@ -100,6 +100,8 @@ The map has three view modes (`mapMode`: `3d`/`default`/`satellite`, switched vi
 ### Backend (Firebase Cloud Functions — `functions/index.js`)
 
 Two exported functions, both in `functions/index.js`, neither requiring any Secrets Manager secret (kept intentionally minimal — a missing/misconfigured secret on any one function blocks `firebase deploy --only functions` for *all* functions, since the CLI validates every function's secrets up front before deploying any of them; `scoopAI` and `chatbaseToken`, an Anthropic proxy and a Chatbase JWT signer, existed here previously but were removed as dead code once the Chatbase widget moved to a standalone embed in `index.html` with no backend call at all). `getClientPortalData` requires a Firebase ID token (`Authorization: Bearer <idToken>`, verified server-side via the shared `verifyAuth()` helper using `admin.auth().verifyIdToken()`) in addition to CORS — CORS only blocks browser cross-origin calls, not direct/server-side requests, so it is not a substitute for auth on its own.
+
+Both functions use the `firebase-functions@^4.0.0` v1-style API (`functions.https.onRequest`/`functions.pubsub.schedule`, not the `firebase-functions/v2` imports), which deploys as **1st Gen** Cloud Functions — Gen 1 does not support Node.js 22+/24 at all, only up to Node 20. `firebase.json`'s `functions[0].runtime` and `functions/package.json`'s `engines.node` must both stay `"nodejs20"`/`"20"` (not bumped to match whatever Node version the GitHub Actions runner itself uses, e.g. `actions/setup-node@v4`'s `node-version: 24` in `deploy-functions.yml` — that's just the CLI's own execution environment, unrelated to the deployed function's runtime) or *creating* any brand-new Gen1 function fails immediately with `Runtime "nodejs24" is not supported on GCF Gen1` — a function that already existed before the mismatch was introduced can still silently keep deploying fine (an update, not a create), which is what made this easy to miss.
 
 - **`checkEndingCampaigns`** — Scheduled function (daily 8 AM Qatar time) that scans RTDB for campaigns ending today/tomorrow and sends FCM push notifications to tokens under `fcmTokens`.
 - **`getClientPortalData`** — HTTP POST, the sole data source for `client-portal/` (see below). Verifies the ID token, resolves the caller's `clientUsers/<sanitized-email>` roster entry via the Admin SDK (bypasses rules), and returns `{ clientName, contactName, circuits, myBookings, otherBookings }` — the caller's own bookings in full, and every other client's bookings stripped to `{ Circuits, Slot, Start Date, End Date, label }` only (`label` is `"Reserve"` for `Status: "Pending"`, `"Booked"` for everything else that isn't `"Cancelled"`, which is dropped entirely). No Client/Brand/BO/Person ever leaves the server for another client's rows.
