@@ -1437,6 +1437,15 @@ async function saveBooking() {
         : Object.keys(val).map(Number).filter(n => !Number.isNaN(n));
       nextKey = keys.length ? Math.max(...keys) + 1 : 1;
     }
+    // Guard against ever writing to a garbage key (e.g. Campaigns_Booking/NaN) —
+    // fail loudly with the raw snapshot logged for diagnosis instead of silently
+    // clobbering every circuit's write onto the same broken path.
+    if (!Number.isFinite(nextKey)) {
+      console.error("[Bookings] nextKey computation failed — raw Campaigns_Booking snapshot:", existingSnap.exists() ? existingSnap.val() : null);
+      alert("Could not determine where to save this booking (internal key error). Please hard-refresh the page (Ctrl+Shift+R) and try again — if it persists, check the browser console and report the logged snapshot.");
+      btn.textContent = idleText; btn.disabled = false;
+      return;
+    }
 
     if (editKey) {
       // Editing always starts from a single circuit row (see openEditModal),
