@@ -1426,15 +1426,26 @@ async function saveBooking() {
     // count undercounts once individual bookings can be deleted (see the
     // delete-row feature above), leaving gaps; a count-based key then
     // collides with an already-used key and set() silently overwrites that
-    // unrelated booking instead of appending a new one. Same fix as
-    // content-inventory.js's appendCampaignLog().
+    // unrelated booking instead of appending a new one.
+    //
+    // Object.entries(), not Array.isArray(val) + val.map((_,i)=>i) — real
+    // bookings here start at key "1" (never "0"), so Firebase returns this
+    // node as an Array with a genuine sparse hole at index 0. .map() skips
+    // invoking its callback for that hole but *preserves* the hole in the
+    // output array; spreading a hole (Math.max(...keys)) reads it back out
+    // as `undefined` (unlike .map()/.forEach(), which just skip holes), and
+    // Number(undefined) is NaN — one NaN anywhere in Math.max()'s argument
+    // list poisons the entire result to NaN regardless of the other valid
+    // entries. Object.entries() only ever returns real, present entries
+    // (arrays and objects alike), so the resulting keys array is always
+    // dense and safe to spread.
     const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
     let nextKey = 1;
     if (existingSnap.exists()) {
       const val = existingSnap.val();
-      const keys = Array.isArray(val)
-        ? val.map((_, i) => i)
-        : Object.keys(val).map(Number).filter(n => !Number.isNaN(n));
+      const keys = Object.entries(val)
+        .map(([k]) => Number(k))
+        .filter(n => Number.isFinite(n));
       nextKey = keys.length ? Math.max(...keys) + 1 : 1;
     }
     // Guard against ever writing to a garbage key (e.g. Campaigns_Booking/NaN) —
@@ -1497,10 +1508,10 @@ async function saveBooking() {
 async function deleteBookingAndRenumber(deletedKey) {
   const snap = await get(ref(rtdb, "Campaigns_Booking"));
   const val  = snap.exists() ? snap.val() : {};
-  const entries = Array.isArray(val)
-    ? val.map((row, i) => [String(i), row])
-    : Object.entries(val);
-  const remaining = entries
+  // Object.entries() works uniformly whether Firebase returns this node as
+  // an Array or a plain object (see saveBooking()'s nextKey comment on why
+  // Array.isArray + val.map((_,i)=>i) is the wrong tool here).
+  const remaining = Object.entries(val)
     .filter(([k, row]) => row && k !== deletedKey)
     .sort((a, b) => Number(a[0]) - Number(b[0]));
   const renumbered = {};

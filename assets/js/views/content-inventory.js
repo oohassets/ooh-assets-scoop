@@ -1188,9 +1188,16 @@ async function appendCampaignLog(entry) {
   const dateStr = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
   const snap = await get(ref(rtdb, "Campaign_Logs"));
   const existing = snap.exists() ? snap.val() : {};
-  const keys = Array.isArray(existing)
-    ? existing.map((_, i) => i)
-    : Object.keys(existing).map(Number).filter(n => !Number.isNaN(n));
+  // Object.entries(), not Array.isArray(existing) + existing.map((_,i)=>i) —
+  // if this table's own keys ever start above 0, Firebase returns it as an
+  // Array with a genuine sparse hole at the missing low indices; .map()
+  // preserves that hole in its output, and spreading a hole (Math.max(...))
+  // reads it back as `undefined`, which poisons the whole Math.max() result
+  // to NaN. Object.entries() only returns real, present entries, so this is
+  // always a dense array safe to spread (see bookings.js's saveBooking()).
+  const keys = Object.entries(existing)
+    .map(([k]) => Number(k))
+    .filter(n => Number.isFinite(n));
   const nextKey = keys.length ? Math.max(...keys) + 1 : 0;
   await set(ref(rtdb, `Campaign_Logs/${nextKey}`), { Date: dateStr, ...entry });
   campaignLogs = null; // invalidate the Logs tab's cache so it re-fetches next time it's opened
