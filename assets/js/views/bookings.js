@@ -1,6 +1,6 @@
 /* ── Bookings View Module ─────────────────────────────────── */
 import { rtdb } from "../../../firebase/firebase.js";
-import { ref, get, set, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { initScrollReveal } from "../utils.js";
 import { initCircuitMapUI, syncCircuitMapSelection, teardownCircuitMap } from "../circuit-map.js";
 import { loadRootTables } from "../rtdb-root.js";
@@ -559,7 +559,7 @@ function renderTable(campaigns) {
       const icon = btn.querySelector(".material-symbols-outlined");
       icon.textContent = "hourglass_top";
       try {
-        await remove(ref(rtdb, `Campaigns_Booking/${btn.dataset.key}`));
+        await deleteBookingAndRenumber(btn.dataset.key);
         const tables = await loadAll();
         allCampaigns = getCampaigns(tables);
         applyFilters();
@@ -1429,13 +1429,13 @@ async function saveBooking() {
     // unrelated booking instead of appending a new one. Same fix as
     // content-inventory.js's appendCampaignLog().
     const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
-    let nextKey = 0;
+    let nextKey = 1;
     if (existingSnap.exists()) {
       const val = existingSnap.val();
       const keys = Array.isArray(val)
         ? val.map((_, i) => i)
         : Object.keys(val).map(Number).filter(n => !Number.isNaN(n));
-      nextKey = keys.length ? Math.max(...keys) + 1 : 0;
+      nextKey = keys.length ? Math.max(...keys) + 1 : 1;
     }
 
     if (editKey) {
@@ -1476,6 +1476,27 @@ async function saveBooking() {
   } catch(e) {
     console.error(e); btn.textContent = "Error — try again"; btn.disabled = false;
   }
+}
+
+/** Deletes one Campaigns_Booking record and re-keys every remaining record
+ * 1..N (in ascending original-key order) in a single overwrite of the whole
+ * table, rather than just remove()-ing the one key. Plain remove() leaves a
+ * gap; saveBooking()'s nextKey (max existing key + 1) tolerates gaps fine,
+ * but a gap-free 1..N range is what keeps a plain key *count* a safe stand-in
+ * for "next key" anywhere else that assumption might still be made, and
+ * keeps the keys themselves meaningful as a display/reference sequence. */
+async function deleteBookingAndRenumber(deletedKey) {
+  const snap = await get(ref(rtdb, "Campaigns_Booking"));
+  const val  = snap.exists() ? snap.val() : {};
+  const entries = Array.isArray(val)
+    ? val.map((row, i) => [String(i), row])
+    : Object.entries(val);
+  const remaining = entries
+    .filter(([k, row]) => row && k !== deletedKey)
+    .sort((a, b) => Number(a[0]) - Number(b[0]));
+  const renumbered = {};
+  remaining.forEach(([, row], i) => { renumbered[i + 1] = row; });
+  await set(ref(rtdb, "Campaigns_Booking"), renumbered);
 }
 
 // ── CALENDAR (booking schedule view) ─────────────────────
