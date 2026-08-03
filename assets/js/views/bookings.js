@@ -1422,11 +1422,20 @@ async function saveBooking() {
       Status: status, Person: personForRecord
     });
 
+    // max(existing numeric keys) + 1, not a plain count of entries — a
+    // count undercounts once individual bookings can be deleted (see the
+    // delete-row feature above), leaving gaps; a count-based key then
+    // collides with an already-used key and set() silently overwrites that
+    // unrelated booking instead of appending a new one. Same fix as
+    // content-inventory.js's appendCampaignLog().
     const existingSnap = await get(ref(rtdb, "Campaigns_Booking"));
-    let nextKey = 1;
+    let nextKey = 0;
     if (existingSnap.exists()) {
       const val = existingSnap.val();
-      nextKey = Array.isArray(val) ? val.filter(Boolean).length : Object.keys(val).length;
+      const keys = Array.isArray(val)
+        ? val.map((_, i) => i)
+        : Object.keys(val).map(Number).filter(n => !Number.isNaN(n));
+      nextKey = keys.length ? Math.max(...keys) + 1 : 0;
     }
 
     if (editKey) {
