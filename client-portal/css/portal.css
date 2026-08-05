@@ -133,11 +133,16 @@ a { color: inherit; }
 }
 .cp-table td { padding: 12px; border-bottom: 1px solid var(--cp-border); vertical-align: top; }
 .cp-table tr:last-child td { border-bottom: none; }
-.cp-pill { display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-.cp-pill-live      { background: rgba(31,157,99,0.14);  color: var(--cp-success); }
-.cp-pill-signed    { background: rgba(47,111,237,0.14); color: var(--cp-info); }
-.cp-pill-pending   { background: rgba(201,138,26,0.16); color: var(--cp-warning); }
-.cp-pill-completed { background: rgba(91,100,114,0.16); color: var(--cp-text-sub); }
+/* Same look as the internal app's .status-pill/.pill-* (assets/css/layout.css)
+   — literal color values instead of var()'d tokens since this folder has no
+   dependency on assets/css/theme.css's custom properties (see file header). */
+.cp-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.cp-pill::before { content: "•"; }
+.cp-pill-live      { background: rgba(53,179,126,0.15); color: #35B37E; }
+.cp-pill-signed    { background: rgba(229,72,77,0.15);  color: #E5484D; }
+.cp-pill-pending   { background: rgba(224,161,58,0.15); color: #E0A13A; }
+.cp-pill-completed { background: rgba(4,150,255,0.15);  color: #0496FF; }
+.cp-pill-cancelled { background: rgba(100,100,100,0.15);color: #75787C; }
 
 /* ── Campaign calendar ────────────────────────────── */
 .cp-cal-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }

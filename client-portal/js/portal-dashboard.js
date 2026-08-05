@@ -101,12 +101,16 @@ function fmtShort(str) {
 }
 
 // ── My Bookings table ────────────────────────────────────────
+// Same substring match as bookings.js's getStatusClass(), so a status value
+// maps to the same pill here as it would on the internal schedule table.
 function statusClass(status) {
   const s = (status || "").toLowerCase();
-  if (s === "live") return "cp-pill-live";
-  if (s === "pending") return "cp-pill-pending";
-  if (s === "completed") return "cp-pill-completed";
-  return "cp-pill-signed"; // BO Signed / anything else
+  if (s.includes("live")) return "cp-pill-live";
+  if (s.includes("signed")) return "cp-pill-signed";
+  if (s.includes("pending")) return "cp-pill-pending";
+  if (s.includes("completed")) return "cp-pill-completed";
+  if (s.includes("cancel")) return "cp-pill-cancelled";
+  return "cp-pill-signed";
 }
 
 function renderBookingsTable() {
