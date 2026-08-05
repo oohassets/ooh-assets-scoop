@@ -9,28 +9,41 @@
 </head>
 <body>
 
+<div class="cp-login-bg"></div>
+
 <button class="cp-theme-toggle" id="cpThemeToggle" type="button" title="Toggle theme" aria-label="Toggle theme">
   <span id="cpThemeIcon">&#9789;</span>
 </button>
 
 <div class="cp-login-wrap">
   <div class="cp-login-card">
-    <div class="cp-login-badge">S</div>
     <h1 class="cp-login-title">Client Portal</h1>
     <p class="cp-login-sub">Sign in to view your OOH campaign bookings.</p>
 
     <div class="cp-field">
       <label for="cpEmail">Email</label>
-      <input id="cpEmail" type="email" autocomplete="username" placeholder="you@company.com">
+      <div class="cp-field-wrap">
+        <span class="material-symbols-outlined cp-field-icon">person</span>
+        <input id="cpEmail" class="cp-field-input" type="email" autocomplete="username" placeholder="@scoop.client">
+      </div>
     </div>
     <div class="cp-field">
       <label for="cpPassword">Password</label>
-      <input id="cpPassword" type="password" autocomplete="current-password" placeholder="Enter your password">
+      <div class="cp-field-wrap cp-has-toggle">
+        <span class="material-symbols-outlined cp-field-icon">key</span>
+        <input id="cpPassword" class="cp-field-input" type="password" autocomplete="current-password" placeholder="Enter your password">
+        <button class="cp-pw-toggle" id="cpPwToggle" type="button" aria-label="Toggle password visibility">
+          <span class="material-symbols-outlined">visibility</span>
+        </button>
+      </div>
     </div>
 
     <p class="cp-login-msg" id="cpLoginMsg"></p>
 
-    <button class="cp-login-btn" id="cpLoginBtn" type="button">Sign In</button>
+    <button class="cp-login-btn" id="cpLoginBtn" type="button">
+      Sign In
+      <span class="cp-btn-arrow">→</span>
+    </button>
   </div>
 </div>
 

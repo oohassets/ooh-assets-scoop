@@ -67,36 +67,68 @@ a { color: inherit; }
 }
 .cp-theme-toggle:hover { color: var(--cp-brand); border-color: var(--cp-brand); }
 
-/* ── Login page ───────────────────────────────────── */
+/* ── Login page — same visual language as the internal app's login.html/
+   login.css: pearl-island background photo, card entrance animation, icon-
+   prefixed fields, arrow CTA button. Literal values/cp- prefixed classes
+   instead of importing login.css directly, same isolation reasoning as
+   the rest of this file. ── */
+.cp-login-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: url('../../images/the_pearl.jpg') center/cover no-repeat;
+  opacity: 0.28;
+}
+:root[data-cp-theme="light"] .cp-login-bg { opacity: 1; }
 .cp-login-wrap {
   min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  position: relative; z-index: 1;
 }
 .cp-login-card {
   width: 100%; max-width: 380px;
   background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: var(--cp-radius);
   box-shadow: var(--cp-shadow); padding: 32px 28px;
+  position: relative; z-index: 1;
+  animation: cpCardIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
 }
-.cp-login-badge {
-  width: 44px; height: 44px; border-radius: 12px; background: var(--cp-brand-wash); color: var(--cp-brand);
-  display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
-  font-weight: 800; font-size: 18px;
+@keyframes cpCardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .cp-login-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
 .cp-login-sub { margin: 0 0 24px; color: var(--cp-text-sub); font-size: 13px; }
 .cp-field { margin-bottom: 14px; }
 .cp-field label { display: block; font-size: 12px; font-weight: 600; color: var(--cp-text-sub); margin-bottom: 6px; }
-.cp-field input {
-  width: 100%; height: 44px; padding: 0 14px; border-radius: 10px;
-  border: 1px solid var(--cp-border); background: var(--cp-bg); color: var(--cp-text);
-  font-size: 15px; outline: none;
+.cp-field-wrap { position: relative; display: flex; align-items: center; }
+.cp-field-icon {
+  position: absolute; left: 14px; color: var(--cp-text-sub); font-size: 18px;
+  pointer-events: none; z-index: 1;
 }
-.cp-field input:focus { border-color: var(--cp-brand); box-shadow: 0 0 0 3px var(--cp-brand-wash); }
+.cp-field-wrap:focus-within .cp-field-icon { color: var(--cp-brand); }
+.cp-field-input {
+  width: 100%; height: 44px; padding: 0 14px 0 44px; border-radius: 10px;
+  border: 1px solid var(--cp-border); background: var(--cp-bg); color: var(--cp-text);
+  font-size: 15px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cp-field-input:focus { border-color: var(--cp-brand); box-shadow: 0 0 0 3px var(--cp-brand-wash); }
+.cp-has-toggle .cp-field-input { padding-right: 40px; }
+.cp-pw-toggle {
+  position: absolute; right: 12px; background: none; border: none; cursor: pointer;
+  color: var(--cp-text-sub); padding: 4px; display: flex; align-items: center; justify-content: center; z-index: 1;
+}
+.cp-pw-toggle:hover { color: var(--cp-text); }
+.cp-pw-toggle .material-symbols-outlined { font-size: 18px; }
 .cp-login-btn {
   width: 100%; height: 46px; margin-top: 6px; border: none; border-radius: 10px; cursor: pointer;
   background: var(--cp-brand); color: #fff; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.2s, transform 0.2s;
 }
-.cp-login-btn:hover { background: var(--cp-brand-600); }
-.cp-login-btn:disabled { opacity: 0.6; cursor: default; }
+.cp-login-btn:hover { background: var(--cp-brand-600); transform: translateY(-1px); }
+.cp-login-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+.cp-btn-arrow {
+  width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 11px; transition: transform 0.2s;
+}
+.cp-login-btn:hover .cp-btn-arrow { transform: translateX(3px); }
 .cp-login-msg { min-height: 18px; margin: 10px 0 0; font-size: 13px; color: var(--cp-danger); }
 
 /* ── Dashboard shell ──────────────────────────────── */

@@ -101,39 +101,38 @@ function statusClass(status) {
   return "sp-popup-pill-signed"; // BO Signed / anything else
 }
 
-/** A booking counts toward a map category only if TODAY falls within its own
-    Start–End Date range — not just because some booking on this circuit was
-    ever marked Live/BO Signed/Pending at some point in its full history
+/** A booking counts toward a map category based on today's date vs. its own
+    Start/End Date — not just because some booking on this circuit was ever
+    marked Live/BO Signed/Pending at some point in its full history
     (asset.bookings is the complete unfiltered history, see
-    getSupplierPortalData). Without this date check, a circuit that had ever
-    run one Live campaign stays permanently stuck in "live" for every other
-    booking on it too, since Live outranks Booked/Pending in priority —
-    which is exactly why the Booked bucket was coming up empty: most static
-    circuits have run *some* Live campaign at some point. */
-function getActiveBookings(bookings) {
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  return (bookings || []).filter(b => {
-    const s = parseDate(b["Start Date"]);
-    const e = parseDate(b["End Date"]);
-    return s && e && s <= today && today <= e;
-  });
-}
+    getSupplierPortalData). Without this check, a circuit that had ever run
+    one Live campaign stays permanently stuck in "live" for every other
+    booking on it too, since Live outranks Booked/Pending in priority.
 
-/** The full set of active-status categories currently running on this
-    circuit — not just the highest-priority one. A circuit can have more
-    than one Slot (oohassets.Slot) booked simultaneously, e.g. Slot 1 Live
-    + Slot 2 Pending at once, which is what the multi-color pie marker
-    (see buildPieBackground()) represents. Completed/Cancelled bookings
-    never count; a circuit with no currently-active booking in any category
-    returns [] and is left off the map entirely, per spec ("show only which
-    is live campaign, booked and pending campaign"). */
+    The date rule differs by category, deliberately:
+    - "Live" only needs Start Date <= today — it does NOT also require
+      End Date >= today. A Live campaign commonly keeps running past its
+      original scheduled End Date without the record being updated (that's
+      exactly what the stat card's "Extended" pill flags); requiring the
+      End Date to still be in the future would wrongly exclude every one of
+      those still-genuinely-live-but-overrun bookings.
+    - "Booked" (BO Signed) and "Pending" are inherently upcoming/
+      not-yet-started statuses, so they don't require a Start Date already
+      in the past — but they DO require End Date >= today, since a
+      confirmed/pending booking whose window has already fully lapsed
+      without ever going Live isn't "upcoming" anymore. */
 function getActiveCategories(bookings) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   const cats = new Set();
-  getActiveBookings(bookings).forEach(b => {
+  (bookings || []).forEach(b => {
     const s = (b.Status || "").toLowerCase();
-    if (s.includes("live")) cats.add("live");
-    else if (s.includes("signed")) cats.add("booked");
-    else if (s.includes("pending")) cats.add("pending");
+    if (s.includes("live")) {
+      const start = parseDate(b["Start Date"]);
+      if (start && start <= today) cats.add("live");
+    } else if (s.includes("signed") || s.includes("pending")) {
+      const end = parseDate(b["End Date"]);
+      if (end && end >= today) cats.add(s.includes("signed") ? "booked" : "pending");
+    }
   });
   return CATEGORIES.filter(c => cats.has(c)); // stable live/booked/pending order
 }
@@ -278,7 +277,14 @@ export async function initSupplierMap(container, assets, onNotice) {
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat(f.geometry.coordinates)
         .addTo(map);
-      el.addEventListener("click", () => {
+      // stopPropagation — a custom Marker element's click event still
+      // bubbles up through the map container (it's a DOM node overlaid on
+      // the map, not part of the click-driven circle layers below), which
+      // otherwise reaches MapLibre's own "click elsewhere closes the open
+      // popup" handling and immediately closes the popup this click just
+      // opened.
+      el.addEventListener("click", e => {
+        e.stopPropagation();
         popup.setLngLat(f.geometry.coordinates.slice()).setHTML(popupHTML(asset)).addTo(map);
       });
       pieMarkers.push({ marker, categories: activeCategories });
@@ -325,9 +331,17 @@ export async function initSupplierMap(container, assets, onNotice) {
     // A pie marker stays visible as long as ANY of its active categories is
     // still toggled on — hiding "Booked" shouldn't also hide a circuit
     // that's simultaneously Live just because Booked is one of its slices.
+    // Its pie itself is rebuilt from only the still-visible categories each
+    // time, so toggling one off shrinks the marker down to just the
+    // remaining slice(s) instead of leaving a now-hidden category's color
+    // baked into the wedge — down to a single category, buildPieBackground()
+    // naturally renders that as one full solid color, not a sliver.
     pieMarkers.forEach(({ marker, categories }) => {
-      const anyVisible = categories.some(c => categoryVisible[c]);
-      marker.getElement().style.display = anyVisible ? "" : "none";
+      const visibleCats = categories.filter(c => categoryVisible[c]);
+      const el = marker.getElement();
+      if (!visibleCats.length) { el.style.display = "none"; return; }
+      el.style.display = "";
+      el.style.background = buildPieBackground(visibleCats);
     });
   }
 

@@ -53,6 +53,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const password = document.getElementById("password");
   const loginMessage = document.getElementById("loginMessage");
 
+  // Fast, client-side domain check — not the actual security boundary
+  // (that's the userClient/userSupplier root .read:false + this page's own
+  // permission-denied bounce above), just quicker, clearer feedback than a
+  // round-trip to Firebase Auth followed by a generic "wrong password"
+  // message for someone who typed their client/supplier email into the
+  // staff login by mistake. Runs on blur (leaving the field), not just on
+  // Sign In click.
+  function checkEmailDomain() {
+    const email = username.value.trim().toLowerCase();
+    // Wait for "@" before flagging anything — otherwise every keystroke of
+    // the local part (before the user's even reached the domain) falsely
+    // trips the error.
+    if (email.includes("@") && !email.includes("scoop.assets")) {
+      loginMessage.style.color = "red";
+      loginMessage.textContent = "This login is for Scoop staff accounts only.";
+      return false;
+    }
+    loginMessage.textContent = "";
+    return true;
+  }
+  username.addEventListener("blur", checkEmailDomain);
+
   onAuthStateChanged(auth, user => {
     if (user) routeAfterAuth(loginMessage);
   });
@@ -60,6 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
   loginBtn.addEventListener("click", async () => {
     const email = username.value.trim();
     const pass = password.value.trim();
+
+    if (!checkEmailDomain()) return;
 
     try {
       await signInWithEmailAndPassword(auth, email, pass);

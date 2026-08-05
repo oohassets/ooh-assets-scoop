@@ -19,6 +19,25 @@ onAuthStateChanged(auth, user => {
   if (user) window.location.href = "./dashboard.html";
 });
 
+// Fast, client-side domain check — not the actual security boundary (that's
+// getSupplierPortalData's userSupplier lookup, see the file header), just
+// quicker, clearer feedback than a round-trip to Firebase Auth for someone
+// who typed their staff/client email into this login by mistake. Runs on
+// blur (leaving the field), not just on Sign In click.
+function checkEmailDomain() {
+  const email = emailEl.value.trim().toLowerCase();
+  // Wait for "@" before flagging anything — otherwise every keystroke of
+  // the local part (before the user's even reached the domain) falsely
+  // trips the error.
+  if (email.includes("@") && !email.includes("scoop.supplier")) {
+    msgEl.textContent = "This login is for Supplier accounts only.";
+    return false;
+  }
+  msgEl.textContent = "";
+  return true;
+}
+emailEl.addEventListener("blur", checkEmailDomain);
+
 async function doSignIn() {
   const email = emailEl.value.trim();
   const pass  = passEl.value;
@@ -26,6 +45,7 @@ async function doSignIn() {
     msgEl.textContent = "Please enter your email and password.";
     return;
   }
+  if (!checkEmailDomain()) return;
   btn.disabled = true;
   btn.textContent = "Signing in…";
   msgEl.textContent = "";
@@ -42,3 +62,9 @@ async function doSignIn() {
 btn.addEventListener("click", doSignIn);
 passEl.addEventListener("keydown", e => { if (e.key === "Enter") doSignIn(); });
 emailEl.addEventListener("keydown", e => { if (e.key === "Enter") passEl.focus(); });
+
+document.getElementById("spPwToggle")?.addEventListener("click", function () {
+  const isText = passEl.type === "text";
+  passEl.type = isText ? "password" : "text";
+  this.querySelector(".material-symbols-outlined").textContent = isText ? "visibility" : "visibility_off";
+});

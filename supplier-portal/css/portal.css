@@ -69,36 +69,68 @@ a { color: inherit; }
 }
 .sp-theme-toggle:hover { color: var(--sp-brand); border-color: var(--sp-brand); }
 
-/* ── Login page ───────────────────────────────────── */
+/* ── Login page — same visual language as the internal app's login.html/
+   login.css: pearl-island background photo, card entrance animation, icon-
+   prefixed fields, arrow CTA button. Literal values/sp- prefixed classes
+   instead of importing login.css directly, same isolation reasoning as
+   the rest of this file. ── */
+.sp-login-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: url('../../images/the_pearl.jpg') center/cover no-repeat;
+  opacity: 0.28;
+}
+:root[data-sp-theme="light"] .sp-login-bg { opacity: 1; }
 .sp-login-wrap {
   min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  position: relative; z-index: 1;
 }
 .sp-login-card {
   width: 100%; max-width: 380px;
   background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: var(--sp-radius);
   box-shadow: var(--sp-shadow); padding: 32px 28px;
+  position: relative; z-index: 1;
+  animation: spCardIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
 }
-.sp-login-badge {
-  width: 44px; height: 44px; border-radius: 12px; background: var(--sp-brand-wash); color: var(--sp-brand);
-  display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
-  font-weight: 800; font-size: 18px;
+@keyframes spCardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .sp-login-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
 .sp-login-sub { margin: 0 0 24px; color: var(--sp-text-sub); font-size: 13px; }
 .sp-field { margin-bottom: 14px; }
 .sp-field label { display: block; font-size: 12px; font-weight: 600; color: var(--sp-text-sub); margin-bottom: 6px; }
-.sp-field input {
-  width: 100%; height: 44px; padding: 0 14px; border-radius: 10px;
-  border: 1px solid var(--sp-border); background: var(--sp-bg); color: var(--sp-text);
-  font-size: 15px; outline: none;
+.sp-field-wrap { position: relative; display: flex; align-items: center; }
+.sp-field-icon {
+  position: absolute; left: 14px; color: var(--sp-text-sub); font-size: 18px;
+  pointer-events: none; z-index: 1;
 }
-.sp-field input:focus { border-color: var(--sp-brand); box-shadow: 0 0 0 3px var(--sp-brand-wash); }
+.sp-field-wrap:focus-within .sp-field-icon { color: var(--sp-brand); }
+.sp-field-input {
+  width: 100%; height: 44px; padding: 0 14px 0 44px; border-radius: 10px;
+  border: 1px solid var(--sp-border); background: var(--sp-bg); color: var(--sp-text);
+  font-size: 15px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sp-field-input:focus { border-color: var(--sp-brand); box-shadow: 0 0 0 3px var(--sp-brand-wash); }
+.sp-has-toggle .sp-field-input { padding-right: 40px; }
+.sp-pw-toggle {
+  position: absolute; right: 12px; background: none; border: none; cursor: pointer;
+  color: var(--sp-text-sub); padding: 4px; display: flex; align-items: center; justify-content: center; z-index: 1;
+}
+.sp-pw-toggle:hover { color: var(--sp-text); }
+.sp-pw-toggle .material-symbols-outlined { font-size: 18px; }
 .sp-login-btn {
   width: 100%; height: 46px; margin-top: 6px; border: none; border-radius: 10px; cursor: pointer;
   background: var(--sp-brand); color: #fff; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.2s, transform 0.2s;
 }
-.sp-login-btn:hover { background: var(--sp-brand-600); }
-.sp-login-btn:disabled { opacity: 0.6; cursor: default; }
+.sp-login-btn:hover { background: var(--sp-brand-600); transform: translateY(-1px); }
+.sp-login-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+.sp-btn-arrow {
+  width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 11px; transition: transform 0.2s;
+}
+.sp-login-btn:hover .sp-btn-arrow { transform: translateX(3px); }
 .sp-login-msg { min-height: 18px; margin: 10px 0 0; font-size: 13px; color: var(--sp-danger); }
 
 /* ── Dashboard shell ──────────────────────────────── */
