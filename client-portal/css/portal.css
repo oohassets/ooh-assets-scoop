@@ -161,9 +161,53 @@ a { color: inherit; }
 
 .cp-card { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: var(--cp-radius); padding: 20px; }
 .cp-card + .cp-card { margin-top: 16px; }
-.cp-card-title { margin: 0 0 14px; font-size: 15px; font-weight: 800; }
+.cp-card-title { margin: 0 0 14px; font-size: 15px; font-weight: 800; flex-shrink: 0; }
 .cp-empty { color: var(--cp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
 .cp-loading { color: var(--cp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
+
+/* My Bookings card — capped to the remaining viewport height below the
+   topbar/tabs (~140px of chrome above it, plus the shell's own 20px top
+   padding) so the card's bottom edge lands at the bottom of the screen
+   instead of growing indefinitely with the row/search-box additions above;
+   .cp-table-wrap becomes the one scrolling region so the title/search box
+   stay put. 100dvh overrides 100vh on mobile browsers, whose 100vh doesn't
+   account for the address bar collapsing/expanding (same convention as
+   content-inventory.css's #logsSection). */
+.cp-bookings-card {
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 160px);
+  max-height: calc(100dvh - 160px);
+}
+.cp-bookings-card .cp-search-box { flex-shrink: 0; }
+.cp-bookings-card .cp-table-wrap { flex: 1; min-height: 0; overflow-y: auto; }
+.cp-bookings-total {
+  flex-shrink: 0; padding-top: 10px; font-size: 12.5px; font-weight: 400;
+  color: var(--cp-text-sub); text-align: left;
+}
+
+/* ── My Bookings — search box (same visual language as the internal app's
+   .search-box in bookings.css) ────────────────────────────────────── */
+.cp-search-box {
+  position: relative; display: flex; align-items: center; gap: 10px;
+  height: 44px; padding: 0 16px; margin-bottom: 14px;
+  background: var(--cp-bg); border: 1px solid var(--cp-border); border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cp-search-box:focus-within { border-color: var(--cp-brand); box-shadow: 0 0 0 3px var(--cp-brand-wash); }
+.cp-search-icon { color: var(--cp-text-sub); font-size: 18px; flex-shrink: 0; }
+.cp-search-box input {
+  flex: 1; height: 100%; border: none; outline: none; background: transparent;
+  color: var(--cp-text); font-size: 14px; padding-right: 24px;
+}
+.cp-search-box input::placeholder { color: var(--cp-text-sub); }
+.cp-search-clear {
+  display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 22px; height: 22px; border: none; background: none; border-radius: 50%;
+  align-items: center; justify-content: center; color: var(--cp-text-sub); cursor: pointer;
+}
+.cp-search-clear .material-symbols-outlined { font-size: 15px; }
+.cp-search-clear:hover { background: var(--cp-bg); color: var(--cp-danger); }
+.cp-search-box input:not(:placeholder-shown) ~ .cp-search-clear { display: flex; }
 
 /* ── My Bookings table ────────────────────────────── */
 .cp-table-wrap { overflow-x: auto; }
@@ -173,6 +217,13 @@ a { color: inherit; }
   text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid var(--cp-border);
   white-space: nowrap;
 }
+/* Click-to-sort headers — same pattern as the internal app's .th-sortable/
+   .th-sort-icon (assets/css/bookings.css). */
+.cp-th-sortable { cursor: pointer; -webkit-user-select: none; user-select: none; transition: color 0.15s; }
+.cp-th-sortable:hover { color: var(--cp-text); }
+.cp-th-label { display: inline-flex; align-items: center; gap: 2px; }
+.cp-th-sort-icon { font-size: 14px !important; line-height: 1; opacity: 0.45; transition: opacity 0.15s; display: inline-flex; align-items: center; }
+.cp-th-sortable.cp-sort-active .cp-th-sort-icon { opacity: 1; color: var(--cp-brand); }
 .cp-table td { padding: 12px; border-bottom: 1px solid var(--cp-border); vertical-align: top; }
 /* Each booking is now two <tr>s (main + detail, see .cp-booking-detail
    below) — the true last-child is the last booking's detail row (hidden or

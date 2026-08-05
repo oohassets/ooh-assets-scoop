@@ -37,22 +37,30 @@
     </div>
 
     <section id="cpBookingsSection">
-      <div class="cp-card">
+      <div class="cp-card cp-bookings-card">
         <h2 class="cp-card-title">My Bookings</h2>
+        <div class="cp-search-box">
+          <span class="material-symbols-outlined cp-search-icon">search</span>
+          <input type="text" id="cpBookingsSearch" placeholder="Search campaign, circuit, status…" autocomplete="off">
+          <button type="button" class="cp-search-clear" id="cpBookingsSearchClear" title="Clear search" aria-label="Clear search">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
         <div class="cp-table-wrap">
           <table class="cp-table" id="cpBookingsTable">
             <thead>
               <tr>
-                <th>Brand Campaign</th>
-                <th>BO</th>
-                <th>Circuit</th>
-                <th>Dates</th>
-                <th>Status</th>
+                <th class="cp-th-sortable" data-sort="brand"><span class="cp-th-label">Brand Campaign<span class="material-symbols-outlined cp-th-sort-icon">unfold_more</span></span></th>
+                <th class="cp-th-sortable" data-sort="bo"><span class="cp-th-label">BO<span class="material-symbols-outlined cp-th-sort-icon">unfold_more</span></span></th>
+                <th class="cp-th-sortable" data-sort="circuit"><span class="cp-th-label">Circuit<span class="material-symbols-outlined cp-th-sort-icon">unfold_more</span></span></th>
+                <th class="cp-th-sortable" data-sort="date"><span class="cp-th-label">Dates<span class="material-symbols-outlined cp-th-sort-icon">unfold_more</span></span></th>
+                <th class="cp-th-sortable" data-sort="status"><span class="cp-th-label">Status<span class="material-symbols-outlined cp-th-sort-icon">unfold_more</span></span></th>
               </tr>
             </thead>
             <tbody id="cpBookingsBody"></tbody>
           </table>
         </div>
+        <div class="cp-bookings-total" id="cpBookingsTotal"></div>
       </div>
     </section>
 

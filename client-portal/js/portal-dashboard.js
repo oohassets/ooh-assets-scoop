@@ -22,6 +22,9 @@ const whoNameEl  = document.getElementById("cpWhoName");
 
 let portalData = null; // { clientName, circuits, myBookings, otherBookings }
 let calMonth   = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let bookingsSearchQuery = "";
+let sortField = null; // "brand" | "bo" | "circuit" | "date" | "status" — null = default (Start Date desc)
+let sortDir   = "asc";
 
 // ── Auth guard ──────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
@@ -118,15 +121,68 @@ function statusClass(status) {
   return "cp-pill-signed";
 }
 
+// Matches Brand Campaign/BO/Circuit/Status — Client itself is skipped since
+// every row here already belongs to this one client.
+function applyBookingsSearch(rows) {
+  const q = bookingsSearchQuery.trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter(r => [r["Brand Campaign"], r.BO, r.Circuits, r.Status]
+    .some(v => (v || "").toLowerCase().includes(q)));
+}
+
+// Same click-to-sort pattern as the internal app's bookings.js
+// (toggleSort()/applySortInPlace()) — sortField null falls back to the
+// original default (Start Date, newest first).
+function applyBookingsSort(rows) {
+  if (!sortField) {
+    return rows.sort((a, b) => (parseDate(b["Start Date"]) || new Date(0)) - (parseDate(a["Start Date"]) || new Date(0)));
+  }
+  const dir = sortDir === "asc" ? 1 : -1;
+  if (sortField === "date") {
+    return rows.sort((a, b) => ((parseDate(a["Start Date"]) || new Date(0)) - (parseDate(b["Start Date"]) || new Date(0))) * dir);
+  }
+  const field = { brand: "Brand Campaign", bo: "BO", circuit: "Circuits", status: "Status" }[sortField];
+  return rows.sort((a, b) => (a[field] || "").toLowerCase().localeCompare((b[field] || "").toLowerCase()) * dir);
+}
+
+function updateBookingsSortHeaderUI() {
+  document.querySelectorAll("#cpBookingsTable .cp-th-sortable").forEach(th => {
+    const isActive = th.dataset.sort === sortField;
+    th.classList.toggle("cp-sort-active", isActive);
+    const icon = th.querySelector(".cp-th-sort-icon");
+    if (!icon) return;
+    icon.textContent = !isActive ? "unfold_more" : (sortDir === "asc" ? "stat_1" : "stat_minus_1");
+  });
+}
+
+document.querySelectorAll("#cpBookingsTable .cp-th-sortable").forEach(th => {
+  th.addEventListener("click", () => {
+    const field = th.dataset.sort;
+    if (sortField === field) sortDir = sortDir === "asc" ? "desc" : "asc";
+    else { sortField = field; sortDir = "asc"; }
+    updateBookingsSortHeaderUI();
+    renderBookingsTable();
+  });
+});
+
+const bookingsSearchEl = document.getElementById("cpBookingsSearch");
+bookingsSearchEl.addEventListener("input", () => {
+  bookingsSearchQuery = bookingsSearchEl.value;
+  renderBookingsTable();
+});
+document.getElementById("cpBookingsSearchClear").addEventListener("click", () => {
+  bookingsSearchEl.value = "";
+  bookingsSearchQuery = "";
+  renderBookingsTable();
+  bookingsSearchEl.focus();
+});
+
 function renderBookingsTable() {
   const tbody = document.getElementById("cpBookingsBody");
-  const rows = [...portalData.myBookings].sort((a, b) => {
-    const da = parseDate(a["Start Date"]) || new Date(0);
-    const db = parseDate(b["Start Date"]) || new Date(0);
-    return db - da;
-  });
+  const rows = applyBookingsSort(applyBookingsSearch([...portalData.myBookings]));
+  document.getElementById("cpBookingsTotal").textContent = `Total: ${rows.length}`;
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="5" class="cp-empty">No bookings yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="cp-empty">${bookingsSearchQuery ? "No bookings match your search." : "No bookings yet."}</td></tr>`;
     return;
   }
   tbody.innerHTML = rows.map((r, i) => `
