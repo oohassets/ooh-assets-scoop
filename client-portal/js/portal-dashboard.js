@@ -129,15 +129,53 @@ function renderBookingsTable() {
     tbody.innerHTML = `<tr><td colspan="5" class="cp-empty">No bookings yet.</td></tr>`;
     return;
   }
-  tbody.innerHTML = rows.map(r => `
-    <tr>
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr class="cp-booking-row">
       <td>${escapeHTML(r["Brand Campaign"] || "—")}</td>
       <td>${escapeHTML(r.BO || "—")}</td>
       <td>${escapeHTML(r.Circuits || "—")}</td>
       <td>${fmtShort(r["Start Date"])} → ${fmtShort(r["End Date"])}</td>
-      <td><span class="cp-pill ${statusClass(r.Status)}">${escapeHTML(r.Status || "—")}</span></td>
+      <td>
+        <div class="cp-status-cell">
+          <span class="cp-pill ${statusClass(r.Status)}">${escapeHTML(r.Status || "—")}</span>
+          <button class="cp-info-btn" type="button" data-idx="${i}" aria-label="Show impression details" title="Show impression details">
+            <span class="material-symbols-outlined">info</span>
+          </button>
+        </div>
+      </td>
+    </tr>
+    <tr class="cp-booking-detail" id="cpBookingDetail-${i}">
+      <td colspan="5">${renderImpressionDetail(r.impressions)}</td>
     </tr>
   `).join("");
+
+  tbody.querySelectorAll(".cp-info-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const detailRow = document.getElementById(`cpBookingDetail-${btn.dataset.idx}`);
+      if (!detailRow) return;
+      const isOpen = detailRow.classList.toggle("cp-booking-detail-open");
+      btn.classList.toggle("cp-info-btn-active", isOpen);
+    });
+  });
+}
+
+// Same formula as assets/js/views/vehicle-report.js's impressions
+// calculation, computed server-side (see getClientPortalData) so the
+// client never needs read access to assetrate/vehiclecounts directly.
+function renderImpressionDetail(imp) {
+  if (!imp) {
+    return `<div class="cp-imp-empty">Impression data isn't available for this booking's dates.</div>`;
+  }
+  return `
+    <div class="cp-imp-grid">
+      <div class="cp-imp-item"><span class="cp-imp-label">Total Impressions</span><span class="cp-imp-value">${imp.totalImpressions.toLocaleString()}</span></div>
+      <div class="cp-imp-item"><span class="cp-imp-label">Impressions / Day</span><span class="cp-imp-value">${imp.impressionsPerDay.toLocaleString()}</span></div>
+      <div class="cp-imp-item"><span class="cp-imp-label">Avg Daily Traffic</span><span class="cp-imp-value">${imp.avgDailyTraffic.toLocaleString()}</span></div>
+      <div class="cp-imp-item"><span class="cp-imp-label">Avg Daily Persons</span><span class="cp-imp-value">${imp.avgDailyPersons.toLocaleString()}</span></div>
+      <div class="cp-imp-item"><span class="cp-imp-label">Faces / Screens</span><span class="cp-imp-value">${imp.faces.toLocaleString()}</span></div>
+      <div class="cp-imp-item"><span class="cp-imp-label">Days</span><span class="cp-imp-value">${imp.days.toLocaleString()}</span></div>
+    </div>
+  `;
 }
 
 function escapeHTML(str) {

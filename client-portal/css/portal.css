@@ -174,7 +174,11 @@ a { color: inherit; }
   white-space: nowrap;
 }
 .cp-table td { padding: 12px; border-bottom: 1px solid var(--cp-border); vertical-align: top; }
-.cp-table tr:last-child td { border-bottom: none; }
+/* Each booking is now two <tr>s (main + detail, see .cp-booking-detail
+   below) — the true last-child is the last booking's detail row (hidden or
+   not), so suppress the border on both it AND the row before it (that
+   booking's own main row), whichever ends up visually last. */
+.cp-table tbody tr:last-child td, .cp-table tbody tr:nth-last-child(2) td { border-bottom: none; }
 /* Same look as the internal app's .status-pill/.pill-* (assets/css/layout.css)
    — literal color values instead of var()'d tokens since this folder has no
    dependency on assets/css/theme.css's custom properties (see file header). */
@@ -185,6 +189,29 @@ a { color: inherit; }
 .cp-pill-pending   { background: rgba(224,161,58,0.15); color: #E0A13A; }
 .cp-pill-completed { background: rgba(4,150,255,0.15);  color: #0496FF; }
 .cp-pill-cancelled { background: rgba(100,100,100,0.15);color: #75787C; }
+
+/* ── My Bookings — impression detail toggle ───────────────── */
+.cp-status-cell { display: flex; align-items: center; gap: 6px; }
+.cp-info-btn {
+  background: none; border: none; cursor: pointer; padding: 2px; border-radius: 6px;
+  color: var(--cp-text-sub); display: inline-flex; align-items: center; justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+.cp-info-btn .material-symbols-outlined { font-size: 17px; }
+.cp-info-btn:hover, .cp-info-btn.cp-info-btn-active { color: var(--cp-brand); background: var(--cp-brand-wash); }
+/* Hidden by default via a real CSS rule (never a static style="display:none"
+   attribute) — JS only ever toggles the .cp-booking-detail-open class. */
+.cp-booking-detail { display: none; }
+.cp-booking-detail.cp-booking-detail-open { display: table-row; }
+.cp-booking-detail td { padding: 16px 14px; background: var(--cp-bg); }
+.cp-imp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 14px; }
+.cp-imp-item { display: flex; flex-direction: column; gap: 3px; }
+.cp-imp-label {
+  font-size: 10.5px; font-weight: 700; color: var(--cp-text-sub);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.cp-imp-value { font-size: 17px; font-weight: 700; color: var(--cp-text); }
+.cp-imp-empty { font-size: 12.5px; color: var(--cp-text-sub); text-align: center; padding: 4px 0; }
 
 /* ── Campaign calendar ────────────────────────────── */
 .cp-cal-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }

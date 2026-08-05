@@ -53,6 +53,73 @@ function sanitizeEmailKey(email) {
   return email.replace(/\./g, "_");
 }
 
+// Same constants/formula as assets/js/views/vehicle-report.js's own
+// impressions calculation — kept in lock-step with that page so a client's
+// per-booking figure here always matches what staff see on the Vehicle
+// Traffic report for the same circuit/date range. vehiclecounts has no
+// per-circuit granularity, only per-island (Name contains "TPI"/"GEWAN"),
+// so every circuit on the same island shares the same traffic figures —
+// only each circuit's own face/screen count (from assetrate) scales the
+// final impressions number.
+const ADS_PER_MINUTE = 6;
+const PERSON_PER_CAR = 2;
+
+function parseMDY(dateStr) {
+  if (!dateStr) return null;
+  const [month, day, year] = dateStr.split("/").map(Number);
+  if (!month || !day || !year) return null;
+  return new Date(year, month - 1, day);
+}
+
+/** Mirrors vehicle-report.js's loadData()+renderCards() exactly: sum
+    vehiclecounts.ContentTotal for the booking's island over [Start, End]
+    (inclusive), scale by personPerCar/adsPerMinute, then by the circuit's
+    own faces/screens count from assetrate (matched on assetrate.name, the
+    same full-display-name field vehicle-report.js's own circuitConfig
+    matches on — not assetrate.id). Returns null if dates don't parse. */
+function computeImpressions(circuitName, startStr, endStr, rateSnap, vehicleSnap) {
+  const start = parseMDY(startStr);
+  const end   = parseMDY(endStr);
+  if (!start || !end) return null;
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+  const days = Math.floor((end - start) / 86400000) + 1;
+  if (days <= 0) return null;
+
+  const islandTag = /gewan/i.test(circuitName) ? "GEWAN" : "TPI";
+
+  let total = 0;
+  if (vehicleSnap.exists()) {
+    Object.values(vehicleSnap.val()).forEach(row => {
+      if (!row) return;
+      const name = (row.Name || row["Name"] || "").toUpperCase();
+      if (!name.includes(islandTag)) return;
+      const date = parseMDY(row.ContentDate || row["Content.Date"]);
+      if (!date) return;
+      date.setHours(12, 0, 0, 0);
+      if (date < start || date > end) return;
+      total += Number(row.ContentTotal || row["Content.Total"] || 0);
+    });
+  }
+
+  const avgDailyTraffic = Math.round(total / days);
+  const avgDailyPersons = Math.round((total * PERSON_PER_CAR) / days);
+
+  let faces = 0;
+  if (rateSnap.exists()) {
+    const circuitLc = circuitName.trim().toLowerCase();
+    const rateRow = Object.values(rateSnap.val()).find(
+      r => r && (r.name || "").trim().toLowerCase() === circuitLc
+    );
+    faces = rateRow ? Number(rateRow.faces) || 0 : 0;
+  }
+
+  const impressionsPerDay  = Math.round((avgDailyPersons / ADS_PER_MINUTE) * faces);
+  const totalImpressions   = impressionsPerDay * days;
+
+  return { days, faces, avgDailyTraffic, avgDailyPersons, impressionsPerDay, totalImpressions };
+}
+
 exports.getClientPortalData = functions.https.onRequest((req, res) => {
   corsMiddleware(req, res, async () => {
     if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
@@ -76,9 +143,11 @@ exports.getClientPortalData = functions.https.onRequest((req, res) => {
         return;
       }
 
-      const [bookingsSnap, circuitsSnap] = await Promise.all([
+      const [bookingsSnap, circuitsSnap, rateSnap, vehicleSnap] = await Promise.all([
         db.ref("Campaigns_Booking").once("value"),
         db.ref("oohassets").once("value"),
+        db.ref("assetrate").once("value"),
+        db.ref("vehiclecounts").once("value"),
       ]);
 
       // Same shape loadCircuitSlots() builds client-side in bookings.js —
@@ -107,6 +176,7 @@ exports.getClientPortalData = functions.https.onRequest((req, res) => {
             Circuits: row.Circuits || "", Slot: row.Slot || 1,
             "Start Date": row["Start Date"] || "", "End Date": row["End Date"] || "",
             Status: row.Status || "", Person: row.Person || "",
+            impressions: computeImpressions(row.Circuits || "", row["Start Date"], row["End Date"], rateSnap, vehicleSnap),
           });
         } else {
           // No Client/Brand/BO/Person/raw Status — only enough to draw a
