@@ -99,7 +99,7 @@ function renderStatCards(assets, contentInventoryLive) {
   document.getElementById("spStatBooked").textContent = groups.booked.length;
   document.getElementById("spStatPending").textContent = groups.pending.length;
 
-  renderStatList("spStatLiveList", contentInventoryLive, "No live campaigns.");
+  renderStatList("spStatLiveList", contentInventoryLive, "No live campaigns.", { checkExtended: true });
   renderStatList("spStatBookedList", groups.booked, "No booked bookings.");
   renderStatList("spStatPendingList", groups.pending, "No pending bookings.");
 }
@@ -116,31 +116,42 @@ function renderCompletedTable(rows) {
     <tr>
       <td>${escapeHTML(r.Client || "—")}</td>
       <td>${escapeHTML(r.Circuits || "—")}</td>
-      <td>${fmtShort(r["Start Date"])}</td>
-      <td>${fmtShort(r["End Date"])}</td>
+      <td>${fmtLong(r["Start Date"])}</td>
+      <td>${fmtLong(r["End Date"])}</td>
     </tr>
   `).join("");
 }
 
 // Newest-first (by Start Date), same convention as client-portal's My
-// Bookings table.
-function renderStatList(listElId, rows, emptyMessage) {
+// Bookings table. `options.checkExtended` (Live card only) adds a second
+// "Extended" pill when a row's End Date has already passed — it's still
+// occupying Content Inventory past its scheduled end, i.e. running longer
+// than originally booked.
+function renderStatList(listElId, rows, emptyMessage, options = {}) {
   const el = document.getElementById(listElId);
   if (!rows.length) {
     el.innerHTML = `<div class="sp-stat-empty">${escapeHTML(emptyMessage)}</div>`;
     return;
   }
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   const sorted = [...rows].sort((a, b) => (parseDate(b["Start Date"]) || 0) - (parseDate(a["Start Date"]) || 0));
-  el.innerHTML = sorted.map(b => `
+  el.innerHTML = sorted.map(b => {
+    const endDate = parseDate(b["End Date"]);
+    const isExtended = options.checkExtended && endDate && endDate < today;
+    return `
     <div class="sp-stat-row">
       <div class="sp-stat-row-brand">${escapeHTML(b["Brand Campaign"] || b.Client || "—")}</div>
       <div class="sp-stat-row-meta">
         <span class="sp-stat-row-circuit" title="${escapeHTML(b.Circuits || "")}">${escapeHTML(b.Circuits || "—")}</span>
         <span class="sp-stat-row-dates">${fmtShort(b["Start Date"])} → ${fmtShort(b["End Date"])}</span>
       </div>
-      <span class="sp-popup-pill ${statusPillClass(b.Status)}">${escapeHTML(b.Status || "—")}</span>
+      <div class="sp-stat-row-pills">
+        <span class="sp-popup-pill ${statusPillClass(b.Status)}">${escapeHTML(b.Status || "—")}</span>
+        ${isExtended ? `<span class="sp-popup-pill sp-popup-pill-extended">Extended</span>` : ""}
+      </div>
     </div>
-  `).join("");
+  `;
+  }).join("");
 }
 
 // ── Date helpers (same "MM/DD/YYYY" convention as the internal app) ──
@@ -156,6 +167,13 @@ function fmtShort(str) {
   const d = parseDate(str);
   if (!d) return "—";
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+// "1 Aug 2026" — Completed Campaigns table only (rows can span past years,
+// so the stat-card lists' year-less fmtShort() would be ambiguous there).
+function fmtLong(str) {
+  const d = parseDate(str);
+  if (!d) return "—";
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 // Same substring convention as portal-map.js's statusClass() (map popups).

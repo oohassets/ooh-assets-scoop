@@ -216,6 +216,40 @@ exports.getSupplierPortalData = functions.https.onRequest((req, res) => {
           "Start Date": l["Start Date"] || "", "End Date": l["End Date"] || "",
         }));
 
+      // Content Inventory's s_* table names only clean down to a bare
+      // location ("s_light_poles_main_entrance" -> "Light Poles Main
+      // Entrance") — the full "TPI Light Poles Main Entrance Circuit 1"
+      // form lives on oohassets.Circuits/Campaigns_Booking.Circuits instead.
+      // Reconstructs that full name for a Content Inventory row by fuzzy
+      // substring-matching the table's clean name against every Static
+      // oohassets row's own Circuits string, then — since a location table
+      // holds multiple circuits — disambiguating by trailing circuit number
+      // when there's more than one candidate (same trailing-number
+      // tie-break bookings.js's own findInventoryTarget() uses for the
+      // equivalent booking-side match).
+      function cleanCircuitName(tableName) {
+        return tableName.replace(/^s_/, "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      }
+      function findFullCircuitName(tableName, rowCircuit) {
+        const cleanBase = cleanCircuitName(tableName);
+        const cleanLc = cleanBase.toLowerCase();
+        const candidates = staticAssets.filter(a => (a.Circuits || "").toLowerCase().includes(cleanLc));
+        if (!candidates.length) {
+          return rowCircuit ? `${cleanBase} Circuit ${rowCircuit}` : cleanBase;
+        }
+        const rowNumMatch = String(rowCircuit || "").match(/(\d+)\s*$/);
+        if (rowNumMatch) {
+          const exact = candidates.find(a => {
+            const m = (a.Circuits || "").match(/(\d+)\s*$/);
+            return m && m[1] === rowNumMatch[1];
+          });
+          if (exact) return exact.Circuits;
+        }
+        return candidates.length === 1
+          ? candidates[0].Circuits
+          : (rowCircuit ? `${cleanBase} Circuit ${rowCircuit}` : cleanBase);
+      }
+
       // The Live stat card sources straight from the Content Inventory
       // (s_* table) rows rather than Campaigns_Booking.Status — this is
       // what's actually populated on the physical asset right now, not a
@@ -238,7 +272,7 @@ exports.getSupplierPortalData = functions.https.onRequest((req, res) => {
           if (!row || !row.BO) return;
           contentInventoryLive.push({
             "Brand Campaign": row.Client || row.BO,
-            Circuits: row.Circuit || tableName.replace(/^s_/, "").replace(/_/g, " "),
+            Circuits: findFullCircuitName(tableName, row.Circuit),
             "Start Date": row["Start Date"] || "",
             "End Date": row["End Date"] || "",
             Status: "Live",

@@ -199,6 +199,7 @@ a { color: inherit; }
    .sp-stat-divider right above the list. */
 .sp-stat-row:not(:first-child) { border-top: 1px solid var(--sp-border); padding-top: 12px; }
 .sp-stat-row-meta { width: 100%; }
+.sp-stat-row-pills { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .sp-stat-row-brand { font-size: 13px; font-weight: 600; color: var(--sp-text); }
 .sp-stat-row-meta {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
@@ -264,6 +265,10 @@ a { color: inherit; }
 .sp-popup-pill-pending   { background: rgba(224,161,58,0.15); color: #E0A13A; }
 .sp-popup-pill-completed { background: rgba(4,150,255,0.15);  color: #0496FF; }
 .sp-popup-pill-cancelled { background: rgba(100,100,100,0.15);color: #75787C; }
+/* Light red — a campaign still occupying its slot past its own scheduled
+   End Date; lighter than .sp-popup-pill-signed's red so it doesn't read as
+   the same "Booked" status. */
+.sp-popup-pill-extended  { background: rgba(248,113,113,0.15); color: #F87171; }
 .sp-popup-empty { font-size: 11.5px; color: #5b6472; }
 
 @media (max-width: 720px) {
