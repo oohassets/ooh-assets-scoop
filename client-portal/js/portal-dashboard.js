@@ -1,7 +1,7 @@
 /* Client portal dashboard — My Bookings + Campaign Calendar.
  *
  * Deliberately does NOT read RTDB directly (no `get(ref(rtdb, ...))`
- * anywhere in this file): database.rules.json gives a clientUsers-listed
+ * anywhere in this file): database.rules.json gives a userClient-listed
  * account a hard root .read:false, so there is nothing here for the
  * Firebase client SDK to read even if someone tried from devtools. All
  * data comes from one call to the getClientPortalData Cloud Function,

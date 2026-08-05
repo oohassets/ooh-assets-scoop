@@ -2,12 +2,12 @@ import { auth, db, rtdb } from "../../firebase/firebase.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-// A client-portal or supplier-portal account (see clientUsers/supplierUsers
+// A client-portal or supplier-portal account (see userClient/userSupplier
 // in database.rules.json) can still authenticate here — Firebase Auth itself
 // has no concept of "portal", it's the same project for all three — but it
 // must never be let into the internal app. Reading "user" is what actually
 // decides that: root .read grants any signed-in *staff* account access to
-// it, but a clientUsers- or supplierUsers-listed account gets a hard
+// it, but a userClient- or userSupplier-listed account gets a hard
 // .read:false there (and everywhere else), so this throws permission-denied
 // specifically for them. RTDB rules have no way to tell which of the two
 // portals such an account belongs to (both hit this same denial), so the

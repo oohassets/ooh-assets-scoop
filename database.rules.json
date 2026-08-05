@@ -1,52 +1,53 @@
 {
-  "rules": {
-    ".read": "auth != null && !root.child('clientUsers').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists() && !root.child('supplierUsers').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists()",
-    ".write": false,
+    "rules": {
+        ".read": "auth != null && !root.child('userClient').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists() && !root.child('userSupplier').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists()",
+            ".write": false,
 
-    "user": {
-      ".write": false
-    },
+                "user": {
+                      ".write": false
+                          },
 
-    "clientUsers": {
-      ".write": false
-    },
+                              "userClient": {
+                                    ".write": false
+                                        },
 
-    "supplierUsers": {
-      ".write": false
-    },
+                                            "userSupplier": {
+                                                  ".write": false
+                                                      },
 
-    "fcmTokens": {
-      "$uid": {
-        ".write": "auth != null && auth.uid === $uid"
-      }
-    },
+                                                          "fcmTokens": {
+                                                                "$uid": {
+                                                                        ".write": "auth != null && auth.uid === $uid"
+                                                                              }
+                                                                                  },
 
-    "Campaigns_Booking": {
-      ".write": "auth != null && (root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin' || root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'sales')"
-    },
+                                                                                      "Campaigns_Booking": {
+                                                                                            ".write": "auth != null && (root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin' || root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'sales')"
+                                                                                                },
 
-    "Campaign_Logs": {
-      ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
-    },
+                                                                                                    "Campaign_Logs": {
+                                                                                                          ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
+                                                                                                              },
 
-    "assetrate": {
-      ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
-    },
+                                                                                                                  "assetrate": {
+                                                                                                                        ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
+                                                                                                                            },
 
-    "assetmap": {
-      ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
-    },
+                                                                                                                                "assetmap": {
+                                                                                                                                      ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
+                                                                                                                                          },
 
-    "oohassets": {
-      ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
-    },
+                                                                                                                                              "oohassets": {
+                                                                                                                                                    ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
+                                                                                                                                                        },
 
-    "vehiclecounts": {
-      ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
-    },
+                                                                                                                                                            "vehiclecounts": {
+                                                                                                                                                                  ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
+                                                                                                                                                                      },
 
-    "$other": {
-      ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
-    }
-  }
+                                                                                                                                                                          "$other": {
+                                                                                                                                                                                ".write": "auth != null && root.child('user').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).child('rule').val() == 'admin'"
+                                                                                                                                                                                    }
+                                                                                                                                                                                      }
+                                                                                                                                                                                      }
 }

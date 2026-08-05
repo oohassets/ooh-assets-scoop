@@ -1,11 +1,11 @@
 /* Supplier portal dashboard — read-only Static Assets Map.
  *
  * Deliberately does NOT read RTDB directly (no `get(ref(rtdb, ...))`
- * anywhere in this file): database.rules.json gives a supplierUsers-listed
+ * anywhere in this file): database.rules.json gives a userSupplier-listed
  * account a hard root .read:false, so there is nothing here for the Firebase
  * client SDK to read even if someone tried from devtools. All data comes
  * from one call to the getSupplierPortalData Cloud Function, which uses the
- * Admin SDK server-side to resolve the caller against supplierUsers and
+ * Admin SDK server-side to resolve the caller against userSupplier and
  * return only Static-type assets and their bookings — the same isolation
  * pattern as client-portal/js/portal-dashboard.js's getClientPortalData
  * call. */

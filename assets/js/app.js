@@ -60,7 +60,7 @@ function getInitials(name) {
  *
  * Every internal staff account can read this (database.rules.json grants
  * root .read to any signed-in user). A client-portal or supplier-portal
- * account (see clientUsers/supplierUsers in database.rules.json) is the
+ * account (see userClient/userSupplier in database.rules.json) is the
  * exception — it gets a hard root .read:false, so this throws
  * permission-denied for them specifically. That's used as the signal to
  * bounce them out to the hero page below, rather than leaving them stuck on
@@ -105,13 +105,13 @@ requireAuth(async (user) => {
     throw e;
   }
   if (!profile) {
-    // Signed in, and root .read succeeded (so this isn't a clientUsers-/
-    // supplierUsers-listed account — that's caught above) — but there's no
+    // Signed in, and root .read succeeded (so this isn't a userClient-/
+    // userSupplier-listed account — that's caught above) — but there's no
     // matching row in "user" either. Used to fall through to a "view"-role
     // default here, which meant any account not yet (or never meant to be)
     // provisioned as staff still got read access to the whole internal
     // dashboard. That's exactly the gap a client/supplier account whose
-    // clientUsers/supplierUsers row is missing or key-mismatched would fall
+    // userClient/userSupplier row is missing or key-mismatched would fall
     // into — deny by default instead of granting view access by default.
     await signOut(auth).catch(() => {});
     window.location.href = "./home.html";

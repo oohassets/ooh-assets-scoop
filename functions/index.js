@@ -33,7 +33,7 @@ async function verifyAuth(req) {
 
 // ═══════════════════════════════════════════════════════════
 // CLIENT PORTAL DATA  — the *only* way a client-portal account can ever
-// see booking data (see database.rules.json: clientUsers-listed accounts
+// see booking data (see database.rules.json: userClient-listed accounts
 // get a hard root .read:false, same as an unauthenticated request). This
 // function uses the Admin SDK, which bypasses rules entirely, to filter
 // server-side before anything reaches the browser — so even a client
@@ -57,7 +57,7 @@ exports.getClientPortalData = functions.https.onRequest((req, res) => {
     try {
       const db = admin.database();
 
-      const clientSnap = await db.ref(`clientUsers/${sanitizeEmailKey(decoded.email)}`).once("value");
+      const clientSnap = await db.ref(`userClient/${sanitizeEmailKey(decoded.email)}`).once("value");
       if (!clientSnap.exists()) {
         res.status(403).json({ error: "This account is not registered as a client." });
         return;
@@ -124,13 +124,13 @@ exports.getClientPortalData = functions.https.onRequest((req, res) => {
 
 // ═══════════════════════════════════════════════════════════
 // SUPPLIER PORTAL DATA — the *only* way a supplier-portal account can ever
-// see booking data (see database.rules.json: supplierUsers-listed accounts
-// get a hard root .read:false, same treatment as clientUsers). Unlike the
+// see booking data (see database.rules.json: userSupplier-listed accounts
+// get a hard root .read:false, same treatment as userClient). Unlike the
 // client portal, there's no per-supplier data split to enforce here (no
 // "which assets belong to which supplier" field exists on oohassets) — the
 // scoping this function does is by asset TYPE, not by tenant: it returns
 // every Static-type asset and its bookings, and nothing Digital, to any
-// authenticated supplierUsers account.
+// authenticated userSupplier account.
 // POST (Authorization: Bearer <Firebase ID token>) →
 //   { supplierName, contactName, assets: [{ id, name, Circuits, bookings }] }
 // ═══════════════════════════════════════════════════════════
@@ -144,7 +144,7 @@ exports.getSupplierPortalData = functions.https.onRequest((req, res) => {
     try {
       const db = admin.database();
 
-      const supplierSnap = await db.ref(`supplierUsers/${sanitizeEmailKey(decoded.email)}`).once("value");
+      const supplierSnap = await db.ref(`userSupplier/${sanitizeEmailKey(decoded.email)}`).once("value");
       if (!supplierSnap.exists()) {
         res.status(403).json({ error: "This account is not registered as a supplier." });
         return;
