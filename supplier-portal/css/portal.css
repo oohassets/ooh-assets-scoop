@@ -4,8 +4,13 @@
    this folder has no dependency on the internal app's code (or the client
    portal's) at all, so isolation holds even if either's styling/tokens
    change shape later. Same brand tokens as client-portal/css/portal.css,
-   just re-declared under an sp- prefix for this folder's own scope.
+   just re-declared under an sp- prefix for this folder's own scope. The
+   Material Symbols import below is the one exception — same font, imported
+   separately here rather than pulled from theme.css, so the sign-out icon
+   can match the internal app's without creating that dependency.
 ══════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+
 :root {
   --sp-bg:        #f4f5f7;
   --sp-surface:   #ffffff;
@@ -102,21 +107,118 @@ a { color: inherit; }
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 0 20px;
 }
-.sp-brand-mark { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
-.sp-brand-mark .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--sp-brand); }
+.sp-brand-mark { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; color: var(--sp-text); }
 .sp-who { display: flex; align-items: center; gap: 12px; }
-.sp-who-name { font-size: 13px; color: var(--sp-text-sub); }
+.sp-who-name { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 13px; color: var(--sp-text-sub); }
+.sp-who-supplier { font-size: 15px; font-weight: 600; color: var(--sp-text); line-height: 1.3; }
+.sp-who-contact  { font-size: 13px; color: var(--sp-text-sub); line-height: 1.3; }
 .sp-signout-btn {
-  height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--sp-border);
-  background: var(--sp-surface); color: var(--sp-text-sub); cursor: pointer; font-size: 13px; font-weight: 600;
+  width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--sp-border);
+  background: var(--sp-surface); color: var(--sp-text-sub); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
 }
-.sp-signout-btn:hover { border-color: var(--sp-danger); color: var(--sp-danger); }
+/* Same icon + hover-red treatment as the internal app's
+   .user-dropdown-item--signout (assets/css/navigation.css). */
+.sp-signout-btn .material-symbols-outlined { font-size: 18px; }
+.sp-signout-btn:hover { border-color: var(--sp-danger); color: var(--sp-danger); background: rgba(217,64,63,0.08); }
 
 .sp-card { background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: var(--sp-radius); padding: 20px; }
 .sp-card-title { margin: 0 0 6px; font-size: 15px; font-weight: 800; }
-.sp-card-sub { margin: 0 0 14px; font-size: 12.5px; color: var(--sp-text-sub); }
 .sp-empty { color: var(--sp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
 .sp-loading { color: var(--sp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
+
+/* ── Tabs (same pattern as client-portal's .cp-tabs/.cp-tab) ─────────── */
+.sp-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+.sp-tab {
+  padding: 9px 16px; border-radius: 999px; border: 1px solid var(--sp-border); background: var(--sp-surface);
+  color: var(--sp-text-sub); font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.sp-tab.active { background: var(--sp-brand); border-color: var(--sp-brand); color: #fff; }
+
+/* ── Static Bookings stat cards — same visual language as the internal
+   app's .stats-grid/.stat-card (assets/css/dashboard.css: gradient stat
+   value, corner glow orb, colored hover border), adapted onto this portal's
+   solid --sp-surface cards instead of the main app's transparent+blurred
+   ones (there's no photo/gradient background here for a blur to show). ── */
+.sp-stats-grid { display: grid; grid-template-columns: repeat(3, minmax(240px, 1fr)); gap: 16px; align-items: start; margin-bottom: 16px; }
+.sp-completed-card { max-height: 500px; display: flex; flex-direction: column; }
+
+/* Same look as the client portal's .cp-table. */
+.sp-table-wrap { overflow: auto; flex: 1; min-height: 0; }
+.sp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sp-table th {
+  text-align: left; padding: 10px 12px; color: var(--sp-text-sub); font-weight: 700; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid var(--sp-border);
+  white-space: nowrap; position: sticky; top: 0; background: var(--sp-surface);
+}
+.sp-table td { padding: 12px; border-bottom: 1px solid var(--sp-border); vertical-align: top; }
+.sp-table tr:last-child td { border-bottom: none; }
+.sp-stat-card {
+  background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: var(--sp-radius);
+  padding: 20px; position: relative; overflow: hidden; max-height: 700px;
+  display: flex; flex-direction: column;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.sp-stat-card:hover {
+  transform: translateY(-4px); border-color: var(--sp-card-accent);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12), 0 0 0 1px var(--sp-card-accent);
+}
+.sp-stat-card-glow {
+  position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; border-radius: 50%;
+  background: var(--sp-card-accent); opacity: 0.12; filter: blur(36px); transition: opacity 0.25s;
+}
+.sp-stat-card:hover .sp-stat-card-glow { opacity: 0.22; }
+.sp-stat-label {
+  font-size: 11px; font-weight: 700; color: var(--sp-text-sub); letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 10px; position: relative;
+}
+.sp-stat-value {
+  font-size: 40px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--sp-text), var(--sp-card-accent));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; position: relative;
+}
+.sp-stat-sub { font-size: 12.5px; color: var(--sp-text-sub); position: relative; }
+
+.sp-stat-divider { height: 1px; background: var(--sp-border); margin: 16px 0 12px; position: relative; flex-shrink: 0; }
+.sp-stat-list {
+  display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+  position: relative; white-space: normal; flex: 1; min-height: 0;
+  /* Right padding + scrollbar-gutter keep the scrollbar from sitting flush
+     against the row content — otherwise the thumb overlaps the pill/text. */
+  padding-right: 12px; scrollbar-gutter: stable;
+}
+.sp-stat-list::-webkit-scrollbar { width: 6px; }
+.sp-stat-list::-webkit-scrollbar-track { margin: 4px 0; }
+.sp-stat-list::-webkit-scrollbar-thumb { background: var(--sp-border); border-radius: 999px; border: 2px solid var(--sp-surface); }
+.sp-stat-empty { font-size: 12px; color: var(--sp-text-sub); text-align: center; padding: 8px 0; }
+/* align-items:flex-start — a plain flex column defaults to stretch, which
+   would otherwise force the status pill span to the row's full width
+   instead of hugging its own text. */
+.sp-stat-row { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; }
+/* Separator between rows — not on the first, so it doesn't double up with
+   .sp-stat-divider right above the list. */
+.sp-stat-row:not(:first-child) { border-top: 1px solid var(--sp-border); padding-top: 12px; }
+.sp-stat-row-meta { width: 100%; }
+.sp-stat-row-brand { font-size: 13px; font-weight: 600; color: var(--sp-text); }
+.sp-stat-row-meta {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  font-size: 11.5px; color: var(--sp-text-sub);
+}
+.sp-stat-row-circuit { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-stat-row-dates { flex-shrink: 0; }
+
+/* ── Map summary chips — clickable, toggle that category's markers ──── */
+.sp-map-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.sp-summary-chip {
+  display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--sp-border); background: var(--sp-bg); cursor: pointer;
+  font-size: 12.5px; font-weight: 400; color: var(--sp-text); transition: opacity 0.2s, border-color 0.2s;
+}
+.sp-summary-chip:hover { border-color: var(--sp-chip-color, var(--sp-brand)); }
+.sp-summary-chip .sp-chip-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--sp-chip-color); flex-shrink: 0; }
+/* Toggled off — dimmed + strikethrough, so it still reads as "this category
+   exists" rather than disappearing, since clicking again brings it back. */
+.sp-summary-chip.sp-chip-off { opacity: 0.45; text-decoration: line-through; }
 
 /* ── Map ──────────────────────────────────────────── */
 .sp-map-wrap {
@@ -149,19 +251,24 @@ a { color: inherit; }
 .sp-popup-brand { font-weight: 700; font-size: 12px; color: #14181f; }
 .sp-popup-client { font-size: 11px; color: #5b6472; }
 .sp-popup-dates { font-size: 11px; color: #5b6472; margin-top: 2px; }
+/* Same look/colors as the internal app's .status-pill/.pill-* and the
+   client portal's .cp-pill/.cp-pill-* — literal hex values, same reasoning
+   as elsewhere in this file. */
 .sp-popup-pill {
-  display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px;
-  font-size: 10px; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0;
 }
-.sp-popup-pill-live      { background: rgba(31,157,99,0.14);  color: var(--sp-success); }
-.sp-popup-pill-signed    { background: rgba(47,111,237,0.14); color: var(--sp-info); }
-.sp-popup-pill-pending   { background: rgba(201,138,26,0.16); color: var(--sp-warning); }
-.sp-popup-pill-completed { background: rgba(91,100,114,0.16); color: var(--sp-text-sub); }
-.sp-popup-pill-cancelled { background: rgba(217,64,63,0.14);  color: var(--sp-danger); }
+.sp-popup-pill::before { content: "•"; }
+.sp-popup-pill-live      { background: rgba(53,179,126,0.15); color: #35B37E; }
+.sp-popup-pill-signed    { background: rgba(229,72,77,0.15);  color: #E5484D; }
+.sp-popup-pill-pending   { background: rgba(224,161,58,0.15); color: #E0A13A; }
+.sp-popup-pill-completed { background: rgba(4,150,255,0.15);  color: #0496FF; }
+.sp-popup-pill-cancelled { background: rgba(100,100,100,0.15);color: #75787C; }
 .sp-popup-empty { font-size: 11.5px; color: #5b6472; }
 
 @media (max-width: 720px) {
   .sp-shell { padding: 14px 12px 40px; }
   .sp-who-name { display: none; }
   .sp-map-wrap { height: 60vh; }
+  .sp-stats-grid { grid-template-columns: 1fr; }
 }

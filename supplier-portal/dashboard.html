@@ -16,10 +16,12 @@
 <div class="sp-shell">
 
   <div class="sp-topbar">
-    <div class="sp-brand-mark"><span class="dot"></span> SCOOP Supplier Portal</div>
+    <div class="sp-brand-mark">SCOOP Supplier Portal</div>
     <div class="sp-who">
       <span class="sp-who-name" id="spWhoName"></span>
-      <button class="sp-signout-btn" id="spSignOutBtn" type="button">Sign out</button>
+      <button class="sp-signout-btn" id="spSignOutBtn" type="button" title="Sign out" aria-label="Sign out">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
     </div>
   </div>
 
@@ -29,15 +31,68 @@
   </div>
 
   <div id="spContent" style="display:none;">
-    <div class="sp-card">
-      <h2 class="sp-card-title">Static Assets Map</h2>
-      <p class="sp-card-sub" id="spAssetsSummary"></p>
-      <div class="sp-map-wrap">
-        <div id="spMapCanvas" style="width:100%;height:100%;"></div>
-        <div class="sp-map-legend">Click a marker for booking details</div>
-        <div id="spMapNotices"></div>
-      </div>
+    <div class="sp-tabs">
+      <button class="sp-tab active" id="spTabBookings" type="button">Static Bookings</button>
+      <button class="sp-tab" id="spTabMap" type="button">Static Asset Map</button>
     </div>
+
+    <section id="spBookingsSection">
+      <div class="sp-stats-grid">
+        <div class="sp-stat-card" style="--sp-card-accent:#35B37E;">
+          <div class="sp-stat-card-glow"></div>
+          <div class="sp-stat-label">Live Campaigns</div>
+          <div class="sp-stat-value" id="spStatLive">0</div>
+          <div class="sp-stat-sub">Circuits Currently Running</div>
+          <div class="sp-stat-divider"></div>
+          <div class="sp-stat-list" id="spStatLiveList"></div>
+        </div>
+        <div class="sp-stat-card" style="--sp-card-accent:#E5484D;">
+          <div class="sp-stat-card-glow"></div>
+          <div class="sp-stat-label">Booked Campaigns</div>
+          <div class="sp-stat-value" id="spStatBooked">0</div>
+          <div class="sp-stat-sub">BO Signed</div>
+          <div class="sp-stat-divider"></div>
+          <div class="sp-stat-list" id="spStatBookedList"></div>
+        </div>
+        <div class="sp-stat-card" style="--sp-card-accent:#E0A13A;">
+          <div class="sp-stat-card-glow"></div>
+          <div class="sp-stat-label">Pending Campaigns</div>
+          <div class="sp-stat-value" id="spStatPending">0</div>
+          <div class="sp-stat-sub">Awaiting Approval</div>
+          <div class="sp-stat-divider"></div>
+          <div class="sp-stat-list" id="spStatPendingList"></div>
+        </div>
+      </div>
+
+      <div class="sp-card sp-completed-card">
+        <h2 class="sp-card-title">Completed Campaigns</h2>
+        <div class="sp-table-wrap">
+          <table class="sp-table" id="spCompletedTable">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Circuits</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+              </tr>
+            </thead>
+            <tbody id="spCompletedBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="spMapSection" style="display:none;">
+      <div class="sp-card">
+        <h2 class="sp-card-title">Static Assets Map</h2>
+        <div class="sp-map-summary" id="spMapSummary"></div>
+        <div class="sp-map-wrap">
+          <div id="spMapCanvas" style="width:100%;height:100%;"></div>
+          <div class="sp-map-legend">Click a marker for booking details</div>
+          <div id="spMapNotices"></div>
+        </div>
+      </div>
+    </section>
   </div>
 
 </div>

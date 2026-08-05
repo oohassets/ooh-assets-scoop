@@ -16,10 +16,12 @@
 <div class="cp-shell">
 
   <div class="cp-topbar">
-    <div class="cp-brand-mark"><span class="dot"></span> SCOOP Client Portal</div>
+    <div class="cp-brand-mark">SCOOP Client Portal</div>
     <div class="cp-who">
       <span class="cp-who-name" id="cpWhoName"></span>
-      <button class="cp-signout-btn" id="cpSignOutBtn" type="button">Sign out</button>
+      <button class="cp-signout-btn" id="cpSignOutBtn" type="button" title="Sign out" aria-label="Sign out">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
     </div>
   </div>
 
@@ -61,10 +63,11 @@
           <span class="cp-cal-month-label" id="cpCalMonthLabel"></span>
           <button class="cp-cal-nav-btn" id="cpCalNext" type="button" aria-label="Next month">&#8250;</button>
           <div class="cp-cal-legend">
-            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-success);"></span>Your booking (Live)</span>
-            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-info);"></span>Your booking (BO Signed)</span>
-            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-warning);"></span>Your booking (Pending)</span>
-            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:var(--cp-danger);"></span>Booked / Reserve (other clients)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:#35B37E;"></span>Your booking (Live)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:#E5484D;"></span>Your booking (BO Signed)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:#E0A13A;"></span>Your booking (Pending)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:#0496FF;"></span>Your booking (Completed)</span>
+            <span class="cp-cal-legend-item"><span class="cp-cal-legend-swatch" style="background:#9CA3AF;"></span>Booked / Reserve (other clients)</span>
           </div>
         </div>
         <div class="cp-cal-scroll">

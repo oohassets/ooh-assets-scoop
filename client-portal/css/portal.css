@@ -2,8 +2,13 @@
    SCOOP Client Portal — self-contained styles.
    Deliberately not sharing assets/css/theme.css: this folder has no
    dependency on the internal app's code at all, so isolation holds even
-   if the internal app's styling/tokens change shape later.
+   if the internal app's styling/tokens change shape later. The Material
+   Symbols import below is the one exception — same font, imported
+   separately here rather than pulled from theme.css, so the sign-out
+   icon can match the internal app's without creating that dependency.
 ══════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+
 :root {
   --cp-bg:        #f4f5f7;
   --cp-surface:   #ffffff;
@@ -100,15 +105,20 @@ a { color: inherit; }
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 0 20px;
 }
-.cp-brand-mark { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
-.cp-brand-mark .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--cp-brand); }
+.cp-brand-mark { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; color: var(--cp-text); }
 .cp-who { display: flex; align-items: center; gap: 12px; }
-.cp-who-name { font-size: 13px; color: var(--cp-text-sub); }
+.cp-who-name { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 13px; color: var(--cp-text-sub); }
+.cp-who-client  { font-size: 15px; font-weight: 600; color: var(--cp-text); line-height: 1.3; }
+.cp-who-contact { font-size: 13px; color: var(--cp-text-sub); line-height: 1.3; }
 .cp-signout-btn {
-  height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--cp-border);
-  background: var(--cp-surface); color: var(--cp-text-sub); cursor: pointer; font-size: 13px; font-weight: 600;
+  width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--cp-border);
+  background: var(--cp-surface); color: var(--cp-text-sub); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
 }
-.cp-signout-btn:hover { border-color: var(--cp-danger); color: var(--cp-danger); }
+/* Same icon + hover-red treatment as the internal app's
+   .user-dropdown-item--signout (assets/css/navigation.css). */
+.cp-signout-btn .material-symbols-outlined { font-size: 18px; }
+.cp-signout-btn:hover { border-color: var(--cp-danger); color: var(--cp-danger); background: rgba(217,64,63,0.08); }
 
 .cp-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
 .cp-tab {
@@ -159,33 +169,54 @@ a { color: inherit; }
 .cp-cal-scroll { overflow: auto; max-height: 65vh; border-radius: 12px; border: 1px solid var(--cp-border); }
 .cp-cal-table { border-collapse: collapse; width: 100%; font-size: 12px; }
 .cp-cal-table th {
-  border: 1px solid var(--cp-border); height: 34px; text-align: center; position: sticky; top: 0; z-index: 5;
+  border: 1px solid var(--cp-border); height: 34px; text-align: center; position: sticky; top: 0; z-index: 10;
   background: var(--cp-bg); color: var(--cp-text-sub); font-weight: 700; font-size: 10px;
 }
+/* Every td gets position:relative so a .cp-bar inside it can position:absolute
+   against it — same setup as the internal app's .booking-calendar td. */
 .cp-cal-table td { border: 1px solid var(--cp-border); height: 38px; position: relative; }
+
+/* Circuit/Slot columns — sticky left, same 200px/70px widths as the internal
+   app's .circuit-col/.slot-col (assets/css/bookings.css) so this calendar
+   matches it exactly. */
 .cp-cal-circuit-col {
-  position: sticky; left: 0; z-index: 3; width: 190px; min-width: 190px; text-align: left;
-  padding: 0 10px; background: var(--cp-surface); font-weight: 700; font-size: 12px;
+  width: 200px; min-width: 200px; text-align: left;
+  padding: 0 12px; background: var(--cp-surface); font-weight: 700; font-size: 12px; color: var(--cp-text);
 }
 .cp-cal-slot-col {
-  position: sticky; left: 190px; z-index: 3; width: 60px; min-width: 60px;
-  background: var(--cp-bg); color: var(--cp-text-sub); font-size: 10px;
+  width: 70px; min-width: 70px;
+  background: var(--cp-bg); color: var(--cp-text-sub); font-size: 11px;
 }
-th.cp-cal-circuit-col { z-index: 6; top: 0; left: 0; }
-th.cp-cal-slot-col    { z-index: 6; top: 0; left: 190px; }
+/* Body sticky columns — must re-declare position+left at matching (0,1,1)
+   specificity (a class+element compound, same as `td`+class) to beat the
+   plain .cp-cal-table td { position:relative } rule above; a bare class
+   selector alone loses that fight regardless of source order, which is what
+   silently broke stickiness here before (see bookings.css's own comment on
+   this exact issue for .circuit-col/.slot-col). */
+td.cp-cal-circuit-col { position: sticky; left: 0;    z-index: 11; }
+td.cp-cal-slot-col    { position: sticky; left: 200px; z-index: 10; }
+/* Header row: corner cells get both top:0 and left — 2D sticky. */
+th.cp-cal-circuit-col { position: sticky; z-index: 12; top: 0; left: 0; }
+th.cp-cal-slot-col    { position: sticky; z-index: 12; top: 0; left: 200px; }
 .cp-cal-today { background: rgba(201,138,26,0.18) !important; }
 
+/* Same look/colors as the internal app's .booking-bar/.booking-bar.* —
+   literal hex instead of var()'d tokens, same reasoning as the pill colors
+   above. */
 .cp-bar {
   position: absolute; top: 5px; bottom: 5px; left: 2px; right: 2px;
   border-radius: 6px; color: #fff; font-size: 10px; font-weight: 700;
   display: flex; align-items: center; padding: 0 8px; overflow: hidden; white-space: nowrap;
   text-overflow: ellipsis;
 }
-.cp-bar-mine-live      { background: var(--cp-success); }
-.cp-bar-mine-signed    { background: var(--cp-info); }
-.cp-bar-mine-pending   { background: var(--cp-warning); }
-.cp-bar-mine-completed { background: var(--cp-text-sub); }
-.cp-bar-other          { background: var(--cp-danger); justify-content: center; }
+.cp-bar-mine-live      { background: #35B37E; }
+.cp-bar-mine-signed    { background: #E5484D; }
+.cp-bar-mine-pending   { background: #E0A13A; }
+.cp-bar-mine-completed { background: #0496FF; }
+/* Other clients' bookings are intentionally anonymized (see
+   getClientPortalData) — light grey rather than a status color, since
+   there's no real status being shown, just "something is booked here". */
+.cp-bar-other          { background: #9CA3AF; justify-content: center; }
 
 @media (max-width: 720px) {
   .cp-shell { padding: 14px 12px 40px; }

@@ -55,9 +55,14 @@ function showContent() {
   loadingEl.style.display = "none";
   errorEl.style.display = "none";
   contentEl.style.display = "block";
-  whoNameEl.textContent = portalData.contactName
-    ? `${portalData.contactName} · ${portalData.clientName}`
-    : portalData.clientName || auth.currentUser?.email || "";
+  if (portalData.clientName) {
+    whoNameEl.innerHTML = `
+      <span class="cp-who-client">${escapeHTML(portalData.clientName)}</span>
+      ${portalData.contactName ? `<span class="cp-who-contact">${escapeHTML(portalData.contactName)}</span>` : ""}
+    `;
+  } else {
+    whoNameEl.textContent = auth.currentUser?.email || "";
+  }
   document.title = `${portalData.clientName} — SCOOP Client Portal`;
   renderBookingsTable();
   renderCalendar();

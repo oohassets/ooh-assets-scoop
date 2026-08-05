@@ -138,7 +138,8 @@ exports.getClientPortalData = functions.https.onRequest((req, res) => {
 // every Static-type asset and its bookings, and nothing Digital, to any
 // authenticated userSupplier account.
 // POST (Authorization: Bearer <Firebase ID token>) →
-//   { supplierName, contactName, assets: [{ id, name, Circuits, bookings }] }
+//   { supplierName, contactName, assets: [{ id, name, Circuits, bookings }],
+//     completedCampaigns: [...], contentInventoryLive: [...] }
 // ═══════════════════════════════════════════════════════════
 exports.getSupplierPortalData = functions.https.onRequest((req, res) => {
   corsMiddleware(req, res, async () => {
@@ -159,13 +160,16 @@ exports.getSupplierPortalData = functions.https.onRequest((req, res) => {
       const supplierName   = (supplierRecord.supplierName || "").trim();
       const contactName    = (supplierRecord.contactName || "").trim();
 
-      const [assetsSnap, bookingsSnap] = await Promise.all([
-        db.ref("oohassets").once("value"),
-        db.ref("Campaigns_Booking").once("value"),
-      ]);
+      // Single full-root read (same convention as the internal app's own
+      // rtdb-root.js loadRootTables()) rather than several targeted reads —
+      // needed anyway to enumerate every s_* Content Inventory table below,
+      // since their table names aren't known ahead of time.
+      const rootSnap = await db.ref("/").once("value");
+      const root = rootSnap.exists() ? rootSnap.val() : {};
 
-      const assetRows = assetsSnap.exists() ? Object.values(assetsSnap.val()) : [];
-      const bookingRows = bookingsSnap.exists() ? Object.values(bookingsSnap.val()).filter(Boolean) : [];
+      const assetRows   = root.oohassets ? Object.values(root.oohassets) : [];
+      const bookingRows = root.Campaigns_Booking ? Object.values(root.Campaigns_Booking).filter(Boolean) : [];
+      const logRows     = root.Campaign_Logs ? Object.values(root.Campaign_Logs).filter(Boolean) : [];
 
       // Join: Campaigns_Booking.Circuits == oohassets.Circuits (trim +
       // case-insensitive, same convention bookings.js uses throughout).
@@ -184,7 +188,65 @@ exports.getSupplierPortalData = functions.https.onRequest((req, res) => {
           return { id: r.id, name: r.name || r.Circuits, Circuits: r.Circuits, bookings };
         });
 
-      res.status(200).json({ supplierName, contactName, assets: staticAssets });
+      // "Completed Campaigns" = Campaign_Logs entries logging a removal
+      // (Type: "Removed" — Campaign_Logs has no status field of its own,
+      // a logged removal is what "completed" means here), restricted to
+      // Static circuits to match this portal's scope throughout. Campaign_Logs
+      // stores a cleaned, human-readable Circuits label (see loadCarousel.js's
+      // cleanCircuitName()), not the exact oohassets.Circuits string, so the
+      // match is a best-effort case-insensitive substring check against each
+      // static asset's own Circuits/name (same fuzzy-match spirit as
+      // bookings.js's circuitsFuzzyMatch(), simplified for this read-only view).
+      const staticNeedles = staticAssets.map(a => ({
+        circuits: (a.Circuits || "").trim().toLowerCase(),
+        name: (a.name || "").trim().toLowerCase(),
+      }));
+      function matchesStaticCircuit(logCircuit) {
+        const lc = (logCircuit || "").trim().toLowerCase();
+        if (!lc) return false;
+        return staticNeedles.some(n =>
+          (n.circuits && (lc.includes(n.circuits) || n.circuits.includes(lc))) ||
+          (n.name && (lc.includes(n.name) || n.name.includes(lc)))
+        );
+      }
+      const completedCampaigns = logRows
+        .filter(l => (l.Type || "").trim().toLowerCase() === "removed" && matchesStaticCircuit(l.Circuits))
+        .map(l => ({
+          Client: l.Client || "", Circuits: l.Circuits || "",
+          "Start Date": l["Start Date"] || "", "End Date": l["End Date"] || "",
+        }));
+
+      // The Live stat card sources straight from the Content Inventory
+      // (s_* table) rows rather than Campaigns_Booking.Status — this is
+      // what's actually populated on the physical asset right now, not a
+      // manually-set booking status that can lag reality. Occupancy is
+      // determined by the BO column, not Client: a real booking carries a
+      // "BO-#####" reference, while "Free"/"Filler" mark deliberate filler
+      // content — both count as a live campaign. An empty BO is a genuinely
+      // open/available slot. Content Inventory's own "Client" column holds
+      // the Brand Campaign name, not a separate company field (see
+      // CLAUDE.md's content-inventory.js notes — record.Client =
+      // campaign.brand), so it's surfaced as "Brand Campaign" here to match
+      // the shape the frontend already renders for bookings.
+      const contentInventoryLive = [];
+      Object.keys(root).forEach(tableName => {
+        if (!tableName.startsWith("s_")) return;
+        const table = root[tableName];
+        if (!table) return;
+        const rows = Array.isArray(table) ? table : Object.values(table);
+        rows.forEach(row => {
+          if (!row || !row.BO) return;
+          contentInventoryLive.push({
+            "Brand Campaign": row.Client || row.BO,
+            Circuits: row.Circuit || tableName.replace(/^s_/, "").replace(/_/g, " "),
+            "Start Date": row["Start Date"] || "",
+            "End Date": row["End Date"] || "",
+            Status: "Live",
+          });
+        });
+      });
+
+      res.status(200).json({ supplierName, contactName, assets: staticAssets, completedCampaigns, contentInventoryLive });
     } catch (err) {
       console.error("[getSupplierPortalData] error:", err);
       res.status(500).json({ error: "Failed to load supplier portal data" });
