@@ -105,12 +105,37 @@ function computeImpressions(circuitName, startStr, endStr, rateSnap, vehicleSnap
   const avgDailyTraffic = Math.round(total / days);
   const avgDailyPersons = Math.round((total * PERSON_PER_CAR) / days);
 
+  // Fuzzy substring match, not exact — assetrate.name doesn't always carry
+  // the same "TPI " prefix Campaigns_Booking.Circuits does (e.g. booking
+  // "TPI Underpass Entrance" vs assetrate's own "Underpass Entrance"), the
+  // same clean-name-vs-full-name mismatch documented elsewhere in this
+  // codebase (bookings.js's circuitsFuzzyMatch()). An exact match here
+  // silently zeroed out faces — and therefore every impressions number —
+  // for every circuit whose assetrate.name doesn't happen to equal the
+  // booking's Circuits value verbatim (Gewan circuits only "worked" by
+  // coincidence, since both sides matched there already). Disambiguates by
+  // trailing circuit number when more than one candidate matches.
   let faces = 0;
   if (rateSnap.exists()) {
     const circuitLc = circuitName.trim().toLowerCase();
-    const rateRow = Object.values(rateSnap.val()).find(
-      r => r && (r.name || "").trim().toLowerCase() === circuitLc
-    );
+    const candidates = Object.values(rateSnap.val()).filter(r => {
+      if (!r || !r.name) return false;
+      const nameLc = r.name.trim().toLowerCase();
+      return circuitLc.includes(nameLc) || nameLc.includes(circuitLc);
+    });
+    let rateRow = null;
+    if (candidates.length > 1) {
+      const circuitNumMatch = circuitLc.match(/(\d+)\s*$/);
+      if (circuitNumMatch) {
+        rateRow = candidates.find(r => {
+          const m = r.name.trim().toLowerCase().match(/(\d+)\s*$/);
+          return m && m[1] === circuitNumMatch[1];
+        }) || null;
+      }
+      if (!rateRow) rateRow = candidates[0];
+    } else {
+      rateRow = candidates[0] || null;
+    }
     faces = rateRow ? Number(rateRow.faces) || 0 : 0;
   }
 
