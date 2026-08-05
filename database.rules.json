@@ -1,6 +1,6 @@
 {
     "rules": {
-        ".read": "auth != null && !root.child('userClient').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists() && !root.child('userSupplier').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists()",
+        ".read": "auth != null && !root.child('userClient').child(auth.token.email.replace('.', '_').replace('.', '_').replace('.', '_').replace('.', '_')).exists() && !root.child('userSupplier').child(auth.token.email.replace('.', '_').replace('.', '_').replace('.', '_').replace('.', '_')).exists()",
             ".write": false,
 
                 "user": {

@@ -43,8 +43,14 @@ async function verifyAuth(req) {
 // POST (Authorization: Bearer <Firebase ID token>) →
 //   { clientName, circuits, myBookings, otherBookings }
 // ═══════════════════════════════════════════════════════════
+// Underscore, not comma — unlike the "user" table's own dot->comma key
+// scheme (see database.rules.json's role lookup), userClient/userSupplier
+// rows are hand-typed one at a time in the console by whoever's onboarding
+// that account, and a comma is an easy character to mistype/forget there.
+// database.rules.json's userClient/userSupplier existence checks must use
+// this same substitution.
 function sanitizeEmailKey(email) {
-  return email.replace(/\./g, ",");
+  return email.replace(/\./g, "_");
 }
 
 exports.getClientPortalData = functions.https.onRequest((req, res) => {
