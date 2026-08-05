@@ -107,6 +107,8 @@ function renderStatCards(assets, contentInventoryLive) {
 // ── Static Bookings tab — Completed Campaigns table ──────────
 function renderCompletedTable(rows) {
   const tbody = document.getElementById("spCompletedBody");
+  const totalEl = document.getElementById("spCompletedTotal");
+  totalEl.textContent = `Total completed campaigns: ${rows.length}`;
   if (!rows.length) {
     tbody.innerHTML = `<tr><td colspan="4" class="sp-empty">No completed campaigns.</td></tr>`;
     return;

@@ -28,6 +28,12 @@ const BASEMAP_ATTRIBUTION = "&copy; OpenStreetMap &copy; CARTO";
 // before you even click it.
 const CATEGORY_COLOR = { live: "#35B37E", booked: "#E5484D", pending: "#E0A13A" };
 const CATEGORIES = ["live", "booked", "pending"];
+// Fixed pie-slice split for a circuit currently running more than one
+// category at once (it has multiple Slots — see oohassets.Slot — each on
+// its own active booking, e.g. Slot 1 Live + Slot 2 Pending) — not
+// proportional to how many bookings/slots are actually in each category,
+// a flat 50/30/20 weighting by category regardless of the mix.
+const CATEGORY_WEIGHT = { live: 50, booked: 30, pending: 20 };
 
 let maplibregl = null;
 let toGeoJSON  = null;
@@ -95,22 +101,44 @@ function statusClass(status) {
   return "sp-popup-pill-signed"; // BO Signed / anything else
 }
 
-/** An asset's map category is the highest-priority *active* status among its
-    bookings — Live beats Booked (BO Signed) beats Pending — mirroring the
-    same substring convention as bookings.js's getStatusClass()/dashboard.js's
-    updateStats(). Completed/Cancelled bookings don't count toward any
-    category; an asset whose bookings are only Completed/Cancelled/empty
-    resolves to null and is left off the map entirely per spec ("show only
-    which is live campaign, booked and pending campaign"). */
-function categorizeAsset(bookings) {
-  const statuses = (bookings || []).map(b => (b.Status || "").toLowerCase());
-  if (statuses.some(s => s.includes("live"))) return "live";
-  if (statuses.some(s => s.includes("signed"))) return "booked";
-  if (statuses.some(s => s.includes("pending"))) return "pending";
-  return null;
+/** A booking counts toward a map category only if TODAY falls within its own
+    Start–End Date range — not just because some booking on this circuit was
+    ever marked Live/BO Signed/Pending at some point in its full history
+    (asset.bookings is the complete unfiltered history, see
+    getSupplierPortalData). Without this date check, a circuit that had ever
+    run one Live campaign stays permanently stuck in "live" for every other
+    booking on it too, since Live outranks Booked/Pending in priority —
+    which is exactly why the Booked bucket was coming up empty: most static
+    circuits have run *some* Live campaign at some point. */
+function getActiveBookings(bookings) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return (bookings || []).filter(b => {
+    const s = parseDate(b["Start Date"]);
+    const e = parseDate(b["End Date"]);
+    return s && e && s <= today && today <= e;
+  });
 }
 
-/** Same active-status definition as categorizeAsset() — Live/Booked
+/** The full set of active-status categories currently running on this
+    circuit — not just the highest-priority one. A circuit can have more
+    than one Slot (oohassets.Slot) booked simultaneously, e.g. Slot 1 Live
+    + Slot 2 Pending at once, which is what the multi-color pie marker
+    (see buildPieBackground()) represents. Completed/Cancelled bookings
+    never count; a circuit with no currently-active booking in any category
+    returns [] and is left off the map entirely, per spec ("show only which
+    is live campaign, booked and pending campaign"). */
+function getActiveCategories(bookings) {
+  const cats = new Set();
+  getActiveBookings(bookings).forEach(b => {
+    const s = (b.Status || "").toLowerCase();
+    if (s.includes("live")) cats.add("live");
+    else if (s.includes("signed")) cats.add("booked");
+    else if (s.includes("pending")) cats.add("pending");
+  });
+  return CATEGORIES.filter(c => cats.has(c)); // stable live/booked/pending order
+}
+
+/** Same active-status definition as getActiveCategories() — Live/Booked
     (BO Signed)/Pending only. Completed and Cancelled bookings are real
     history but not relevant to "what's happening at this asset right now",
     so the popup leaves them out entirely rather than just deprioritizing
@@ -118,6 +146,22 @@ function categorizeAsset(bookings) {
 function isActiveBooking(status) {
   const s = (status || "").toLowerCase();
   return s.includes("live") || s.includes("signed") || s.includes("pending");
+}
+
+/** conic-gradient() slice string for a multi-category pie marker — weights
+    are CATEGORY_WEIGHT's fixed 50/30/20 split, renormalized across just the
+    categories actually present (e.g. Live+Pending only -> 50/(50+20) and
+    20/(50+20), not 50/20 of a non-existent Booked third). */
+function buildPieBackground(categories) {
+  const totalWeight = categories.reduce((sum, c) => sum + CATEGORY_WEIGHT[c], 0);
+  let acc = 0;
+  const stops = categories.map(c => {
+    const from = (acc / totalWeight) * 100;
+    acc += CATEGORY_WEIGHT[c];
+    const to = (acc / totalWeight) * 100;
+    return `${CATEGORY_COLOR[c]} ${from}% ${to}%`;
+  });
+  return `conic-gradient(${stops.join(", ")})`;
 }
 
 function popupHTML(asset) {
@@ -160,7 +204,7 @@ function layerIds(cat) {
 
 /**
  * Renders the supplier map into `container` and plots every asset that has
- * an active (Live/Booked/Pending) booking — see categorizeAsset(). `assets`
+ * an active (Live/Booked/Pending) booking — see getActiveCategories(). `assets`
  * is the array returned by getSupplierPortalData:
  * [{ id, name, Circuits, bookings: [...] }].
  * `onNotice(message)` is called once per asset that couldn't be plotted
@@ -194,32 +238,57 @@ export async function initSupplierMap(container, assets, onNotice) {
 
   const popup = new maplibregl.Popup({ closeButton: true, maxWidth: "280px", className: "sp-map-popup" });
   const bounds = new maplibregl.LngLatBounds();
-  const byCategory = { live: [], booked: [], pending: [] };
+  const byCategory = { live: [], booked: [], pending: [] }; // single-category points -> circle layer
   const circuitIds = { live: new Set(), booked: new Set(), pending: new Set() };
+  const markerCounts = { live: 0, booked: 0, pending: 0 };
   const assetByFeatureId = new Map(); // "<cat>:<index>" -> asset, for the click handler
+  const pieMarkers = []; // { marker, categories } — multi-category points, rendered as DOM markers instead
 
   for (const asset of assets) {
-    const category = categorizeAsset(asset.bookings);
-    if (!category) continue; // no active booking — excluded from the map entirely
+    const activeCategories = getActiveCategories(asset.bookings);
+    if (!activeCategories.length) continue; // no active booking — excluded from the map entirely
 
     const geojson = await fetchAssetGeoJSON(asset.id);
     if (!geojson) { onNotice?.(`No map data for "${asset.name || asset.id}"`); continue; }
 
+    activeCategories.forEach(cat => circuitIds[cat].add(asset.id));
+
     geojson.features.forEach(f => {
       if (f.geometry?.type !== "Point") return;
-      const key = `${category}:${byCategory[category].length}`;
-      f.properties = { ...(f.properties || {}), spAssetKey: key };
-      assetByFeatureId.set(key, asset);
-      byCategory[category].push(f);
-      circuitIds[category].add(asset.id);
       bounds.extend(f.geometry.coordinates);
+      activeCategories.forEach(cat => { markerCounts[cat]++; });
+
+      if (activeCategories.length === 1) {
+        const cat = activeCategories[0];
+        const key = `${cat}:${byCategory[cat].length}`;
+        f.properties = { ...(f.properties || {}), spAssetKey: key };
+        assetByFeatureId.set(key, asset);
+        byCategory[cat].push(f);
+        return;
+      }
+
+      // Multiple simultaneous active categories on this circuit — a plain
+      // circle layer can only paint one solid color per feature, so this
+      // needs an actual DOM element (conic-gradient pie) via
+      // maplibregl.Marker instead of the data-driven circle layers below.
+      const el = document.createElement("div");
+      el.className = "sp-pie-marker";
+      el.style.background = buildPieBackground(activeCategories);
+      el.title = asset.name || asset.Circuits || asset.id;
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat(f.geometry.coordinates)
+        .addTo(map);
+      el.addEventListener("click", () => {
+        popup.setLngLat(f.geometry.coordinates.slice()).setHTML(popupHTML(asset)).addTo(map);
+      });
+      pieMarkers.push({ marker, categories: activeCategories });
     });
   }
 
   const counts = { live: {}, booked: {}, pending: {} };
   for (const cat of CATEGORIES) {
+    counts[cat] = { circuits: circuitIds[cat].size, markers: markerCounts[cat] };
     const features = byCategory[cat];
-    counts[cat] = { circuits: circuitIds[cat].size, markers: features.length };
     if (!features.length) continue;
 
     const { src, circle } = layerIds(cat);
@@ -248,9 +317,18 @@ export async function initSupplierMap(container, assets, onNotice) {
     map.fitBounds(bounds, { padding: 60, duration: 0 });
   }
 
+  const categoryVisible = { live: true, booked: true, pending: true };
   function setCategoryVisible(cat, visible) {
+    categoryVisible[cat] = visible;
     const { circle } = layerIds(cat);
     if (map.getLayer(circle)) map.setLayoutProperty(circle, "visibility", visible ? "visible" : "none");
+    // A pie marker stays visible as long as ANY of its active categories is
+    // still toggled on — hiding "Booked" shouldn't also hide a circuit
+    // that's simultaneously Live just because Booked is one of its slices.
+    pieMarkers.forEach(({ marker, categories }) => {
+      const anyVisible = categories.some(c => categoryVisible[c]);
+      marker.getElement().style.display = anyVisible ? "" : "none";
+    });
   }
 
   return { map, counts, setCategoryVisible };
