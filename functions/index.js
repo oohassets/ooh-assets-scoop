@@ -123,6 +123,71 @@ exports.getClientPortalData = functions.https.onRequest((req, res) => {
 
 
 // ═══════════════════════════════════════════════════════════
+// SUPPLIER PORTAL DATA — the *only* way a supplier-portal account can ever
+// see booking data (see database.rules.json: supplierUsers-listed accounts
+// get a hard root .read:false, same treatment as clientUsers). Unlike the
+// client portal, there's no per-supplier data split to enforce here (no
+// "which assets belong to which supplier" field exists on oohassets) — the
+// scoping this function does is by asset TYPE, not by tenant: it returns
+// every Static-type asset and its bookings, and nothing Digital, to any
+// authenticated supplierUsers account.
+// POST (Authorization: Bearer <Firebase ID token>) →
+//   { supplierName, contactName, assets: [{ id, name, Circuits, bookings }] }
+// ═══════════════════════════════════════════════════════════
+exports.getSupplierPortalData = functions.https.onRequest((req, res) => {
+  corsMiddleware(req, res, async () => {
+    if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
+
+    const decoded = await verifyAuth(req);
+    if (!decoded || !decoded.email) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+    try {
+      const db = admin.database();
+
+      const supplierSnap = await db.ref(`supplierUsers/${sanitizeEmailKey(decoded.email)}`).once("value");
+      if (!supplierSnap.exists()) {
+        res.status(403).json({ error: "This account is not registered as a supplier." });
+        return;
+      }
+      const supplierRecord = supplierSnap.val();
+      const supplierName   = (supplierRecord.supplierName || "").trim();
+      const contactName    = (supplierRecord.contactName || "").trim();
+
+      const [assetsSnap, bookingsSnap] = await Promise.all([
+        db.ref("oohassets").once("value"),
+        db.ref("Campaigns_Booking").once("value"),
+      ]);
+
+      const assetRows = assetsSnap.exists() ? Object.values(assetsSnap.val()) : [];
+      const bookingRows = bookingsSnap.exists() ? Object.values(bookingsSnap.val()).filter(Boolean) : [];
+
+      // Join: Campaigns_Booking.Circuits == oohassets.Circuits (trim +
+      // case-insensitive, same convention bookings.js uses throughout).
+      const staticAssets = assetRows
+        .filter(r => r && r.type === "Static" && r.Circuits && r.id)
+        .map(r => {
+          const circuitLc = String(r.Circuits).trim().toLowerCase();
+          const bookings = bookingRows
+            .filter(b => (b.Circuits || "").trim().toLowerCase() === circuitLc)
+            .map(b => ({
+              Client: b.Client || "", "Brand Campaign": b["Brand Campaign"] || "",
+              Circuits: b.Circuits || "", Slot: b.Slot || 1,
+              "Start Date": b["Start Date"] || "", "End Date": b["End Date"] || "",
+              Status: b.Status || "",
+            }));
+          return { id: r.id, name: r.name || r.Circuits, Circuits: r.Circuits, bookings };
+        });
+
+      res.status(200).json({ supplierName, contactName, assets: staticAssets });
+    } catch (err) {
+      console.error("[getSupplierPortalData] error:", err);
+      res.status(500).json({ error: "Failed to load supplier portal data" });
+    }
+  });
+});
+
+
+// ═══════════════════════════════════════════════════════════
 // CAMPAIGN ENDING NOTIFICATIONS  (Daily 8 AM Qatar Time)
 // ═══════════════════════════════════════════════════════════
 function parseDate(dateStr) {

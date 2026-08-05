@@ -2,18 +2,20 @@ import { auth, db, rtdb } from "../../firebase/firebase.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-// A client-portal account (see clientUsers/database.rules.json) can still
-// authenticate here — Firebase Auth itself has no concept of "portal", it's
-// the same project for both — but it must never be let into the internal
-// app. Reading "user" is what actually decides that: root .read grants any
-// signed-in *staff* account access to it, but a clientUsers-listed account
-// gets a hard .read:false there (and everywhere else), so this throws
-// permission-denied specifically for them. That's the signal to sign them
-// back out and send them to where they actually belong, right here at the
-// login gate — not after they've already loaded the internal shell (see
-// app.js's loadUserProfile(), which does the same check as a defense-in-depth
-// backstop for the case of an existing session landing directly on
-// index.html without going through this page at all).
+// A client-portal or supplier-portal account (see clientUsers/supplierUsers
+// in database.rules.json) can still authenticate here — Firebase Auth itself
+// has no concept of "portal", it's the same project for all three — but it
+// must never be let into the internal app. Reading "user" is what actually
+// decides that: root .read grants any signed-in *staff* account access to
+// it, but a clientUsers- or supplierUsers-listed account gets a hard
+// .read:false there (and everywhere else), so this throws permission-denied
+// specifically for them. RTDB rules have no way to tell which of the two
+// portals such an account belongs to (both hit this same denial), so the
+// signal just bounces them back to the hero page to pick the right one —
+// not after they've already loaded the internal shell (see app.js's
+// loadUserProfile(), which does the same check as a defense-in-depth backstop
+// for the case of an existing session landing directly on index.html without
+// going through this page at all).
 function isPermissionDenied(e) {
   return e.code === "PERMISSION_DENIED" || /permission_denied/i.test(e.message || "");
 }
@@ -34,9 +36,9 @@ async function routeAfterAuth(loginMessage) {
       await signOut(auth).catch(() => {});
       if (loginMessage) {
         loginMessage.style.color = "red";
-        loginMessage.textContent = "This account isn't for the internal dashboard — redirecting to the client portal...";
+        loginMessage.textContent = "This account isn't for the internal dashboard — redirecting...";
       }
-      setTimeout(() => { window.location.href = "./client-portal/login.html"; }, 900);
+      setTimeout(() => { window.location.href = "./home.html"; }, 900);
       return;
     }
     console.error("[SCOOP] Failed to verify account:", e);

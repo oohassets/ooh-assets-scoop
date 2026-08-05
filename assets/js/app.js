@@ -59,12 +59,13 @@ function getInitials(name) {
  * plain sequential index, not by email — same convention as `assetrate`).
  *
  * Every internal staff account can read this (database.rules.json grants
- * root .read to any signed-in user). A client-portal account (see
- * clientUsers in database.rules.json) is the one exception — it gets a
- * hard root .read:false, so this throws permission-denied for them
- * specifically. That's used as the signal to bounce them out to the
- * client portal below, rather than leaving them stuck on an internal
- * shell where every subsequent data fetch would also silently fail.
+ * root .read to any signed-in user). A client-portal or supplier-portal
+ * account (see clientUsers/supplierUsers in database.rules.json) is the
+ * exception — it gets a hard root .read:false, so this throws
+ * permission-denied for them specifically. That's used as the signal to
+ * bounce them out to the hero page below, rather than leaving them stuck on
+ * an internal shell where every subsequent data fetch would also silently
+ * fail.
  */
 function isPermissionDenied(e) {
   return e.code === "PERMISSION_DENIED" || /permission_denied/i.test(e.message || "");
@@ -92,21 +93,33 @@ requireAuth(async (user) => {
     profile = await loadUserProfile(user.email);
   } catch (e) {
     if (isPermissionDenied(e)) {
-      // Not an internal staff account — almost certainly a client-portal
-      // login that ended up on the wrong page (Firebase Auth sessions are
-      // shared across the whole origin). Send them to where they actually
-      // belong instead of leaving every widget on this page broken.
+      // Not an internal staff account — almost certainly a client- or
+      // supplier-portal login that ended up on the wrong page (Firebase Auth
+      // sessions are shared across the whole origin). RTDB rules can't tell
+      // which of the two it is, so send them to the hero page to pick the
+      // right one instead of leaving every widget on this page broken.
       await signOut(auth).catch(() => {});
-      window.location.href = "./client-portal/login.html";
+      window.location.href = "./home.html";
       return;
     }
     throw e;
   }
-  const userName = profile?.name || user.displayName || user.email.split("@")[0];
-  const initials = profile?.initials || getInitials(userName);
-  // Least-privilege default: an email not yet added to the "user" table
-  // (or with no rule set) only gets view access.
-  const rule     = (profile?.rule || "view").toLowerCase();
+  if (!profile) {
+    // Signed in, and root .read succeeded (so this isn't a clientUsers-/
+    // supplierUsers-listed account — that's caught above) — but there's no
+    // matching row in "user" either. Used to fall through to a "view"-role
+    // default here, which meant any account not yet (or never meant to be)
+    // provisioned as staff still got read access to the whole internal
+    // dashboard. That's exactly the gap a client/supplier account whose
+    // clientUsers/supplierUsers row is missing or key-mismatched would fall
+    // into — deny by default instead of granting view access by default.
+    await signOut(auth).catch(() => {});
+    window.location.href = "./home.html";
+    return;
+  }
+  const userName = profile.name || user.displayName || user.email.split("@")[0];
+  const initials = profile.initials || getInitials(userName);
+  const rule     = (profile.rule || "view").toLowerCase();
 
   // Avatar initials (nav button + dropdown header)
   const navInitEl  = document.getElementById("navAvatarInitials");

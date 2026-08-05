@@ -3,8 +3,8 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/fi
 
 function getLoginUrl() {
   return window.location.pathname.includes("/pages/")
-    ? "../login.html"
-    : "./login.html";
+    ? "../home.html"
+    : "./home.html";
 }
 
 export function requireAuth(onSuccess) {

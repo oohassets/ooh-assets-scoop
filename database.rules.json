@@ -1,6 +1,6 @@
 {
   "rules": {
-    ".read": "auth != null && !root.child('clientUsers').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists()",
+    ".read": "auth != null && !root.child('clientUsers').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists() && !root.child('supplierUsers').child(auth.token.email.replace('.', ',').replace('.', ',').replace('.', ',').replace('.', ',')).exists()",
     ".write": false,
 
     "user": {
@@ -8,6 +8,10 @@
     },
 
     "clientUsers": {
+      ".write": false
+    },
+
+    "supplierUsers": {
       ".write": false
     },
 

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOOP Supplier Portal — Sign In</title>
+<link rel="icon" type="image/png" href="../images/scooplogo_black_192x192.png">
+<link rel="stylesheet" href="./css/portal.css">
+</head>
+<body>
+
+<button class="sp-theme-toggle" id="spThemeToggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+  <span id="spThemeIcon">&#9789;</span>
+</button>
+
+<div class="sp-login-wrap">
+  <div class="sp-login-card">
+    <div class="sp-login-badge">S</div>
+    <h1 class="sp-login-title">Supplier Portal</h1>
+    <p class="sp-login-sub">Sign in to view static asset campaign bookings.</p>
+
+    <div class="sp-field">
+      <label for="spEmail">Email</label>
+      <input id="spEmail" type="email" autocomplete="username" placeholder="you@company.com">
+    </div>
+    <div class="sp-field">
+      <label for="spPassword">Password</label>
+      <input id="spPassword" type="password" autocomplete="current-password" placeholder="Enter your password">
+    </div>
+
+    <p class="sp-login-msg" id="spLoginMsg"></p>
+
+    <button class="sp-login-btn" id="spLoginBtn" type="button">Sign In</button>
+  </div>
+</div>
+
+<script type="module" src="./js/portal-theme.js"></script>
+<script type="module" src="./js/portal-login.js"></script>
+
+</body>
+</html>

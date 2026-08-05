@@ -1,0 +1,167 @@
+/* ══════════════════════════════════════════════════════════
+   SCOOP Supplier Portal — self-contained styles.
+   Deliberately not sharing assets/css/theme.css or client-portal/css/portal.css:
+   this folder has no dependency on the internal app's code (or the client
+   portal's) at all, so isolation holds even if either's styling/tokens
+   change shape later. Same brand tokens as client-portal/css/portal.css,
+   just re-declared under an sp- prefix for this folder's own scope.
+══════════════════════════════════════════════════════════ */
+:root {
+  --sp-bg:        #f4f5f7;
+  --sp-surface:   #ffffff;
+  --sp-border:    rgba(15,23,42,0.10);
+  --sp-text:      #14181f;
+  --sp-text-sub:  #5b6472;
+  --sp-brand:     #981e32;
+  --sp-brand-600: #7a1828;
+  --sp-brand-wash: rgba(152,30,50,0.08);
+  --sp-success:   #1f9d63;
+  --sp-warning:   #c98a1a;
+  --sp-info:      #2f6fed;
+  --sp-danger:    #d9403f;
+  --sp-radius:    16px;
+  --sp-shadow:    0 8px 28px rgba(15,23,42,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sp-bg:        #0f1216;
+    --sp-surface:   #1a1e24;
+    --sp-border:    rgba(255,255,255,0.08);
+    --sp-text:      #eef1f5;
+    --sp-text-sub:  #99a2ae;
+    --sp-brand:     #e0596e;
+    --sp-brand-600: #c9435a;
+    --sp-brand-wash: rgba(224,89,110,0.12);
+    --sp-shadow:    0 8px 28px rgba(0,0,0,0.4);
+  }
+}
+:root[data-sp-theme="dark"] {
+  --sp-bg: #0f1216; --sp-surface:#1a1e24; --sp-border:rgba(255,255,255,0.08);
+  --sp-text:#eef1f5; --sp-text-sub:#99a2ae; --sp-brand:#e0596e; --sp-brand-600:#c9435a;
+  --sp-brand-wash: rgba(224,89,110,0.12); --sp-shadow:0 8px 28px rgba(0,0,0,0.4);
+}
+:root[data-sp-theme="light"] {
+  --sp-bg:#f4f5f7; --sp-surface:#ffffff; --sp-border:rgba(15,23,42,0.10);
+  --sp-text:#14181f; --sp-text-sub:#5b6472; --sp-brand:#981e32; --sp-brand-600:#7a1828;
+  --sp-brand-wash: rgba(152,30,50,0.08); --sp-shadow:0 8px 28px rgba(15,23,42,0.08);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh;
+  background: var(--sp-bg); color: var(--sp-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+
+.sp-theme-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 20;
+  width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--sp-border);
+  background: var(--sp-surface); color: var(--sp-text-sub); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-appearance: none; appearance: none;
+}
+.sp-theme-toggle:hover { color: var(--sp-brand); border-color: var(--sp-brand); }
+
+/* ── Login page ───────────────────────────────────── */
+.sp-login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.sp-login-card {
+  width: 100%; max-width: 380px;
+  background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: var(--sp-radius);
+  box-shadow: var(--sp-shadow); padding: 32px 28px;
+}
+.sp-login-badge {
+  width: 44px; height: 44px; border-radius: 12px; background: var(--sp-brand-wash); color: var(--sp-brand);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+  font-weight: 800; font-size: 18px;
+}
+.sp-login-title { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
+.sp-login-sub { margin: 0 0 24px; color: var(--sp-text-sub); font-size: 13px; }
+.sp-field { margin-bottom: 14px; }
+.sp-field label { display: block; font-size: 12px; font-weight: 600; color: var(--sp-text-sub); margin-bottom: 6px; }
+.sp-field input {
+  width: 100%; height: 44px; padding: 0 14px; border-radius: 10px;
+  border: 1px solid var(--sp-border); background: var(--sp-bg); color: var(--sp-text);
+  font-size: 15px; outline: none;
+}
+.sp-field input:focus { border-color: var(--sp-brand); box-shadow: 0 0 0 3px var(--sp-brand-wash); }
+.sp-login-btn {
+  width: 100%; height: 46px; margin-top: 6px; border: none; border-radius: 10px; cursor: pointer;
+  background: var(--sp-brand); color: #fff; font-size: 15px; font-weight: 700;
+}
+.sp-login-btn:hover { background: var(--sp-brand-600); }
+.sp-login-btn:disabled { opacity: 0.6; cursor: default; }
+.sp-login-msg { min-height: 18px; margin: 10px 0 0; font-size: 13px; color: var(--sp-danger); }
+
+/* ── Dashboard shell ──────────────────────────────── */
+.sp-shell { max-width: 1200px; margin: 0 auto; padding: 20px 20px 60px; }
+.sp-topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 0 20px;
+}
+.sp-brand-mark { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+.sp-brand-mark .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--sp-brand); }
+.sp-who { display: flex; align-items: center; gap: 12px; }
+.sp-who-name { font-size: 13px; color: var(--sp-text-sub); }
+.sp-signout-btn {
+  height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--sp-border);
+  background: var(--sp-surface); color: var(--sp-text-sub); cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.sp-signout-btn:hover { border-color: var(--sp-danger); color: var(--sp-danger); }
+
+.sp-card { background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: var(--sp-radius); padding: 20px; }
+.sp-card-title { margin: 0 0 6px; font-size: 15px; font-weight: 800; }
+.sp-card-sub { margin: 0 0 14px; font-size: 12.5px; color: var(--sp-text-sub); }
+.sp-empty { color: var(--sp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
+.sp-loading { color: var(--sp-text-sub); font-size: 13px; padding: 30px 0; text-align: center; }
+
+/* ── Map ──────────────────────────────────────────── */
+.sp-map-wrap {
+  position: relative; width: 100%; height: 68vh; min-height: 420px;
+  border-radius: 12px; overflow: hidden; border: 1px solid var(--sp-border);
+}
+.sp-map-wrap .maplibregl-map { width: 100%; height: 100%; }
+.sp-map-legend {
+  position: absolute; top: 12px; left: 12px; z-index: 5;
+  background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: 10px;
+  padding: 8px 12px; font-size: 12px; color: var(--sp-text-sub); box-shadow: var(--sp-shadow);
+}
+#spMapNotices {
+  position: absolute; bottom: 12px; left: 12px; z-index: 5;
+  display: flex; flex-direction: column; gap: 6px; max-width: 60%;
+}
+.sp-map-notice-item {
+  background: var(--sp-surface); border: 1px solid var(--sp-border); border-radius: 10px;
+  padding: 6px 10px; font-size: 11.5px; color: var(--sp-danger); box-shadow: var(--sp-shadow);
+}
+
+/* ── Popup content (rendered inside a maplibregl.Popup) ──────────────── */
+.sp-map-popup .maplibregl-popup-content {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  padding: 12px 14px; border-radius: 12px;
+}
+.sp-popup-name { font-weight: 800; font-size: 13px; margin-bottom: 6px; color: #14181f; }
+.sp-popup-booking { padding: 6px 0; border-top: 1px solid rgba(15,23,42,0.08); }
+.sp-popup-booking:first-of-type { border-top: none; }
+.sp-popup-brand { font-weight: 700; font-size: 12px; color: #14181f; }
+.sp-popup-client { font-size: 11px; color: #5b6472; }
+.sp-popup-dates { font-size: 11px; color: #5b6472; margin-top: 2px; }
+.sp-popup-pill {
+  display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+}
+.sp-popup-pill-live      { background: rgba(31,157,99,0.14);  color: var(--sp-success); }
+.sp-popup-pill-signed    { background: rgba(47,111,237,0.14); color: var(--sp-info); }
+.sp-popup-pill-pending   { background: rgba(201,138,26,0.16); color: var(--sp-warning); }
+.sp-popup-pill-completed { background: rgba(91,100,114,0.16); color: var(--sp-text-sub); }
+.sp-popup-pill-cancelled { background: rgba(217,64,63,0.14);  color: var(--sp-danger); }
+.sp-popup-empty { font-size: 11.5px; color: #5b6472; }
+
+@media (max-width: 720px) {
+  .sp-shell { padding: 14px 12px 40px; }
+  .sp-who-name { display: none; }
+  .sp-map-wrap { height: 60vh; }
+}

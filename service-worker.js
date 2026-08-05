@@ -1,10 +1,11 @@
 // ===== SCOOP OOH ASSETS - SERVICE WORKER =====
-const CACHE_NAME = 'scoop-ooh-cache-v285'; // Update this version to force cache refresh
+const CACHE_NAME = 'scoop-ooh-cache-v287'; // Update this version to force cache refresh
 
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './login.html',
+  './home.html',
   './manifest.json',
   // Organized CSS
   './assets/css/theme.css',
@@ -14,6 +15,7 @@ const ASSETS_TO_CACHE = [
   './assets/css/content-inventory.css',
   './assets/css/bookings.css',
   './assets/css/splash.css',
+  './assets/css/home.css',
   './assets/css/image-compressor.css',
   './assets/css/artwork-resizer.css',
   './assets/css/login.css',
@@ -23,6 +25,7 @@ const ASSETS_TO_CACHE = [
   './assets/js/router.js',
   './assets/js/theme.js',
   './assets/js/login-ui.js',
+  './assets/js/home.js',
   './assets/js/maps.js',
   './assets/js/asset-location-menu.js',
   './assets/js/asset-rates.js',

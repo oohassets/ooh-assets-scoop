@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scoop OOH — Welcome</title>
+<link rel="icon" type="image/png" href="images/scooplogo_black_192x192.png">
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/splash.css">
+<link rel="stylesheet" href="assets/css/home.css">
+</head>
+<body>
+
+<button class="btn-theme" id="userThemeToggle" type="button" title="Toggle theme">
+  <span class="material-symbols-outlined" id="userThemeIcon">dark_mode</span>
+</button>
+
+<section class="splash-hero" id="homeHero">
+  <div class="splash-bg"></div>
+  <div class="splash-tint"></div>
+
+  <div class="splash-glass">
+    <div class="home-logo-wrap">
+      <img id="loginLogo" class="home-logo" src="images/scooplogo.png" alt="Scoop Logo">
+    </div>
+
+    <div class="hero-eyebrow">SCOOP Media and Communications Co.</div>
+
+    <h1 class="hero-headline">
+      One Platform for<br>
+      <span class="grad">Every Side of Your</span><br>
+      <span class="grad2">OOH Campaigns</span>
+    </h1>
+
+    <p class="hero-sub">
+      Sign in below as Scoop staff, an advertising client, or a media supplier
+      to reach your dashboard.
+    </p>
+
+    <div class="home-roles">
+      <a class="home-role-card" id="homeScoopBtn" href="./login.html">
+        <span class="home-role-icon material-symbols-outlined">apartment</span>
+        <span class="home-role-text">
+          <span class="home-role-title">Login as Scoop</span>
+          <span class="home-role-sub">Internal staff dashboard</span>
+        </span>
+        <span class="btn-arrow">→</span>
+      </a>
+      <a class="home-role-card" id="homeClientBtn" href="./client-portal/login.html">
+        <span class="home-role-icon material-symbols-outlined">business_center</span>
+        <span class="home-role-text">
+          <span class="home-role-title">Login as Client</span>
+          <span class="home-role-sub">View your campaign bookings</span>
+        </span>
+        <span class="btn-arrow">→</span>
+      </a>
+      <a class="home-role-card" id="homeSupplierBtn" href="./supplier-portal/login.html">
+        <span class="home-role-icon material-symbols-outlined">local_shipping</span>
+        <span class="home-role-text">
+          <span class="home-role-title">Login as Supplier</span>
+          <span class="home-role-sub">View static asset bookings</span>
+        </span>
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="./assets/js/home.js"></script>
+
+</body>
+</html>
