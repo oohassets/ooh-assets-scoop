@@ -15,40 +15,62 @@
   <span id="cpThemeIcon">&#9789;</span>
 </button>
 
-<div class="cp-login-wrap">
-  <div class="cp-login-card">
-    <h1 class="cp-login-title">Client Portal</h1>
-    <p class="cp-login-sub">Sign in to view your OOH campaign bookings.</p>
+<div class="cp-login-shell">
+  <div class="cp-login-wrap">
+    <div class="cp-login-card">
+      <h1 class="cp-login-title">Client Portal</h1>
+      <p class="cp-login-sub">Sign in to view your OOH campaign bookings.</p>
 
-    <div class="cp-field">
-      <label for="cpEmail">Email</label>
-      <div class="cp-field-wrap">
-        <span class="material-symbols-outlined cp-field-icon">person</span>
-        <input id="cpEmail" class="cp-field-input" type="email" autocomplete="username" placeholder="@scoop.client">
+      <div class="cp-field">
+        <label for="cpEmail">Username</label>
+        <div class="cp-field-wrap">
+          <span class="material-symbols-outlined cp-field-icon">person</span>
+          <input id="cpEmail" class="cp-field-input" type="email" autocomplete="username" placeholder="Enter your username">
+        </div>
       </div>
-    </div>
-    <div class="cp-field">
-      <label for="cpPassword">Password</label>
-      <div class="cp-field-wrap cp-has-toggle">
-        <span class="material-symbols-outlined cp-field-icon">key</span>
-        <input id="cpPassword" class="cp-field-input" type="password" autocomplete="current-password" placeholder="Enter your password">
-        <button class="cp-pw-toggle" id="cpPwToggle" type="button" aria-label="Toggle password visibility">
-          <span class="material-symbols-outlined">visibility</span>
-        </button>
+      <div class="cp-field">
+        <label for="cpPassword">Password</label>
+        <div class="cp-field-wrap cp-has-toggle">
+          <span class="material-symbols-outlined cp-field-icon">key</span>
+          <input id="cpPassword" class="cp-field-input" type="password" autocomplete="current-password" placeholder="Enter your password">
+          <button class="cp-pw-toggle" id="cpPwToggle" type="button" aria-label="Toggle password visibility">
+            <span class="material-symbols-outlined">visibility</span>
+          </button>
+        </div>
       </div>
+
+      <p class="cp-login-msg" id="cpLoginMsg"></p>
+
+      <button class="cp-login-btn cp-login-btn-hidden" id="cpLoginBtn" type="button">
+        Sign In
+        <span class="cp-btn-arrow">→</span>
+      </button>
     </div>
-
-    <p class="cp-login-msg" id="cpLoginMsg"></p>
-
-    <button class="cp-login-btn" id="cpLoginBtn" type="button">
-      Sign In
-      <span class="cp-btn-arrow">→</span>
-    </button>
   </div>
+
+  <section class="cp-tb-band" id="cpTrustedBy" aria-label="Trusted by leading brands across Qatar">
+    <p class="cp-tb-eyebrow">Trusted by</p>
+
+    <div class="cp-tb-wall">
+      <div class="cp-tb-row cp-tb-row-1">
+        <div class="cp-tb-track">
+          <div class="cp-tb-group" id="cpTbGroup1"></div>
+          <div class="cp-tb-group" id="cpTbGroup1Dup" aria-hidden="true"></div>
+        </div>
+      </div>
+      <div class="cp-tb-row cp-tb-row-2">
+        <div class="cp-tb-track">
+          <div class="cp-tb-group" id="cpTbGroup2"></div>
+          <div class="cp-tb-group" id="cpTbGroup2Dup" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script type="module" src="./js/portal-theme.js"></script>
 <script type="module" src="./js/portal-login.js"></script>
+<script type="module" src="./js/trusted-by.js"></script>
 
 </body>
 </html>

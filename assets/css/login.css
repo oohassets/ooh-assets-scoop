@@ -180,6 +180,10 @@ body::before{display:none;}
 .btn-login:hover::before{opacity:1;}
 .btn-login:active{transform:translateY(0);}
 .btn-login:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+/* Hidden by default until the username field passes checkEmailDomain() —
+   see login.js. A real CSS rule (not inline style=), same convention as the
+   project's other JS-toggled visibility (see CLAUDE.md). */
+.login-btn-hidden{display:none;}
 .btn-arrow{
   width:22px;height:22px;border-radius:50%;
   background:rgba(255,255,255,0.2);

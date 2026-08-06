@@ -58,22 +58,39 @@ document.addEventListener("DOMContentLoaded", () => {
   // permission-denied bounce above), just quicker, clearer feedback than a
   // round-trip to Firebase Auth followed by a generic "wrong password"
   // message for someone who typed their client/supplier email into the
-  // staff login by mistake. Runs on blur (leaving the field), not just on
-  // Sign In click.
-  function checkEmailDomain() {
+  // staff login by mistake.
+  function isValidUsername() {
+    return username.value.trim().toLowerCase().includes("scoop.assets");
+  }
+
+  // Sign In button reveal gate (see .login-btn-hidden in login.css) — runs
+  // on every keystroke ("input") so the button appears live the moment the
+  // domain matches, rather than waiting for the field to be left.
+  function updateButtonVisibility() {
+    loginBtn.classList.toggle("login-btn-hidden", !isValidUsername());
+  }
+
+  // Error message only — deliberately blur-only (not "input"), so nothing
+  // shows while the user is still mid-typing the local part of their
+  // address, only once they've actually left the field.
+  function updateMessage() {
     const email = username.value.trim().toLowerCase();
-    // Wait for "@" before flagging anything — otherwise every keystroke of
-    // the local part (before the user's even reached the domain) falsely
-    // trips the error.
-    if (email.includes("@") && !email.includes("scoop.assets")) {
+    if (email.includes("@") && !isValidUsername()) {
       loginMessage.style.color = "red";
       loginMessage.textContent = "This login is for Scoop staff accounts only.";
-      return false;
+    } else {
+      loginMessage.textContent = "";
     }
-    loginMessage.textContent = "";
-    return true;
   }
-  username.addEventListener("blur", checkEmailDomain);
+
+  function checkEmailDomain() {
+    updateButtonVisibility();
+    updateMessage();
+    return isValidUsername();
+  }
+  username.addEventListener("input", updateButtonVisibility);
+  username.addEventListener("blur", updateMessage);
+  updateButtonVisibility();
 
   onAuthStateChanged(auth, user => {
     if (user) routeAfterAuth(loginMessage);

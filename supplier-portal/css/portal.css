@@ -126,6 +126,9 @@ a { color: inherit; }
 }
 .sp-login-btn:hover { background: var(--sp-brand-600); transform: translateY(-1px); }
 .sp-login-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+/* Hidden by default until the username field passes checkEmailDomain() —
+   see js/portal-login.js. */
+.sp-login-btn-hidden { display: none; }
 .sp-btn-arrow {
   width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.2);
   display: flex; align-items: center; justify-content: center; font-size: 11px; transition: transform 0.2s;

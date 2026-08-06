@@ -78,8 +78,21 @@ a { color: inherit; }
   opacity: 0.28;
 }
 :root[data-cp-theme="light"] .cp-login-bg { opacity: 1; }
+
+/* Card + trusted-by band share one viewport, no page scroll: row 1 (1fr)
+   stretches .cp-login-wrap to center the card in whatever space is left,
+   row 2 (auto) seats the band right under it. Grid rows don't shrink below
+   their content's min-content size, so on a short viewport it's the band
+   (row 2, sized last) that gets clipped by overflow:hidden, never the card —
+   the card keeps its full min-content height as a floor. */
+.cp-login-shell {
+  height: 100vh; height: 100dvh;
+  overflow: hidden;
+  display: grid; grid-template-rows: 1fr auto;
+  position: relative; z-index: 1;
+}
 .cp-login-wrap {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  display: flex; align-items: center; justify-content: center; padding: 16px 24px;
   position: relative; z-index: 1;
 }
 .cp-login-card {
@@ -124,12 +137,77 @@ a { color: inherit; }
 }
 .cp-login-btn:hover { background: var(--cp-brand-600); transform: translateY(-1px); }
 .cp-login-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+/* Hidden by default until the username field passes checkEmailDomain() —
+   see js/portal-login.js. */
+.cp-login-btn-hidden { display: none; }
 .cp-btn-arrow {
   width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.2);
   display: flex; align-items: center; justify-content: center; font-size: 11px; transition: transform 0.2s;
 }
 .cp-login-btn:hover .cp-btn-arrow { transform: translateX(3px); }
 .cp-login-msg { min-height: 18px; margin: 10px 0 0; font-size: 13px; color: var(--cp-danger); }
+
+/* ── Trusted-by logo wall — row 2 of .cp-login-shell's grid, directly under
+   the card. Client names/logos come from js/scoop-clients.js via
+   js/trusted-by.js's initTrustedBy(). ── */
+.cp-tb-band {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 960px;
+  margin: 0 auto; padding: 0 24px 20px;
+}
+.cp-tb-eyebrow {
+  text-align: center; font-size: 14px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--cp-surface);
+  margin: 0 0 12px;
+}
+.cp-tb-wall { display: flex; flex-direction: column; gap: 12px; }
+
+.cp-tb-row {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.cp-tb-track { display: flex; width: max-content; }
+.cp-tb-row-1 .cp-tb-track { animation: cpTbScrollLeft 85s linear infinite; }
+.cp-tb-row-2 .cp-tb-track { animation: cpTbScrollRight 65s linear infinite; }
+
+.cp-tb-group { display: flex; align-items: center; flex-shrink: 0; }
+.cp-tb-tile {
+  height: 64px; width: auto; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  margin-right: 56px;
+}
+.cp-tb-tile img {
+  height: 100%; width: auto; max-width: 240px;
+  object-fit: contain; display: block;
+  /* Always white, both themes — this band sits over .cp-login-bg's photo,
+     not a flat surface, so it doesn't need to flip per theme the way text/
+     UI chrome elsewhere in this file does. */
+  filter: grayscale(1) brightness(0) invert(1); opacity: 0.7;
+  transition: filter 0.6s, opacity 0.6s;
+}
+.cp-tb-tile:hover img { filter: none; opacity: 1; }
+
+@keyframes cpTbScrollLeft  { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
+@keyframes cpTbScrollRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+.cp-tb-wall:hover .cp-tb-track,
+.cp-tb-wall:focus-within .cp-tb-track { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-tb-track { animation: none !important; transform: none !important; }
+  .cp-tb-row {
+    overflow: visible;
+    -webkit-mask-image: none; mask-image: none;
+  }
+  .cp-tb-track { flex-wrap: wrap; width: 100%; justify-content: center; row-gap: 12px; }
+  .cp-tb-group:last-child { display: none; }
+  /* Capped rather than left to grow with the wrapped grid — .cp-login-shell
+     is a fixed-height, overflow:hidden viewport (see above), so an
+     uncapped wall would get clipped mid-row instead of degrading cleanly. */
+  .cp-tb-wall { max-height: 116px; overflow: hidden; }
+}
 
 /* ── Dashboard shell ──────────────────────────────── */
 .cp-shell { max-width: 1200px; margin: 0 auto; padding: 20px 20px 60px; }
@@ -332,4 +410,16 @@ th.cp-cal-slot-col    { position: sticky; z-index: 12; top: 0; left: 200px; }
   .cp-shell { padding: 14px 12px 40px; }
   .cp-who-name { display: none; }
   .cp-cal-legend { display: none; }
+
+  .cp-tb-row-2 { display: none; }
+  .cp-tb-band { padding-bottom: 14px; }
+  .cp-tb-eyebrow { margin-bottom: 8px; }
+  .cp-tb-tile { height: 52px; margin-right: 40px; }
+  .cp-tb-tile img { max-width: 190px; }
+}
+
+/* Narrower than the login card itself (max-width:380px) — the band would be
+   fighting the card for space, so it's dropped rather than squeezed. */
+@media (max-width: 420px) {
+  .cp-tb-band { display: none; }
 }

@@ -22,21 +22,36 @@ onAuthStateChanged(auth, user => {
 // Fast, client-side domain check — not the actual security boundary (that's
 // getSupplierPortalData's userSupplier lookup, see the file header), just
 // quicker, clearer feedback than a round-trip to Firebase Auth for someone
-// who typed their staff/client email into this login by mistake. Runs on
-// blur (leaving the field), not just on Sign In click.
-function checkEmailDomain() {
-  const email = emailEl.value.trim().toLowerCase();
-  // Wait for "@" before flagging anything — otherwise every keystroke of
-  // the local part (before the user's even reached the domain) falsely
-  // trips the error.
-  if (email.includes("@") && !email.includes("scoop.supplier")) {
-    msgEl.textContent = "This login is for Supplier accounts only.";
-    return false;
-  }
-  msgEl.textContent = "";
-  return true;
+// who typed their staff/client email into this login by mistake.
+function isValidUsername() {
+  return emailEl.value.trim().toLowerCase().includes("scoop.supplier");
 }
-emailEl.addEventListener("blur", checkEmailDomain);
+
+// Sign In button reveal gate (see .sp-login-btn-hidden in portal.css) — runs
+// on every keystroke ("input") so the button appears live the moment the
+// domain matches, rather than waiting for the field to be left.
+function updateButtonVisibility() {
+  btn.classList.toggle("sp-login-btn-hidden", !isValidUsername());
+}
+
+// Error message only — deliberately blur-only (not "input"), so nothing
+// shows while the user is still mid-typing the local part of their
+// address, only once they've actually left the field.
+function updateMessage() {
+  const email = emailEl.value.trim().toLowerCase();
+  msgEl.textContent = (email.includes("@") && !isValidUsername())
+    ? "This login is for Supplier accounts only."
+    : "";
+}
+
+function checkEmailDomain() {
+  updateButtonVisibility();
+  updateMessage();
+  return isValidUsername();
+}
+emailEl.addEventListener("input", updateButtonVisibility);
+emailEl.addEventListener("blur", updateMessage);
+updateButtonVisibility();
 
 async function doSignIn() {
   const email = emailEl.value.trim();
